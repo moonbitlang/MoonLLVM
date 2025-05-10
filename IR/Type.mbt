@@ -27,6 +27,7 @@ pub(all) enum TypeID {
 
 pub trait Type {
   getBase(Self) -> TypeBase
+  asTypeEnum(Self) -> TypeEnum
   getContext(Self) -> LLVMContext = _
   getSubClassData(Self) -> UInt = _
   setSubClassData(Self, val: UInt) -> Unit = _
@@ -38,32 +39,8 @@ pub trait Type {
   //print(Self, logger: &Logger, isForDebug~ = false, noDetails~ = false)
   //dump(Self)
 
-  /// Return true if this is 'void'.
-  isVoidTy(Self) -> Bool = _
-
-  /// Return true if this is 'half', a 16-bit IEEE fp type.
-  isHalfTy(Self) -> Bool = _
-
-  /// Return true if this is 'bfloat', a 16-bit bfloat type.
-  isBFloatTy(Self) -> Bool = _
-
   /// Return true if this is a 16-bit float type.
   is16bitFPTy(Self) -> Bool = _
-
-  /// Return true if this is 'float', a 32-bit IEEE fp type.
-  isFloatTy(Self) -> Bool = _
-
-  /// Return true if this is 'double', a 64-bit IEEE fp type.
-  isDoubleTy(Self) -> Bool = _
-
-  /// Return true if this is x86 long double.
-  isX86_FP80Ty(Self) -> Bool = _
-
-  /// Return true if this is 'fp128'.
-  isFP128Ty(Self) -> Bool = _
-
-  /// Return true if this is powerpc long double.
-  isPPC_FP128Ty(Self) -> Bool = _
 
   /// Return true if this is a well-behaved IEEE-like type, which has a IEEE
   /// compatible layout, and does not have non-IEEE values, such as x86_fp80's
@@ -72,18 +49,6 @@ pub trait Type {
 
   /// Return true if this is one of the floating-point types
   isFloatingPointTy(Self) -> Bool = _
-
-  /// Returns true if this is a floating-point type that is an unevaluated sum
-  /// of multiple floating-point units.
-  /// An example of such a type is ppc_fp128, also known as double-double, which
-  /// consists of two IEEE 754 doubles.
-  isMultiUnitFPType(Self) -> Bool = _
-
-  /// Return true if this is X86 AMX.
-  isX86_AMXTy(Self) -> Bool = _
-
-  /// Return true if this is a target extension type.
-  isTargetExtTy(Self) -> Bool = _
 
   /// Return true if this is a target extension type with a scalable layout.
   // isScalableTargetExtTy(Self) -> Bool = _
@@ -98,7 +63,6 @@ pub trait Type {
   // REVIEW: cpp has another `containsNonGlobalTargetExtType` function
   //bool containsNonGlobalTargetExtType() const;
 
-
   /// Return true if this type is or contains a target extension type that
   /// disallows being used as a local.
   // REVIEW: cpp has another `containsNonLocalTargetExtType` function
@@ -107,37 +71,12 @@ pub trait Type {
   /// Return true if this is a FP type or a vector of FP.
   // isFPOrFPVectorTy(Self) -> Bool = _
 
-
-  /// Return true if this is 'label'.
-  isLabelTy(Self) -> Bool = _
-
-  /// Return true if this is 'metadata'.
-  isMetadataTy(Self) -> Bool = _
-
-  /// Return true if this is 'token'.
-  isTokenTy(Self) -> Bool = _
-
-  /// True if this is an instance of IntegerType.
-  isIntegerTy(Self) -> Bool = _
-
   /// Return true if this is an integer type or a vector of integer types.
   // REVIEW: cpp has another `isIntOrIntVectorTy` function
   //isIntOrIntVectorTy() -> Bool = _
 
   /// Return true if this is an integer type or a pointer type.
   //isIntOrPtrTy(Self) -> Bool = _
-
-  /// True if this is an instance of FunctionType.
-  isFunctionTy(Self) -> Bool = _
-
-  /// True if this is an instance of StructType.
-  isStructTy(Self) -> Bool = _
-
-  /// True if this is an instance of ArrayType.
-  isArrayTy(Self) -> Bool = _
-
-  /// True if this is an instance of PointerType.
-  isPointerTy(Self) -> Bool = _
 
   /// Return true if this is a pointer type or a vector of pointer types.
   //isPtrOrPtrVectorTy(Self) -> Bool = _ 
@@ -164,7 +103,7 @@ pub trait Type {
   
   /// Return true if the type is a valid type for a register in codegen. This
   /// includes all first-class types except struct and array types.
-  isSingleValueType(Self) -> Bool = _
+  //isSingleValueType(Self) -> Bool = _
 
   /// Return true if the type is an aggregate type. This means it is valid as
   /// the first operand of an insertvalue or extractvalue instruction. This
@@ -221,66 +160,16 @@ impl Type with getTypeID(self) -> TypeID {
   self.getBase().getTypeID()
 }
 
-impl Type with isVoidTy(self) -> Bool {
-  self.getTypeID() is VoidTyID
-}
-
-impl Type with isHalfTy(self) -> Bool {
-  self.getTypeID() is HalfTyID
-}
-
-impl Type with isBFloatTy(self) -> Bool {
-  self.getTypeID() is BFloatTyID
-}
-
 impl Type with is16bitFPTy(self) -> Bool {
-  self.getTypeID() is HalfTyID || self.getTypeID() is BFloatTyID
-}
-
-impl Type with isFloatTy(self) -> Bool {
-  self.getTypeID() is FloatTyID
-}
-
-impl Type with isDoubleTy(self) -> Bool {
-  self.getTypeID() is DoubleTyID
-}
-
-impl Type with isX86_FP80Ty(self) -> Bool {
-  self.getTypeID() is X86_FP80TyID
-}
-
-impl Type with isFP128Ty(self) -> Bool {
-  self.getTypeID() is FP128TyID
-}
-
-impl Type with isPPC_FP128Ty(self) -> Bool {
-  self.getTypeID() is PPC_FP128TyID
+  self.asTypeEnum() is (HalfType(_) | BFloatType(_))
 }
 
 impl Type with isIEEELikeFPTy(self) -> Bool {
-  match self.getTypeID() {
-    DoubleTyID | FloatTyID | HalfTyID | BFloatTyID | FP128TyID => true
-    _ => false
-  }
+  self.asTypeEnum() is (FloatType(_) | DoubleType(_) | HalfType(_) | BFloatType(_) | FP128Type(_))
 }
 
 impl Type with isFloatingPointTy(self) -> Bool {
-  match self.getTypeID() {
-    FloatTyID | DoubleTyID | HalfTyID | BFloatTyID | X86_FP80TyID | FP128TyID | PPC_FP128TyID => true
-    _ => false
-  }
-}
-
-impl Type with isMultiUnitFPType(self) -> Bool {
-  self.getTypeID() is PPC_FP128TyID
-}
-
-impl Type with isX86_AMXTy(self) -> Bool {
-  self.getTypeID() is X86_AMXTyID
-}
-
-impl Type with isTargetExtTy(self) -> Bool {
-  self.getTypeID() is TargetExtTyID
+  self.asTypeEnum() is (FloatType(_) | DoubleType(_) | HalfType(_) | BFloatType(_) | X86_FP80Type(_) | FP128Type(_) | PPC_FP128Type(_))
 }
 
 //impl isScalableTargetExtTy(self) -> Bool 
@@ -288,44 +177,10 @@ impl Type with isTargetExtTy(self) -> Bool {
 
 //impl Type with isFPOrFPVectorTy
 
-impl Type with isLabelTy(self) -> Bool {
-  self.getTypeID() is LabelTyID
-}
-
-impl Type with isMetadataTy(self) -> Bool {
-  self.getTypeID() is MetadataTyID
-}
-
-impl Type with isTokenTy(self) -> Bool {
-  self.getTypeID() is TokenTyID
-}
-
-// REVIEW: cpp has `bool isIntegerTy(unsigned BitWidth) const` function
-impl Type with isIntegerTy(self) -> Bool {
-  self.getTypeID() is IntegerTyID
-}
-
-impl Type with isFunctionTy(self) -> Bool {
-  self.getTypeID() is FunctionTyID
-}
-
-impl Type with isStructTy(self) -> Bool {
-  self.getTypeID() is StructTyID
-}
-
-impl Type with isArrayTy(self) -> Bool {
-  self.getTypeID() is ArrayTyID
-}
-
-impl Type with isPointerTy(self) -> Bool {
-  self.getTypeID() is PointerTyID
-}
-
 impl Type with isVectorTy(self) -> Bool {
-  match self.getTypeID() {
-    ScalableVectorTyID | FixedVectorTyID => true
-    _ => false
-  }
+  //self.asTypeEnum() is (FixedVectorTy(_) | ScalableVectorTy(_))
+  ignore(self)
+  false
 }
 
 //impl Type with isRISCVectorTupleTy(self) -> Bool 
@@ -335,9 +190,9 @@ impl Type with isVectorTy(self) -> Bool {
 //impl Type with isFirstClassType(self) -> Bool
 
 // REVIEW: Maybe we could use math-cases
-impl Type with isSingleValueType(self) -> Bool {
-  self.isFloatingPointTy() || self.isIntegerTy() || self.isPointerTy() || self.isVectorTy() || self.isX86_AMXTy() || self.isTargetExtTy()
-}
+//impl Type with isSingleValueType(self) -> Bool {
+//  self.isFloatingPointTy() || self.isIntegerTy() || self.isPointerTy() || self.isVectorTy() || self.isX86_AMXTy() || self.isTargetExtTy()
+//}
 
 impl Type with isAggregateType(self) -> Bool {
   match self.getTypeID() {
@@ -364,7 +219,10 @@ impl Type with isSized(self) -> Bool {
 // impl Type with getFPMantissaWidth(self) -> UInt
 
 impl Type with getContainedType(self, idx) -> &Type {
-  let containedTys = self.getBase().containtedTys
+  guard self.getBase().containtedTys is Some(containedTys) else {
+    println("loc: getContainedType: Type does not have contained types")
+    panic()
+  }
   let numContainedTys = containedTys.length()
   guard idx >= 0 && idx < containedTys.length() else {
     println("loc: getContainedType: Index out of bounds, \{idx} >= \{numContainedTys}")
@@ -388,7 +246,16 @@ struct TypeBase {
   context: LLVMContext
   id: TypeID
   mut subClassData: UInt
-  containtedTys: Array[&Type]
+  containtedTys: Array[&Type]?
+}
+
+fn TypeBase::new(context: LLVMContext, tid: TypeID) -> TypeBase {
+  TypeBase::{
+    id: tid,
+    subClassData: 0,
+    context,
+    containtedTys: None,
+  }
 }
 
 fn setSubClassData(self: TypeBase, val: UInt) -> Unit {
@@ -407,44 +274,301 @@ fn getContext(self: TypeBase) -> LLVMContext {
   self.context
 }
 
+// ====================================================================
+// HalfType
+// ====================================================================
+
+///|
 pub struct HalfType {
   priv base: TypeBase
 }
 
-pub fn HalfType::new(context: LLVMContext, tid: TypeID) -> HalfType {
-  let base = TypeBase::{
-    id: tid,
-    subClassData: 0,
-    context,
-    containtedTys: Array::new(),
-  }
+///| Create a HalfType
+fn HalfType::new(context: LLVMContext, tid: TypeID) -> HalfType {
+  let base = TypeBase::new(context, tid)
   HalfType::{ base, }
+}
+
+///|
+pub impl Type for HalfType with asTypeEnum(self) -> TypeEnum {
+  TypeEnum::HalfType(self)
 }
 
 pub impl Type for HalfType with getBase(self) -> TypeBase {
   self.base
 }
 
+// ====================================================================
+// BFloatType
+// ====================================================================
+
+///| BFloatType
 pub struct BFloatType {
   priv base: TypeBase
 }
 
-pub fn BFloatType::new(context: LLVMContext, tid: TypeID) -> BFloatType {
-  let base = TypeBase::{
-    id: tid,
-    subClassData: 0,
-    context,
-    containtedTys: Array::new(),
-  }
+///| Create a BFloatType
+fn BFloatType::new(context: LLVMContext, tid: TypeID) -> BFloatType {
+  let base = TypeBase::new(context, tid)
   BFloatType::{ base, }
+}
+
+pub impl Type for BFloatType with asTypeEnum(self) -> TypeEnum {
+  TypeEnum::BFloatType(self)
 }
 
 pub impl Type for BFloatType with getBase(self) -> TypeBase {
   self.base
 }
 
+// ====================================================================
+// FloatType
+// ====================================================================
+
+///| FloatType
+pub struct FloatType {
+  priv base: TypeBase
+}
+
+///|
+fn FloatType::new(context: LLVMContext, tid: TypeID) -> FloatType {
+  let base = TypeBase::new(context, tid)
+  FloatType::{ base, }
+}
+
+pub impl Type for FloatType with asTypeEnum(self) -> TypeEnum {
+  TypeEnum::FloatType(self)
+}
+
+///|
+pub impl Type for FloatType with getBase(self) -> TypeBase {
+  self.base
+}
+
+// ====================================================================
+// DoubelType
+// ====================================================================
+
+///| DoubleType
+pub struct DoubleType {
+  priv base: TypeBase
+}
+
+///| Create a DoubleType
+fn DoubleType::new(context: LLVMContext, tid: TypeID) -> DoubleType {
+  let base = TypeBase::new(context, tid)
+  DoubleType::{ base, }
+}
+
+pub impl Type for DoubleType with asTypeEnum(self) -> TypeEnum {
+  TypeEnum::DoubleType(self)
+}
+
+pub impl Type for DoubleType with getBase(self) -> TypeBase {
+  self.base
+}
+
+// ====================================================================
+// X86_FP80Type
+// ====================================================================
+
+///| X86_FP80Ty
+pub struct X86_FP80Type {
+  priv base: TypeBase
+}
+
+///| Create a X86_FP80Ty
+fn X86_FP80Type::new(context: LLVMContext, tid: TypeID) -> X86_FP80Type {
+  let base = TypeBase::new(context, tid)
+  X86_FP80Type::{ base, }
+}
+
+pub impl Type for X86_FP80Type with asTypeEnum(self) -> TypeEnum {
+  TypeEnum::X86_FP80Type(self)
+}
+
+pub impl Type for X86_FP80Type with getBase(self) -> TypeBase {
+  self.base
+}
+
+// ====================================================================
+// FP128Type
+// ====================================================================
+
+///| FP128Ty
+pub struct FP128Type {
+  priv base: TypeBase
+}
+
+///| Create a FP128Ty
+fn FP128Type::new(context: LLVMContext, tid: TypeID) -> FP128Type {
+  let base = TypeBase::new(context, tid)
+  FP128Type::{ base, }
+}
+
+pub impl Type for FP128Type with asTypeEnum(self) -> TypeEnum {
+  TypeEnum::FP128Type(self)
+}
+
+pub impl Type for FP128Type with getBase(self) -> TypeBase {
+  self.base
+}
+
+// ====================================================================
+// PPC_FP128Type
+// ====================================================================
+
+///| PPC_FP128Ty
+pub struct PPC_FP128Type {
+  priv base: TypeBase
+}
+
+///| Create a PPC_FP128Ty
+fn PPC_FP128Type::new(context: LLVMContext, tid: TypeID) -> PPC_FP128Type {
+  let base = TypeBase::new(context, tid)
+  PPC_FP128Type::{ base, }
+}
+
+pub impl Type for PPC_FP128Type with asTypeEnum(self) -> TypeEnum {
+  TypeEnum::PPC_FP128Type(self)
+}
+
+pub impl Type for PPC_FP128Type with getBase(self) -> TypeBase {
+  self.base
+}
+
+// ====================================================================
+// VoidType
+// ====================================================================
+
+///| VoidType
+pub struct VoidType {
+  priv base: TypeBase
+}
+
+///| Create a VoidTy
+fn VoidType::new(context: LLVMContext, tid: TypeID) -> VoidType {
+  let base = TypeBase::new(context, tid)
+  VoidType::{ base, }
+}
+
+///|
+pub impl Type for VoidType with getBase(self) -> TypeBase {
+  self.base
+}
+
+///|
+pub impl Type for VoidType with asTypeEnum(self) -> TypeEnum {
+  TypeEnum::VoidType(self)
+}
+
+// ====================================================================
+// LabelType
+// ====================================================================
+
+///| LabelTy
+pub struct LabelType {
+  priv base: TypeBase
+}
+
+///| Create a LabelTy
+fn LabelType::new(context: LLVMContext, tid: TypeID) -> LabelType {
+  let base = TypeBase::new(context, tid)
+  LabelType::{ base, }
+}
+
+pub impl Type for LabelType with asTypeEnum(self) -> TypeEnum {
+  TypeEnum::LabelType(self)
+}
+
+pub impl Type for LabelType with getBase(self) -> TypeBase {
+  self.base
+}
+
+// ====================================================================
+// MetadataType
+// ====================================================================
+
+///|
+pub struct MetadataType {
+  priv base: TypeBase
+}
+
+///| Create a MetadataTy
+fn MetadataType::new(context: LLVMContext, tid: TypeID) -> MetadataType {
+  let base = TypeBase::new(context, tid)
+  MetadataType::{ base, }
+}
+
+pub impl Type for MetadataType with asTypeEnum(self) -> TypeEnum {
+  TypeEnum::MetadataType(self)
+}
+
+pub impl Type for MetadataType with getBase(self) -> TypeBase {
+  self.base
+}
+
+
+// ====================================================================
+// X86_AMXType
+// ====================================================================
+
+///| X86_AMXType
+pub struct X86_AMXType {
+  priv base: TypeBase
+}
+
+///| Create a X86_AMXTy
+fn X86_AMXType::new(context: LLVMContext, tid: TypeID) -> X86_AMXType {
+  let base = TypeBase::new(context, tid)
+  X86_AMXType::{ base, }
+}
+
+pub impl Type for X86_AMXType with asTypeEnum(self) -> TypeEnum {
+  TypeEnum::X86_AMXType(self)
+}
+
+pub impl Type for X86_AMXType with getBase(self) -> TypeBase {
+  self.base
+}
+
+// ====================================================================
+// TokenTy
+// ====================================================================
+
+///| TokenTy
+pub struct TokenType {
+  priv base: TypeBase
+}
+
+///| Create a TokenTy
+fn TokenType::new(context: LLVMContext, tid: TypeID) -> TokenType {
+  let base = TypeBase::new(context, tid)
+  TokenType::{ base, }
+}
+
+pub impl Type for TokenType with asTypeEnum(self) -> TypeEnum {
+  TypeEnum::TokenType(self)
+}
+
+pub impl Type for TokenType with getBase(self) -> TypeBase {
+  self.base
+}
+
+
 // =============================================
 pub enum TypeEnum {
-  HalfType(HalfType)
-  BFloatType(BFloatType)
+  // PrimitiveTypes
+  HalfType(HalfType);
+  BFloatType(BFloatType);
+  FloatType(FloatType);
+  DoubleType(DoubleType);
+  X86_FP80Type(X86_FP80Type);
+  FP128Type(FP128Type);
+  PPC_FP128Type(PPC_FP128Type);
+  VoidType(VoidType);
+  LabelType(LabelType);
+  MetadataType(MetadataType);
+  X86_AMXType(X86_AMXType);
+  TokenType(TokenType);
 }
