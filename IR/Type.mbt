@@ -1,3 +1,21 @@
+pub enum TypeEnum {
+  HalfType(HalfType);
+  BFloatType(BFloatType);
+  FloatType(FloatType);
+  DoubleType(DoubleType);
+  X86_FP80Type(X86_FP80Type);
+  FP128Type(FP128Type);
+  PPC_FP128Type(PPC_FP128Type);
+  VoidType(VoidType);
+  LabelType(LabelType);
+  MetadataType(MetadataType);
+  X86_AMXType(X86_AMXType);
+  TokenType(TokenType);
+
+  IntegerType(IntegerType);
+  FunctionType(FunctionType);
+}
+
 pub(all) enum TypeID {
   // PrimitiveTypes
   HalfTyID;      /// 16-bit floating point type
@@ -25,16 +43,13 @@ pub(all) enum TypeID {
   TargetExtTyID;      /// Target extension type
 } derive(Show)
 
-pub trait Type {
+pub trait Type : Hash {
   getBase(Self) -> TypeBase
   asTypeEnum(Self) -> TypeEnum
   getContext(Self) -> LLVMContext = _
   getSubClassData(Self) -> UInt = _
   setSubClassData(Self, val: UInt) -> Unit = _
 
-  /// Return the type id for the type. This will return one of the TypeID enum
-  /// elements defined above.
-  getTypeID(Self) -> TypeID = _
   //getContext(Self) -> LLVMContext
   //print(Self, logger: &Logger, isForDebug~ = false, noDetails~ = false)
   //dump(Self)
@@ -128,12 +143,12 @@ pub trait Type {
   /// instance of the type is stored to memory. The DataLayout class provides
   /// additional query functions to provide this information.
   ///
-  // getPrimitiveSizeInBits(Self) -> TypeSize = _
+  getPrimitiveSizeInBits(Self) -> TypeSize = _
 
   /// If this is a vector type, return the getPrimitiveSizeInBits value for the
   /// element type. Otherwise return the getPrimitiveSizeInBits value for this
   /// type.
-  // getScalarSizeInBits(Self) -> UInt = _
+  getScalarSizeInBits(Self) -> UInt = _
 
   /// Return the width of the mantissa of this type. This is only valid on
   /// floating-point types. If the FP type does not have a stable mantissa (e.g.
@@ -154,10 +169,6 @@ impl Type with getSubClassData(self) -> UInt {
 
 impl Type with setSubClassData(self, val: UInt) -> Unit {
   self.getBase().setSubClassData(val)
-}
-
-impl Type with getTypeID(self) -> TypeID {
-  self.getBase().getTypeID()
 }
 
 impl Type with is16bitFPTy(self) -> Bool {
@@ -195,17 +206,17 @@ impl Type with isVectorTy(self) -> Bool {
 //}
 
 impl Type with isAggregateType(self) -> Bool {
-  match self.getTypeID() {
-    StructTyID | ArrayTyID => true
+  match self.asTypeEnum() {
+    StructType(_) | ArrayType(_) => true
     _ => false
   }
 }
 
 impl Type with isSized(self) -> Bool {
-  match self.getTypeID() {
-    IntegerTyID | PointerTyID | X86_AMXTyID => true
-    HalfTyID | BFloatTyID | FloatTyID | DoubleTyID | X86_FP80TyID | FP128TyID | PPC_FP128TyID => true // Floating point types
-    StructTyID | ArrayTyID | FixedVectorTyID | ScalableVectorTyID | TargetExtTyID => true // Derived types
+  match self.asTypeEnum() {
+    IntegerType(_) | PointerType(_) | X86_AMXType(_) => true
+    HalfType(_) | BFloatType(_) | FloatType(_) | DoubleType(_) | X86_FP80Type(_) | FP128Type(_) | PPC_FP128Type(_) => true // Floating point types
+    StructType(_) | ArrayType(_) | FixedVectorType(_) | ScalableVectorType(_) | TargetExtType(_) => true // Derived types
     _ => {
       // in cpp, there is `isSizedDerivedType` function
       println("\{self.getTypeID()} is sized or not has not been implemented yet")
@@ -214,19 +225,35 @@ impl Type with isSized(self) -> Bool {
   }
 }
 
-// impl Type with getPrimitiveSizeInBits(self) -> TypeSize
-// impl Type with getScalarSizeInBits(self) -> UInt
+impl Type with getPrimitiveSizeInBits(self) -> TypeSize {
+  match self.asTypeEnum() {
+    HalfType(_) => TypeSize::getFixed(16)
+    BFloatType(_) => TypeSize::getFixed(16)
+    FloatType(_) => TypeSize::getFixed(32)
+    DoubleType(_) => TypeSize::getFixed(64)
+    X86_FP80Type(_) => TypeSize::getFixed(80)
+    FP128Type(_) => TypeSize::getFixed(128)
+    PPC_FP128Type(_) => TypeSize::getFixed(128)
+    X86_AMXType(_) => TypeSize::getFixed(8192)
+    IntegerType(i) => TypeSize::getFixed(i.getBitWidth().to_uint64())
+    //FixedVectorType(_) => abort("getPrimitiveSizeInBits: FixedVectorType not implemented yet")
+    //ScalableVectorType(_) => abort("getPrimitiveSizeInBits: ScalableVectorType not implemented yet")
+    _ => TypeSize::getFixed(0)
+  }
+
+}
+impl Type with getScalarSizeInBits(self) -> UInt {
+  self.getScalarType().getPrimitiveSizeInBits().getFixedValue().to_uint()
+}
 // impl Type with getFPMantissaWidth(self) -> UInt
 
 impl Type with getContainedType(self, idx) -> &Type {
   guard self.getBase().containtedTys is Some(containedTys) else {
-    println("loc: getContainedType: Type does not have contained types")
-    panic()
+    unreachable("loc: getContainedType: Type does not have contained types")
   }
   let numContainedTys = containedTys.length()
   guard idx >= 0 && idx < containedTys.length() else {
-    println("loc: getContainedType: Index out of bounds, \{idx} >= \{numContainedTys}")
-    panic()
+    unreachable("loc: getContainedType: Index out of bounds, \{idx} >= \{numContainedTys}")
   }
   containedTys[idx]
 }
@@ -244,30 +271,14 @@ impl Type with getScalarType(self) {
 
 struct TypeBase {
   context: LLVMContext
-  id: TypeID
-  mut subClassData: UInt
   containtedTys: Array[&Type]?
-}
+} derive(Hash)
 
-fn TypeBase::new(context: LLVMContext, tid: TypeID) -> TypeBase {
+fn TypeBase::new(context: LLVMContext, containtedTys~: Array[&Type]?=None) -> TypeBase {
   TypeBase::{
-    id: tid,
-    subClassData: 0,
     context,
-    containtedTys: None,
+    containtedTys,
   }
-}
-
-fn setSubClassData(self: TypeBase, val: UInt) -> Unit {
-  self.subClassData = val
-}
-
-fn getSubClassData(self: TypeBase) -> UInt {
-  self.subClassData
-}
-
-fn getTypeID(self: TypeBase) -> TypeID {
-  self.id
 }
 
 fn getContext(self: TypeBase) -> LLVMContext {
@@ -281,11 +292,11 @@ fn getContext(self: TypeBase) -> LLVMContext {
 ///|
 pub struct HalfType {
   priv base: TypeBase
-}
+} derive(Hash)
 
 ///| Create a HalfType
-fn HalfType::new(context: LLVMContext, tid: TypeID) -> HalfType {
-  let base = TypeBase::new(context, tid)
+fn HalfType::new(context: LLVMContext) -> HalfType {
+  let base = TypeBase::new(context)
   HalfType::{ base, }
 }
 
@@ -305,11 +316,11 @@ pub impl Type for HalfType with getBase(self) -> TypeBase {
 ///| BFloatType
 pub struct BFloatType {
   priv base: TypeBase
-}
+} derive(Hash)
 
 ///| Create a BFloatType
-fn BFloatType::new(context: LLVMContext, tid: TypeID) -> BFloatType {
-  let base = TypeBase::new(context, tid)
+fn BFloatType::new(context: LLVMContext) -> BFloatType {
+  let base = TypeBase::new(context)
   BFloatType::{ base, }
 }
 
@@ -328,11 +339,11 @@ pub impl Type for BFloatType with getBase(self) -> TypeBase {
 ///| FloatType
 pub struct FloatType {
   priv base: TypeBase
-}
+} derive(Hash)
 
 ///|
-fn FloatType::new(context: LLVMContext, tid: TypeID) -> FloatType {
-  let base = TypeBase::new(context, tid)
+fn FloatType::new(context: LLVMContext) -> FloatType {
+  let base = TypeBase::new(context)
   FloatType::{ base, }
 }
 
@@ -352,11 +363,11 @@ pub impl Type for FloatType with getBase(self) -> TypeBase {
 ///| DoubleType
 pub struct DoubleType {
   priv base: TypeBase
-}
+} derive(Hash)
 
 ///| Create a DoubleType
-fn DoubleType::new(context: LLVMContext, tid: TypeID) -> DoubleType {
-  let base = TypeBase::new(context, tid)
+fn DoubleType::new(context: LLVMContext) -> DoubleType {
+  let base = TypeBase::new(context)
   DoubleType::{ base, }
 }
 
@@ -375,11 +386,11 @@ pub impl Type for DoubleType with getBase(self) -> TypeBase {
 ///| X86_FP80Ty
 pub struct X86_FP80Type {
   priv base: TypeBase
-}
+} derive(Hash)
 
 ///| Create a X86_FP80Ty
-fn X86_FP80Type::new(context: LLVMContext, tid: TypeID) -> X86_FP80Type {
-  let base = TypeBase::new(context, tid)
+fn X86_FP80Type::new(context: LLVMContext) -> X86_FP80Type {
+  let base = TypeBase::new(context)
   X86_FP80Type::{ base, }
 }
 
@@ -398,11 +409,11 @@ pub impl Type for X86_FP80Type with getBase(self) -> TypeBase {
 ///| FP128Ty
 pub struct FP128Type {
   priv base: TypeBase
-}
+} derive(Hash)
 
 ///| Create a FP128Ty
-fn FP128Type::new(context: LLVMContext, tid: TypeID) -> FP128Type {
-  let base = TypeBase::new(context, tid)
+fn FP128Type::new(context: LLVMContext) -> FP128Type {
+  let base = TypeBase::new(context)
   FP128Type::{ base, }
 }
 
@@ -421,11 +432,11 @@ pub impl Type for FP128Type with getBase(self) -> TypeBase {
 ///| PPC_FP128Ty
 pub struct PPC_FP128Type {
   priv base: TypeBase
-}
+} derive(Hash)
 
 ///| Create a PPC_FP128Ty
-fn PPC_FP128Type::new(context: LLVMContext, tid: TypeID) -> PPC_FP128Type {
-  let base = TypeBase::new(context, tid)
+fn PPC_FP128Type::new(context: LLVMContext) -> PPC_FP128Type {
+  let base = TypeBase::new(context)
   PPC_FP128Type::{ base, }
 }
 
@@ -444,11 +455,11 @@ pub impl Type for PPC_FP128Type with getBase(self) -> TypeBase {
 ///| VoidType
 pub struct VoidType {
   priv base: TypeBase
-}
+} derive(Hash)
 
 ///| Create a VoidTy
-fn VoidType::new(context: LLVMContext, tid: TypeID) -> VoidType {
-  let base = TypeBase::new(context, tid)
+fn VoidType::new(context: LLVMContext) -> VoidType {
+  let base = TypeBase::new(context)
   VoidType::{ base, }
 }
 
@@ -469,11 +480,11 @@ pub impl Type for VoidType with asTypeEnum(self) -> TypeEnum {
 ///| LabelTy
 pub struct LabelType {
   priv base: TypeBase
-}
+} derive(Hash)
 
 ///| Create a LabelTy
-fn LabelType::new(context: LLVMContext, tid: TypeID) -> LabelType {
-  let base = TypeBase::new(context, tid)
+fn LabelType::new(context: LLVMContext) -> LabelType {
+  let base = TypeBase::new(context)
   LabelType::{ base, }
 }
 
@@ -492,11 +503,11 @@ pub impl Type for LabelType with getBase(self) -> TypeBase {
 ///|
 pub struct MetadataType {
   priv base: TypeBase
-}
+} derive(Hash)
 
 ///| Create a MetadataTy
-fn MetadataType::new(context: LLVMContext, tid: TypeID) -> MetadataType {
-  let base = TypeBase::new(context, tid)
+fn MetadataType::new(context: LLVMContext) -> MetadataType {
+  let base = TypeBase::new(context)
   MetadataType::{ base, }
 }
 
@@ -516,11 +527,11 @@ pub impl Type for MetadataType with getBase(self) -> TypeBase {
 ///| X86_AMXType
 pub struct X86_AMXType {
   priv base: TypeBase
-}
+} derive(Hash)
 
 ///| Create a X86_AMXTy
-fn X86_AMXType::new(context: LLVMContext, tid: TypeID) -> X86_AMXType {
-  let base = TypeBase::new(context, tid)
+fn X86_AMXType::new(context: LLVMContext) -> X86_AMXType {
+  let base = TypeBase::new(context)
   X86_AMXType::{ base, }
 }
 
@@ -539,11 +550,11 @@ pub impl Type for X86_AMXType with getBase(self) -> TypeBase {
 ///| TokenTy
 pub struct TokenType {
   priv base: TypeBase
-}
+} derive(Hash)
 
 ///| Create a TokenTy
-fn TokenType::new(context: LLVMContext, tid: TypeID) -> TokenType {
-  let base = TypeBase::new(context, tid)
+fn TokenType::new(context: LLVMContext) -> TokenType {
+  let base = TypeBase::new(context)
   TokenType::{ base, }
 }
 
@@ -555,20 +566,149 @@ pub impl Type for TokenType with getBase(self) -> TypeBase {
   self.base
 }
 
+// ====================================================================
+// IntegerType
+// ====================================================================
 
-// =============================================
-pub enum TypeEnum {
-  // PrimitiveTypes
-  HalfType(HalfType);
-  BFloatType(BFloatType);
-  FloatType(FloatType);
-  DoubleType(DoubleType);
-  X86_FP80Type(X86_FP80Type);
-  FP128Type(FP128Type);
-  PPC_FP128Type(PPC_FP128Type);
-  VoidType(VoidType);
-  LabelType(LabelType);
-  MetadataType(MetadataType);
-  X86_AMXType(X86_AMXType);
-  TokenType(TokenType);
+pub struct IntegerType {
+  priv base: TypeBase
+  numBits: UInt
+} derive(Hash)
+
+///| Create a IntegerType.
+///
+/// - See LLVM: `IntegerType::IntegerType`.
+pub fn IntegerType::new(context: LLVMContext, numBits: UInt) -> IntegerType {
+  let base = TypeBase::new(context)
+  IntegerType::{ base, numBits }
+}
+
+///| Get an IntegerType from the context.
+/// This static method is the primary way of constructing an IntegerType.
+/// If an IntegerType with the same NumBits value was previously instantiated,
+/// that instance will be returned. Otherwise a new one will be created. Only
+/// one instance with a given NumBits value is ever created.
+/// Get or create an IntegerType instance.
+///
+/// - See LLVM: `IntegerType::get`.
+pub fn IntegerType::get(ctx: LLVMContext, numBits: UInt) -> IntegerType {
+  ctx.getIntNTy(numBits)
+}
+
+
+///| Return type twice as wide the input type.
+///
+/// - See LLVM: `IntegerType::getExtendedType`.
+pub fn IntegerType::getExtendedType(self: IntegerType) -> IntegerType {
+  IntegerType::get(self.getContext(), self.getScalarSizeInBits() * 2)
+}
+
+///| Get the number of bits in this Integertype.
+///
+/// - See LLVM: `IntegerType::getBitWidth`.
+pub fn IntegerType::getBitWidth(self: IntegerType) -> UInt {
+  self.numBits
+}
+
+/// Return a uint64_t with just the most significant bit set (the sign bit, if
+/// the value is treated as a signed number).
+///
+/// - See LLVM: `IntegerType::getBitMask`.
+pub fn IntegerType::getBitMask(self: IntegerType) -> UInt64 {
+  0UL.lnot() >> (64 - self.getBitWidth().reinterpret_as_int())
+}
+
+/// Return a uint64_t with just the most significant bit set (the sign bit, if
+/// the value is treated as a signed number).
+///
+/// - See LLVM: `IntegerType::getSignBit`.
+pub fn IntegerType::getSignBit(self: IntegerType) -> UInt64 {
+  1UL << (self.getBitWidth() - 1U).reinterpret_as_int()
+}
+
+pub impl Type for IntegerType with asTypeEnum(self) -> TypeEnum {
+  TypeEnum::IntegerType(self)
+}
+
+pub impl Type for IntegerType with getBase(self) -> TypeBase {
+  self.base
+}
+
+// ====================================================================
+// FunctionType
+// ====================================================================
+
+pub struct FunctionType {
+  priv base: TypeBase
+  isVarArgs: Bool
+} derive(Hash)
+
+///| Create a FunctionType
+///
+/// See LLVM: `FunctionType::FunctionType`.
+pub fn FunctionType::new(result: &Type, params: Array[&Type], isVarArgs~: Bool = false) -> FunctionType {
+  let containtedTys : Array[&Type] = Array::new() .. push(result)
+  params.each(fn { param => containtedTys.push(param) })
+  let containtedTys = Some(containtedTys)
+  let base = TypeBase::new(result.getContext(), containtedTys~)
+  FunctionType::{ base, isVarArgs }
+}
+
+pub fn FunctionType::get(result: &Type, params: Array[&Type], isVarArgs~:Bool = false) -> FunctionType {
+  let ctx = result.getContext()
+  let new_fty = FunctionType::new(result, params, isVarArgs~)
+  if ctx.pimpl.unwrap().functionType.contains(new_fty) {
+    ctx.pimpl.unwrap().functionType.get(new_fty)
+  } else {
+    ctx.pimpl.unwrap().functionType.add(new_fty)
+    new_fty
+  }
+}
+
+///| Get the return type of the function.
+pub fn FunctionType::getReturnType(self: FunctionType) -> &Type {
+  self.base.containtedTys.unwrap()[0]
+}
+
+///| Get the iterator of the function parameters.
+///
+/// - See LLVM: `FunctionType::param_begin` and `FunctionType::param_end`.
+pub fn FunctionType::param_iter(self: FunctionType) -> Iter[&Type] {
+  self.base.containtedTys.unwrap()[1:].iter()
+}
+
+///| Get the params of the function.
+///
+/// - See LLVM: `FunctionType::params`.
+pub fn FunctionType::params(self: FunctionType) -> Array[&Type] {
+  self.base.containtedTys.unwrap()[1:].to_array()
+}
+
+/// Return the number of fixed parameters this function type requires.
+/// This does not consider varargs.
+///
+/// - See LLVM: `FunctionType::getNumParams`.
+pub fn FunctionType::getNumParams(self: FunctionType) -> UInt {
+  self.base.containtedTys.unwrap().length().reinterpret_as_uint() - 1
+}
+
+///| Get the param type by given index.
+pub fn FunctionType::getParamType(self: FunctionType, idx: UInt) -> &Type {
+  let containedTys = self.base.containtedTys.unwrap()
+  guard idx <= containedTys.length().reinterpret_as_uint() else {
+    unreachable(
+      #|loc: FunctionType::getParamType: Index out of bounds.
+      #|Function has \{containedTys.length() - 1} parameters
+      #|while trying to access \{idx}
+    )
+  }
+  self.base.containtedTys.unwrap()[(idx + 1).reinterpret_as_int()]
+}
+
+impl Type for FunctionType with asTypeEnum(self) -> TypeEnum {
+  TypeEnum::FunctionType(self)
+}
+
+impl Type for FunctionType with getBase(self) -> TypeBase {
+  self.base
 }
