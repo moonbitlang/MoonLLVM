@@ -14,7 +14,7 @@ pub enum TypeEnum {
 
   IntegerType(IntegerType);
   FunctionType(FunctionType);
-}
+} derive(Eq)
 
 pub(all) enum TypeID {
   // PrimitiveTypes
@@ -41,14 +41,11 @@ pub(all) enum TypeID {
   ScalableVectorTyID; /// Scalable SIMD vector type
   TypedPointerTyID;   /// Typed pointer used by some GPU targets
   TargetExtTyID;      /// Target extension type
-} derive(Show)
+} derive(Show, Eq)
 
 pub trait Type : Hash {
   getBase(Self) -> TypeBase
   asTypeEnum(Self) -> TypeEnum
-  getContext(Self) -> LLVMContext = _
-  getSubClassData(Self) -> UInt = _
-  setSubClassData(Self, val: UInt) -> Unit = _
 
   //getContext(Self) -> LLVMContext
   //print(Self, logger: &Logger, isForDebug~ = false, noDetails~ = false)
@@ -159,18 +156,6 @@ pub trait Type : Hash {
   getScalarType(Self) -> &Type = _
 }
 
-impl Type with getContext(self) -> LLVMContext {
-  self.getBase().getContext()
-}
-
-impl Type with getSubClassData(self) -> UInt {
-  self.getBase().getSubClassData()
-}
-
-impl Type with setSubClassData(self, val: UInt) -> Unit {
-  self.getBase().setSubClassData(val)
-}
-
 impl Type with is16bitFPTy(self) -> Bool {
   self.asTypeEnum() is (HalfType(_) | BFloatType(_))
 }
@@ -219,7 +204,7 @@ impl Type with isSized(self) -> Bool {
     StructType(_) | ArrayType(_) | FixedVectorType(_) | ScalableVectorType(_) | TargetExtType(_) => true // Derived types
     _ => {
       // in cpp, there is `isSizedDerivedType` function
-      println("\{self.getTypeID()} is sized or not has not been implemented yet")
+      //println("\{self.getTypeID()} is sized or not has not been implemented yet")
       panic()
     }
   }
@@ -270,19 +255,27 @@ impl Type with getScalarType(self) {
 // pub Type with dump(self)
 
 struct TypeBase {
-  context: LLVMContext
   containtedTys: Array[&Type]?
 } derive(Hash)
 
-fn TypeBase::new(context: LLVMContext, containtedTys~: Array[&Type]?=None) -> TypeBase {
+fn TypeBase::new(containtedTys~: Array[&Type]?=None) -> TypeBase {
   TypeBase::{
-    context,
     containtedTys,
   }
 }
 
-fn getContext(self: TypeBase) -> LLVMContext {
-  self.context
+impl Eq for TypeBase with op_equal(self, other) {
+  match (self.containtedTys, other.containtedTys) {
+    (Some(t1), Some(t2)) if t1.length() == t2.length() => t1.zip(t2).fold(
+      init=true, 
+      fn (acc, t1_t2) {
+        let (t1, t2) = t1_t2;
+        acc && t1.asTypeEnum() == t2.asTypeEnum()
+      }
+    )
+    (None, None) => true
+    _ => false
+  }
 }
 
 // ====================================================================
@@ -292,12 +285,21 @@ fn getContext(self: TypeBase) -> LLVMContext {
 ///|
 pub struct HalfType {
   priv base: TypeBase
-} derive(Hash)
+} derive(Hash, Eq)
+
+///|
+fn HalfType::make_singleton() -> () -> HalfType {
+  let base = TypeBase::new()
+  let ty = HalfType::{ base, }
+  fn () { ty }
+}
+
+///|
+let half_type_singleton: () -> HalfType = HalfType::make_singleton()
 
 ///| Create a HalfType
-fn HalfType::new(context: LLVMContext) -> HalfType {
-  let base = TypeBase::new(context)
-  HalfType::{ base, }
+pub fn HalfType::new() -> HalfType {
+  half_type_singleton()
 }
 
 ///|
@@ -316,12 +318,19 @@ pub impl Type for HalfType with getBase(self) -> TypeBase {
 ///| BFloatType
 pub struct BFloatType {
   priv base: TypeBase
-} derive(Hash)
+} derive(Hash, Eq)
+
+fn BFloatType::make_singleton() -> () -> BFloatType {
+  let base = TypeBase::new()
+  let ty = BFloatType::{ base, }
+  fn () { ty }
+}
+
+let bfloat_type_singleton: () -> BFloatType = BFloatType::make_singleton()
 
 ///| Create a BFloatType
-fn BFloatType::new(context: LLVMContext) -> BFloatType {
-  let base = TypeBase::new(context)
-  BFloatType::{ base, }
+pub fn BFloatType::new() -> BFloatType {
+  bfloat_type_singleton()
 }
 
 pub impl Type for BFloatType with asTypeEnum(self) -> TypeEnum {
@@ -339,12 +348,19 @@ pub impl Type for BFloatType with getBase(self) -> TypeBase {
 ///| FloatType
 pub struct FloatType {
   priv base: TypeBase
-} derive(Hash)
+} derive(Hash, Eq)
+
+fn FloatType::make_singleton() -> () -> FloatType {
+  let base = TypeBase::new()
+  let ty = FloatType::{ base, }
+  fn () { ty }
+}
+
+let float_type_singleton: () -> FloatType = FloatType::make_singleton()
 
 ///|
-fn FloatType::new(context: LLVMContext) -> FloatType {
-  let base = TypeBase::new(context)
-  FloatType::{ base, }
+pub fn FloatType::new() -> FloatType {
+  float_type_singleton()
 }
 
 pub impl Type for FloatType with asTypeEnum(self) -> TypeEnum {
@@ -363,12 +379,19 @@ pub impl Type for FloatType with getBase(self) -> TypeBase {
 ///| DoubleType
 pub struct DoubleType {
   priv base: TypeBase
-} derive(Hash)
+} derive(Hash, Eq)
+
+fn DoubleType::make_singleton() -> () -> DoubleType {
+  let base = TypeBase::new()
+  let ty = DoubleType::{ base, }
+  fn () { ty }
+}
+
+let double_type_singleton: () -> DoubleType = DoubleType::make_singleton()
 
 ///| Create a DoubleType
-fn DoubleType::new(context: LLVMContext) -> DoubleType {
-  let base = TypeBase::new(context)
-  DoubleType::{ base, }
+pub fn DoubleType::new() -> DoubleType {
+  double_type_singleton()
 }
 
 pub impl Type for DoubleType with asTypeEnum(self) -> TypeEnum {
@@ -386,12 +409,19 @@ pub impl Type for DoubleType with getBase(self) -> TypeBase {
 ///| X86_FP80Ty
 pub struct X86_FP80Type {
   priv base: TypeBase
-} derive(Hash)
+} derive(Hash, Eq)
+
+fn X86_FP80Type::make_singleton() -> () -> X86_FP80Type {
+  let base = TypeBase::new()
+  let ty = X86_FP80Type::{ base, }
+  fn () { ty }
+}
+
+let x86_fp80_type_singleton: () -> X86_FP80Type = X86_FP80Type::make_singleton()
 
 ///| Create a X86_FP80Ty
-fn X86_FP80Type::new(context: LLVMContext) -> X86_FP80Type {
-  let base = TypeBase::new(context)
-  X86_FP80Type::{ base, }
+pub fn X86_FP80Type::new() -> X86_FP80Type {
+  x86_fp80_type_singleton()
 }
 
 pub impl Type for X86_FP80Type with asTypeEnum(self) -> TypeEnum {
@@ -409,12 +439,19 @@ pub impl Type for X86_FP80Type with getBase(self) -> TypeBase {
 ///| FP128Ty
 pub struct FP128Type {
   priv base: TypeBase
-} derive(Hash)
+} derive(Hash, Eq)
+
+fn FP128Type::make_singleton() -> () -> FP128Type {
+  let base = TypeBase::new()
+  let ty = FP128Type::{ base, }
+  fn () { ty }
+}
+
+let fp128_type_singleton: () -> FP128Type = FP128Type::make_singleton()
 
 ///| Create a FP128Ty
-fn FP128Type::new(context: LLVMContext) -> FP128Type {
-  let base = TypeBase::new(context)
-  FP128Type::{ base, }
+pub fn FP128Type::new() -> FP128Type {
+  fp128_type_singleton()
 }
 
 pub impl Type for FP128Type with asTypeEnum(self) -> TypeEnum {
@@ -432,12 +469,19 @@ pub impl Type for FP128Type with getBase(self) -> TypeBase {
 ///| PPC_FP128Ty
 pub struct PPC_FP128Type {
   priv base: TypeBase
-} derive(Hash)
+} derive(Hash, Eq)
+
+fn PPC_FP128Type::make_singleton() -> () -> PPC_FP128Type {
+  let base = TypeBase::new()
+  let ty = PPC_FP128Type::{ base, }
+  fn () { ty }
+}
+
+let ppc_fp128_type_singleton: () -> PPC_FP128Type = PPC_FP128Type::make_singleton()
 
 ///| Create a PPC_FP128Ty
-fn PPC_FP128Type::new(context: LLVMContext) -> PPC_FP128Type {
-  let base = TypeBase::new(context)
-  PPC_FP128Type::{ base, }
+pub fn PPC_FP128Type::new() -> PPC_FP128Type {
+  ppc_fp128_type_singleton()
 }
 
 pub impl Type for PPC_FP128Type with asTypeEnum(self) -> TypeEnum {
@@ -455,12 +499,19 @@ pub impl Type for PPC_FP128Type with getBase(self) -> TypeBase {
 ///| VoidType
 pub struct VoidType {
   priv base: TypeBase
-} derive(Hash)
+} derive(Hash, Eq)
+
+fn VoidType::make_singleton() -> () -> VoidType {
+  let base = TypeBase::new()
+  let ty = VoidType::{ base, }
+  fn () { ty }
+}
+
+let void_type_singleton: () -> VoidType = VoidType::make_singleton()
 
 ///| Create a VoidTy
-fn VoidType::new(context: LLVMContext) -> VoidType {
-  let base = TypeBase::new(context)
-  VoidType::{ base, }
+pub fn VoidType::new() -> VoidType {
+  void_type_singleton()
 }
 
 ///|
@@ -480,12 +531,19 @@ pub impl Type for VoidType with asTypeEnum(self) -> TypeEnum {
 ///| LabelTy
 pub struct LabelType {
   priv base: TypeBase
-} derive(Hash)
+} derive(Hash, Eq)
+
+fn LabelType::make_singleton() -> () -> LabelType {
+  let base = TypeBase::new()
+  let ty = LabelType::{ base, }
+  fn () { ty }
+}
+
+let label_type_singleton: () -> LabelType = LabelType::make_singleton()
 
 ///| Create a LabelTy
-fn LabelType::new(context: LLVMContext) -> LabelType {
-  let base = TypeBase::new(context)
-  LabelType::{ base, }
+pub fn LabelType::new() -> LabelType {
+  label_type_singleton()
 }
 
 pub impl Type for LabelType with asTypeEnum(self) -> TypeEnum {
@@ -503,12 +561,19 @@ pub impl Type for LabelType with getBase(self) -> TypeBase {
 ///|
 pub struct MetadataType {
   priv base: TypeBase
-} derive(Hash)
+} derive(Hash, Eq)
+
+fn MetadataType::make_singleton() -> () -> MetadataType {
+  let base = TypeBase::new()
+  let ty = MetadataType::{ base, }
+  fn () { ty }
+}
+
+let metadata_type_singleton: () -> MetadataType = MetadataType::make_singleton()
 
 ///| Create a MetadataTy
-fn MetadataType::new(context: LLVMContext) -> MetadataType {
-  let base = TypeBase::new(context)
-  MetadataType::{ base, }
+pub fn MetadataType::new() -> MetadataType {
+  metadata_type_singleton()
 }
 
 pub impl Type for MetadataType with asTypeEnum(self) -> TypeEnum {
@@ -527,12 +592,19 @@ pub impl Type for MetadataType with getBase(self) -> TypeBase {
 ///| X86_AMXType
 pub struct X86_AMXType {
   priv base: TypeBase
-} derive(Hash)
+} derive(Hash, Eq)
+
+fn X86_AMXType::make_singleton() -> () -> X86_AMXType {
+  let base = TypeBase::new()
+  let ty = X86_AMXType::{ base, }
+  fn () { ty }
+}
+
+let x86_amx_type_singleton: () -> X86_AMXType = X86_AMXType::make_singleton()
 
 ///| Create a X86_AMXTy
-fn X86_AMXType::new(context: LLVMContext) -> X86_AMXType {
-  let base = TypeBase::new(context)
-  X86_AMXType::{ base, }
+pub fn X86_AMXType::new() -> X86_AMXType {
+  x86_amx_type_singleton()
 }
 
 pub impl Type for X86_AMXType with asTypeEnum(self) -> TypeEnum {
@@ -550,12 +622,19 @@ pub impl Type for X86_AMXType with getBase(self) -> TypeBase {
 ///| TokenTy
 pub struct TokenType {
   priv base: TypeBase
-} derive(Hash)
+} derive(Hash, Eq)
+
+fn TokenType::make_singleton() -> () -> TokenType {
+  let base = TypeBase::new()
+  let ty = TokenType::{ base, }
+  fn () { ty }
+}
+
+let token_type_singleton: () -> TokenType = TokenType::make_singleton()
 
 ///| Create a TokenTy
-fn TokenType::new(context: LLVMContext) -> TokenType {
-  let base = TypeBase::new(context)
-  TokenType::{ base, }
+pub fn TokenType::new() -> TokenType {
+  token_type_singleton()
 }
 
 pub impl Type for TokenType with asTypeEnum(self) -> TypeEnum {
@@ -573,14 +652,37 @@ pub impl Type for TokenType with getBase(self) -> TypeBase {
 pub struct IntegerType {
   priv base: TypeBase
   numBits: UInt
-} derive(Hash)
+} derive(Hash, Eq)
+
+fn IntegerType::make_singleton() -> () -> Map[UInt, IntegerType] {
+  let base = TypeBase::new()
+  let intTys = Map::new()
+            ..set(1U, IntegerType::{ base, numBits: 1 })
+            ..set(8U, IntegerType::{ base, numBits: 8 })
+            ..set(16, IntegerType::{ base, numBits: 16 })
+            ..set(32, IntegerType::{ base, numBits: 32 })
+            ..set(64, IntegerType::{ base, numBits: 64 })
+            ..set(128, IntegerType::{ base, numBits: 128 })
+
+  fn() { intTys }
+}
+
+let int_type_singleton: () -> Map[UInt, IntegerType] = IntegerType::make_singleton()
 
 ///| Create a IntegerType.
 ///
 /// - See LLVM: `IntegerType::IntegerType`.
-pub fn IntegerType::new(context: LLVMContext, numBits: UInt) -> IntegerType {
-  let base = TypeBase::new(context)
-  IntegerType::{ base, numBits }
+pub fn IntegerType::new(numBits: UInt) -> IntegerType {
+  let singleton = int_type_singleton()
+  match singleton.get(numBits) {
+    Some(ty) => ty
+    None => {
+      let base = singleton.get(1U).unwrap().base
+      let intTy = IntegerType::{ base, numBits }
+      singleton.set(numBits, intTy)
+      intTy
+    }
+  }
 }
 
 ///| Get an IntegerType from the context.
@@ -591,8 +693,8 @@ pub fn IntegerType::new(context: LLVMContext, numBits: UInt) -> IntegerType {
 /// Get or create an IntegerType instance.
 ///
 /// - See LLVM: `IntegerType::get`.
-pub fn IntegerType::get(ctx: LLVMContext, numBits: UInt) -> IntegerType {
-  ctx.getIntNTy(numBits)
+pub fn IntegerType::get(numBits: UInt) -> IntegerType {
+  IntegerType::new(numBits)
 }
 
 
@@ -600,7 +702,7 @@ pub fn IntegerType::get(ctx: LLVMContext, numBits: UInt) -> IntegerType {
 ///
 /// - See LLVM: `IntegerType::getExtendedType`.
 pub fn IntegerType::getExtendedType(self: IntegerType) -> IntegerType {
-  IntegerType::get(self.getContext(), self.getScalarSizeInBits() * 2)
+  IntegerType::get(self.getScalarSizeInBits() * 2)
 }
 
 ///| Get the number of bits in this Integertype.
@@ -641,7 +743,7 @@ pub impl Type for IntegerType with getBase(self) -> TypeBase {
 pub struct FunctionType {
   priv base: TypeBase
   isVarArgs: Bool
-} derive(Hash)
+} derive(Hash, Eq)
 
 ///| Create a FunctionType
 ///
@@ -650,19 +752,12 @@ pub fn FunctionType::new(result: &Type, params: Array[&Type], isVarArgs~: Bool =
   let containtedTys : Array[&Type] = Array::new() .. push(result)
   params.each(fn { param => containtedTys.push(param) })
   let containtedTys = Some(containtedTys)
-  let base = TypeBase::new(result.getContext(), containtedTys~)
+  let base = TypeBase::new(containtedTys~)
   FunctionType::{ base, isVarArgs }
 }
 
 pub fn FunctionType::get(result: &Type, params: Array[&Type], isVarArgs~:Bool = false) -> FunctionType {
-  let ctx = result.getContext()
-  let new_fty = FunctionType::new(result, params, isVarArgs~)
-  if ctx.pimpl.unwrap().functionType.contains(new_fty) {
-    ctx.pimpl.unwrap().functionType.get(new_fty)
-  } else {
-    ctx.pimpl.unwrap().functionType.add(new_fty)
-    new_fty
-  }
+  FunctionType::new(result, params, isVarArgs~)
 }
 
 ///| Get the return type of the function.
