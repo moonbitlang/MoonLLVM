@@ -14,7 +14,8 @@ pub enum TypeEnum {
 
   IntegerType(IntegerType);
   FunctionType(FunctionType);
-} derive(Eq)
+  StructType(StructType);
+} derive(Eq, Show)
 
 pub(all) enum TypeID {
   // PrimitiveTypes
@@ -43,7 +44,7 @@ pub(all) enum TypeID {
   TargetExtTyID;      /// Target extension type
 } derive(Show, Eq)
 
-pub trait Type : Hash {
+pub trait Type : Hash + Show {
   getBase(Self) -> TypeBase
   asTypeEnum(Self) -> TypeEnum
 
@@ -63,12 +64,11 @@ pub trait Type : Hash {
   isFloatingPointTy(Self) -> Bool = _
 
   /// Return true if this is a target extension type with a scalable layout.
-  // isScalableTargetExtTy(Self) -> Bool = _
-
+  isScalableTargetExtTy(Self) -> Bool = _
 
   /// Return true if this is a type whose size is a known multiple of vscale.
   // REVIEW: cpp has another `isScalableTy` function
-  // isScalableTy(Self) -> Bool = _
+  isScalableTy(Self) -> Bool = _
 
   /// Return true if this type is or contains a target extension type that
   /// disallows being used as a global.
@@ -111,7 +111,7 @@ pub trait Type : Hash {
 
   /// Return true if the type is "first class", meaning it is a valid type for a
   /// Value.
-  // isFirstClassType(Self) -> Bool = _
+  isFirstClassType(Self) -> Bool = _
   
   /// Return true if the type is a valid type for a register in codegen. This
   /// includes all first-class types except struct and array types.
@@ -120,7 +120,7 @@ pub trait Type : Hash {
   /// Return true if the type is an aggregate type. This means it is valid as
   /// the first operand of an insertvalue or extractvalue instruction. This
   /// includes struct and array types, but does not include vector types.
-  isAggregateType(Self) -> Bool = _
+  //isAggregateType(Self) -> Bool = _
 
   /// Return true if it makes sense to take the size of this type. To get the
   /// actual size for a particular target, it is reasonable to use the
@@ -168,8 +168,15 @@ impl Type with isFloatingPointTy(self) -> Bool {
   self.asTypeEnum() is (FloatType(_) | DoubleType(_) | HalfType(_) | BFloatType(_) | X86_FP80Type(_) | FP128Type(_) | PPC_FP128Type(_))
 }
 
-//impl isScalableTargetExtTy(self) -> Bool 
-//impl Type with isScalableTy
+#internal(unsafe, "This functions is not fully implemented yet")
+impl Type with isScalableTargetExtTy(self) {
+  false
+}
+
+#internal(unsafe, "This functions is not fully implemented yet")
+impl Type with isScalableTy(_) -> Bool {
+  false
+}
 
 //impl Type with isFPOrFPVectorTy
 
@@ -183,25 +190,33 @@ impl Type with isVectorTy(self) -> Bool {
 
 //impl Type with canLosslesslyBitCastTo(self, ty: Type)
 //impl Type with isEmptyTy(self) -> Bool
-//impl Type with isFirstClassType(self) -> Bool
+impl Type with isFirstClassType(self) {
+  match self.asTypeEnum() {
+    FunctionType(_) | VoidType(_) => false
+    StructType(sty) => not(sty.isOpaque())
+    _ => true
+  }
+}
 
 // REVIEW: Maybe we could use math-cases
 //impl Type with isSingleValueType(self) -> Bool {
 //  self.isFloatingPointTy() || self.isIntegerTy() || self.isPointerTy() || self.isVectorTy() || self.isX86_AMXTy() || self.isTargetExtTy()
 //}
 
-impl Type with isAggregateType(self) -> Bool {
-  match self.asTypeEnum() {
-    StructType(_) | ArrayType(_) => true
-    _ => false
-  }
-}
-
+//impl Type with isAggregateType(self) -> Bool {
+//  match self.asTypeEnum() {
+//    StructType(_) | ArrayType(_) => true
+//    _ => false
+//  }
+//}
+//
 impl Type with isSized(self) -> Bool {
   match self.asTypeEnum() {
-    IntegerType(_) | PointerType(_) | X86_AMXType(_) => true
+    IntegerType(_) => true
+    //| PointerType(_) | X86_AMXType(_) => true
     HalfType(_) | BFloatType(_) | FloatType(_) | DoubleType(_) | X86_FP80Type(_) | FP128Type(_) | PPC_FP128Type(_) => true // Floating point types
-    StructType(_) | ArrayType(_) | FixedVectorType(_) | ScalableVectorType(_) | TargetExtType(_) => true // Derived types
+    StructType(sty) => sty.isSized()
+    //| ArrayType(_) | FixedVectorType(_) | ScalableVectorType(_) | TargetExtType(_) => true // Derived types
     _ => {
       // in cpp, there is `isSizedDerivedType` function
       //println("\{self.getTypeID()} is sized or not has not been implemented yet")
@@ -255,7 +270,7 @@ impl Type with getScalarType(self) {
 // pub Type with dump(self)
 
 struct TypeBase {
-  containtedTys: Array[&Type]?
+  mut containtedTys: Array[&Type]?
 } derive(Hash)
 
 fn TypeBase::new(containtedTys~: Array[&Type]?=None) -> TypeBase {
@@ -297,9 +312,25 @@ fn HalfType::make_singleton() -> () -> HalfType {
 ///|
 let half_type_singleton: () -> HalfType = HalfType::make_singleton()
 
-///| Create a HalfType
+///| Create a HalfType.
+///
+/// - See LLVM: `Type::getHalfTy`.
+///
+/// Instead of use `Type::getHalfTy` in LLVM Cpp, use `HalfType::new` in Aether.
+///
+/// ```moonbit
+/// test "HalfType" {
+///   let halfty = HalfType::new()
+///   inspect!(halfty, content="half")
+/// }
+/// ```
 pub fn HalfType::new() -> HalfType {
   half_type_singleton()
+}
+
+///|
+pub impl Show for HalfType with output(_, logger: &Logger) {
+  logger.write_string("half")
 }
 
 ///|
@@ -307,6 +338,7 @@ pub impl Type for HalfType with asTypeEnum(self) -> TypeEnum {
   TypeEnum::HalfType(self)
 }
 
+///|
 pub impl Type for HalfType with getBase(self) -> TypeBase {
   self.base
 }
@@ -328,15 +360,33 @@ fn BFloatType::make_singleton() -> () -> BFloatType {
 
 let bfloat_type_singleton: () -> BFloatType = BFloatType::make_singleton()
 
-///| Create a BFloatType
+///| Create a BFloatType.
+///
+/// - See LLVM: `Type::getBFloatTy`.
+///
+/// Instead of use `Type::getBFloatTy` in LLVM Cpp, use `BFloatType::new` in Aether.
+///
+/// ```moonbit
+/// test "BFloatType" {
+///   let bfloatty = BFloatType::new()
+///   inspect!(bfloatty, content="bfloat")
+/// }
+/// ```
 pub fn BFloatType::new() -> BFloatType {
   bfloat_type_singleton()
 }
 
+///|
+pub impl Show for BFloatType with output(_, logger: &Logger) {
+  logger.write_string("bfloat")
+}
+
+///|
 pub impl Type for BFloatType with asTypeEnum(self) -> TypeEnum {
   TypeEnum::BFloatType(self)
 }
 
+///|
 pub impl Type for BFloatType with getBase(self) -> TypeBase {
   self.base
 }
@@ -356,13 +406,31 @@ fn FloatType::make_singleton() -> () -> FloatType {
   fn () { ty }
 }
 
+///|
 let float_type_singleton: () -> FloatType = FloatType::make_singleton()
 
-///|
+///| Create a FloatType.
+///
+/// - See LLVM: `Type::getFloatTy`.
+///
+/// Instead of use `Type::getFloatTy` in LLVM Cpp, use `FloatType::new` in Aether.
+///
+/// ```moonbit
+/// test "FloatType" {
+///   let floattype = FloatType::new()
+///   inspect!(floattype, content="float")
+/// }
+/// ```
 pub fn FloatType::new() -> FloatType {
   float_type_singleton()
 }
 
+///|
+pub impl Show for FloatType with output(_, logger: &Logger) {
+  logger.write_string("float")
+}
+
+///|
 pub impl Type for FloatType with asTypeEnum(self) -> TypeEnum {
   TypeEnum::FloatType(self)
 }
@@ -390,8 +458,23 @@ fn DoubleType::make_singleton() -> () -> DoubleType {
 let double_type_singleton: () -> DoubleType = DoubleType::make_singleton()
 
 ///| Create a DoubleType
+///
+/// - See LLVM: `Type::getDoubleTy`.
+///
+/// Instead of use `Type::getDoubleTy` in LLVM Cpp, use `DoubleType::new` in Aether.
+///
+/// ```moonbit
+/// test "DoubleType" {
+///   let doubletype = DoubleType::new()
+///   inspect!(doubletype, content="double")
+/// }
+/// ```
 pub fn DoubleType::new() -> DoubleType {
   double_type_singleton()
+}
+
+pub impl Show for DoubleType with output(_, logger: &Logger) {
+  logger.write_string("double")
 }
 
 pub impl Type for DoubleType with asTypeEnum(self) -> TypeEnum {
@@ -424,6 +507,10 @@ pub fn X86_FP80Type::new() -> X86_FP80Type {
   x86_fp80_type_singleton()
 }
 
+pub impl Show for X86_FP80Type with output(_, logger: &Logger) {
+  logger.write_string("x86_fp80")
+}
+
 pub impl Type for X86_FP80Type with asTypeEnum(self) -> TypeEnum {
   TypeEnum::X86_FP80Type(self)
 }
@@ -449,9 +536,23 @@ fn FP128Type::make_singleton() -> () -> FP128Type {
 
 let fp128_type_singleton: () -> FP128Type = FP128Type::make_singleton()
 
-///| Create a FP128Ty
+///| Create a FP128Ty.
+///
+/// - See LLVM: `Type::getFP128Ty`.
+///
+/// Instead of use `Type::getFP128Ty` in LLVM Cpp, use `FP128Type::new` in Aether.
+///
+/// ```moonbit
+/// test "FP128Type" {
+///   let fp128ty = FP128Type::new()
+///   inspect!(fp128ty, content="fp128")
+/// }
 pub fn FP128Type::new() -> FP128Type {
   fp128_type_singleton()
+}
+
+pub impl Show for FP128Type with output(_, logger: &Logger) {
+  logger.write_string("fp128")
 }
 
 pub impl Type for FP128Type with asTypeEnum(self) -> TypeEnum {
@@ -479,9 +580,24 @@ fn PPC_FP128Type::make_singleton() -> () -> PPC_FP128Type {
 
 let ppc_fp128_type_singleton: () -> PPC_FP128Type = PPC_FP128Type::make_singleton()
 
-///| Create a PPC_FP128Ty
+///| Create a PPC_FP128Ty.
+///
+/// - See LLVM: `Type::getPPC_FP128Ty`.
+///
+/// Instead of use `Type::getPPC_FP128Ty` in LLVM Cpp, use `PPC_FP128Type::new` in Aether.
+///
+/// ```moonbit
+/// test "PPC_FP128Type" {
+///   let ppc_fp128ty = PPC_FP128Type::new()
+///   inspect!(ppc_fp128ty, content="ppc_fp128")
+/// }
+/// ```
 pub fn PPC_FP128Type::new() -> PPC_FP128Type {
   ppc_fp128_type_singleton()
+}
+
+pub impl Show for PPC_FP128Type with output(_, logger: &Logger) {
+  logger.write_string("ppc_fp128")
 }
 
 pub impl Type for PPC_FP128Type with asTypeEnum(self) -> TypeEnum {
@@ -509,9 +625,23 @@ fn VoidType::make_singleton() -> () -> VoidType {
 
 let void_type_singleton: () -> VoidType = VoidType::make_singleton()
 
-///| Create a VoidTy
+///| Create a VoidTy.
+///
+/// - See LLVM: `Type::getVoidTy`.
+///
+/// Instead of use `Type::getVoidTy` in LLVM Cpp, use `VoidType::new` in Aether.
+///
+/// ```moonbit
+/// test "VoidType" {
+///   let voidty = VoidType::new()
+///   inspect!(voidty, content="void")
+/// }
 pub fn VoidType::new() -> VoidType {
   void_type_singleton()
+}
+
+pub impl Show for VoidType with output(_, logger: &Logger) {
+  logger.write_string("void")
 }
 
 ///|
@@ -541,9 +671,23 @@ fn LabelType::make_singleton() -> () -> LabelType {
 
 let label_type_singleton: () -> LabelType = LabelType::make_singleton()
 
-///| Create a LabelTy
+///| Create a LabelTy.
+///
+/// - See LLVM: `Type::getLabelTy`.
+///
+/// Instead of use `Type::getLabelTy` in LLVM Cpp, use `LabelType::new` in Aether.
+///
+/// ```moonbit
+/// test "LabelType" {
+///   let labelty = LabelType::new()
+///   inspect!(labelty, content="label")
+/// }
 pub fn LabelType::new() -> LabelType {
   label_type_singleton()
+}
+
+pub impl Show for LabelType with output(_, logger: &Logger) {
+  logger.write_string("label")
 }
 
 pub impl Type for LabelType with asTypeEnum(self) -> TypeEnum {
@@ -571,9 +715,24 @@ fn MetadataType::make_singleton() -> () -> MetadataType {
 
 let metadata_type_singleton: () -> MetadataType = MetadataType::make_singleton()
 
-///| Create a MetadataTy
+///| Create a MetadataTy.
+///
+/// - See LLVM: `Type::getMetadataTy`.
+///
+/// Instead of use `Type::getMetadataTy` in LLVM Cpp, use `MetadataType::new` in Aether.
+///
+/// ```moonbit
+/// test "MetadataType" {
+///   let metadataty = MetadataType::new()
+///   inspect!(metadataty, content="metadata")
+/// }
+/// ```
 pub fn MetadataType::new() -> MetadataType {
   metadata_type_singleton()
+}
+
+pub impl Show for MetadataType with output(_, logger: &Logger) {
+  logger.write_string("metadata")
 }
 
 pub impl Type for MetadataType with asTypeEnum(self) -> TypeEnum {
@@ -583,7 +742,6 @@ pub impl Type for MetadataType with asTypeEnum(self) -> TypeEnum {
 pub impl Type for MetadataType with getBase(self) -> TypeBase {
   self.base
 }
-
 
 // ====================================================================
 // X86_AMXType
@@ -602,9 +760,24 @@ fn X86_AMXType::make_singleton() -> () -> X86_AMXType {
 
 let x86_amx_type_singleton: () -> X86_AMXType = X86_AMXType::make_singleton()
 
-///| Create a X86_AMXTy
+///| Create a X86_AMXTy.
+///
+/// - See LLVM: `Type::getX86_AMXTy`.
+///
+/// Instead of use `Type::getX86_AMXTy` in LLVM Cpp, use `X86_AMXType::new` in Aether.
+///
+/// ```moonbit
+/// test "X86_AMXType" {
+///   let x86_amxty = X86_AMXType::new()
+///   inspect!(x86_amxty, content="x86_amx")
+/// }
+/// ```
 pub fn X86_AMXType::new() -> X86_AMXType {
   x86_amx_type_singleton()
+}
+
+pub impl Show for X86_AMXType with output(_, logger: &Logger) {
+  logger.write_string("x86_amx")
 }
 
 pub impl Type for X86_AMXType with asTypeEnum(self) -> TypeEnum {
@@ -633,8 +806,23 @@ fn TokenType::make_singleton() -> () -> TokenType {
 let token_type_singleton: () -> TokenType = TokenType::make_singleton()
 
 ///| Create a TokenTy
+///
+/// - See LLVM: `Type::getTokenTy`.
+///
+/// Instead of use `Type::getTokenTy` in LLVM Cpp, use `TokenType::new` in Aether.
+///
+/// ```moonbit
+/// test "TokenType" {
+///   let tokenty = TokenType::new()
+///   inspect!(tokenty, content="token")
+/// }
+/// ```
 pub fn TokenType::new() -> TokenType {
   token_type_singleton()
+}
+
+pub impl Show for TokenType with output(_, logger: &Logger) {
+  logger.write_string("token")
 }
 
 pub impl Type for TokenType with asTypeEnum(self) -> TypeEnum {
@@ -672,6 +860,15 @@ let int_type_singleton: () -> Map[UInt, IntegerType] = IntegerType::make_singlet
 ///| Create a IntegerType.
 ///
 /// - See LLVM: `IntegerType::IntegerType`.
+///
+/// Instead of use `IntegerType::IntegerType` in LLVM Cpp, use `IntegerType::new`
+///
+/// ```moonbit
+/// test "IntegerType" {
+///   let intty = IntegerType::new(32U)
+///   inspect!(intty, content="i32")
+/// }
+/// ```
 pub fn IntegerType::new(numBits: UInt) -> IntegerType {
   let singleton = int_type_singleton()
   match singleton.get(numBits) {
@@ -685,24 +882,11 @@ pub fn IntegerType::new(numBits: UInt) -> IntegerType {
   }
 }
 
-///| Get an IntegerType from the context.
-/// This static method is the primary way of constructing an IntegerType.
-/// If an IntegerType with the same NumBits value was previously instantiated,
-/// that instance will be returned. Otherwise a new one will be created. Only
-/// one instance with a given NumBits value is ever created.
-/// Get or create an IntegerType instance.
-///
-/// - See LLVM: `IntegerType::get`.
-pub fn IntegerType::get(numBits: UInt) -> IntegerType {
-  IntegerType::new(numBits)
-}
-
-
 ///| Return type twice as wide the input type.
 ///
 /// - See LLVM: `IntegerType::getExtendedType`.
 pub fn IntegerType::getExtendedType(self: IntegerType) -> IntegerType {
-  IntegerType::get(self.getScalarSizeInBits() * 2)
+  IntegerType::new(self.getScalarSizeInBits() * 2)
 }
 
 ///| Get the number of bits in this Integertype.
@@ -728,6 +912,10 @@ pub fn IntegerType::getSignBit(self: IntegerType) -> UInt64 {
   1UL << (self.getBitWidth() - 1U).reinterpret_as_int()
 }
 
+pub impl Show for IntegerType with output(self, logger: &Logger) {
+  logger.write_string("i\{self.getBitWidth()}") 
+}
+
 pub impl Type for IntegerType with asTypeEnum(self) -> TypeEnum {
   TypeEnum::IntegerType(self)
 }
@@ -748,16 +936,42 @@ pub struct FunctionType {
 ///| Create a FunctionType
 ///
 /// See LLVM: `FunctionType::FunctionType`.
+///
+/// Instead of use `FunctionType::get` in LLVM Cpp, use `FunctionType::new` in Aether.
+///
+/// ```moonbit
+/// test "FunctionType" {
+///   let int32ty = IntegerType::new(32)
+///   let voidty = VoidType::new()
+///   let f32ty = FloatType::new()
+///   let f64ty = DoubleType::new()
+///   let fty = FunctionType::new(voidty, [int32ty, f32ty, f64ty])
+///   inspect!(fty, content="void (i32, float, double)")
+///
+///   let fty = FunctionType::new(voidty, [int32ty, f32ty, f64ty], isVarArgs=true)
+///   inspect!(fty, content="void (i32, float, double, ...)")
+/// }
+/// ```
 pub fn FunctionType::new(result: &Type, params: Array[&Type], isVarArgs~: Bool = false) -> FunctionType {
-  let containtedTys : Array[&Type] = Array::new() .. push(result)
+  let containtedTys : Array[&Type] = Array::new()
+  if FunctionType::isValidReturnType(result) {
+    containtedTys.push(result)
+  } else {
+    unreachable("loc: FunctionType::new: Invalid return type.")
+  }
+  let allValidParams = params.fold(
+    init=true,
+    fn (acc, param) {
+      acc && FunctionType::isValidArgumentType(param)
+    }
+  )
+  if not(allValidParams) {
+    unreachable("loc: FunctionType::new: Invalid argument type.")
+  }
   params.each(fn { param => containtedTys.push(param) })
   let containtedTys = Some(containtedTys)
   let base = TypeBase::new(containtedTys~)
   FunctionType::{ base, isVarArgs }
-}
-
-pub fn FunctionType::get(result: &Type, params: Array[&Type], isVarArgs~:Bool = false) -> FunctionType {
-  FunctionType::new(result, params, isVarArgs~)
 }
 
 ///| Get the return type of the function.
@@ -800,10 +1014,224 @@ pub fn FunctionType::getParamType(self: FunctionType, idx: UInt) -> &Type {
   self.base.containtedTys.unwrap()[(idx + 1).reinterpret_as_int()]
 }
 
+///|
+pub impl Show for FunctionType with output(self, logger: &Logger) {
+  let ret_str = self.getReturnType().to_string()
+  let param_strs = self.param_iter().map(fn {p => p.to_string()}).collect()
+  if self.isVarArgs {
+    param_strs.push("...")
+  }
+  let param_str = param_strs.join(", ")
+  logger.write_string("\{ret_str} (\{param_str})")
+}
+
+fn FunctionType::isValidReturnType(retTy: &Type) -> Bool {
+  match retTy.asTypeEnum() {
+    FunctionType(_) | LabelType(_) | MetadataType(_) => false
+    _ => true
+  }
+}
+
+fn FunctionType::isValidArgumentType(argTy: &Type) -> Bool {
+  argTy.isFirstClassType() && not(argTy.asTypeEnum() is LabelType(_))
+}
+
+///|
 impl Type for FunctionType with asTypeEnum(self) -> TypeEnum {
   TypeEnum::FunctionType(self)
 }
 
+///|
 impl Type for FunctionType with getBase(self) -> TypeBase {
+  self.base
+}
+
+// ====================================================================
+// StructType
+// ====================================================================
+
+pub struct StructType {
+  priv base: TypeBase
+  priv mut name: String
+  priv mut uniqueID: UInt?
+  priv mut hasBody: Bool
+  priv mut isPacked: Bool  
+  priv isLiteral: Bool
+  priv mut isSized: Bool?
+  //priv mut containsScalableVector: Bool
+  //priv mut containsNonGlobalTargetExtType: Bool
+  //priv mut containsNonLocalTargetExtType: Bool
+} derive(Hash)
+
+///| See LLVM: `NamedStructTypes` and `NamedStructTypesUniqueID`
+fn StructType::make_singleton() -> () -> (Map[String, StructType], Ref[UInt]) {
+  let namedStructTypes : Map[String, StructType] = Map::new()
+  fn() { (namedStructTypes, Ref::new(0U)) }
+}
+
+let struct_type_singleton: () -> (Map[String, StructType], Ref[UInt]) = StructType::make_singleton()
+
+///|
+///
+pub fn StructType::new(elements~: Array[&Type] = [], name~: String = "", isPacked~: Bool = false) -> StructType {
+  let hasBody = elements.length() > 0
+  let isLiteral = name.length() > 0
+  //let containsScalableVector = false
+  //let containsNonGlobalTargetExtType = false
+  //let containsNonLocalTargetExtType = false
+  let containtedTys = if hasBody {
+    Some(elements)
+  } else {
+    None
+  }
+  let base = TypeBase::new(containtedTys~)
+  let sty = StructType::{
+    base,
+    name,
+    uniqueID: None,
+    hasBody,
+    isPacked,
+    isLiteral,
+    isSized: None, // FIXME: this is different from LLVM Cpp
+    //containsScalableVector,
+    //containsNonGlobalTargetExtType,
+    //containsNonLocalTargetExtType
+  }
+
+  if not(name is "") {
+    sty.setName(name)
+  }
+  sty
+}
+
+/// false if it is a struct definition.
+pub fn StructType::isLiteral(self: StructType) -> Bool {
+  self.isLiteral
+}
+
+///| Return true if this is a type with an identity that has no body specified
+/// yet. These prints as 'opaque' in .ll files.
+pub fn StructType::isOpaque(self: StructType) -> Bool {
+  not(self.hasBody)
+}
+
+///| Check if this is a packed struct type.
+pub fn StructType::isPacked(self: StructType) -> Bool {
+  self.isPacked
+}
+
+pub fn StructType::isSized(self: StructType) -> Bool {
+  if self.isSized is Some(sized) {
+    return sized
+  }
+
+  if self.isOpaque() {
+    return false
+  }
+
+  if self.elements().iter().any(fn { ty => ty.isScalableTy() || not(ty.isSized()) }) {
+    return false
+  }
+
+  self.isSized = Some(true)
+  true
+}
+
+pub fn StructType::elements(self: StructType) -> Array[&Type] {
+  guard self.base.containtedTys is Some(elements) else {
+    return []
+  }
+  elements
+}
+
+
+pub fn StructType::setBody(self: StructType, elements: Array[&Type], isPacked~: Bool = false) -> Unit {
+  match self.setBodyOrError?(elements, isPacked~) {
+    Ok(_) => ()
+    Err(err) => abort("\{err}")
+  }
+}
+
+pub fn StructType::setBodyOrError(self: StructType, elements: Array[&Type], isPacked~:Bool = false) -> Unit!LLVMError {
+  // only opaque struct can be set body.
+  guard self.isOpaque() else {
+    raise SetBodyForNonOpaqueStruct
+  }
+
+  // No recursive struct.
+  for element in elements {
+    if element.asTypeEnum() is StructType(sty) && sty == self {
+      raise RecursiveStructDefinition
+    }
+  }
+
+  self.hasBody = true
+  self.isPacked = isPacked
+  self.base.containtedTys = elements.copy() |> Some
+}
+
+pub fn StructType::getName(self: StructType) -> String {
+  guard not(self.isLiteral) else {
+    unreachable("loc: StructType::getName: Literal structs never have name")
+  }
+
+  self.name + self.uniqueID.map_or("", fn { id => ".\{id}" })
+}
+
+pub fn StructType::setName(self: StructType, name: String) -> Unit {
+  let old_name = self.getName()
+  if old_name == name {
+    return
+  }
+
+  let (namedStructMap, namedStructTypesUniqueID) = struct_type_singleton()
+
+  // delete the struct type from the map
+  if name is "" {
+    namedStructMap.remove(old_name)
+    self.name = name
+    self.uniqueID = None
+    return
+  }
+
+  match namedStructMap.contains(name) {
+    false => namedStructMap.set(name, self)
+    true => {
+      namedStructMap.set("\{name}.\{namedStructTypesUniqueID}", self)
+      namedStructTypesUniqueID.val += 1
+    }
+  }
+}
+
+pub impl Show for StructType with output(self, logger: &Logger) {
+  if not(self.isLiteral()) {
+    logger.write_string("%\{self.getName()} = ")
+  }
+
+  if self.isOpaque() {
+    logger.write_string("opaque")
+    return
+  }
+
+  let elements_str = self.elements().iter().map(fn { ty => ty.to_string() }).join(", ")
+  if self.isPacked() {
+    logger.write_string("<{\{elements_str}}>")
+  } else {
+    logger.write_string("{\{elements_str}}")
+  }
+}
+
+pub impl Eq for StructType with op_equal(self, other) {
+  match self.name == other.name {
+    true => self.uniqueID == other.uniqueID
+    false => false
+  }
+}
+
+pub impl Type for StructType with asTypeEnum(self) -> TypeEnum {
+  TypeEnum::StructType(self)
+}
+
+pub impl Type for StructType with getBase(self) -> TypeBase {
   self.base
 }
