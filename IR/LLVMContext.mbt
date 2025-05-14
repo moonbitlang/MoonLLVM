@@ -325,6 +325,13 @@ pub fn LLVMContext::createFunctionType(
 ///
 ///   let sty = ctx.createStructType!([i32ty, f32ty, f64ty], name = "foo")
 ///   inspect!(sty, content="%foo = type { i32, float, double }")
+///
+///   // Cannot create a ananymous struct type with empty elements.
+///   assert_true!(ctx.createStructType?([]).is_err())
+///
+///   // Cannot create a struct which has same name with other struct.
+///   // the `foo` struct is already created.
+///   assert_true!(ctx.createStructType?([], name="foo").is_err())
 /// }
 /// ```
 pub fn LLVMContext::createStructType(
@@ -333,6 +340,7 @@ pub fn LLVMContext::createStructType(
   name~ : String = "",
   isPacked~ : Bool = false
 ) -> StructType!LLVMError {
+  let name = @option.unless(name.is_empty(), fn() { name })
   StructType::new!(self, elements, name~, isPacked~)
 }
 

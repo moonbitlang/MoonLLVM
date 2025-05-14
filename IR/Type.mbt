@@ -18,37 +18,6 @@ pub enum TypeEnum {
 } derive(Eq, Show)
 
 ///|
-pub(all) enum TypeID {
-  // PrimitiveTypes
-  HalfTyID
-  BFloatTyID /// 16-bit floating point type
-  FloatTyID /// 16-bit floating point type (7-bit significand)
-  DoubleTyID /// 32-bit floating point type
-  X86_FP80TyID /// 64-bit floating point type
-  FP128TyID /// 80-bit floating point type (X87)
-  PPC_FP128TyID /// 128-bit floating point type (112-bit significand)
-  VoidTyID /// 128-bit floating point type (two 64-bits; PowerPC)
-  LabelTyID /// type with no size
-  MetadataTyID /// Labels
-  X86_AMXTyID /// Metadata
-  TokenTyID /// AMX vectors (8192 bits; X86 specific)
-  IntegerTyID /// Tokens
-
-  // Derived types.
-  FunctionTyID /// Arbitrary bit width integers
-  PointerTyID /// Functions
-  StructTyID /// Pointers
-  ArrayTyID /// Structures
-  FixedVectorTyID /// Arrays
-  ScalableVectorTyID /// Fixed width SIMD vector type
-  TypedPointerTyID /// Scalable SIMD vector type
-  TargetExtTyID /// Typed pointer used by some GPU targets
-} derive ( /// Target extension type
-  Show,
-  Eq,
-)
-
-///|
 pub trait Type: Show {
   getBase(Self) -> TypeBase
   asTypeEnum(Self) -> TypeEnum
@@ -993,11 +962,9 @@ impl Type for FunctionType with getBase(self) -> TypeBase {
 ///|
 pub struct StructType {
   priv base : TypeBase
-  priv mut name : String
+  priv mut name : String?
   priv mut uniqueLiteralID : UInt64? // only valid when struct is literal
-  priv mut hasBody : Bool
   priv mut isPacked : Bool
-  priv mut isLiteral : Bool
   priv mut isSized : Bool?
   //priv mut containsScalableVector: Bool
   //priv mut containsNonGlobalTargetExtType: Bool
@@ -1008,52 +975,87 @@ pub struct StructType {
 fn StructType::new(
   context : LLVMContext,
   elements : Array[&Type],
-  name~ : String = "",
+  name~ : String? = None,
   isPacked~ : Bool = false
 ) -> StructType!LLVMError {
-  if name != "" && context.pimpl.unwrap().namedStructTypes.contains(name) {
-    raise DuplicateStructName
+  if name is None && elements.is_empty() {
+    raise OpaqueStructMustHaveName
   }
-  let hasBody = elements.length() > 0
-  let isLiteral = name.length() == 0
-  let uniqueLiteralID = @option.when(isLiteral, fn() {
-    let id = context.pimpl.unwrap().literalStructID
-    context.pimpl.unwrap().literalStructID += 1
-    id
-  })
+  let namedStructTypes = context.pimpl.unwrap().namedStructTypes
+  let uniqueLiteralID = context.pimpl.unwrap().literalStructID
+  let base = TypeBase::new(context, containtedTys=Some(elements.copy()))
+  let (name, uniqueLiteralID) = match name {
+    Some(n) if n.is_empty() => raise InValidStructName
+    Some(n) if namedStructTypes.contains(n) => raise DuplicateStructName
+    Some(n) => (Some(n), None)
+    None => {
+      context.pimpl.unwrap().literalStructID += 1
+      (None, Some(uniqueLiteralID))
+    }
+  }
   //let containsScalableVector = false
   //let containsNonGlobalTargetExtType = false
   //let containsNonLocalTargetExtType = false
-  let containtedTys = if hasBody { Some(elements.copy()) } else { None }
-  let base = TypeBase::new(context, containtedTys~)
-  let sty = StructType::{
-    base,
-    name,
-    uniqueLiteralID,
-    hasBody,
-    isPacked,
-    isLiteral,
-    isSized: None, // FIXME: this is different from LLVM Cpp
-    //containsScalableVector,
-    //containsNonGlobalTargetExtType,
-    //containsNonLocalTargetExtType
+  let sty = StructType::{ base, name, uniqueLiteralID, isPacked, isSized: None } // FIXME: this is different from LLVM Cpp
+  //containsScalableVector,
+  //containsNonGlobalTargetExtType,
+  //containsNonLocalTargetExtType
+  if name is Some(n) {
+    context.pimpl.unwrap().namedStructTypes.set(n, sty)
   }
-  context.pimpl.unwrap().namedStructTypes.set(name, sty)
   sty
 }
 
-///| false if it is a struct definition.
+///| Check struct is a literal type.
+///
+/// literal type means the struct only has body but has no name.
+///
+/// - See LLVM: `StructType::isLiteral`.
+///
+/// ```moonbit
+/// test "StructType isLiteral" {
+///   let ctx = LLVMContext::new()
+///   let i32ty = ctx.getInt32Ty()
+///   let f32ty = ctx.getFloatTy()
+///
+///   let foo = ctx.createStructType!([i32ty, f32ty])
+///   let bar = ctx.createStructType!([i32ty, f32ty], name="bar")
+///
+///   assert_true!(foo.isLiteral())
+///   assert_false!(bar.isLiteral())
+/// }
+/// ```
 pub fn StructType::isLiteral(self : StructType) -> Bool {
-  self.isLiteral
+  self.name is None
 }
 
-///| Return true if this is a type with an identity that has no body specified
+///| Check struct is a opaque type.
+/// Return true if this is a type with an identity that has no body specified
 /// yet. These prints as 'opaque' in .ll files.
+///
+/// - See LLVM: `StructType::isOpaque`.
+///
+/// ```moonbit
+/// test "StructType isOpaque" {
+///   let ctx = LLVMContext::new()
+///   let i32ty = ctx.getInt32Ty()
+///   let f32ty = ctx.getFloatTy()
+///
+///   let foo = ctx.createStructType!([], name="foo")
+///   let bar = ctx.createStructType!([i32ty, f32ty], name="bar")
+///   assert_true!(foo.isOpaque())
+///   assert_false!(bar.isOpaque())
+/// }
+/// ```
 pub fn StructType::isOpaque(self : StructType) -> Bool {
-  not(self.hasBody)
+  self.base.containtedTys.unwrap().is_empty()
 }
 
 ///| Check if this is a packed struct type.
+///
+/// - See LLVM: `StructType::isPacked`.
+///
+/// Packed struct means the struct has no padding between its elements.
 pub fn StructType::isPacked(self : StructType) -> Bool {
   self.isPacked
 }
@@ -1076,13 +1078,18 @@ pub fn StructType::isSized(self : StructType) -> Bool {
   true
 }
 
-///|
+///| Get the elements of the struct.
+///
+/// - See LLVM: `StructType::elements`.
 pub fn StructType::elements(self : StructType) -> Array[&Type] {
-  guard self.base.containtedTys is Some(elements) else { return [] }
-  elements
+  self.base.containtedTys.unwrap()
 }
 
-///|
+///| Set the body of the struct.
+///
+/// Only Opaque struct can be set body.
+///
+/// - See LLVM: `StructType::setBody`.
 pub fn StructType::setBody(
   self : StructType,
   elements : Array[&Type],
@@ -1097,46 +1104,55 @@ pub fn StructType::setBody(
       raise RecursiveStructDefinition
     }
   }
-  self.hasBody = true
   self.isPacked = isPacked
   self.base.containtedTys = elements.copy() |> Some
 }
 
-///|
+///| Get the name of the struct.
+///
+/// If the struct is literal, return None.
+///
+/// - See LLVM: `StructType::getName`.
 pub fn StructType::getName(self : StructType) -> String? {
-  @option.unless(self.isLiteral, fn() { self.name })
+  self.name
 }
 
-///|
+///| Set the name of the struct.
+///
+/// **Note**: 
+///   
+///   - If the new_name is "" (empty string), the struct will be a literal type.
+///   - If the new_name has same name with old name, nothing will be changed.
+///   - If context has already have a struct with the given new name, it will raise error.
+///
+/// - See LLVM: `StructType::setName`.
 pub fn StructType::setName(
   self : StructType,
   new_name : String
 ) -> Unit!LLVMError {
-  if self.name == new_name {
-    return
-  }
-
-  //let (namedStructMap, namedStructTypesUniqueID) = struct_type_singleton()
   let ctx = self.getContext().pimpl.unwrap()
-
-  // delete the struct type from the map
-  if new_name is "" {
-    ctx.namedStructTypes.remove(self.name)
-    self.name = new_name
-    self.uniqueLiteralID = None
-    return
-  }
-  match ctx.namedStructTypes.contains(new_name) {
-    false => {
-      ctx.namedStructTypes.remove(self.name)
-      ctx.namedStructTypes.set(new_name, self)
-      self.name = new_name
-      if self.isLiteral {
-        self.isLiteral = false
-        self.uniqueLiteralID = None
-      }
+  let namedStructTypes = ctx.namedStructTypes
+  match (self.name, new_name) {
+    (None, "") => return
+    (Some(old_name), new_name) if old_name == new_name => return
+    (_, new_name) if namedStructTypes.contains(new_name) =>
+      raise DuplicateStructName
+    (None, new_name) => {
+      self.name = Some(new_name)
+      namedStructTypes.set(new_name, self)
+      self.uniqueLiteralID = None
     }
-    true => raise DuplicateStructName
+    (Some(name), "") => {
+      namedStructTypes.remove(name)
+      self.name = None
+      self.uniqueLiteralID = ctx.literalStructID |> Some
+      ctx.literalStructID += 1
+    }
+    (Some(old_name), new_name) => {
+      namedStructTypes..remove(old_name)..set(new_name, self)
+      self.name = Some(new_name)
+      self.uniqueLiteralID = None
+    }
   }
 }
 

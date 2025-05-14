@@ -42,11 +42,15 @@ test "Struct Type Functionality Test" {
   let i32ty = ctx.getInt32Ty()
   let f32ty = ctx.getFloatTy()
   let f64ty = ctx.getDoubleTy()
-  let opaque = ctx.createStructType!([])
-  inspect!(opaque, content="%\"&literal.0\" = opaque")
+
+  // opaque
+  let opaque = ctx.createStructType!([], name="bar")
+  inspect!(opaque, content="%bar = opaque")
   assert_true!(opaque.isOpaque())
+
+  // literal
   let literal = ctx.createStructType!([i32ty, f32ty, f64ty])
-  inspect!(literal, content="%\"&literal.1\" = type { i32, float, double }")
+  inspect!(literal, content="%\"&literal.0\" = type { i32, float, double }")
   assert_true!(literal.isLiteral())
   let named = ctx.createStructType!([i32ty, f32ty], name="foo")
   inspect!(named, content="%foo = type { i32, float }")
@@ -54,8 +58,8 @@ test "Struct Type Functionality Test" {
 
   // setName for literal
   assert_true!(literal.setName?("foo").is_err()) // will raise DuplicateStructName Error
-  named.setName!("bar")
-  assert_eq!(named.getName().unwrap(), "bar")
+  assert_true!(named.setName?("baz").is_ok())
+  assert_eq!(named.getName().unwrap(), "baz")
   assert_true!(literal.setName?("foo").is_ok())
   inspect!(literal, content="%foo = type { i32, float, double }")
 }
