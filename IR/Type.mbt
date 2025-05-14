@@ -44,11 +44,11 @@ pub(all) enum TypeID {
   TargetExtTyID;      /// Target extension type
 } derive(Show, Eq)
 
-pub trait Type : Hash + Show {
+pub trait Type : Show {
   getBase(Self) -> TypeBase
   asTypeEnum(Self) -> TypeEnum
 
-  //getContext(Self) -> LLVMContext
+  getContext(Self) -> LLVMContext = _
   //print(Self, logger: &Logger, isForDebug~ = false, noDetails~ = false)
   //dump(Self)
 
@@ -154,6 +154,10 @@ pub trait Type : Hash + Show {
 
   getContainedType(Self, index: Int) -> &Type = _
   getScalarType(Self) -> &Type = _
+}
+
+impl Type with getContext(self) -> LLVMContext {
+  self.getBase().context
 }
 
 impl Type with is16bitFPTy(self) -> Bool {
@@ -270,11 +274,13 @@ impl Type with getScalarType(self) {
 // pub Type with dump(self)
 
 struct TypeBase {
+  context: LLVMContext
   mut containtedTys: Array[&Type]?
-} derive(Hash)
+}
 
-fn TypeBase::new(containtedTys~: Array[&Type]?=None) -> TypeBase {
+fn TypeBase::new(context: LLVMContext, containtedTys~: Array[&Type]?=None) -> TypeBase {
   TypeBase::{
+    context,
     containtedTys,
   }
 }
@@ -300,32 +306,22 @@ impl Eq for TypeBase with op_equal(self, other) {
 ///|
 pub struct HalfType {
   priv base: TypeBase
-} derive(Hash, Eq)
-
-///|
-fn HalfType::make_singleton() -> () -> HalfType {
-  let base = TypeBase::new()
-  let ty = HalfType::{ base, }
-  fn () { ty }
-}
-
-///|
-let half_type_singleton: () -> HalfType = HalfType::make_singleton()
+} derive(Eq)
 
 ///| Create a HalfType.
 ///
 /// - See LLVM: `Type::getHalfTy`.
 ///
-/// Instead of use `Type::getHalfTy` in LLVM Cpp, use `HalfType::new` in Aether.
-///
 /// ```moonbit
 /// test "HalfType" {
-///   let halfty = HalfType::new()
-///   inspect!(halfty, content="half")
+///   let ctx = LLVMContext::new()
+///   let half_ty = ctx.getHalfTy()
+///   inspect!(half_ty, content="half")
 /// }
 /// ```
-pub fn HalfType::new() -> HalfType {
-  half_type_singleton()
+fn HalfType::new(context: LLVMContext) -> HalfType {
+  let base = TypeBase::new(context)
+  HalfType::{ base, }
 }
 
 ///|
@@ -350,30 +346,21 @@ pub impl Type for HalfType with getBase(self) -> TypeBase {
 ///| BFloatType
 pub struct BFloatType {
   priv base: TypeBase
-} derive(Hash, Eq)
-
-fn BFloatType::make_singleton() -> () -> BFloatType {
-  let base = TypeBase::new()
-  let ty = BFloatType::{ base, }
-  fn () { ty }
-}
-
-let bfloat_type_singleton: () -> BFloatType = BFloatType::make_singleton()
+} derive(Eq)
 
 ///| Create a BFloatType.
 ///
 /// - See LLVM: `Type::getBFloatTy`.
 ///
-/// Instead of use `Type::getBFloatTy` in LLVM Cpp, use `BFloatType::new` in Aether.
-///
 /// ```moonbit
 /// test "BFloatType" {
-///   let bfloatty = BFloatType::new()
-///   inspect!(bfloatty, content="bfloat")
+///   let ctx = LLVMContext::new()
+///   let bfloat_ty = ctx.getBFloatTy()
+///   inspect!(bfloat_ty, content="bfloat")
 /// }
 /// ```
-pub fn BFloatType::new() -> BFloatType {
-  bfloat_type_singleton()
+fn BFloatType::new(context: LLVMContext) -> BFloatType {
+  BFloatType::{ base: TypeBase::new(context), }
 }
 
 ///|
@@ -398,31 +385,22 @@ pub impl Type for BFloatType with getBase(self) -> TypeBase {
 ///| FloatType
 pub struct FloatType {
   priv base: TypeBase
-} derive(Hash, Eq)
-
-fn FloatType::make_singleton() -> () -> FloatType {
-  let base = TypeBase::new()
-  let ty = FloatType::{ base, }
-  fn () { ty }
-}
-
-///|
-let float_type_singleton: () -> FloatType = FloatType::make_singleton()
+} derive(Eq)
 
 ///| Create a FloatType.
 ///
 /// - See LLVM: `Type::getFloatTy`.
 ///
-/// Instead of use `Type::getFloatTy` in LLVM Cpp, use `FloatType::new` in Aether.
-///
 /// ```moonbit
 /// test "FloatType" {
-///   let floattype = FloatType::new()
-///   inspect!(floattype, content="float")
+///   let ctx = LLVMContext::new()
+///   let f32ty = ctx.getFloatTy()
+///   inspect!(f32ty, content="float")
 /// }
 /// ```
-pub fn FloatType::new() -> FloatType {
-  float_type_singleton()
+fn FloatType::new(context: LLVMContext) -> FloatType {
+  let base = TypeBase::new(context)
+  FloatType::{ base, }
 }
 
 ///|
@@ -447,30 +425,22 @@ pub impl Type for FloatType with getBase(self) -> TypeBase {
 ///| DoubleType
 pub struct DoubleType {
   priv base: TypeBase
-} derive(Hash, Eq)
-
-fn DoubleType::make_singleton() -> () -> DoubleType {
-  let base = TypeBase::new()
-  let ty = DoubleType::{ base, }
-  fn () { ty }
-}
-
-let double_type_singleton: () -> DoubleType = DoubleType::make_singleton()
+} derive(Eq)
 
 ///| Create a DoubleType
 ///
 /// - See LLVM: `Type::getDoubleTy`.
 ///
-/// Instead of use `Type::getDoubleTy` in LLVM Cpp, use `DoubleType::new` in Aether.
-///
 /// ```moonbit
 /// test "DoubleType" {
-///   let doubletype = DoubleType::new()
+///   let ctx = LLVMContext::new()
+///   let doubletype = ctx.getDoubleTy()
 ///   inspect!(doubletype, content="double")
 /// }
 /// ```
-pub fn DoubleType::new() -> DoubleType {
-  double_type_singleton()
+fn DoubleType::new(context: LLVMContext) -> DoubleType {
+  let base = TypeBase::new(context)
+  DoubleType::{ base, }
 }
 
 pub impl Show for DoubleType with output(_, logger: &Logger) {
@@ -492,19 +462,11 @@ pub impl Type for DoubleType with getBase(self) -> TypeBase {
 ///| X86_FP80Ty
 pub struct X86_FP80Type {
   priv base: TypeBase
-} derive(Hash, Eq)
-
-fn X86_FP80Type::make_singleton() -> () -> X86_FP80Type {
-  let base = TypeBase::new()
-  let ty = X86_FP80Type::{ base, }
-  fn () { ty }
-}
-
-let x86_fp80_type_singleton: () -> X86_FP80Type = X86_FP80Type::make_singleton()
+} derive(Eq)
 
 ///| Create a X86_FP80Ty
-pub fn X86_FP80Type::new() -> X86_FP80Type {
-  x86_fp80_type_singleton()
+fn X86_FP80Type::new(context: LLVMContext) -> X86_FP80Type {
+  X86_FP80Type::{ base:TypeBase::new(context), }
 }
 
 pub impl Show for X86_FP80Type with output(_, logger: &Logger) {
@@ -526,29 +488,21 @@ pub impl Type for X86_FP80Type with getBase(self) -> TypeBase {
 ///| FP128Ty
 pub struct FP128Type {
   priv base: TypeBase
-} derive(Hash, Eq)
-
-fn FP128Type::make_singleton() -> () -> FP128Type {
-  let base = TypeBase::new()
-  let ty = FP128Type::{ base, }
-  fn () { ty }
-}
-
-let fp128_type_singleton: () -> FP128Type = FP128Type::make_singleton()
+} derive(Eq)
 
 ///| Create a FP128Ty.
 ///
 /// - See LLVM: `Type::getFP128Ty`.
 ///
-/// Instead of use `Type::getFP128Ty` in LLVM Cpp, use `FP128Type::new` in Aether.
-///
 /// ```moonbit
 /// test "FP128Type" {
-///   let fp128ty = FP128Type::new()
+///   let ctx = LLVMContext::new()
+///   let fp128ty = ctx.getFP128Ty()
 ///   inspect!(fp128ty, content="fp128")
 /// }
-pub fn FP128Type::new() -> FP128Type {
-  fp128_type_singleton()
+fn FP128Type::new(context: LLVMContext) -> FP128Type {
+  let base = TypeBase::new(context)
+  FP128Type::{ base, }
 }
 
 pub impl Show for FP128Type with output(_, logger: &Logger) {
@@ -570,30 +524,22 @@ pub impl Type for FP128Type with getBase(self) -> TypeBase {
 ///| PPC_FP128Ty
 pub struct PPC_FP128Type {
   priv base: TypeBase
-} derive(Hash, Eq)
-
-fn PPC_FP128Type::make_singleton() -> () -> PPC_FP128Type {
-  let base = TypeBase::new()
-  let ty = PPC_FP128Type::{ base, }
-  fn () { ty }
-}
-
-let ppc_fp128_type_singleton: () -> PPC_FP128Type = PPC_FP128Type::make_singleton()
+} derive(Eq)
 
 ///| Create a PPC_FP128Ty.
 ///
 /// - See LLVM: `Type::getPPC_FP128Ty`.
 ///
-/// Instead of use `Type::getPPC_FP128Ty` in LLVM Cpp, use `PPC_FP128Type::new` in Aether.
-///
 /// ```moonbit
 /// test "PPC_FP128Type" {
-///   let ppc_fp128ty = PPC_FP128Type::new()
+///   let ctx = LLVMContext::new()
+///   let ppc_fp128ty = ctx.getPPC_FP128Ty()
 ///   inspect!(ppc_fp128ty, content="ppc_fp128")
 /// }
 /// ```
-pub fn PPC_FP128Type::new() -> PPC_FP128Type {
-  ppc_fp128_type_singleton()
+fn PPC_FP128Type::new(context: LLVMContext) -> PPC_FP128Type {
+  let base = TypeBase::new(context)
+  PPC_FP128Type::{ base, }
 }
 
 pub impl Show for PPC_FP128Type with output(_, logger: &Logger) {
@@ -615,29 +561,21 @@ pub impl Type for PPC_FP128Type with getBase(self) -> TypeBase {
 ///| VoidType
 pub struct VoidType {
   priv base: TypeBase
-} derive(Hash, Eq)
-
-fn VoidType::make_singleton() -> () -> VoidType {
-  let base = TypeBase::new()
-  let ty = VoidType::{ base, }
-  fn () { ty }
-}
-
-let void_type_singleton: () -> VoidType = VoidType::make_singleton()
+} derive(Eq)
 
 ///| Create a VoidTy.
 ///
 /// - See LLVM: `Type::getVoidTy`.
 ///
-/// Instead of use `Type::getVoidTy` in LLVM Cpp, use `VoidType::new` in Aether.
-///
 /// ```moonbit
 /// test "VoidType" {
-///   let voidty = VoidType::new()
+///   let ctx = LLVMContext::new()
+///   let voidty = ctx.getVoidTy()
 ///   inspect!(voidty, content="void")
 /// }
-pub fn VoidType::new() -> VoidType {
-  void_type_singleton()
+fn VoidType::new(context: LLVMContext) -> VoidType {
+  let base = TypeBase::new(context)
+  VoidType::{ base, }
 }
 
 pub impl Show for VoidType with output(_, logger: &Logger) {
@@ -661,29 +599,21 @@ pub impl Type for VoidType with asTypeEnum(self) -> TypeEnum {
 ///| LabelTy
 pub struct LabelType {
   priv base: TypeBase
-} derive(Hash, Eq)
-
-fn LabelType::make_singleton() -> () -> LabelType {
-  let base = TypeBase::new()
-  let ty = LabelType::{ base, }
-  fn () { ty }
-}
-
-let label_type_singleton: () -> LabelType = LabelType::make_singleton()
+} derive(Eq)
 
 ///| Create a LabelTy.
 ///
 /// - See LLVM: `Type::getLabelTy`.
 ///
-/// Instead of use `Type::getLabelTy` in LLVM Cpp, use `LabelType::new` in Aether.
-///
 /// ```moonbit
 /// test "LabelType" {
-///   let labelty = LabelType::new()
+///   let ctx = LLVMContext::new()
+///   let labelty = ctx.getLabelTy()
 ///   inspect!(labelty, content="label")
 /// }
-pub fn LabelType::new() -> LabelType {
-  label_type_singleton()
+fn LabelType::new(context: LLVMContext) -> LabelType {
+  let base = TypeBase::new(context)
+  LabelType::{ base, }
 }
 
 pub impl Show for LabelType with output(_, logger: &Logger) {
@@ -705,30 +635,22 @@ pub impl Type for LabelType with getBase(self) -> TypeBase {
 ///|
 pub struct MetadataType {
   priv base: TypeBase
-} derive(Hash, Eq)
-
-fn MetadataType::make_singleton() -> () -> MetadataType {
-  let base = TypeBase::new()
-  let ty = MetadataType::{ base, }
-  fn () { ty }
-}
-
-let metadata_type_singleton: () -> MetadataType = MetadataType::make_singleton()
+} derive(Eq)
 
 ///| Create a MetadataTy.
 ///
 /// - See LLVM: `Type::getMetadataTy`.
 ///
-/// Instead of use `Type::getMetadataTy` in LLVM Cpp, use `MetadataType::new` in Aether.
-///
 /// ```moonbit
 /// test "MetadataType" {
-///   let metadataty = MetadataType::new()
+///   let ctx = LLVMContext::new()
+///   let metadataty = ctx.getMetadataTy()
 ///   inspect!(metadataty, content="metadata")
 /// }
 /// ```
-pub fn MetadataType::new() -> MetadataType {
-  metadata_type_singleton()
+fn MetadataType::new(context: LLVMContext) -> MetadataType {
+  let base = TypeBase::new(context)
+  MetadataType::{ base, }
 }
 
 pub impl Show for MetadataType with output(_, logger: &Logger) {
@@ -750,30 +672,21 @@ pub impl Type for MetadataType with getBase(self) -> TypeBase {
 ///| X86_AMXType
 pub struct X86_AMXType {
   priv base: TypeBase
-} derive(Hash, Eq)
-
-fn X86_AMXType::make_singleton() -> () -> X86_AMXType {
-  let base = TypeBase::new()
-  let ty = X86_AMXType::{ base, }
-  fn () { ty }
-}
-
-let x86_amx_type_singleton: () -> X86_AMXType = X86_AMXType::make_singleton()
+} derive(Eq)
 
 ///| Create a X86_AMXTy.
 ///
 /// - See LLVM: `Type::getX86_AMXTy`.
 ///
-/// Instead of use `Type::getX86_AMXTy` in LLVM Cpp, use `X86_AMXType::new` in Aether.
-///
 /// ```moonbit
 /// test "X86_AMXType" {
-///   let x86_amxty = X86_AMXType::new()
+///   let ctx = LLVMContext::new()
+///   let x86_amxty = ctx.getX86_AMXTy()
 ///   inspect!(x86_amxty, content="x86_amx")
 /// }
 /// ```
-pub fn X86_AMXType::new() -> X86_AMXType {
-  x86_amx_type_singleton()
+fn X86_AMXType::new(context: LLVMContext) -> X86_AMXType {
+  X86_AMXType::{ base: TypeBase::new(context) }
 }
 
 pub impl Show for X86_AMXType with output(_, logger: &Logger) {
@@ -795,30 +708,21 @@ pub impl Type for X86_AMXType with getBase(self) -> TypeBase {
 ///| TokenTy
 pub struct TokenType {
   priv base: TypeBase
-} derive(Hash, Eq)
-
-fn TokenType::make_singleton() -> () -> TokenType {
-  let base = TypeBase::new()
-  let ty = TokenType::{ base, }
-  fn () { ty }
-}
-
-let token_type_singleton: () -> TokenType = TokenType::make_singleton()
+} derive(Eq)
 
 ///| Create a TokenTy
 ///
 /// - See LLVM: `Type::getTokenTy`.
 ///
-/// Instead of use `Type::getTokenTy` in LLVM Cpp, use `TokenType::new` in Aether.
-///
 /// ```moonbit
 /// test "TokenType" {
-///   let tokenty = TokenType::new()
+///   let ctx = LLVMContext::new()
+///   let tokenty = ctx.getTokenTy()
 ///   inspect!(tokenty, content="token")
 /// }
 /// ```
-pub fn TokenType::new() -> TokenType {
-  token_type_singleton()
+fn TokenType::new(context: LLVMContext) -> TokenType {
+  TokenType::{ base: TypeBase::new(context) }
 }
 
 pub impl Show for TokenType with output(_, logger: &Logger) {
@@ -840,53 +744,33 @@ pub impl Type for TokenType with getBase(self) -> TypeBase {
 pub struct IntegerType {
   priv base: TypeBase
   numBits: UInt
-} derive(Hash, Eq)
-
-fn IntegerType::make_singleton() -> () -> Map[UInt, IntegerType] {
-  let base = TypeBase::new()
-  let intTys = Map::new()
-            ..set(1U, IntegerType::{ base, numBits: 1 })
-            ..set(8U, IntegerType::{ base, numBits: 8 })
-            ..set(16, IntegerType::{ base, numBits: 16 })
-            ..set(32, IntegerType::{ base, numBits: 32 })
-            ..set(64, IntegerType::{ base, numBits: 64 })
-            ..set(128, IntegerType::{ base, numBits: 128 })
-
-  fn() { intTys }
-}
-
-let int_type_singleton: () -> Map[UInt, IntegerType] = IntegerType::make_singleton()
+} derive(Eq)
 
 ///| Create a IntegerType.
 ///
 /// - See LLVM: `IntegerType::IntegerType`.
 ///
-/// Instead of use `IntegerType::IntegerType` in LLVM Cpp, use `IntegerType::new`
-///
 /// ```moonbit
 /// test "IntegerType" {
-///   let intty = IntegerType::new(32U)
-///   inspect!(intty, content="i32")
+///   let ctx = LLVMContext::new()
+///   inspect!(ctx.getInt1Ty(), content="i1")
+///   inspect!(ctx.getInt8Ty(), content="i8")
+///   inspect!(ctx.getInt16Ty(), content="i16")
+///   inspect!(ctx.getInt32Ty(), content="i32")
+///   inspect!(ctx.getInt64Ty(), content="i64")
+///   inspect!(ctx.getInt128Ty(), content="i128")
+///   inspect!(ctx.getIntNTy(48), content="i48")
 /// }
 /// ```
-pub fn IntegerType::new(numBits: UInt) -> IntegerType {
-  let singleton = int_type_singleton()
-  match singleton.get(numBits) {
-    Some(ty) => ty
-    None => {
-      let base = singleton.get(1U).unwrap().base
-      let intTy = IntegerType::{ base, numBits }
-      singleton.set(numBits, intTy)
-      intTy
-    }
-  }
+fn IntegerType::new(context: LLVMContext, numBits: UInt) -> IntegerType {
+  IntegerType::{ base: TypeBase::new(context), numBits }
 }
 
 ///| Return type twice as wide the input type.
 ///
 /// - See LLVM: `IntegerType::getExtendedType`.
 pub fn IntegerType::getExtendedType(self: IntegerType) -> IntegerType {
-  IntegerType::new(self.getScalarSizeInBits() * 2)
+  self.getContext().getIntNTy(self.getScalarSizeInBits() * 2)
 }
 
 ///| Get the number of bits in this Integertype.
@@ -931,20 +815,19 @@ pub impl Type for IntegerType with getBase(self) -> TypeBase {
 pub struct FunctionType {
   priv base: TypeBase
   isVarArgs: Bool
-} derive(Hash, Eq)
+} derive(Eq)
 
 ///| Create a FunctionType
 ///
 /// See LLVM: `FunctionType::FunctionType`.
 ///
-/// Instead of use `FunctionType::get` in LLVM Cpp, use `FunctionType::new` in Aether.
-///
 /// ```moonbit
 /// test "FunctionType" {
-///   let int32ty = IntegerType::new(32)
-///   let voidty = VoidType::new()
-///   let f32ty = FloatType::new()
-///   let f64ty = DoubleType::new()
+///   let ctx = LLVMContext::new()
+///   let int32ty = ctx.getInt32Ty()
+///   let voidty = ctx.getVoidTy()
+///   let f32ty = ctx.getFloatTy()
+///   let f64ty = ctx.getDoubleTy()
 ///   let fty = FunctionType::new(voidty, [int32ty, f32ty, f64ty])
 ///   inspect!(fty, content="void (i32, float, double)")
 ///
@@ -953,6 +836,7 @@ pub struct FunctionType {
 /// }
 /// ```
 pub fn FunctionType::new(result: &Type, params: Array[&Type], isVarArgs~: Bool = false) -> FunctionType {
+  let context = result.getContext()
   let containtedTys : Array[&Type] = Array::new()
   if FunctionType::isValidReturnType(result) {
     containtedTys.push(result)
@@ -970,7 +854,7 @@ pub fn FunctionType::new(result: &Type, params: Array[&Type], isVarArgs~: Bool =
   }
   params.each(fn { param => containtedTys.push(param) })
   let containtedTys = Some(containtedTys)
-  let base = TypeBase::new(containtedTys~)
+  let base = TypeBase::new(context, containtedTys~)
   FunctionType::{ base, isVarArgs }
 }
 
@@ -1050,6 +934,7 @@ impl Type for FunctionType with getBase(self) -> TypeBase {
 // StructType
 // ====================================================================
 
+///|
 pub struct StructType {
   priv base: TypeBase
   priv mut name: String
@@ -1061,19 +946,11 @@ pub struct StructType {
   //priv mut containsScalableVector: Bool
   //priv mut containsNonGlobalTargetExtType: Bool
   //priv mut containsNonLocalTargetExtType: Bool
-} derive(Hash)
-
-///| See LLVM: `NamedStructTypes` and `NamedStructTypesUniqueID`
-fn StructType::make_singleton() -> () -> (Map[String, StructType], Ref[UInt]) {
-  let namedStructTypes : Map[String, StructType] = Map::new()
-  fn() { (namedStructTypes, Ref::new(0U)) }
 }
-
-let struct_type_singleton: () -> (Map[String, StructType], Ref[UInt]) = StructType::make_singleton()
 
 ///|
 ///
-pub fn StructType::new(elements~: Array[&Type] = [], name~: String = "", isPacked~: Bool = false) -> StructType {
+pub fn StructType::new(context: LLVMContext, elements~: Array[&Type] = [], name~: String = "", isPacked~: Bool = false) -> StructType {
   let hasBody = elements.length() > 0
   let isLiteral = name.length() > 0
   //let containsScalableVector = false
@@ -1084,7 +961,7 @@ pub fn StructType::new(elements~: Array[&Type] = [], name~: String = "", isPacke
   } else {
     None
   }
-  let base = TypeBase::new(containtedTys~)
+  let base = TypeBase::new(context, containtedTys~)
   let sty = StructType::{
     base,
     name,
@@ -1170,6 +1047,7 @@ pub fn StructType::setBodyOrError(self: StructType, elements: Array[&Type], isPa
   self.base.containtedTys = elements.copy() |> Some
 }
 
+///|
 pub fn StructType::getName(self: StructType) -> String {
   guard not(self.isLiteral) else {
     unreachable("loc: StructType::getName: Literal structs never have name")
@@ -1178,27 +1056,29 @@ pub fn StructType::getName(self: StructType) -> String {
   self.name + self.uniqueID.map_or("", fn { id => ".\{id}" })
 }
 
+///|
 pub fn StructType::setName(self: StructType, name: String) -> Unit {
   let old_name = self.getName()
   if old_name == name {
     return
   }
 
-  let (namedStructMap, namedStructTypesUniqueID) = struct_type_singleton()
+  //let (namedStructMap, namedStructTypesUniqueID) = struct_type_singleton()
+  let ctx = self.getContext().pimpl.unwrap()
 
   // delete the struct type from the map
   if name is "" {
-    namedStructMap.remove(old_name)
+    ctx.namedStructTypes.remove(old_name)
     self.name = name
     self.uniqueID = None
     return
   }
 
-  match namedStructMap.contains(name) {
-    false => namedStructMap.set(name, self)
+  match ctx.namedStructTypes.contains(name) {
+    false => ctx.namedStructTypes.set(name, self)
     true => {
-      namedStructMap.set("\{name}.\{namedStructTypesUniqueID}", self)
-      namedStructTypesUniqueID.val += 1
+      ctx.namedStructTypes.set("\{name}.\{ctx.namedStructTypesUniqueID}", self)
+      ctx.namedStructTypesUniqueID += 1
     }
   }
 }

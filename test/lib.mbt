@@ -1,4 +1,5 @@
 
+typealias LLVMContext = @IR.LLVMContext
 typealias HalfType = @IR.HalfType
 typealias BFloatType = @IR.BFloatType
 typealias FloatType = @IR.FloatType
