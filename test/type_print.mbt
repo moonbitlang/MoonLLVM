@@ -4,7 +4,6 @@
 /// ```cpp
 /// #include <llvm/IR/Type.h>
 /// #include <llvm/IR/LLVMContext.h>
-/// #include <llvm/IR/DerivedTypes.h>
 /// #include <llvm/Support/raw_ostream.h>
 ///
 /// using namespace llvm;
@@ -28,9 +27,6 @@
 ///   Type *labelTy = Type::getLabelTy(context);
 ///   Type *x86_amxTy = Type::getX86_AMXTy(context);
 ///
-///   FunctionType *fty = FunctionType::get(voidTy, {int32Ty, doubleTy, floatTy}, false);
-///   FunctionType *fty2 = FunctionType::get(int64Ty, {int32Ty, doubleTy, floatTy}, true);
-///
 ///   halfTy->print(llvm::outs()); llvm::outs() << "\n"; // Out: half
 ///   bfloatTy->print(llvm::outs()); llvm::outs() << "\n"; // Out: bfloat
 ///   floatTy->print(llvm::outs()); llvm::outs() << "\n"; // Out: float
@@ -48,52 +44,100 @@
 ///   x86_amxTy->print(llvm::outs()); llvm::outs() << "\n"; // Out: x86_amx
 ///   labelTy->print(llvm::outs()); llvm::outs() << "\n"; // Out: label
 ///
-///   fty->print(llvm::outs()); llvm::outs() << "\n"; // Out: void (i32, double, float)
-///   fty2->print(llvm::outs()); llvm::outs() << "\n"; // Out: i64 (i32, double, float, ...)
-///
+///   return 0;
 /// }
 /// ```
-test "Type Print" {
+test "Baisc Type Print" {
   let ctx = LLVMContext::new()
   let halfty = ctx.getHalfTy()
   let bfloaty = ctx.getBFloatTy()
   let floaty = ctx.getFloatTy()
   let doublety = ctx.getDoubleTy()
-  let int1ty = ctx.getInt1Ty()
-  let int8ty = ctx.getInt8Ty()
-  let int16ty = ctx.getInt16Ty()
-  let int32ty = ctx.getInt32Ty()
-  let int64ty = ctx.getInt64Ty()
-  let int128ty = ctx.getInt128Ty()
-
+  let i1ty = ctx.getInt1Ty()
+  let i8ty = ctx.getInt8Ty()
+  let i16ty = ctx.getInt16Ty()
+  let i32ty = ctx.getInt32Ty()
+  let i64ty = ctx.getInt64Ty()
   let x86_fp80ty = ctx.getX86_FP80Ty()
   let ppc_fp128ty = ctx.getPPC_FP128Ty()
-
   let voidty = ctx.getVoidTy()
   let metadata = ctx.getMetadataTy()
   let labelty = ctx.getLabelTy()
   let x86_amxty = ctx.getX86_AMXTy()
-
   inspect!(halfty, content="half")
   inspect!(bfloaty, content="bfloat")
   inspect!(floaty, content="float")
   inspect!(doublety, content="double")
-  inspect!(int1ty, content="i1")
-  inspect!(int8ty, content="i8")
-  inspect!(int16ty, content="i16")
-  inspect!(int32ty, content="i32")
-  inspect!(int64ty, content="i64")
-  inspect!(int128ty, content="i128")
+  inspect!(i1ty, content="i1")
+  inspect!(i8ty, content="i8")
+  inspect!(i16ty, content="i16")
+  inspect!(i32ty, content="i32")
+  inspect!(i64ty, content="i64")
   inspect!(x86_fp80ty, content="x86_fp80")
   inspect!(ppc_fp128ty, content="ppc_fp128")
   inspect!(voidty, content="void")
   inspect!(metadata, content="metadata")
   inspect!(x86_amxty, content="x86_amx")
   inspect!(labelty, content="label")
+}
 
-  let fty = FunctionType::new(voidty, [int32ty, doublety, floaty])
+///| The following code is equivalent to LLVM Cpp:
+///
+/// ```cpp
+/// #include <llvm/IR/LLVMContext.h>
+/// #include <llvm/IR/DerivedTypes.h>
+///
+/// using namespace llvm;
+///
+/// int main() {
+///   LLVMContext context;
+///   Type *i32Ty = Type::getInt32Ty(context);
+///   Type *i64Ty = Type::getInt64Ty(context);
+///   Type *f32Ty = Type::getFloatTy(context);
+///   Type *f64Ty = Type::getDoubleTy(context);
+///   Type *voidTy = Type::getVoidTy(context);
+///
+///   FunctionType *fty = FunctionType::get(voidTy, {i32Ty, f64Ty, f32Ty});
+///   fty->print(llvm::outs()); llvm::outs() << "\n"; // Out: void (i32, double, float)
+///
+///   FunctionType *fty2 = FunctionType::get(i64Ty, {i32Ty, f64Ty, f32Ty}, true);
+///   fty2->print(llvm::outs()); llvm::outs() << "\n"; // Out: i64 (i32, double, float, ...)
+///
+///   return 0;
+/// }
+/// ```
+test "Function Type Print" {
+  let ctx = LLVMContext::new()
+  let i32ty = ctx.getInt32Ty()
+  let i64ty = ctx.getInt64Ty()
+  let f32ty = ctx.getFloatTy()
+  let f64ty = ctx.getDoubleTy()
+  let voidty = ctx.getVoidTy()
+  let fty = ctx.createFunctionType!(voidty, [i32ty, f64ty, f32ty])
   inspect!(fty, content="void (i32, double, float)")
-
-  let fty = FunctionType::new(int64ty, [int32ty, doublety, floaty], isVarArgs=true)
+  let fty = ctx.createFunctionType!(
+    i64ty,
+    [i32ty, f64ty, f32ty],
+    isVarArgs=true,
+  )
   inspect!(fty, content="i64 (i32, double, float, ...)")
+}
+
+///|
+test "Struct Type Print" {
+  let ctx = LLVMContext::new()
+  let i32ty = ctx.getInt32Ty()
+  let f32ty = ctx.getFloatTy()
+  let f64ty = ctx.getDoubleTy()
+  let opaque = ctx.createStructType!([])
+  inspect!(opaque, content="%\"&literal.0\" = opaque")
+  let literal = ctx.createStructType!([i32ty, f32ty, f64ty])
+  inspect!(literal, content="%\"&literal.1\" = type { i32, float, double }")
+  let named = ctx.createStructType!([i32ty, f32ty, f64ty], name="foo")
+  inspect!(named, content="%foo = type { i32, float, double }")
+  let named2 = ctx.createStructType!([i32ty, f32ty, f64ty], name="bar")
+  inspect!(named2, content="%bar = type { i32, float, double }")
+
+  // In Ather, dumplicate struct name is not allow, it's different with LLVM.
+  assert_true!(ctx.createStructType?([], name="foo").is_err())
 }
