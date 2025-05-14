@@ -69,9 +69,6 @@ pub trait Type: Show {
   /// Return true if this is a pointer type or a vector of pointer types.
   //isPtrOrPtrVectorTy(Self) -> Bool = _ 
 
-  /// True if this is an instance of TargetExtType of RISC-V vector tuple.
-  // isRIVCVectorTupleTy(Self) -> Bool = _
-
   /// Return true if this type could be converted with a lossless BitCast to
   /// type 'Ty'. For example, i8* to i32*. BitCasts are valid for types of the
   /// same size only where no re-interpretation of the bits is done.
@@ -88,12 +85,12 @@ pub trait Type: Show {
 
   /// Return true if the type is a valid type for a register in codegen. This
   /// includes all first-class types except struct and array types.
-  //isSingleValueType(Self) -> Bool = _
+  isSingleValueType(Self) -> Bool = _
 
   /// Return true if the type is an aggregate type. This means it is valid as
   /// the first operand of an insertvalue or extractvalue instruction. This
   /// includes struct and array types, but does not include vector types.
-  //isAggregateType(Self) -> Bool = _
+  isAggregateType(Self) -> Bool = _
 
   /// Return true if it makes sense to take the size of this type. To get the
   /// actual size for a particular target, it is reasonable to use the
@@ -188,17 +185,24 @@ impl Type with isFirstClassType(self) {
 }
 
 // REVIEW: Maybe we could use math-cases
-//impl Type with isSingleValueType(self) -> Bool {
-//  self.isFloatingPointTy() || self.isIntegerTy() || self.isPointerTy() || self.isVectorTy() || self.isX86_AMXTy() || self.isTargetExtTy()
-//}
+impl Type with isSingleValueType(self) -> Bool {
+  //self.isFloatingPointTy() || self.isIntegerTy() || self.isPointerTy() || self.isVectorTy() || self.isX86_AMXTy() || self.isTargetExtTy()
+  match self.asTypeEnum() {
+    HalfType(_) | BFloatType(_) | FloatType(_) | DoubleType(_) | FP128Type(_) => true
+    IntegerType(_) => true
+    PointerType(_) => true
+    VectorType(_) => true
+    _ => false
+  }
+}
 
-//impl Type with isAggregateType(self) -> Bool {
-//  match self.asTypeEnum() {
-//    StructType(_) | ArrayType(_) => true
-//    _ => false
-//  }
-//}
-//
+impl Type with isAggregateType(self) -> Bool {
+  match self.asTypeEnum() {
+    StructType(_) | ArrayType(_) => true
+    _ => false
+  }
+}
+
 ///|
 impl Type with isSized(self) -> Bool {
   match self.asTypeEnum() {
