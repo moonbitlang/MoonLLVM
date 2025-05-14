@@ -21,6 +21,7 @@ struct LLVMContextImpl {
   token_ty : TokenType
   integerTypes : Map[UInt, IntegerType]
   namedStructTypes : Map[String, StructType]
+  pointerTypes: Map[AddressSpace, PointerType]
   mut literalStructID : UInt64
 }
 
@@ -36,6 +37,10 @@ pub fn LLVMContext::new() -> LLVMContext {
     ..set(32U, IntegerType::new?(ctx, 32).unwrap())
     ..set(64U, IntegerType::new?(ctx, 64).unwrap())
 
+  let addr0 = AddressSpace::default()
+  let pointerTypes = Map::new()
+    ..set(addr0, PointerType::new(ctx, addressSpace = addr0))
+
   // Initialize the LLVMContextImpl.
   let pimpl = LLVMContextImpl::{
     half_ty: HalfType::new(ctx),
@@ -50,6 +55,7 @@ pub fn LLVMContext::new() -> LLVMContext {
     integerTypes,
     namedStructTypes: Map::new(),
     literalStructID: 0,
+    pointerTypes,
   }
   ctx.pimpl = Some(pimpl)
   ctx
@@ -220,6 +226,21 @@ pub fn LLVMContext::getIntNTy(
       ty
     }
     _ => raise Over64BitsInteger
+  }
+}
+
+///|
+pub fn LLVMContext::getPointerTy(
+  self: LLVMContext,
+  addressSpace~ : AddressSpace = AddressSpace::default()
+) -> PointerType {
+  match self.pimpl.unwrap().pointerTypes.get(addressSpace) {
+    Some(ty) => ty
+    None => {
+      let ty = PointerType::new(self, addressSpace~)
+      self.pimpl.unwrap().pointerTypes.set(addressSpace, ty)
+      ty
+    }
   }
 }
 

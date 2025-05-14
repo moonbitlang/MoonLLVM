@@ -2,7 +2,7 @@
 pub struct TypeSize {
   priv quantity : UInt64
   priv scalable : Bool
-}
+} derive(Eq)
 
 ///|
 pub fn TypeSize::getFixed(quantity : UInt64) -> TypeSize {

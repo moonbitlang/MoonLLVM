@@ -54,27 +54,27 @@ pub trait Type: Show {
   //bool containsNonLocalTargetExtType() const;
 
   /// Return true if this is a FP type or a vector of FP.
-  // isFPOrFPVectorTy(Self) -> Bool = _
+  isFPOrFPVectorTy(Self) -> Bool = _
 
   /// Return true if this is an integer type or a vector of integer types.
   // REVIEW: cpp has another `isIntOrIntVectorTy` function
   isIntOrIntVectorTy(Self) -> Bool = _
 
   /// Return true if this is an integer type or a pointer type.
-  //isIntOrPtrTy(Self) -> Bool = _
+  isIntOrPtrTy(Self) -> Bool = _
 
   /// Return true if this is a pointer type or a vector of pointer types.
-  //isPtrOrPtrVectorTy(Self) -> Bool = _ 
+  isPtrOrPtrVectorTy(Self) -> Bool = _
 
   /// Return true if this type could be converted with a lossless BitCast to
   /// type 'Ty'. For example, i8* to i32*. BitCasts are valid for types of the
   /// same size only where no re-interpretation of the bits is done.
   /// Determine if this type could be losslessly bitcast to Ty
-  // canLosslesslyBitCastTo(Self, ty: Type) -> Bool = _
+  canLosslesslyBitCastTo(Self, ty : &Type) -> Bool = _
 
   /// Return true if this type is empty, that is, it has no elements or all of
   /// its elements are empty.
-  // isEmptyTy(Self) -> Bool = _
+  isEmptyTy(Self) -> Bool = _
 
   /// Return true if the type is "first class", meaning it is a valid type for a
   /// Value.
@@ -114,13 +114,10 @@ pub trait Type: Show {
   /// type.
   getScalarSizeInBits(Self) -> UInt = _
 
-  /// Return the width of the mantissa of this type. This is only valid on
-  /// floating-point types. If the FP type does not have a stable mantissa (e.g.
-  /// ppc long double), this method returns -1.
-  // getFPMantissaWidth(Self) -> UInt = _
-
   getContainedType(Self, index : Int) -> &Type? = _
   getScalarType(Self) -> &Type = _
+
+  tryAsFPTypeEnum(Self) -> FPTypeEnum? = _
 }
 
 ///|
@@ -135,14 +132,12 @@ impl Type with is16bitFPTy(self) -> Bool {
 
 ///|
 impl Type with isIEEELikeFPTy(self) -> Bool {
-  self.asTypeEnum()
-  is (FloatType(_) | DoubleType(_) | HalfType(_) | BFloatType(_) | FP128Type(_))
+  self.tryAsFPTypeEnum() is Some(_)
 }
 
 ///|
 impl Type with isFloatingPointTy(self) -> Bool {
-  self.asTypeEnum()
-  is (FloatType(_) | DoubleType(_) | HalfType(_) | BFloatType(_) | FP128Type(_))
+  self.tryAsFPTypeEnum() is Some(_)
 }
 
 ///|
@@ -162,16 +157,56 @@ impl Type with isIntOrIntVectorTy(self) -> Bool {
   self.getScalarType().asTypeEnum() is IntegerType(_)
 }
 
-//impl Type with isFPOrFPVectorTy
+///|
+impl Type with isFPOrFPVectorTy(self) -> Bool {
+  self.getScalarType().isFloatingPointTy()
+}
+
 //impl Type with isRISCVectorTupleTy(self) -> Bool
 
-//impl Type with canLosslesslyBitCastTo(self, ty: Type)
-//impl Type with isEmptyTy(self) -> Bool
 ///|
+impl Type with canLosslesslyBitCastTo(self, ty : &Type) -> Bool {
+  if self.asTypeEnum() == ty.asTypeEnum() {
+    return true
+  }
+  if not(self.isFirstClassType()) || not(ty.isFirstClassType()) {
+    return false
+  }
+  if self.asTypeEnum() is VectorType(vec1) &&
+    self.asTypeEnum() is VectorType(vec2) {
+    return vec1.getPrimitiveSizeInBits() == vec2.getPrimitiveSizeInBits()
+  }
+  false
+}
+
+///|
+impl Type with isIntOrPtrTy(self) -> Bool {
+  self.asTypeEnum() is (IntegerType(_) | PointerType(_))
+}
+
+///|
+impl Type with isPtrOrPtrVectorTy(self) -> Bool {
+  self.getScalarType().asTypeEnum() is PointerType(_)
+}
+
+///|
+impl Type with isEmptyTy(self) -> Bool {
+  match self.asTypeEnum() {
+    ArrayType(arr) if arr.getNumElements() == 0 => true
+    ArrayType(arr) => arr.getElementType().isEmptyTy()
+    StructType(sty) if sty.isOpaque() => true
+    StructType(sty) => sty.elements().iter().all(fn { ty => ty.isEmptyTy() })
+    _ => false
+  }
+}
+
+///|
+///
+/// Only FunctionType, VoidType, Opaque Struct is not first class type.
 impl Type with isFirstClassType(self) {
   match self.asTypeEnum() {
-    FunctionType(_) | VoidType(_) => false
     StructType(sty) => not(sty.isOpaque())
+    FunctionType(_) | VoidType(_) => false
     _ => true
   }
 }
@@ -179,7 +214,6 @@ impl Type with isFirstClassType(self) {
 // REVIEW: Maybe we could use math-cases
 ///|
 impl Type with isSingleValueType(self) -> Bool {
-  //self.isFloatingPointTy() || self.isIntegerTy() || self.isPointerTy() || self.isVectorTy() || self.isX86_AMXTy() || self.isTargetExtTy()
   match self.asTypeEnum() {
     HalfType(_) | BFloatType(_) | FloatType(_) | DoubleType(_) | FP128Type(_) =>
       true
@@ -232,7 +266,6 @@ impl Type with getPrimitiveSizeInBits(self) -> TypeSize {
 impl Type with getScalarSizeInBits(self) -> UInt {
   self.getScalarType().getPrimitiveSizeInBits().getFixedValue().to_uint()
 }
-// impl Type with getFPMantissaWidth(self) -> UInt
 
 ///|
 impl Type with getContainedType(self, idx) -> &Type? {
@@ -251,8 +284,52 @@ impl Type with getScalarType(self) {
   }
 }
 
+impl Type with tryAsFPTypeEnum(self) -> FPTypeEnum? {
+  match self.asTypeEnum() {
+    HalfType(half) => Some(HalfType(half))
+    BFloatType(bfloat) => Some(BFloatType(bfloat))
+    FloatType(float) => Some(FloatType(float))
+    DoubleType(double) => Some(DoubleType(double))
+    FP128Type(fp128) => Some(FP128Type(fp128))
+    _ => None
+  }
+}
+
 // pub Type with print(self, logger: &Logger, isForDebug~ = false, noDetails~ = false)
 // pub Type with dump(self)
+
+// ====================================================================
+// FPTypeEnum
+// ====================================================================
+
+pub trait FPType : Type {
+  asFPTypeEnum(Self) -> FPTypeEnum
+
+  /// Return the width of the mantissa of this type. 
+  getFPMantissaWidth(Self) -> UInt = _
+}
+
+pub enum FPTypeEnum {
+  HalfType(HalfType)
+  BFloatType(BFloatType)
+  FloatType(FloatType)
+  DoubleType(DoubleType)
+  FP128Type(FP128Type)
+}
+
+impl FPType with getFPMantissaWidth(self) {
+  match self.asFPTypeEnum() {
+    HalfType(_) => 11
+    BFloatType(_) => 8
+    FloatType(_) => 24
+    DoubleType(_) => 53
+    FP128Type(_) => 113
+  }
+}
+
+// ====================================================================
+// TypeBase
+// ====================================================================
 
 ///|
 struct TypeBase {
@@ -309,6 +386,10 @@ pub impl Type for HalfType with getBase(self) -> TypeBase {
   self.base
 }
 
+pub impl FPType for HalfType with asFPTypeEnum(self) -> FPTypeEnum {
+  FPTypeEnum::HalfType(self)
+}
+
 // ====================================================================
 // BFloatType
 // ====================================================================
@@ -336,6 +417,11 @@ pub impl Type for BFloatType with asTypeEnum(self) -> TypeEnum {
 ///|
 pub impl Type for BFloatType with getBase(self) -> TypeBase {
   self.base
+}
+
+///|
+pub impl FPType for BFloatType with asFPTypeEnum(self) -> FPTypeEnum {
+  FPTypeEnum::BFloatType(self)
 }
 
 // ====================================================================
@@ -368,8 +454,13 @@ pub impl Type for FloatType with getBase(self) -> TypeBase {
   self.base
 }
 
+///|
+pub impl FPType for FloatType with asFPTypeEnum(self) -> FPTypeEnum {
+  FPTypeEnum::FloatType(self)
+}
+
 // ====================================================================
-// DoubelType
+// DoubleType
 // ====================================================================
 
 ///| DoubleType
@@ -396,6 +487,11 @@ pub impl Type for DoubleType with asTypeEnum(self) -> TypeEnum {
 ///|
 pub impl Type for DoubleType with getBase(self) -> TypeBase {
   self.base
+}
+
+///|
+pub impl FPType for DoubleType with asFPTypeEnum(self) -> FPTypeEnum {
+  FPTypeEnum::DoubleType(self)
 }
 
 // ====================================================================
@@ -426,6 +522,11 @@ pub impl Type for FP128Type with asTypeEnum(self) -> TypeEnum {
 ///|
 pub impl Type for FP128Type with getBase(self) -> TypeBase {
   self.base
+}
+
+///|
+pub impl FPType for FP128Type with asFPTypeEnum(self) -> FPTypeEnum {
+  FPTypeEnum::FP128Type(self)
 }
 
 // ====================================================================
@@ -1212,7 +1313,7 @@ pub impl Type for VectorType with getBase(self) -> TypeBase {
 // ====================================================================
 
 ///|
-pub type AddressSpace UInt derive(Show, Eq, Default)
+pub type AddressSpace UInt derive(Hash, Show, Eq, Default)
 
 ///|
 pub struct PointerType {
