@@ -4,13 +4,10 @@ pub enum TypeEnum {
   BFloatType(BFloatType)
   FloatType(FloatType)
   DoubleType(DoubleType)
-  X86_FP80Type(X86_FP80Type)
   FP128Type(FP128Type)
-  PPC_FP128Type(PPC_FP128Type)
   VoidType(VoidType)
   LabelType(LabelType)
   MetadataType(MetadataType)
-  X86_AMXType(X86_AMXType)
   TokenType(TokenType)
   IntegerType(IntegerType)
   FunctionType(FunctionType)
@@ -145,13 +142,7 @@ impl Type with isIEEELikeFPTy(self) -> Bool {
 ///|
 impl Type with isFloatingPointTy(self) -> Bool {
   self.asTypeEnum()
-  is (FloatType(_)
-  | DoubleType(_)
-  | HalfType(_)
-  | BFloatType(_)
-  | X86_FP80Type(_)
-  | FP128Type(_)
-  | PPC_FP128Type(_))
+  is (FloatType(_) | DoubleType(_) | HalfType(_) | BFloatType(_) | FP128Type(_))
 }
 
 ///|
@@ -206,17 +197,15 @@ impl Type with isAggregateType(self) -> Bool {
 ///|
 impl Type with isSized(self) -> Bool {
   match self.asTypeEnum() {
-    IntegerType(_) => true
-    //| PointerType(_) | X86_AMXType(_) => true
+    IntegerType(_)
+    | PointerType(_) => true
     HalfType(_)
     | BFloatType(_)
     | FloatType(_)
     | DoubleType(_)
-    | X86_FP80Type(_)
-    | FP128Type(_)
-    | PPC_FP128Type(_) => true // Floating point types
+    | FP128Type(_) => true // Floating point types
     StructType(sty) => sty.isSized()
-    //| ArrayType(_) | FixedVectorType(_) | ScalableVectorType(_) | TargetExtType(_) => true // Derived types
+    ArrayType(_) | VectorType(_) => true // Derived types
     _ =>
       // in cpp, there is `isSizedDerivedType` function
       //println("\{self.getTypeID()} is sized or not has not been implemented yet")
@@ -231,10 +220,7 @@ impl Type with getPrimitiveSizeInBits(self) -> TypeSize {
     BFloatType(_) => TypeSize::getFixed(16)
     FloatType(_) => TypeSize::getFixed(32)
     DoubleType(_) => TypeSize::getFixed(64)
-    X86_FP80Type(_) => TypeSize::getFixed(80)
     FP128Type(_) => TypeSize::getFixed(128)
-    PPC_FP128Type(_) => TypeSize::getFixed(128)
-    X86_AMXType(_) => TypeSize::getFixed(8192)
     IntegerType(i) => TypeSize::getFixed(i.getBitWidth().to_uint64())
     //FixedVectorType(_) => abort("getPrimitiveSizeInBits: FixedVectorType not implemented yet")
     //ScalableVectorType(_) => abort("getPrimitiveSizeInBits: ScalableVectorType not implemented yet")
@@ -413,35 +399,6 @@ pub impl Type for DoubleType with getBase(self) -> TypeBase {
 }
 
 // ====================================================================
-// X86_FP80Type
-// ====================================================================
-
-///| X86_FP80Ty
-pub struct X86_FP80Type {
-  priv base : TypeBase
-} derive(Eq)
-
-///| Create a X86_FP80Ty
-fn X86_FP80Type::new(context : LLVMContext) -> X86_FP80Type {
-  X86_FP80Type::{ base: TypeBase::new(context) }
-}
-
-///|
-pub impl Show for X86_FP80Type with output(_, logger : &Logger) {
-  logger.write_string("x86_fp80")
-}
-
-///|
-pub impl Type for X86_FP80Type with asTypeEnum(self) -> TypeEnum {
-  TypeEnum::X86_FP80Type(self)
-}
-
-///|
-pub impl Type for X86_FP80Type with getBase(self) -> TypeBase {
-  self.base
-}
-
-// ====================================================================
 // FP128Type
 // ====================================================================
 
@@ -468,46 +425,6 @@ pub impl Type for FP128Type with asTypeEnum(self) -> TypeEnum {
 
 ///|
 pub impl Type for FP128Type with getBase(self) -> TypeBase {
-  self.base
-}
-
-// ====================================================================
-// PPC_FP128Type
-// ====================================================================
-
-///| PPC_FP128Ty
-pub struct PPC_FP128Type {
-  priv base : TypeBase
-} derive(Eq)
-
-///| Create a PPC_FP128Ty.
-///
-/// - See LLVM: `Type::getPPC_FP128Ty`.
-///
-/// ```moonbit
-/// test "PPC_FP128Type" {
-///   let ctx = LLVMContext::new()
-///   let ppc_fp128ty = ctx.getPPC_FP128Ty()
-///   inspect!(ppc_fp128ty, content="ppc_fp128")
-/// }
-/// ```
-fn PPC_FP128Type::new(context : LLVMContext) -> PPC_FP128Type {
-  let base = TypeBase::new(context)
-  PPC_FP128Type::{ base, }
-}
-
-///|
-pub impl Show for PPC_FP128Type with output(_, logger : &Logger) {
-  logger.write_string("ppc_fp128")
-}
-
-///|
-pub impl Type for PPC_FP128Type with asTypeEnum(self) -> TypeEnum {
-  TypeEnum::PPC_FP128Type(self)
-}
-
-///|
-pub impl Type for PPC_FP128Type with getBase(self) -> TypeBase {
   self.base
 }
 
@@ -626,45 +543,6 @@ pub impl Type for MetadataType with asTypeEnum(self) -> TypeEnum {
 
 ///|
 pub impl Type for MetadataType with getBase(self) -> TypeBase {
-  self.base
-}
-
-// ====================================================================
-// X86_AMXType
-// ====================================================================
-
-///| X86_AMXType
-pub struct X86_AMXType {
-  priv base : TypeBase
-} derive(Eq)
-
-///| Create a X86_AMXTy.
-///
-/// - See LLVM: `Type::getX86_AMXTy`.
-///
-/// ```moonbit
-/// test "X86_AMXType" {
-///   let ctx = LLVMContext::new()
-///   let x86_amxty = ctx.getX86_AMXTy()
-///   inspect!(x86_amxty, content="x86_amx")
-/// }
-/// ```
-fn X86_AMXType::new(context : LLVMContext) -> X86_AMXType {
-  X86_AMXType::{ base: TypeBase::new(context) }
-}
-
-///|
-pub impl Show for X86_AMXType with output(_, logger : &Logger) {
-  logger.write_string("x86_amx")
-}
-
-///|
-pub impl Type for X86_AMXType with asTypeEnum(self) -> TypeEnum {
-  TypeEnum::X86_AMXType(self)
-}
-
-///|
-pub impl Type for X86_AMXType with getBase(self) -> TypeBase {
   self.base
 }
 
@@ -1222,7 +1100,7 @@ fn ArrayType::new(
 fn ArrayType::isValidElementType(eleTy : &Type) -> Bool {
   match eleTy.asTypeEnum() {
     VoidType(_) | LabelType(_) | MetadataType(_) => false
-    FunctionType(_) | TokenType(_) | X86_AMXType(_) => false
+    FunctionType(_) | TokenType(_) => false
     _ => true
   }
 }
@@ -1343,7 +1221,7 @@ pub fn PointerType::getAddressSpace(self : PointerType) -> AddressSpace {
 
 fn PointerType::isValidElementType(eleTy: &Type) -> Bool {
   match eleTy.asTypeEnum() {
-    VoidType(_) | LabelType(_) | MetadataType(_) | TokenType(_) | X86_AMXType(_) => false
+    VoidType(_) | LabelType(_) | MetadataType(_) | TokenType(_) => false
     _ => true
   }
 }

@@ -19,13 +19,9 @@
 ///   Type *int16Ty = Type::getInt16Ty(context);
 ///   Type *int32Ty = Type::getInt32Ty(context);
 ///   Type *int64Ty = Type::getInt64Ty(context);
-///   Type *int128Ty = Type::getInt128Ty(context);
-///   Type *x86_fp80Ty = Type::getX86_FP80Ty(context);
-///   Type *ppc_fp128Ty = Type::getPPC_FP128Ty(context);
 ///   Type *voidTy = Type::getVoidTy(context);
 ///   Type *metadataTy = Type::getMetadataTy(context);
 ///   Type *labelTy = Type::getLabelTy(context);
-///   Type *x86_amxTy = Type::getX86_AMXTy(context);
 ///
 ///   halfTy->print(llvm::outs()); llvm::outs() << "\n"; // Out: half
 ///   bfloatTy->print(llvm::outs()); llvm::outs() << "\n"; // Out: bfloat
@@ -36,12 +32,8 @@
 ///   int16Ty->print(llvm::outs()); llvm::outs() << "\n"; // Out: i16
 ///   int32Ty->print(llvm::outs()); llvm::outs() << "\n"; // Out: i32
 ///   int64Ty->print(llvm::outs()); llvm::outs() << "\n"; // Out: i64
-///   int128Ty->print(llvm::outs()); llvm::outs() << "\n"; // Out: i128
-///   x86_fp80Ty->print(llvm::outs()); llvm::outs() << "\n"; // Out: x86_fp80
-///   ppc_fp128Ty->print(llvm::outs()); llvm::outs() << "\n"; // Out: ppc_fp128
 ///   voidTy->print(llvm::outs()); llvm::outs() << "\n"; // Out: void
 ///   metadataTy->print(llvm::outs()); llvm::outs() << "\n"; // Out: metadata
-///   x86_amxTy->print(llvm::outs()); llvm::outs() << "\n"; // Out: x86_amx
 ///   labelTy->print(llvm::outs()); llvm::outs() << "\n"; // Out: label
 ///
 ///   return 0;
@@ -58,12 +50,9 @@ test "Baisc Type Print" {
   let i16ty = ctx.getInt16Ty()
   let i32ty = ctx.getInt32Ty()
   let i64ty = ctx.getInt64Ty()
-  let x86_fp80ty = ctx.getX86_FP80Ty()
-  let ppc_fp128ty = ctx.getPPC_FP128Ty()
   let voidty = ctx.getVoidTy()
   let metadata = ctx.getMetadataTy()
   let labelty = ctx.getLabelTy()
-  let x86_amxty = ctx.getX86_AMXTy()
   inspect!(halfty, content="half")
   inspect!(bfloaty, content="bfloat")
   inspect!(floaty, content="float")
@@ -73,11 +62,8 @@ test "Baisc Type Print" {
   inspect!(i16ty, content="i16")
   inspect!(i32ty, content="i32")
   inspect!(i64ty, content="i64")
-  inspect!(x86_fp80ty, content="x86_fp80")
-  inspect!(ppc_fp128ty, content="ppc_fp128")
   inspect!(voidty, content="void")
   inspect!(metadata, content="metadata")
-  inspect!(x86_amxty, content="x86_amx")
   inspect!(labelty, content="label")
 }
 

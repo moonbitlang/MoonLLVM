@@ -14,13 +14,10 @@ struct LLVMContextImpl {
   bfloat_ty : BFloatType
   float_ty : FloatType
   double_ty : DoubleType
-  x86_fp80_ty : X86_FP80Type
   fp128_ty : FP128Type
-  ppc_fp128_ty : PPC_FP128Type
   void_ty : VoidType
   label_ty : LabelType
   metadata_ty : MetadataType
-  x86_amx_ty : X86_AMXType
   token_ty : TokenType
   integerTypes : Map[UInt, IntegerType]
   namedStructTypes : Map[String, StructType]
@@ -45,13 +42,10 @@ pub fn LLVMContext::new() -> LLVMContext {
     bfloat_ty: BFloatType::new(ctx),
     float_ty: FloatType::new(ctx),
     double_ty: DoubleType::new(ctx),
-    x86_fp80_ty: X86_FP80Type::new(ctx),
     fp128_ty: FP128Type::new(ctx),
-    ppc_fp128_ty: PPC_FP128Type::new(ctx),
     void_ty: VoidType::new(ctx),
     label_ty: LabelType::new(ctx),
     metadata_ty: MetadataType::new(ctx),
-    x86_amx_ty: X86_AMXType::new(ctx),
     token_ty: TokenType::new(ctx),
     integerTypes,
     namedStructTypes: Map::new(),
@@ -121,21 +115,6 @@ pub fn LLVMContext::getDoubleTy(self : LLVMContext) -> DoubleType {
   self.pimpl.unwrap().double_ty
 }
 
-///| Get the x86_fp80 type from context.
-///
-/// - See LLVM: `Type::getX86_FP80Ty`.
-///
-/// ```moonbit
-/// test "X86_FP80Type" {
-///   let ctx = LLVMContext::new()
-///   let x86_fp80_ty = ctx.getX86_FP80Ty()
-///   inspect!(x86_fp80_ty, content="x86_fp80")
-/// }
-/// ```
-pub fn LLVMContext::getX86_FP80Ty(self : LLVMContext) -> X86_FP80Type {
-  self.pimpl.unwrap().x86_fp80_ty
-}
-
 ///| Get the fp128 type from context.
 ///
 /// - See LLVM: `Type::getFP128Ty`.
@@ -148,36 +127,6 @@ pub fn LLVMContext::getX86_FP80Ty(self : LLVMContext) -> X86_FP80Type {
 /// }
 pub fn LLVMContext::getFP128Ty(self : LLVMContext) -> FP128Type {
   self.pimpl.unwrap().fp128_ty
-}
-
-///| Get the ppc_fp128 type from context.
-///
-/// - See LLVM: `Type::getPPC_FP128Ty`.
-///
-/// ```moonbit
-/// test "PPC_FP128Type" {
-///   let ctx = LLVMContext::new()
-///   let ppc_fp128ty = ctx.getPPC_FP128Ty()
-///   inspect!(ppc_fp128ty, content="ppc_fp128")
-/// }
-/// ```
-pub fn LLVMContext::getPPC_FP128Ty(self : LLVMContext) -> PPC_FP128Type {
-  self.pimpl.unwrap().ppc_fp128_ty
-}
-
-///| Get the x86_amx type from context.
-///
-/// - See LLVM: `Type::getX86_AMXTy`.
-///
-/// ```moonbit
-/// test "X86_AMXType" {
-///   let ctx = LLVMContext::new()
-///   let x86_amxty = ctx.getX86_AMXTy()
-///   inspect!(x86_amxty, content="x86_amx")
-/// }
-/// ```
-pub fn LLVMContext::getX86_AMXTy(self : LLVMContext) -> X86_AMXType {
-  self.pimpl.unwrap().x86_amx_ty
 }
 
 ///| Get the void type from context.
