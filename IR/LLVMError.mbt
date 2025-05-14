@@ -3,9 +3,11 @@ type! LLVMError {
   OpaqueStructMustHaveName
   SetBodyForNonOpaqueStruct
   RecursiveStructDefinition
-  InValidStructName
-  DuplicateStructName
+  InValidStructName(String)
+  DuplicateStructName(String)
   Over64BitsInteger
-  InValidFunctionReturnType
-  InvalidFunctionArgumentType
+  InValidFunctionReturnType(&Type)
+  InValidFunctionArgumentType(&Type)
+  InValidArrayElementType(&Type)
+  InValidVectorElementType(&Type)
 } derive(Show)

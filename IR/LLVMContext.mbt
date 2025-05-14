@@ -344,6 +344,25 @@ pub fn LLVMContext::createStructType(
   StructType::new!(self, elements, name~, isPacked~)
 }
 
+///|
+pub fn LLVMContext::createArrayType(
+  self : LLVMContext,
+  elementType : &Type,
+  numElements : UInt
+) -> ArrayType!LLVMError {
+  ArrayType::new!(self, elementType, numElements)
+}
+
+///|
+pub fn LLVMContext::createVectorType(
+  self : LLVMContext,
+  elementType : &Type,
+  elementQuantity : UInt,
+  scalable~ : Bool = false
+) -> VectorType!LLVMError {
+  VectorType::new!(self, elementType, elementQuantity, scalable~)
+}
+
 // pub fn LLVMContext::addModule(self: LLVMContext, m: Module) {
 //   self.pimpl.ownedModules.push(m)
 // }
