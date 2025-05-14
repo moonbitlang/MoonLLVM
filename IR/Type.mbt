@@ -157,6 +157,7 @@ impl Type with isScalableTy(_) -> Bool {
   false
 }
 
+///|
 impl Type with isIntOrIntVectorTy(self) -> Bool {
   self.getScalarType().asTypeEnum() is IntegerType(_)
 }
@@ -176,10 +177,12 @@ impl Type with isFirstClassType(self) {
 }
 
 // REVIEW: Maybe we could use math-cases
+///|
 impl Type with isSingleValueType(self) -> Bool {
   //self.isFloatingPointTy() || self.isIntegerTy() || self.isPointerTy() || self.isVectorTy() || self.isX86_AMXTy() || self.isTargetExtTy()
   match self.asTypeEnum() {
-    HalfType(_) | BFloatType(_) | FloatType(_) | DoubleType(_) | FP128Type(_) => true
+    HalfType(_) | BFloatType(_) | FloatType(_) | DoubleType(_) | FP128Type(_) =>
+      true
     IntegerType(_) => true
     PointerType(_) => true
     VectorType(_) => true
@@ -187,6 +190,7 @@ impl Type with isSingleValueType(self) -> Bool {
   }
 }
 
+///|
 impl Type with isAggregateType(self) -> Bool {
   match self.asTypeEnum() {
     StructType(_) | ArrayType(_) => true
@@ -197,13 +201,9 @@ impl Type with isAggregateType(self) -> Bool {
 ///|
 impl Type with isSized(self) -> Bool {
   match self.asTypeEnum() {
-    IntegerType(_)
-    | PointerType(_) => true
-    HalfType(_)
-    | BFloatType(_)
-    | FloatType(_)
-    | DoubleType(_)
-    | FP128Type(_) => true // Floating point types
+    IntegerType(_) | PointerType(_) => true
+    HalfType(_) | BFloatType(_) | FloatType(_) | DoubleType(_) | FP128Type(_) =>
+      true // Floating point types
     StructType(sty) => sty.isSized()
     ArrayType(_) | VectorType(_) => true // Derived types
     _ =>
@@ -1046,10 +1046,7 @@ pub impl Show for StructType with output(self, logger : &Logger) {
     logger.write_string("opaque")
     return
   }
-  let elements_str = self
-    .elements()
-    .map(fn { ty => ty.to_string() })
-    .join(", ")
+  let elements_str = self.elements().map(fn { ty => ty.to_string() }).join(", ")
   logger.write_string("type ")
   if self.isPacked() {
     logger.write_string("<{ \{elements_str} }>")
@@ -1115,6 +1112,7 @@ pub fn ArrayType::getElementType(self : ArrayType) -> &Type {
   self.base.containtedTys.unwrap()[0]
 }
 
+///|
 impl Show for ArrayType with output(self, logger : &Logger) {
   let elementType = self.getElementType()
   let numElements = self.getNumElements()
@@ -1126,6 +1124,7 @@ impl Type for ArrayType with asTypeEnum(self) -> TypeEnum {
   TypeEnum::ArrayType(self)
 }
 
+///|
 impl Type for ArrayType with getBase(self) -> TypeBase {
   self.base
 }
@@ -1138,9 +1137,10 @@ impl Type for ArrayType with getBase(self) -> TypeBase {
 pub struct VectorType {
   priv base : TypeBase
   elementQuantity : UInt
-  scalable: Bool
+  scalable : Bool
 } derive(Eq)
 
+///|
 fn VectorType::new(
   context : LLVMContext,
   elementType : &Type,
@@ -1154,6 +1154,7 @@ fn VectorType::new(
   VectorType::{ base, elementQuantity, scalable }
 }
 
+///|
 fn VectorType::isValidElementType(eleTy : &Type) -> Bool {
   match eleTy.asTypeEnum() {
     IntegerType(_) => true
@@ -1163,21 +1164,29 @@ fn VectorType::isValidElementType(eleTy : &Type) -> Bool {
   }
 }
 
+///|
 pub fn VectorType::getElementType(self : VectorType) -> &Type {
   self.base.containtedTys.unwrap()[0]
 }
 
+///|
 pub fn VectorType::getElementCount(self : VectorType) -> UInt {
   self.elementQuantity
 }
 
-pub fn VectorType::getInteger(self: VectorType) -> VectorType!LLVMError {
+///|
+pub fn VectorType::getInteger(self : VectorType) -> VectorType!LLVMError {
   let ctx = self.getContext()
-  let eleBits = self.getElementType().getPrimitiveSizeInBits().getFixedValue().to_uint()
+  let eleBits = self
+    .getElementType()
+    .getPrimitiveSizeInBits()
+    .getFixedValue()
+    .to_uint()
   let eleTy = ctx.getIntNTy!(eleBits)
   ctx.createVectorType!(eleTy, self.getElementCount())
 }
 
+///|
 pub impl Show for VectorType with output(self, logger : &Logger) {
   let elementType = self.getElementType()
   let elementCount = self.getElementCount()
@@ -1188,10 +1197,12 @@ pub impl Show for VectorType with output(self, logger : &Logger) {
   }
 }
 
+///|
 pub impl Type for VectorType with asTypeEnum(self) -> TypeEnum {
   TypeEnum::VectorType(self)
 }
 
+///|
 pub impl Type for VectorType with getBase(self) -> TypeBase {
   self.base
 }
@@ -1200,13 +1211,16 @@ pub impl Type for VectorType with getBase(self) -> TypeBase {
 // PointerType
 // ====================================================================
 
+///|
 pub type AddressSpace UInt derive(Show, Eq, Default)
 
+///|
 pub struct PointerType {
   priv base : TypeBase
   addressSpace : AddressSpace
 } derive(Eq)
 
+///|
 fn PointerType::new(
   context : LLVMContext,
   addressSpace~ : AddressSpace = AddressSpace::default()
@@ -1215,32 +1229,38 @@ fn PointerType::new(
   PointerType::{ base, addressSpace }
 }
 
+///|
 pub fn PointerType::getAddressSpace(self : PointerType) -> AddressSpace {
   self.addressSpace
 }
 
-fn PointerType::isValidElementType(eleTy: &Type) -> Bool {
+///|
+fn PointerType::isValidElementType(eleTy : &Type) -> Bool {
   match eleTy.asTypeEnum() {
     VoidType(_) | LabelType(_) | MetadataType(_) | TokenType(_) => false
     _ => true
   }
 }
 
-pub fn PointerType::isLoadableOrStorableType(eleTy: &Type) -> Bool {
+///|
+pub fn PointerType::isLoadableOrStorableType(eleTy : &Type) -> Bool {
   match eleTy.asTypeEnum() {
     FunctionType(_) => false
     _ => PointerType::isValidElementType(eleTy)
   }
 }
 
+///|
 pub impl Show for PointerType with output(_, logger : &Logger) {
   logger.write_string("ptr")
 }
 
+///|
 pub impl Type for PointerType with asTypeEnum(self) -> TypeEnum {
   TypeEnum::PointerType(self)
 }
 
+///|
 pub impl Type for PointerType with getBase(self) -> TypeBase {
   self.base
 }
