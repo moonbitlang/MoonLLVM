@@ -22,6 +22,7 @@
 ///   Type *voidTy = Type::getVoidTy(context);
 ///   Type *metadataTy = Type::getMetadataTy(context);
 ///   Type *labelTy = Type::getLabelTy(context);
+///   Type *ptrTy = PointerType::get(int32Ty, 0);
 ///
 ///   halfTy->print(llvm::outs()); llvm::outs() << "\n"; // Out: half
 ///   bfloatTy->print(llvm::outs()); llvm::outs() << "\n"; // Out: bfloat
@@ -35,6 +36,7 @@
 ///   voidTy->print(llvm::outs()); llvm::outs() << "\n"; // Out: void
 ///   metadataTy->print(llvm::outs()); llvm::outs() << "\n"; // Out: metadata
 ///   labelTy->print(llvm::outs()); llvm::outs() << "\n"; // Out: label
+///   ptrTy->print(llvm::outs()); llvm::outs() << "\n"; // Out: ptr
 ///
 ///   return 0;
 /// }
@@ -53,6 +55,7 @@ test "Baisc Type Print" {
   let voidty = ctx.getVoidTy()
   let metadata = ctx.getMetadataTy()
   let labelty = ctx.getLabelTy()
+  let ptrty = ctx.getPointerTy()
   inspect!(halfty, content="half")
   inspect!(bfloaty, content="bfloat")
   inspect!(floaty, content="float")
@@ -65,9 +68,11 @@ test "Baisc Type Print" {
   inspect!(voidty, content="void")
   inspect!(metadata, content="metadata")
   inspect!(labelty, content="label")
+  inspect!(ptrty, content="ptr")
 }
 
-///| The following code is equivalent to LLVM Cpp:
+///|
+/// The following code is equivalent to LLVM Cpp:
 ///
 /// ```cpp
 /// #include <llvm/IR/LLVMContext.h>
@@ -110,6 +115,39 @@ test "Function Type Print" {
 }
 
 ///|
+/// The following code is equivalent to LLVM Cpp:
+///
+/// ```cpp
+/// #include <llvm/IR/LLVMContext.h>
+/// #include <llvm/IR/DerivedTypes.h>
+/// #include <llvm/Support/raw_ostream.h>
+///
+/// using namespace llvm;
+///
+/// int main() {
+///   LLVMContext context;
+///   Type *i32Ty = Type::getInt32Ty(context);
+///   Type *f32Ty = Type::getFloatTy(context);
+///   Type *f64Ty = Type::getDoubleTy(context);
+///
+///   StructType *opaque = StructType::create(context, "baz");
+///   opaque->print(llvm::outs()); llvm::outs() << "\n"; // Out: %baz = opaque
+///
+///   StructType *literal = StructType::create(context, {i32Ty, f32Ty, f64Ty});
+///   literal->print(llvm::outs()); llvm::outs() << "\n"; // Out: %"type 0x......" = type { i32, float, double }
+///
+///   StructType *named = StructType::create(context, {i32Ty, f32Ty, f64Ty}, "foo");
+///   named->print(llvm::outs()); llvm::outs() << "\n"; // Out: %foo = type { i32, float, double }
+///
+///   StructType *named2 = StructType::create(context, {i32Ty, f32Ty, f64Ty}, "bar");
+///   named2->print(llvm::outs()); llvm::outs() << "\n"; // Out: %bar = type { i32, float, double }
+///
+///   StructType *packed = StructType::create(context, {i32Ty, f32Ty, f64Ty}, "bax", true);
+///   packed->print(llvm::outs()); llvm::outs() << "\n"; // Out: %bax = type <{ i32, float, double }>
+///
+///   return 0;
+/// }
+/// ```
 test "Struct Type Print" {
   let ctx = LLVMContext::new()
   let i32ty = ctx.getInt32Ty()
@@ -124,6 +162,51 @@ test "Struct Type Print" {
   let named2 = ctx.createStructType!([i32ty, f32ty, f64ty], name="bar")
   inspect!(named2, content="%bar = type { i32, float, double }")
 
-  // In Ather, dumplicate struct name is not allow, it's different with LLVM.
-  assert_true!(ctx.createStructType?([], name="foo").is_err())
+  let packed = ctx.createStructType!([i32ty, f32ty, f64ty], name="bax", isPacked=true)
+  inspect!(packed, content="%bax = type <{ i32, float, double }>")
+}
+
+///|
+///
+/// The following code is equivalent to LLVM Cpp:
+///
+/// ```cpp
+/// #include <llvm/IR/LLVMContext.h>
+/// #include <llvm/IR/DerivedTypes.h>
+/// #include <llvm/Support/raw_ostream.h>
+///
+/// using namespace llvm;
+///
+/// int main() {
+///   LLVMContext context;
+///   Type *i32Ty = Type::getInt32Ty(context);
+///   Type *i64Ty = Type::getInt64Ty(context);
+///   Type *f32Ty = Type::getFloatTy(context);
+///
+///   ArrayType *arrTy = ArrayType::get(i32Ty, 16);
+///   arrTy->print(llvm::outs()); llvm::outs() << "\n"; // Out: [16 x i32]
+///
+///   FixedVectorType *fixedVecTy = FixedVectorType::get(i64Ty, 32);
+///   fixedVecTy->print(llvm::outs()); llvm::outs() << "\n"; // Out: <32 x i64>
+///
+///   ScalableVectorType *scalableVecTy = ScalableVectorType::get(f32Ty, 16);
+///   scalableVecTy->print(llvm::outs()); llvm::outs() << "\n"; // Out: <vscale x 16 x float>
+///
+///   return 0;
+/// }
+/// ```
+test "ArrayType, VectorType" {
+  let ctx = LLVMContext::new()
+  let i32ty = ctx.getInt32Ty()
+  let i64ty = ctx.getInt64Ty()
+  let f32ty = ctx.getFloatTy()
+
+  let arrTy = ctx.createArrayType!(i32ty, 16)
+  inspect!(arrTy, content="[16 x i32]")
+
+  let fixedVecTy = ctx.createVectorType!(i64ty, 32)
+  inspect!(fixedVecTy, content="<32 x i64>")
+
+  let scalableVecTy = ctx.createVectorType!(f32ty, 16, isScalable=true)
+  inspect!(scalableVecTy, content="<vscale x 16 x float>")
 }

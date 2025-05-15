@@ -17,9 +17,29 @@ pub enum TypeEnum {
   PointerType(PointerType)
 } derive(Eq, Show)
 
+pub fn TypeEnum::asTypeClass(self: TypeEnum) -> &Type {
+  match self {
+    HalfType(t) => (t: &Type)
+    BFloatType(t) => t
+    FloatType(t) => t
+    DoubleType(t) => t
+    FP128Type(t) => t
+    VoidType(t) => t
+    LabelType(t) => t
+    MetadataType(t) => t
+    TokenType(t) => t
+    IntegerType(t) => t
+    FunctionType(t) => t
+    StructType(t) => t
+    ArrayType(t) => t
+    VectorType(t) => t
+    PointerType(t) => t
+  }
+}
+
 ///|
 pub trait Type: Show {
-  getBase(Self) -> TypeBase
+  base(Self) -> TypeBase
   asTypeEnum(Self) -> TypeEnum
   getContext(Self) -> LLVMContext = _
   //print(Self, logger: &Logger, isForDebug~ = false, noDetails~ = false)
@@ -114,15 +134,17 @@ pub trait Type: Show {
   /// type.
   getScalarSizeInBits(Self) -> UInt = _
 
-  getContainedType(Self, index : Int) -> &Type? = _
   getScalarType(Self) -> &Type = _
 
   tryAsFPTypeEnum(Self) -> FPTypeEnum? = _
 }
 
-///|
+impl Eq for &Type with op_equal(self, other) {
+  self.asTypeEnum() == other.asTypeEnum()
+}
+
 impl Type with getContext(self) -> LLVMContext {
-  self.getBase().context
+  self.base().context
 }
 
 ///|
@@ -268,14 +290,6 @@ impl Type with getScalarSizeInBits(self) -> UInt {
 }
 
 ///|
-impl Type with getContainedType(self, idx) -> &Type? {
-  match self.getBase().containtedTys {
-    Some(containtedTys) => containtedTys.get(idx)
-    None => None
-  }
-}
-
-///|
 impl Type with getScalarType(self) {
   if self.asTypeEnum() is VectorType(vec) {
     vec.getElementType()
@@ -334,26 +348,13 @@ impl FPType with getFPMantissaWidth(self) {
 ///|
 struct TypeBase {
   context : LLVMContext
-  mut containtedTys : Array[&Type]?
-}
+} derive(Eq)
 
 ///|
 fn TypeBase::new(
   context : LLVMContext,
-  containtedTys~ : Array[&Type]? = None
 ) -> TypeBase {
-  TypeBase::{ context, containtedTys }
-}
-
-///|
-impl Eq for TypeBase with op_equal(self, other) {
-  match (self.containtedTys, other.containtedTys) {
-    (Some(t1), Some(t2)) =>
-      t1.map(fn { ty => ty.asTypeEnum() }) ==
-      t2.map(fn { ty => ty.asTypeEnum() })
-    (None, None) => true
-    _ => false
-  }
+  TypeBase::{ context }
 }
 
 // ====================================================================
@@ -367,8 +368,7 @@ pub struct HalfType {
 
 ///| Create a HalfType.
 fn HalfType::new(context : LLVMContext) -> HalfType {
-  let base = TypeBase::new(context)
-  HalfType::{ base, }
+  HalfType::{ base: TypeBase::new(context) }
 }
 
 ///|
@@ -382,7 +382,7 @@ pub impl Type for HalfType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for HalfType with getBase(self) -> TypeBase {
+pub impl Type for HalfType with base(self) -> TypeBase {
   self.base
 }
 
@@ -415,7 +415,7 @@ pub impl Type for BFloatType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for BFloatType with getBase(self) -> TypeBase {
+pub impl Type for BFloatType with base(self) -> TypeBase {
   self.base
 }
 
@@ -450,7 +450,7 @@ pub impl Type for FloatType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for FloatType with getBase(self) -> TypeBase {
+pub impl Type for FloatType with base(self) -> TypeBase {
   self.base
 }
 
@@ -485,7 +485,7 @@ pub impl Type for DoubleType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for DoubleType with getBase(self) -> TypeBase {
+pub impl Type for DoubleType with base(self) -> TypeBase {
   self.base
 }
 
@@ -520,7 +520,7 @@ pub impl Type for FP128Type with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for FP128Type with getBase(self) -> TypeBase {
+pub impl Type for FP128Type with base(self) -> TypeBase {
   self.base
 }
 
@@ -559,7 +559,7 @@ pub impl Show for VoidType with output(_, logger : &Logger) {
 }
 
 ///|
-pub impl Type for VoidType with getBase(self) -> TypeBase {
+pub impl Type for VoidType with base(self) -> TypeBase {
   self.base
 }
 
@@ -603,7 +603,7 @@ pub impl Type for LabelType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for LabelType with getBase(self) -> TypeBase {
+pub impl Type for LabelType with base(self) -> TypeBase {
   self.base
 }
 
@@ -643,7 +643,7 @@ pub impl Type for MetadataType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for MetadataType with getBase(self) -> TypeBase {
+pub impl Type for MetadataType with base(self) -> TypeBase {
   self.base
 }
 
@@ -682,7 +682,7 @@ pub impl Type for TokenType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for TokenType with getBase(self) -> TypeBase {
+pub impl Type for TokenType with base(self) -> TypeBase {
   self.base
 }
 
@@ -806,7 +806,7 @@ pub impl Type for IntegerType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for IntegerType with getBase(self) -> TypeBase {
+pub impl Type for IntegerType with base(self) -> TypeBase {
   self.base
 }
 
@@ -817,6 +817,8 @@ pub impl Type for IntegerType with getBase(self) -> TypeBase {
 ///|
 pub struct FunctionType {
   priv base : TypeBase
+  returnType : &Type
+  paramTypes: Array[&Type]
   isVarArgs : Bool
 } derive(Eq)
 
@@ -839,45 +841,41 @@ pub struct FunctionType {
 /// }
 /// ```
 pub fn FunctionType::new(
-  result : &Type,
-  params : Array[&Type],
+  returnType : &Type,
+  paramsTypes : Array[&Type],
   isVarArgs~ : Bool = false
 ) -> FunctionType!LLVMError {
-  let context = result.getContext()
-  let containtedTys : Array[&Type] = Array::new()
-  if FunctionType::isValidReturnType(result) {
-    containtedTys.push(result)
-  } else {
-    raise InValidFunctionReturnType(result)
+  let context = returnType.getContext()
+  if not(FunctionType::isValidReturnType(returnType)) {
+    raise InValidFunctionReturnType(returnType)
   }
-  for param in params {
+  for param in paramsTypes {
     if not(FunctionType::isValidArgumentType(param)) {
       raise InValidFunctionArgumentType(param)
     }
   }
-  params.each(fn { param => containtedTys.push(param) })
-  let containtedTys = Some(containtedTys)
-  let base = TypeBase::new(context, containtedTys~)
-  FunctionType::{ base, isVarArgs }
+  let paramTypes = paramsTypes.copy()
+  let base = TypeBase::new(context)
+  FunctionType::{ base, returnType, paramTypes, isVarArgs }
 }
 
 ///| Get the return type of the function.
 pub fn FunctionType::getReturnType(self : FunctionType) -> &Type {
-  self.base.containtedTys.unwrap()[0]
+  self.returnType
 }
 
 ///| Get the iterator of the function parameters.
 ///
 /// - See LLVM: `FunctionType::param_begin` and `FunctionType::param_end`.
 pub fn FunctionType::param_iter(self : FunctionType) -> Iter[&Type] {
-  self.base.containtedTys.unwrap()[1:].iter()
+  self.paramTypes.iter()
 }
 
 ///| Get the params of the function.
 ///
 /// - See LLVM: `FunctionType::params`.
 pub fn FunctionType::params(self : FunctionType) -> Array[&Type] {
-  self.base.containtedTys.unwrap()[1:].to_array()
+  self.paramTypes
 }
 
 ///| Return the number of fixed parameters this function type requires.
@@ -885,12 +883,12 @@ pub fn FunctionType::params(self : FunctionType) -> Array[&Type] {
 ///
 /// - See LLVM: `FunctionType::getNumParams`.
 pub fn FunctionType::getNumParams(self : FunctionType) -> UInt {
-  self.base.containtedTys.unwrap().length().reinterpret_as_uint() - 1
+  self.paramTypes.length().reinterpret_as_uint()
 }
 
 ///| Get the param type by given index.
 pub fn FunctionType::getParamType(self : FunctionType, idx : Int) -> &Type? {
-  self.base.containtedTys.unwrap().get(idx + 1)
+  self.paramTypes.get(idx)
 }
 
 ///|
@@ -923,7 +921,7 @@ impl Type for FunctionType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-impl Type for FunctionType with getBase(self) -> TypeBase {
+impl Type for FunctionType with base(self) -> TypeBase {
   self.base
 }
 
@@ -935,6 +933,7 @@ impl Type for FunctionType with getBase(self) -> TypeBase {
 pub struct StructType {
   priv base : TypeBase
   priv mut name : String?
+  elements : Array[&Type]
   priv mut uniqueLiteralID : UInt64? // only valid when struct is literal
   priv mut isPacked : Bool
   priv mut isSized : Bool?
@@ -954,9 +953,10 @@ fn StructType::new(
   if name is None && elements.is_empty() {
     raise OpaqueStructMustHaveName
   }
+  let elements = elements.copy()
   let namedStructTypes = context.pimpl.unwrap().namedStructTypes
   let uniqueLiteralID = context.pimpl.unwrap().literalStructID
-  let base = TypeBase::new(context, containtedTys=Some(elements.copy()))
+  let base = TypeBase::new(context)
   let (name, uniqueLiteralID) = match name {
     Some(n) if n.is_empty() => raise InValidStructName("")
     Some(n) if namedStructTypes.contains(n) => raise DuplicateStructName(n)
@@ -969,7 +969,7 @@ fn StructType::new(
   //let containsScalableVector = false
   //let containsNonGlobalTargetExtType = false
   //let containsNonLocalTargetExtType = false
-  let sty = StructType::{ base, name, uniqueLiteralID, isPacked, isSized: None }
+  let sty = StructType::{ base, name, elements, uniqueLiteralID, isPacked, isSized: None }
   //containsScalableVector,
   //containsNonGlobalTargetExtType,
   //containsNonLocalTargetExtType
@@ -1021,7 +1021,7 @@ pub fn StructType::isLiteral(self : StructType) -> Bool {
 /// }
 /// ```
 pub fn StructType::isOpaque(self : StructType) -> Bool {
-  self.base.containtedTys.unwrap().is_empty()
+  self.elements.is_empty()
 }
 
 ///| Check if this is a packed struct type.
@@ -1055,14 +1055,14 @@ pub fn StructType::isSized(self : StructType) -> Bool {
 ///
 /// - See LLVM: `StructType::elements`.
 pub fn StructType::elements(self : StructType) -> Array[&Type] {
-  self.base.containtedTys.unwrap()
+  self.elements
 }
 
 ///|
 ///
 /// - See LLVM: `StructType::element_begin` and `StructType::element_end`.
 pub fn StructType::element_iter(self : StructType) -> Iter[&Type] {
-  self.base.containtedTys.unwrap().iter()
+  self.elements.iter()
 }
 
 ///| Set the body of the struct.
@@ -1085,7 +1085,8 @@ pub fn StructType::setBody(
     }
   }
   self.isPacked = isPacked
-  self.base.containtedTys = elements.copy() |> Some
+  self.elements.clear()
+  elements.each(fn { ty => self.elements.push(ty) })
 }
 
 ///| Get the name of the struct.
@@ -1167,7 +1168,7 @@ pub impl Type for StructType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for StructType with getBase(self) -> TypeBase {
+pub impl Type for StructType with base(self) -> TypeBase {
   self.base
 }
 
@@ -1178,6 +1179,7 @@ pub impl Type for StructType with getBase(self) -> TypeBase {
 ///|
 pub struct ArrayType {
   priv base : TypeBase
+  elementType : &Type
   numElements : UInt
 } derive(Eq)
 
@@ -1190,8 +1192,8 @@ fn ArrayType::new(
   guard ArrayType::isValidElementType(elementType) else {
     raise InValidArrayElementType(elementType)
   }
-  let base = TypeBase::new(context, containtedTys=Some([elementType]))
-  ArrayType::{ base, numElements }
+  let base = TypeBase::new(context)
+  ArrayType::{ base, elementType, numElements }
 }
 
 ///|
@@ -1210,11 +1212,11 @@ pub fn ArrayType::getNumElements(self : ArrayType) -> UInt {
 
 ///|
 pub fn ArrayType::getElementType(self : ArrayType) -> &Type {
-  self.base.containtedTys.unwrap()[0]
+  self.elementType
 }
 
 ///|
-impl Show for ArrayType with output(self, logger : &Logger) {
+pub impl Show for ArrayType with output(self, logger : &Logger) {
   let elementType = self.getElementType()
   let numElements = self.getNumElements()
   logger.write_string("[\{numElements} x \{elementType}]")
@@ -1226,7 +1228,7 @@ impl Type for ArrayType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-impl Type for ArrayType with getBase(self) -> TypeBase {
+impl Type for ArrayType with base(self) -> TypeBase {
   self.base
 }
 
@@ -1238,61 +1240,49 @@ impl Type for ArrayType with getBase(self) -> TypeBase {
 pub struct VectorType {
   priv base : TypeBase
   elementQuantity : UInt
-  scalable : Bool
+  elementType : &Type
+  isScalable : Bool
 } derive(Eq)
 
-///|
+///| Create a VectorType.
 fn VectorType::new(
   context : LLVMContext,
   elementType : &Type,
   elementQuantity : UInt,
-  scalable~ : Bool = false
+  isScalable~ : Bool = false
 ) -> VectorType!LLVMError {
   guard VectorType::isValidElementType(elementType) else {
     raise InValidVectorElementType(elementType)
   }
-  let base = TypeBase::new(context, containtedTys=Some([elementType]))
-  VectorType::{ base, elementQuantity, scalable }
+  let base = TypeBase::new(context)
+  VectorType::{ base, elementQuantity, elementType, isScalable }
 }
 
-///|
+///| Check if the element type is valid.
 fn VectorType::isValidElementType(eleTy : &Type) -> Bool {
   match eleTy.asTypeEnum() {
     IntegerType(_) => true
     HalfType(_) | BFloatType(_) | FloatType(_) | DoubleType(_) => true
-    //PointerType(_) => true 
     _ => false
   }
 }
 
-///|
+///| Get the element type of the vector.
 pub fn VectorType::getElementType(self : VectorType) -> &Type {
-  self.base.containtedTys.unwrap()[0]
+  self.elementType
 }
 
-///|
+///| Get the number of elements in the vector.
 pub fn VectorType::getElementCount(self : VectorType) -> UInt {
   self.elementQuantity
-}
-
-///|
-pub fn VectorType::getInteger(self : VectorType) -> VectorType!LLVMError {
-  let ctx = self.getContext()
-  let eleBits = self
-    .getElementType()
-    .getPrimitiveSizeInBits()
-    .getFixedValue()
-    .to_uint()
-  let eleTy = ctx.getIntNTy!(eleBits)
-  ctx.createVectorType!(eleTy, self.getElementCount())
 }
 
 ///|
 pub impl Show for VectorType with output(self, logger : &Logger) {
   let elementType = self.getElementType()
   let elementCount = self.getElementCount()
-  if self.scalable {
-    logger.write_string("< vscale x \{elementCount} x \{elementType}>")
+  if self.isScalable {
+    logger.write_string("<vscale x \{elementCount} x \{elementType}>")
   } else {
     logger.write_string("<\{elementCount} x \{elementType}>")
   }
@@ -1304,7 +1294,7 @@ pub impl Type for VectorType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for VectorType with getBase(self) -> TypeBase {
+pub impl Type for VectorType with base(self) -> TypeBase {
   self.base
 }
 
@@ -1312,10 +1302,15 @@ pub impl Type for VectorType with getBase(self) -> TypeBase {
 // PointerType
 // ====================================================================
 
-///|
+///| Memory address space of a pointer type.
 pub type AddressSpace UInt derive(Hash, Show, Eq, Default)
 
 ///|
+/// **Note**: Before LLVM17, TypedPointer is supported. After LLVM17, all pointer
+/// are opaque pointer, and typed pointer is deprecated.
+///
+/// In Moonbit Aether framework, we follow the design of LLVM20, so all pointer is
+/// also opaque pointer, and will not mark type for pointer.
 pub struct PointerType {
   priv base : TypeBase
   addressSpace : AddressSpace
@@ -1362,6 +1357,6 @@ pub impl Type for PointerType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for PointerType with getBase(self) -> TypeBase {
+pub impl Type for PointerType with base(self) -> TypeBase {
   self.base
 }

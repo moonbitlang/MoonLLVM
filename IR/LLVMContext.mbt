@@ -1,5 +1,9 @@
+let contextKey : Ref[UInt] = Ref::new(0)
+
 ///|
 pub struct LLVMContext {
+  // used for identify different contexts, or hash
+  key: UInt
   priv mut pimpl : LLVMContextImpl?
 }
 
@@ -27,7 +31,8 @@ struct LLVMContextImpl {
 
 ///|
 pub fn LLVMContext::new() -> LLVMContext {
-  let ctx = LLVMContext::{ pimpl: None }
+  let ctx = LLVMContext::{ key: contextKey.val, pimpl: None }
+  contextKey.val += 1
 
   // Initialize integer types.
   let integerTypes = Map::new()
@@ -59,6 +64,10 @@ pub fn LLVMContext::new() -> LLVMContext {
   }
   ctx.pimpl = Some(pimpl)
   ctx
+}
+
+pub impl Eq for LLVMContext with op_equal(self, other) {
+  self.key == other.key
 }
 
 ///| Get the half type from context.
@@ -314,7 +323,29 @@ pub fn LLVMContext::createStructType(
   StructType::new!(self, elements, name~, isPacked~)
 }
 
-///|
+///| Create an array type in the context.
+///
+/// This is different with the method of creating array type in LLVM.
+/// In LLVM, usually use `ArrayType::get` to create an array type.
+///
+/// In Moonbit Aether framework, we use `LLVMContext::createArrayType` to create an array type.
+///
+/// - See LLVM: `ArrayType::get`.
+///
+/// ```moonbit
+/// test "ArrayType" {
+///   let ctx = LLVMContext::new()
+///   let i32ty = ctx.getInt32Ty()
+///   let f32ty = ctx.getFloatTy()
+///   let f64ty = ctx.getDoubleTy()
+///
+///   let arrty = ctx.createArrayType!(i32ty, 16)
+///   inspect!(arrty, content="[16 x i32]")
+///   inspect!(arrty.getElementType(), content="i32")
+///
+///   assert_eq!(arrty.getNumElements(), 16)
+/// }
+/// ```
 pub fn LLVMContext::createArrayType(
   self : LLVMContext,
   elementType : &Type,
@@ -323,14 +354,37 @@ pub fn LLVMContext::createArrayType(
   ArrayType::new!(self, elementType, numElements)
 }
 
-///|
+///| Create a vector type in the context.
+///
+/// This is different with the method of creating vector type in LLVM.
+/// In LLVM, if you want to create a fixed vector, you need to use `FixedVectorType::get`
+/// and for scalable vector, you need to use `ScalableVectorType::get`.
+///
+/// While In Moon Ather framework, we use `LLVMContext::createVectorType` to create a vector type.
+/// In default, it will create a fixed vector type. If you want to create a scalable vector type,
+/// you can set the `isScalable` parameter to true.
+///
+/// - See LLVM: `FixedVectorType::get` and `ScalableVectorType::get`.
+///
+/// ```moonbit
+/// test "VectorType" {
+///   let ctx = LLVMContext::new()
+///   let i32ty = ctx.getInt32Ty()
+///
+///   let fixedVecTy = ctx.createVectorType!(i32ty, 32)
+///   inspect!(fixedVecTy, content="<32 x i32>")
+///
+///   let scalableVecTy = ctx.createVectorType!(i32ty, 16, isScalable=true)
+///   inspect!(scalableVecTy, content="<vscale x 16 x i32>")
+/// }
+/// ```
 pub fn LLVMContext::createVectorType(
   self : LLVMContext,
   elementType : &Type,
   elementQuantity : UInt,
-  scalable~ : Bool = false
+  isScalable~ : Bool = false
 ) -> VectorType!LLVMError {
-  VectorType::new!(self, elementType, elementQuantity, scalable~)
+  VectorType::new!(self, elementType, elementQuantity, isScalable~)
 }
 
 // pub fn LLVMContext::addModule(self: LLVMContext, m: Module) {
