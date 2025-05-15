@@ -242,7 +242,7 @@ pub fn LLVMContext::getIntNTy(
 }
 
 ///|
-pub fn LLVMContext::getPointerTy(
+pub fn LLVMContext::getPtrTy(
   self : LLVMContext,
   addressSpace~ : AddressSpace = AddressSpace::default()
 ) -> PointerType {

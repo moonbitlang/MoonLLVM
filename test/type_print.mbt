@@ -55,7 +55,7 @@ test "Baisc Type Print" {
   let voidty = ctx.getVoidTy()
   let metadata = ctx.getMetadataTy()
   let labelty = ctx.getLabelTy()
-  let ptrty = ctx.getPointerTy()
+  let ptrty = ctx.getPtrTy()
   inspect!(halfty, content="half")
   inspect!(bfloaty, content="bfloat")
   inspect!(floaty, content="float")
