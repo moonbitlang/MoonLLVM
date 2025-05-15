@@ -1,9 +1,10 @@
+///|
 let contextKey : Ref[UInt] = Ref::new(0)
 
 ///|
 pub struct LLVMContext {
   // used for identify different contexts, or hash
-  key: UInt
+  key : UInt
   priv mut pimpl : LLVMContextImpl?
 }
 
@@ -25,7 +26,7 @@ struct LLVMContextImpl {
   token_ty : TokenType
   integerTypes : Map[UInt, IntegerType]
   namedStructTypes : Map[String, StructType]
-  pointerTypes: Map[AddressSpace, PointerType]
+  pointerTypes : Map[AddressSpace, PointerType]
   mut literalStructID : UInt64
 }
 
@@ -41,10 +42,11 @@ pub fn LLVMContext::new() -> LLVMContext {
     ..set(16U, IntegerType::new?(ctx, 16).unwrap())
     ..set(32U, IntegerType::new?(ctx, 32).unwrap())
     ..set(64U, IntegerType::new?(ctx, 64).unwrap())
-
   let addr0 = AddressSpace::default()
-  let pointerTypes = Map::new()
-    ..set(addr0, PointerType::new(ctx, addressSpace = addr0))
+  let pointerTypes = Map::new()..set(
+    addr0,
+    PointerType::new(ctx, addressSpace=addr0),
+  )
 
   // Initialize the LLVMContextImpl.
   let pimpl = LLVMContextImpl::{
@@ -66,6 +68,7 @@ pub fn LLVMContext::new() -> LLVMContext {
   ctx
 }
 
+///|
 pub impl Eq for LLVMContext with op_equal(self, other) {
   self.key == other.key
 }
@@ -240,7 +243,7 @@ pub fn LLVMContext::getIntNTy(
 
 ///|
 pub fn LLVMContext::getPointerTy(
-  self: LLVMContext,
+  self : LLVMContext,
   addressSpace~ : AddressSpace = AddressSpace::default()
 ) -> PointerType {
   match self.pimpl.unwrap().pointerTypes.get(addressSpace) {

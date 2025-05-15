@@ -161,8 +161,11 @@ test "Struct Type Print" {
   inspect!(named, content="%foo = type { i32, float, double }")
   let named2 = ctx.createStructType!([i32ty, f32ty, f64ty], name="bar")
   inspect!(named2, content="%bar = type { i32, float, double }")
-
-  let packed = ctx.createStructType!([i32ty, f32ty, f64ty], name="bax", isPacked=true)
+  let packed = ctx.createStructType!(
+    [i32ty, f32ty, f64ty],
+    name="bax",
+    isPacked=true,
+  )
   inspect!(packed, content="%bax = type <{ i32, float, double }>")
 }
 
@@ -200,13 +203,10 @@ test "ArrayType, VectorType" {
   let i32ty = ctx.getInt32Ty()
   let i64ty = ctx.getInt64Ty()
   let f32ty = ctx.getFloatTy()
-
   let arrTy = ctx.createArrayType!(i32ty, 16)
   inspect!(arrTy, content="[16 x i32]")
-
   let fixedVecTy = ctx.createVectorType!(i64ty, 32)
   inspect!(fixedVecTy, content="<32 x i64>")
-
   let scalableVecTy = ctx.createVectorType!(f32ty, 16, isScalable=true)
   inspect!(scalableVecTy, content="<vscale x 16 x float>")
 }

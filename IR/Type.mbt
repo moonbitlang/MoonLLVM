@@ -17,9 +17,10 @@ pub enum TypeEnum {
   PointerType(PointerType)
 } derive(Eq, Show)
 
-pub fn TypeEnum::asTypeClass(self: TypeEnum) -> &Type {
+///|
+pub fn TypeEnum::asTypeClass(self : TypeEnum) -> &Type {
   match self {
-    HalfType(t) => (t: &Type)
+    HalfType(t) => (t : &Type)
     BFloatType(t) => t
     FloatType(t) => t
     DoubleType(t) => t
@@ -133,16 +134,16 @@ pub trait Type: Show {
   /// element type. Otherwise return the getPrimitiveSizeInBits value for this
   /// type.
   getScalarSizeInBits(Self) -> UInt = _
-
   getScalarType(Self) -> &Type = _
-
   tryAsFPTypeEnum(Self) -> FPTypeEnum? = _
 }
 
+///|
 impl Eq for &Type with op_equal(self, other) {
   self.asTypeEnum() == other.asTypeEnum()
 }
 
+///|
 impl Type with getContext(self) -> LLVMContext {
   self.base().context
 }
@@ -298,6 +299,7 @@ impl Type with getScalarType(self) {
   }
 }
 
+///|
 impl Type with tryAsFPTypeEnum(self) -> FPTypeEnum? {
   match self.asTypeEnum() {
     HalfType(half) => Some(HalfType(half))
@@ -316,13 +318,15 @@ impl Type with tryAsFPTypeEnum(self) -> FPTypeEnum? {
 // FPTypeEnum
 // ====================================================================
 
-pub trait FPType : Type {
+///|
+pub trait FPType: Type {
   asFPTypeEnum(Self) -> FPTypeEnum
 
   /// Return the width of the mantissa of this type. 
   getFPMantissaWidth(Self) -> UInt = _
 }
 
+///|
 pub enum FPTypeEnum {
   HalfType(HalfType)
   BFloatType(BFloatType)
@@ -331,6 +335,7 @@ pub enum FPTypeEnum {
   FP128Type(FP128Type)
 }
 
+///|
 impl FPType with getFPMantissaWidth(self) {
   match self.asFPTypeEnum() {
     HalfType(_) => 11
@@ -351,10 +356,8 @@ struct TypeBase {
 } derive(Eq)
 
 ///|
-fn TypeBase::new(
-  context : LLVMContext,
-) -> TypeBase {
-  TypeBase::{ context }
+fn TypeBase::new(context : LLVMContext) -> TypeBase {
+  TypeBase::{ context, }
 }
 
 // ====================================================================
@@ -386,6 +389,7 @@ pub impl Type for HalfType with base(self) -> TypeBase {
   self.base
 }
 
+///|
 pub impl FPType for HalfType with asFPTypeEnum(self) -> FPTypeEnum {
   FPTypeEnum::HalfType(self)
 }
@@ -818,7 +822,7 @@ pub impl Type for IntegerType with base(self) -> TypeBase {
 pub struct FunctionType {
   priv base : TypeBase
   returnType : &Type
-  paramTypes: Array[&Type]
+  paramTypes : Array[&Type]
   isVarArgs : Bool
 } derive(Eq)
 
@@ -969,7 +973,14 @@ fn StructType::new(
   //let containsScalableVector = false
   //let containsNonGlobalTargetExtType = false
   //let containsNonLocalTargetExtType = false
-  let sty = StructType::{ base, name, elements, uniqueLiteralID, isPacked, isSized: None }
+  let sty = StructType::{
+    base,
+    name,
+    elements,
+    uniqueLiteralID,
+    isPacked,
+    isSized: None,
+  }
   //containsScalableVector,
   //containsNonGlobalTargetExtType,
   //containsNonLocalTargetExtType

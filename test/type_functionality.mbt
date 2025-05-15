@@ -28,8 +28,7 @@ test "Function Type Functionality Test" {
   let voidty = ctx.getVoidTy()
   let i32ty = ctx.getInt32Ty()
   let f64ty = ctx.getDoubleTy()
-
-  let paramTypes: Array[&Type] = [i32ty, f64ty]
+  let paramTypes : Array[&Type] = [i32ty, f64ty]
   let fty = ctx.createFunctionType!(voidty, paramTypes)
   inspect!(fty.getReturnType(), content="void")
   inspect!(fty.getNumParams(), content="2")
@@ -81,6 +80,5 @@ test "Struct Type Functionality Test" {
   // Ensure the body will not effect by changing the elements outside.
   elements.push(f32ty)
   inspect!(opaque, content="%bar = type <{ double, i32, float }>")
-
   assert_false!(opaque.setBody?(elements, isPacked=false).is_ok())
 }
