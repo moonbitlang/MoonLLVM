@@ -15,6 +15,7 @@ struct LLVMContextImpl {
   /// will be automatically deleted if this context is deleted.
   //ownedModules: Array[Module]
 
+  // Types
   half_ty : HalfType
   bfloat_ty : BFloatType
   float_ty : FloatType
@@ -24,29 +25,32 @@ struct LLVMContextImpl {
   label_ty : LabelType
   metadata_ty : MetadataType
   token_ty : TokenType
-  integerTypes : Map[UInt, IntegerType]
+  i1ty : IntegerType
+  i8ty : IntegerType
+  i16ty : IntegerType
+  i32ty : IntegerType
+  i64ty : IntegerType
   namedStructTypes : Map[String, StructType]
   pointerTypes : Map[AddressSpace, PointerType]
   mut literalStructID : UInt64
+
+  // Constants
+  intConstants : HashSet[ConstantInt]
+  uintConstants : HashSet[ConstantUInt]
+  mut trueConstant : ConstantBool?
+  mut falseConstant : ConstantBool?
 }
 
 ///|
 pub fn LLVMContext::new() -> LLVMContext {
   let ctx = LLVMContext::{ key: contextKey.val, pimpl: None }
   contextKey.val += 1
-
-  // Initialize integer types.
-  let integerTypes = Map::new()
-    ..set(1U, IntegerType::new?(ctx, 1).unwrap())
-    ..set(8U, IntegerType::new?(ctx, 8).unwrap())
-    ..set(16U, IntegerType::new?(ctx, 16).unwrap())
-    ..set(32U, IntegerType::new?(ctx, 32).unwrap())
-    ..set(64U, IntegerType::new?(ctx, 64).unwrap())
   let addr0 = AddressSpace::default()
   let pointerTypes = Map::new()..set(
     addr0,
     PointerType::new(ctx, addressSpace=addr0),
   )
+  let i1ty = IntegerType::new?(ctx, 1).unwrap()
 
   // Initialize the LLVMContextImpl.
   let pimpl = LLVMContextImpl::{
@@ -59,18 +63,33 @@ pub fn LLVMContext::new() -> LLVMContext {
     label_ty: LabelType::new(ctx),
     metadata_ty: MetadataType::new(ctx),
     token_ty: TokenType::new(ctx),
-    integerTypes,
+    i1ty,
+    i8ty: IntegerType::new?(ctx, 8).unwrap(),
+    i16ty: IntegerType::new?(ctx, 16).unwrap(),
+    i32ty: IntegerType::new?(ctx, 32).unwrap(),
+    i64ty: IntegerType::new?(ctx, 64).unwrap(),
     namedStructTypes: Map::new(),
     literalStructID: 0,
     pointerTypes,
+    intConstants: @hashset.new(),
+    uintConstants: @hashset.new(),
+    trueConstant: None,
+    falseConstant: None,
   }
   ctx.pimpl = Some(pimpl)
+  pimpl.trueConstant = Some(ConstantBool::new(ctx, true))
+  pimpl.falseConstant = Some(ConstantBool::new(ctx, false))
   ctx
 }
 
 ///|
 pub impl Eq for LLVMContext with op_equal(self, other) {
   self.key == other.key
+}
+
+///|
+pub impl Hash for LLVMContext with hash_combine(self, hasher) {
+  hasher.combine_uint(self.key)
 }
 
 ///| Get the half type from context.
@@ -188,27 +207,27 @@ pub fn LLVMContext::getTokenTy(self : LLVMContext) -> TokenType {
 
 ///| Get the integer type with 1 bit from context.
 pub fn LLVMContext::getInt1Ty(self : LLVMContext) -> IntegerType {
-  self.pimpl.unwrap().integerTypes.get(1U).unwrap()
+  self.pimpl.unwrap().i1ty
 }
 
 ///| Get the integer type with 8 bits from context.
 pub fn LLVMContext::getInt8Ty(self : LLVMContext) -> IntegerType {
-  self.pimpl.unwrap().integerTypes.get(8U).unwrap()
+  self.pimpl.unwrap().i8ty
 }
 
 ///| Get the integer type with 16 bits from context.
 pub fn LLVMContext::getInt16Ty(self : LLVMContext) -> IntegerType {
-  self.pimpl.unwrap().integerTypes.get(16U).unwrap()
+  self.pimpl.unwrap().i16ty
 }
 
 ///| Get the integer type with 32 bits from context.
 pub fn LLVMContext::getInt32Ty(self : LLVMContext) -> IntegerType {
-  self.pimpl.unwrap().integerTypes.get(32U).unwrap()
+  self.pimpl.unwrap().i32ty
 }
 
 ///| Get the integer type with 64 bits from context.
 pub fn LLVMContext::getInt64Ty(self : LLVMContext) -> IntegerType {
-  self.pimpl.unwrap().integerTypes.get(64U).unwrap()
+  self.pimpl.unwrap().i64ty
 }
 
 ///| Get the integer type with N bits from context.
@@ -223,21 +242,21 @@ pub fn LLVMContext::getInt64Ty(self : LLVMContext) -> IntegerType {
 ///   inspect!(ctx.getInt16Ty(), content="i16")
 ///   inspect!(ctx.getInt32Ty(), content="i32")
 ///   inspect!(ctx.getInt64Ty(), content="i64")
-///   inspect!(ctx.getIntNTy!(48), content="i48")
+///   assert_true!(ctx.getIntNTy?(48).is_err())
 /// }
 /// ```
 pub fn LLVMContext::getIntNTy(
   self : LLVMContext,
   numBits : UInt
-) -> IntegerType!LLVMError {
-  match self.pimpl.unwrap().integerTypes.get(numBits) {
-    Some(ty) => ty
-    None if numBits <= 64 => {
-      let ty = IntegerType::new?(self, numBits).unwrap()
-      self.pimpl.unwrap().integerTypes.set(numBits, ty)
-      ty
-    }
-    _ => raise Over64BitsInteger
+) -> IntegerType!LLVMTypeError {
+  let pimpl = self.pimpl.unwrap()
+  match numBits {
+    1 => pimpl.i1ty
+    8 => pimpl.i8ty
+    16 => pimpl.i16ty
+    32 => pimpl.i32ty
+    64 => pimpl.i64ty
+    _ => raise InValidIntegerTypeNumBits(numBits)
   }
 }
 
@@ -284,7 +303,7 @@ pub fn LLVMContext::createFunctionType(
   returnType : &Type,
   paramTypes : Array[&Type],
   isVarArgs~ : Bool = false
-) -> FunctionType!LLVMError {
+) -> FunctionType!LLVMTypeError {
   ignore(self)
   FunctionType::new!(returnType, paramTypes, isVarArgs~)
 }
@@ -321,7 +340,7 @@ pub fn LLVMContext::createStructType(
   elements : Array[&Type],
   name~ : String = "",
   isPacked~ : Bool = false
-) -> StructType!LLVMError {
+) -> StructType!LLVMTypeError {
   let name = @option.unless(name.is_empty(), fn() { name })
   StructType::new!(self, elements, name~, isPacked~)
 }
@@ -353,7 +372,7 @@ pub fn LLVMContext::createArrayType(
   self : LLVMContext,
   elementType : &Type,
   numElements : UInt
-) -> ArrayType!LLVMError {
+) -> ArrayType!LLVMTypeError {
   ArrayType::new!(self, elementType, numElements)
 }
 
@@ -386,10 +405,70 @@ pub fn LLVMContext::createVectorType(
   elementType : &Type,
   elementQuantity : UInt,
   isScalable~ : Bool = false
-) -> VectorType!LLVMError {
+) -> VectorType!LLVMTypeError {
   VectorType::new!(self, elementType, elementQuantity, isScalable~)
 }
 
-// pub fn LLVMContext::addModule(self: LLVMContext, m: Module) {
-//   self.pimpl.ownedModules.push(m)
-// }
+///|
+pub fn LLVMContext::getConstInt(
+  self : LLVMContext,
+  ty : &Type,
+  value : Int64
+) -> ConstantInt!LLVMValueError {
+  let intConstants = self.pimpl.unwrap().intConstants
+  guard ty.asTypeEnum() is IntegerType(ity) else {
+    raise ConstantIntOnlyAcceptIntegerType(ty)
+  }
+  let value = match ity.getBitWidth() {
+    8 => (value.to_byte() : &MbtSigned)
+    16 => value.to_int16()
+    32 => value.to_int()
+    _ => value // 64
+  }
+  let const_int = ConstantInt::new!(ty, value)
+  if intConstants.contains(const_int) {
+    intConstants.add(const_int)
+  }
+  const_int
+}
+
+///|
+pub fn LLVMContext::getConstUInt(
+  self : LLVMContext,
+  ty : &Type,
+  value : UInt64
+) -> ConstantUInt!LLVMValueError {
+  let uintConstants = self.pimpl.unwrap().uintConstants
+  guard ty.asTypeEnum() is IntegerType(ity) else {
+    raise ConstantUIntOnlyAcceptIntegerType(ty)
+  }
+  let value = match ity.getBitWidth() {
+    8 => (value.to_byte() : &MbtUnsigned)
+    16 => value.reinterpret_as_int64().to_uint16()
+    32 => value.to_uint()
+    _ => value // 64
+  }
+  let const_uint = ConstantUInt::new!(ty, value)
+  if uintConstants.contains(const_uint) {
+    uintConstants.add(const_uint)
+  }
+  const_uint
+}
+
+///|
+pub fn LLVMContext::getConstTrue(self : LLVMContext) -> ConstantBool {
+  self.pimpl.unwrap().trueConstant.unwrap()
+}
+
+///|
+pub fn LLVMContext::getConstFalse(self : LLVMContext) -> ConstantBool {
+  self.pimpl.unwrap().falseConstant.unwrap()
+}
+
+///|
+pub fn LLVMContext::getConstBool(self : LLVMContext, b : Bool) -> ConstantBool {
+  match b {
+    true => self.getConstTrue()
+    false => self.getConstFalse()
+  }
+}

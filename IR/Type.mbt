@@ -15,7 +15,7 @@ pub enum TypeEnum {
   ArrayType(ArrayType)
   VectorType(VectorType)
   PointerType(PointerType)
-} derive(Eq, Show)
+} derive(Eq, Show, Hash)
 
 ///|
 pub fn TypeEnum::asTypeClass(self : TypeEnum) -> &Type {
@@ -39,7 +39,7 @@ pub fn TypeEnum::asTypeClass(self : TypeEnum) -> &Type {
 }
 
 ///|
-pub trait Type: Show {
+pub trait Type: Show + Hash {
   base(Self) -> TypeBase
   asTypeEnum(Self) -> TypeEnum
   getContext(Self) -> LLVMContext = _
@@ -353,7 +353,7 @@ impl FPType with getFPMantissaWidth(self) {
 ///|
 struct TypeBase {
   context : LLVMContext
-} derive(Eq)
+} derive(Eq, Hash)
 
 ///|
 fn TypeBase::new(context : LLVMContext) -> TypeBase {
@@ -367,7 +367,7 @@ fn TypeBase::new(context : LLVMContext) -> TypeBase {
 ///|
 pub struct HalfType {
   priv base : TypeBase
-} derive(Eq)
+} derive(Eq, Hash)
 
 ///| Create a HalfType.
 fn HalfType::new(context : LLVMContext) -> HalfType {
@@ -401,7 +401,7 @@ pub impl FPType for HalfType with asFPTypeEnum(self) -> FPTypeEnum {
 ///| BFloatType
 pub struct BFloatType {
   priv base : TypeBase
-} derive(Eq)
+} derive(Eq, Hash)
 
 ///|
 fn BFloatType::new(context : LLVMContext) -> BFloatType {
@@ -435,7 +435,7 @@ pub impl FPType for BFloatType with asFPTypeEnum(self) -> FPTypeEnum {
 ///| FloatType
 pub struct FloatType {
   priv base : TypeBase
-} derive(Eq)
+} derive(Eq, Hash)
 
 ///|
 fn FloatType::new(context : LLVMContext) -> FloatType {
@@ -470,7 +470,7 @@ pub impl FPType for FloatType with asFPTypeEnum(self) -> FPTypeEnum {
 ///| DoubleType
 pub struct DoubleType {
   priv base : TypeBase
-} derive(Eq)
+} derive(Eq, Hash)
 
 ///| Create a DoubleType
 fn DoubleType::new(context : LLVMContext) -> DoubleType {
@@ -505,7 +505,7 @@ pub impl FPType for DoubleType with asFPTypeEnum(self) -> FPTypeEnum {
 ///| FP128Ty
 pub struct FP128Type {
   priv base : TypeBase
-} derive(Eq)
+} derive(Eq, Hash)
 
 ///| Create a FP128Ty.
 fn FP128Type::new(context : LLVMContext) -> FP128Type {
@@ -540,7 +540,7 @@ pub impl FPType for FP128Type with asFPTypeEnum(self) -> FPTypeEnum {
 ///| VoidType
 pub struct VoidType {
   priv base : TypeBase
-} derive(Eq)
+} derive(Eq, Hash)
 
 ///| Create a VoidTy.
 ///
@@ -579,7 +579,7 @@ pub impl Type for VoidType with asTypeEnum(self) -> TypeEnum {
 ///| LabelTy
 pub struct LabelType {
   priv base : TypeBase
-} derive(Eq)
+} derive(Eq, Hash)
 
 ///| Create a LabelTy.
 ///
@@ -618,7 +618,7 @@ pub impl Type for LabelType with base(self) -> TypeBase {
 ///|
 pub struct MetadataType {
   priv base : TypeBase
-} derive(Eq)
+} derive(Eq, Hash)
 
 ///| Create a MetadataTy.
 ///
@@ -658,7 +658,7 @@ pub impl Type for MetadataType with base(self) -> TypeBase {
 ///| TokenTy
 pub struct TokenType {
   priv base : TypeBase
-} derive(Eq)
+} derive(Eq, Hash)
 
 ///| Create a TokenTy
 ///
@@ -698,14 +698,16 @@ pub impl Type for TokenType with base(self) -> TypeBase {
 pub struct IntegerType {
   priv base : TypeBase
   numBits : UInt
-} derive(Eq)
+} derive(Eq, Hash)
 
 ///| Create a IntegerType.
 fn IntegerType::new(
   context : LLVMContext,
   numBits : UInt
-) -> IntegerType!LLVMError {
-  guard numBits <= 64 else { raise Over64BitsInteger }
+) -> IntegerType!LLVMTypeError {
+  guard numBits is (1 | 8 | 16 | 32 | 64) else {
+    raise InValidIntegerTypeNumBits(numBits)
+  }
   IntegerType::{ base: TypeBase::new(context), numBits }
 }
 
@@ -728,7 +730,7 @@ fn IntegerType::new(
 /// ```
 pub fn IntegerType::getExtendedType(
   self : IntegerType
-) -> IntegerType!LLVMError {
+) -> IntegerType!LLVMTypeError {
   self.getContext().getIntNTy!(self.getScalarSizeInBits() * 2)
 }
 
@@ -744,13 +746,11 @@ pub fn IntegerType::getExtendedType(
 ///   let i16ty = ctx.getInt16Ty()
 ///   let i32ty = ctx.getInt32Ty()
 ///   let i64ty = ctx.getInt64Ty()
-///   let i43ty = ctx.getIntNTy!(43)
 ///
 ///   assert_eq!(i8ty.getBitWidth(), 8)
 ///   assert_eq!(i16ty.getBitWidth(), 16)
 ///   assert_eq!(i32ty.getBitWidth(), 32)
 ///   assert_eq!(i64ty.getBitWidth(), 64)
-///   assert_eq!(i43ty.getBitWidth(), 43)
 /// }
 /// ```
 pub fn IntegerType::getBitWidth(self : IntegerType) -> UInt {
@@ -770,10 +770,8 @@ pub fn IntegerType::getBitWidth(self : IntegerType) -> UInt {
 /// test "IntegerType getSignMask" {
 ///   let ctx = LLVMContext::new()
 ///   let i32ty = ctx.getInt32Ty()
-///   let i48ty = ctx.getIntNTy!(48)
 ///
 ///   assert_eq!(i32ty.getBitMask(), 0xFFFFFFFF)
-///   assert_eq!(i48ty.getBitMask(), 0xFFFFFFFFFFFF)
 /// }
 /// ```
 pub fn IntegerType::getBitMask(self : IntegerType) -> UInt64 {
@@ -789,10 +787,8 @@ pub fn IntegerType::getBitMask(self : IntegerType) -> UInt64 {
 /// test "IntegerType getSignBit" {
 ///   let ctx = LLVMContext::new()
 ///   let i32ty = ctx.getInt32Ty()
-///   let i48ty = ctx.getIntNTy!(48)
 ///
 ///   assert_eq!(i32ty.getSignBit(), 0x80000000)
-///   assert_eq!(i48ty.getSignBit(), 0x800000000000)
 /// }
 /// ```
 pub fn IntegerType::getSignBit(self : IntegerType) -> UInt64 {
@@ -824,7 +820,7 @@ pub struct FunctionType {
   returnType : &Type
   paramTypes : Array[&Type]
   isVarArgs : Bool
-} derive(Eq)
+} derive(Eq, Hash)
 
 ///| Create a FunctionType
 ///
@@ -848,7 +844,7 @@ pub fn FunctionType::new(
   returnType : &Type,
   paramsTypes : Array[&Type],
   isVarArgs~ : Bool = false
-) -> FunctionType!LLVMError {
+) -> FunctionType!LLVMTypeError {
   let context = returnType.getContext()
   if not(FunctionType::isValidReturnType(returnType)) {
     raise InValidFunctionReturnType(returnType)
@@ -944,7 +940,7 @@ pub struct StructType {
   //priv mut containsScalableVector: Bool
   //priv mut containsNonGlobalTargetExtType: Bool
   //priv mut containsNonLocalTargetExtType: Bool
-}
+} derive(Hash)
 
 ///| Create a StructType.
 /// FIXME: this is may different from LLVM Cpp
@@ -953,7 +949,7 @@ fn StructType::new(
   elements : Array[&Type],
   name~ : String? = None,
   isPacked~ : Bool = false
-) -> StructType!LLVMError {
+) -> StructType!LLVMTypeError {
   if name is None && elements.is_empty() {
     raise OpaqueStructMustHaveName
   }
@@ -1085,7 +1081,7 @@ pub fn StructType::setBody(
   self : StructType,
   elements : Array[&Type],
   isPacked~ : Bool = false
-) -> Unit!LLVMError {
+) -> Unit!LLVMTypeError {
   // only opaque struct can be set body.
   guard self.isOpaque() else { raise SetBodyForNonOpaqueStruct }
 
@@ -1121,7 +1117,7 @@ pub fn StructType::getName(self : StructType) -> String? {
 pub fn StructType::setName(
   self : StructType,
   new_name : String
-) -> Unit!LLVMError {
+) -> Unit!LLVMTypeError {
   let ctx = self.getContext().pimpl.unwrap()
   let namedStructTypes = ctx.namedStructTypes
   match (self.name, new_name) {
@@ -1192,14 +1188,14 @@ pub struct ArrayType {
   priv base : TypeBase
   elementType : &Type
   numElements : UInt
-} derive(Eq)
+} derive(Eq, Hash)
 
 ///|
 fn ArrayType::new(
   context : LLVMContext,
   elementType : &Type,
   numElements : UInt
-) -> ArrayType!LLVMError {
+) -> ArrayType!LLVMTypeError {
   guard ArrayType::isValidElementType(elementType) else {
     raise InValidArrayElementType(elementType)
   }
@@ -1253,7 +1249,7 @@ pub struct VectorType {
   elementQuantity : UInt
   elementType : &Type
   isScalable : Bool
-} derive(Eq)
+} derive(Eq, Hash)
 
 ///| Create a VectorType.
 fn VectorType::new(
@@ -1261,7 +1257,7 @@ fn VectorType::new(
   elementType : &Type,
   elementQuantity : UInt,
   isScalable~ : Bool = false
-) -> VectorType!LLVMError {
+) -> VectorType!LLVMTypeError {
   guard VectorType::isValidElementType(elementType) else {
     raise InValidVectorElementType(elementType)
   }
@@ -1325,7 +1321,7 @@ pub type AddressSpace UInt derive(Hash, Show, Eq, Default)
 pub struct PointerType {
   priv base : TypeBase
   addressSpace : AddressSpace
-} derive(Eq)
+} derive(Eq, Hash)
 
 ///|
 fn PointerType::new(
