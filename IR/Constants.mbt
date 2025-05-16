@@ -215,6 +215,7 @@ fn ConstantUInt::new[T : MbtUnsigned](vty : &Type, value : T) -> ConstantUInt {
   ConstantUInt::{ base, value }
 }
 
+///|
 fn ConstantUInt::getValue(self : ConstantUInt) -> MbtUnsignedEnum {
   self.value
 }
@@ -371,51 +372,61 @@ pub impl Show for ConstantBool with output(self, logger) {
 // ConstantFP
 // ====================================================================
 
+///|
 pub struct ConstantFP {
   base : ValueBase
   value : Double
 } derive(Eq, Hash)
 
 // TODO: eliminate guard in the future.
+///|
 fn ConstantFP::new(vty : &Type, value : Double) -> ConstantFP {
-  guard vty.asTypeEnum() is (FloatType(_)|DoubleType(_)) else {
+  guard vty.asTypeEnum() is (FloatType(_) | DoubleType(_)) else {
     unreachable("ConstantFP::new: vty is not FloatType")
   }
   let base = ValueBase::{ vty, name: None, users: [] }
   ConstantFP::{ base, value }
 }
 
+///|
 fn ConstantFP::getValue(self : ConstantFP) -> Double {
   self.value
 }
 
+///|
 pub fn ConstantFP::getValueAsDouble(self : ConstantFP) -> Double {
   self.value.to_float64()
 }
 
-pub fn ConstantFP::equals[T : MbtFloat](
-  self : ConstantFP,
-  value : T
-) -> Bool {
+///|
+pub fn ConstantFP::equals[T : MbtFloat](self : ConstantFP, value : T) -> Bool {
   self.value.to_float64() == value.to_float64()
 }
 
+///|
 pub fn ConstantFP::exactlyEquals[T : MbtFloat](
   self : ConstantFP,
   value : T
 ) -> Bool {
-  self.value.reinterpret_as_uint64() == value.to_float64().reinterpret_as_uint64()
+  self.value.reinterpret_as_uint64() ==
+  value.to_float64().reinterpret_as_uint64()
 }
 
+///|
 pub impl Value for ConstantFP with base(self) {
   self.base
 }
 
+///|
 pub impl Value for ConstantFP with asValueEnum(self) {
   ConstantFP(self)
 }
 
+///|
 pub impl Show for ConstantFP with output(self, logger) {
-  let val_str = self.value.reinterpret_as_uint64().to_string(radix=16).to_upper()
+  let val_str = self.value
+    .reinterpret_as_uint64()
+    .to_string(radix=16)
+    .to_upper()
   logger.write_string("\{self.getType()} 0x\{val_str}")
 }

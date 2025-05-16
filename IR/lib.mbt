@@ -26,7 +26,7 @@ fn MbtSignedEnum::asClass(self : MbtSignedEnum) -> &MbtSigned {
 ///|
 fn MbtSignedEnum::to_int64(self : MbtSignedEnum) -> Int64 {
   match self {
-    Int8(b) if b is 0..=127  => b.to_int64()
+    Int8(b) if b is (0..=127) => b.to_int64()
     Int8(b) => b.to_int64() - 256
     Int16(v) => v.to_int64()
     Int32(v) => v.to_int64()
@@ -165,11 +165,13 @@ pub impl MbtUnsigned for UInt64 with to_uint64(self) {
 // MbtFloat & MbtFloatEnum
 // ====================================================
 
+///|
 enum MbtFloatEnum {
   Float(Float)
   Double(Double)
 } derive(Eq, Hash, Show)
 
+///|
 fn MbtFloatEnum::asClass(self : MbtFloatEnum) -> &MbtFloat {
   match self {
     Float(v) => (v : &MbtFloat)
@@ -177,6 +179,7 @@ fn MbtFloatEnum::asClass(self : MbtFloatEnum) -> &MbtFloat {
   }
 }
 
+///|
 fn MbtFloatEnum::to_float64(self : MbtFloatEnum) -> Double {
   match self {
     Float(v) => v.to_float64()
@@ -184,23 +187,28 @@ fn MbtFloatEnum::to_float64(self : MbtFloatEnum) -> Double {
   }
 }
 
+///|
 pub trait MbtFloat: Show {
   asEnum(Self) -> MbtFloatEnum
   to_float64(Self) -> Double
 }
 
+///|
 pub impl MbtFloat for Float with asEnum(self) {
   Float(self)
 }
 
+///|
 pub impl MbtFloat for Float with to_float64(self) {
   self.to_float64()
 }
 
+///|
 pub impl MbtFloat for Double with asEnum(self) {
   Double(self)
 }
 
+///|
 pub impl MbtFloat for Double with to_float64(self) {
   self
 }

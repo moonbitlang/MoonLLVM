@@ -174,4 +174,3 @@ struct ValueBase {
 //trait User: Value {
 //  getOperands(Self) -> Array[&Value]
 //}
-

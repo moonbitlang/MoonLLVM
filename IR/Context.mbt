@@ -624,7 +624,10 @@ pub fn LLVMContext::getConstBool(self : LLVMContext, b : Bool) -> ConstantBool {
 ///   inspect!(two, content="float 0x4000000000000000")
 /// }
 /// ```
-pub fn LLVMContext::getConstFloat(self: LLVMContext, value: Double) -> ConstantFP {
+pub fn LLVMContext::getConstFloat(
+  self : LLVMContext,
+  value : Double
+) -> ConstantFP {
   ConstantFP::new(self.getFloatTy(), value)
 }
 
@@ -643,7 +646,10 @@ pub fn LLVMContext::getConstFloat(self: LLVMContext, value: Double) -> ConstantF
 ///   inspect!(two, content="double 0x4000000000000000")
 /// }
 /// ```
-pub fn LLVMContext::getConstDouble(self: LLVMContext, value: Double) -> ConstantFP {
+pub fn LLVMContext::getConstDouble(
+  self : LLVMContext,
+  value : Double
+) -> ConstantFP {
   ConstantFP::new(self.getDoubleTy(), value)
 }
 
@@ -666,7 +672,10 @@ pub fn LLVMContext::getConstDouble(self: LLVMContext, value: Double) -> Constant
 ///   inspect!(neg_zero, content="float 0x8000000000000000")
 /// }
 /// ```
-pub fn LLVMContext::getConstZeroFloat(self: LLVMContext, isNegative~: Bool = false) -> ConstantFP {
+pub fn LLVMContext::getConstZeroFloat(
+  self : LLVMContext,
+  isNegative~ : Bool = false
+) -> ConstantFP {
   let uv = match isNegative {
     false => 0UL
     true => 0x8000_0000_0000_0000UL
@@ -693,7 +702,10 @@ pub fn LLVMContext::getConstZeroFloat(self: LLVMContext, isNegative~: Bool = fal
 ///  inspect!(neg_zero, content="double 0x8000000000000000")
 /// }
 /// ```
-pub fn LLVMContext::getConstZeroDouble(self: LLVMContext, isNegative~: Bool = false) -> ConstantFP {
+pub fn LLVMContext::getConstZeroDouble(
+  self : LLVMContext,
+  isNegative~ : Bool = false
+) -> ConstantFP {
   let uv = match isNegative {
     false => 0UL
     true => 0x8000_0000_0000_0000UL
@@ -720,7 +732,10 @@ pub fn LLVMContext::getConstZeroDouble(self: LLVMContext, isNegative~: Bool = fa
 ///   inspect!(neg_nan, content="double 0xFFF8000000000000")
 /// }
 /// ```
-pub fn LLVMContext::getConstNaNFloat(self: LLVMContext, isNegative~: Bool = false) -> ConstantFP {
+pub fn LLVMContext::getConstNaNFloat(
+  self : LLVMContext,
+  isNegative~ : Bool = false
+) -> ConstantFP {
   let uv = match isNegative {
     false => 0x7FF8_0000_0000_0000UL
     true => 0xFFF8_0000_0000_0000UL
@@ -747,7 +762,10 @@ pub fn LLVMContext::getConstNaNFloat(self: LLVMContext, isNegative~: Bool = fals
 ///   inspect!(neg_nan, content="float 0xFFF8000000000000")
 /// }
 /// ```
-pub fn LLVMContext::getConstQNaNFloat(self: LLVMContext, isNegative~:Bool = false) -> ConstantFP {
+pub fn LLVMContext::getConstQNaNFloat(
+  self : LLVMContext,
+  isNegative~ : Bool = false
+) -> ConstantFP {
   let uv = match isNegative {
     false => 0x7FF8_0000_0000_0000UL
     true => 0xFFF8_0000_0000_0000UL
@@ -774,7 +792,10 @@ pub fn LLVMContext::getConstQNaNFloat(self: LLVMContext, isNegative~:Bool = fals
 ///   inspect!(neg_nan, content="float 0xFFF4000000000000")
 /// }
 /// ```
-pub fn LLVMContext::getConstSNaNFloat(self: LLVMContext, isNegative~: Bool = false) -> ConstantFP {
+pub fn LLVMContext::getConstSNaNFloat(
+  self : LLVMContext,
+  isNegative~ : Bool = false
+) -> ConstantFP {
   let uv = match isNegative {
     false => 0x7FF4_0000_0000_0000UL
     true => 0xFFF4_0000_0000_0000UL
@@ -801,7 +822,10 @@ pub fn LLVMContext::getConstSNaNFloat(self: LLVMContext, isNegative~: Bool = fal
 ///   inspect!(neg_inf, content="float 0xFFF0000000000000")
 /// }
 /// ```
-pub fn LLVMContext::getConstInfFloat(self: LLVMContext, isNegative~: Bool = false) -> ConstantFP {
+pub fn LLVMContext::getConstInfFloat(
+  self : LLVMContext,
+  isNegative~ : Bool = false
+) -> ConstantFP {
   let uv = match isNegative {
     false => 0x7FF0_0000_0000_0000UL
     true => 0xFFF0_0000_0000_0000UL
@@ -828,7 +852,10 @@ pub fn LLVMContext::getConstInfFloat(self: LLVMContext, isNegative~: Bool = fals
 ///   inspect!(neg_nan, content="double 0xFFF8000000000000")
 /// }
 /// ```
-pub fn LLVMContext::getConstNaNDouble(self: LLVMContext, isNegative~:Bool = false) -> ConstantFP {
+pub fn LLVMContext::getConstNaNDouble(
+  self : LLVMContext,
+  isNegative~ : Bool = false
+) -> ConstantFP {
   let uv = match isNegative {
     false => 0x7FF8_0000_0000_0000UL
     true => 0xFFF8_0000_0000_0000UL
@@ -855,7 +882,10 @@ pub fn LLVMContext::getConstNaNDouble(self: LLVMContext, isNegative~:Bool = fals
 ///   inspect!(neg_nan, content="double 0xFFF8000000000000")
 /// }
 /// ```
-pub fn LLVMContext::getConstQNaNDouble(self: LLVMContext, isNegative~: Bool = false) -> ConstantFP {
+pub fn LLVMContext::getConstQNaNDouble(
+  self : LLVMContext,
+  isNegative~ : Bool = false
+) -> ConstantFP {
   let uv = match isNegative {
     false => 0x7FF8_0000_0000_0000UL
     true => 0xFFF8_0000_0000_0000UL
@@ -882,7 +912,10 @@ pub fn LLVMContext::getConstQNaNDouble(self: LLVMContext, isNegative~: Bool = fa
 ///   inspect!(neg_nan, content="double 0xFFF4000000000000")
 /// }
 /// ```
-pub fn LLVMContext::getConstSNaNDouble(self: LLVMContext, isNegative~: Bool = false) -> ConstantFP {
+pub fn LLVMContext::getConstSNaNDouble(
+  self : LLVMContext,
+  isNegative~ : Bool = false
+) -> ConstantFP {
   let uv = match isNegative {
     false => 0x7FF4_0000_0000_0000UL
     true => 0xFFF4_0000_0000_0000UL
@@ -909,7 +942,10 @@ pub fn LLVMContext::getConstSNaNDouble(self: LLVMContext, isNegative~: Bool = fa
 ///   inspect!(neg_inf, content="double 0xFFF0000000000000")
 /// }
 /// ```
-pub fn LLVMContext::getConstInfDouble(self: LLVMContext, isNegative~: Bool = false) -> ConstantFP {
+pub fn LLVMContext::getConstInfDouble(
+  self : LLVMContext,
+  isNegative~ : Bool = false
+) -> ConstantFP {
   let uv = match isNegative {
     false => 0x7FF0_0000_0000_0000UL
     true => 0xFFF0_0000_0000_0000UL
