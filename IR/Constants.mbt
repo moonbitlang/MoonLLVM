@@ -146,12 +146,12 @@ pub fn ConstantInt::isMinValue(self : ConstantInt) -> Bool {
 }
 
 ///|
-impl Value for ConstantInt with base(self) {
+pub impl Value for ConstantInt with base(self) {
   self.base
 }
 
 ///|
-impl Value for ConstantInt with asValueEnum(self) {
+pub impl Value for ConstantInt with asValueEnum(self) {
   ConstantInt(self)
 }
 
@@ -294,12 +294,12 @@ pub fn ConstantUInt::isMaxValue(self : ConstantUInt) -> Bool {
 }
 
 ///|
-impl Value for ConstantUInt with base(self) {
+pub impl Value for ConstantUInt with base(self) {
   self.base
 }
 
 ///|
-impl Value for ConstantUInt with asValueEnum(self) {
+pub impl Value for ConstantUInt with asValueEnum(self) {
   ConstantUInt(self)
 }
 
@@ -353,12 +353,12 @@ pub fn ConstantBool::getValue(self : ConstantBool) -> Bool {
 }
 
 ///|
-impl Value for ConstantBool with base(self) {
+pub impl Value for ConstantBool with base(self) {
   self.base
 }
 
 ///|
-impl Value for ConstantBool with asValueEnum(self) {
+pub impl Value for ConstantBool with asValueEnum(self) {
   ConstantBool(self)
 }
 
@@ -367,3 +367,55 @@ pub impl Show for ConstantBool with output(self, logger) {
   logger.write_string("\{self.getType()} \{self.value}")
 }
 
+// ====================================================================
+// ConstantFP
+// ====================================================================
+
+pub struct ConstantFP {
+  base : ValueBase
+  value : Double
+} derive(Eq, Hash)
+
+// TODO: eliminate guard in the future.
+fn ConstantFP::new(vty : &Type, value : Double) -> ConstantFP {
+  guard vty.asTypeEnum() is (FloatType(_)|DoubleType(_)) else {
+    unreachable("ConstantFP::new: vty is not FloatType")
+  }
+  let base = ValueBase::{ vty, name: None, users: [] }
+  ConstantFP::{ base, value }
+}
+
+fn ConstantFP::getValue(self : ConstantFP) -> Double {
+  self.value
+}
+
+pub fn ConstantFP::getValueAsDouble(self : ConstantFP) -> Double {
+  self.value.to_float64()
+}
+
+pub fn ConstantFP::equals[T : MbtFloat](
+  self : ConstantFP,
+  value : T
+) -> Bool {
+  self.value.to_float64() == value.to_float64()
+}
+
+pub fn ConstantFP::exactlyEquals[T : MbtFloat](
+  self : ConstantFP,
+  value : T
+) -> Bool {
+  self.value.reinterpret_as_uint64() == value.to_float64().reinterpret_as_uint64()
+}
+
+pub impl Value for ConstantFP with base(self) {
+  self.base
+}
+
+pub impl Value for ConstantFP with asValueEnum(self) {
+  ConstantFP(self)
+}
+
+pub impl Show for ConstantFP with output(self, logger) {
+  let val_str = self.value.reinterpret_as_uint64().to_string(radix=16).to_upper()
+  logger.write_string("\{self.getType()} 0x\{val_str}")
+}

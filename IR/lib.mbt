@@ -1,6 +1,10 @@
 ///|
 //typealias HashSet[T] = @hashset.T[T]
 
+// ====================================================
+// MbtSigned & MbtSignedEnum
+// ====================================================
+
 ///|
 enum MbtSignedEnum {
   Int8(Byte)
@@ -79,6 +83,10 @@ pub impl MbtSigned for Int64 with to_int64(self) {
   self.to_int64()
 }
 
+// ====================================================
+// MbtUnsigned & MbtUnsignedEnum
+// ====================================================
+
 ///|
 enum MbtUnsignedEnum {
   UInt8(Byte)
@@ -151,4 +159,48 @@ pub impl MbtUnsigned for UInt64 with asEnum(self) {
 ///|
 pub impl MbtUnsigned for UInt64 with to_uint64(self) {
   self.to_uint64()
+}
+
+// ====================================================
+// MbtFloat & MbtFloatEnum
+// ====================================================
+
+enum MbtFloatEnum {
+  Float(Float)
+  Double(Double)
+} derive(Eq, Hash, Show)
+
+fn MbtFloatEnum::asClass(self : MbtFloatEnum) -> &MbtFloat {
+  match self {
+    Float(v) => (v : &MbtFloat)
+    Double(v) => v
+  }
+}
+
+fn MbtFloatEnum::to_float64(self : MbtFloatEnum) -> Double {
+  match self {
+    Float(v) => v.to_float64()
+    Double(v) => v
+  }
+}
+
+pub trait MbtFloat: Show {
+  asEnum(Self) -> MbtFloatEnum
+  to_float64(Self) -> Double
+}
+
+pub impl MbtFloat for Float with asEnum(self) {
+  Float(self)
+}
+
+pub impl MbtFloat for Float with to_float64(self) {
+  self.to_float64()
+}
+
+pub impl MbtFloat for Double with asEnum(self) {
+  Double(self)
+}
+
+pub impl MbtFloat for Double with to_float64(self) {
+  self
 }

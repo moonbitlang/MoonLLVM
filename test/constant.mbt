@@ -60,3 +60,33 @@ test "Constant Int, UInt, and Bool" {
   inspect!(ctx.getConstBool(true), content="i1 true")
   inspect!(ctx.getConstBool(false), content="i1 false")
 }
+
+test "ConstantFP" {
+  let ctx = LLVMContext::new()
+
+  inspect!(ctx.getConstFloat(1.0), content="float 0x3FF0000000000000")
+  inspect!(ctx.getConstDouble(1.0), content="double 0x3FF0000000000000")
+
+  inspect!(ctx.getConstZeroFloat(), content="float 0x0")
+  inspect!(ctx.getConstZeroFloat(isNegative=true), content="float 0x8000000000000000")
+  inspect!(ctx.getConstZeroDouble(), content="double 0x0")
+  inspect!(ctx.getConstZeroDouble(isNegative=true), content="double 0x8000000000000000")
+
+  inspect!(ctx.getConstNaNFloat(), content="float 0x7FF8000000000000")
+  inspect!(ctx.getConstNaNFloat(isNegative=true), content="float 0xFFF8000000000000")
+
+  inspect!(ctx.getConstNaNDouble(), content="double 0x7FF8000000000000")
+  inspect!(ctx.getConstNaNDouble(isNegative=true), content="double 0xFFF8000000000000")
+
+  inspect!(ctx.getConstQNaNFloat(), content="float 0x7FF8000000000000")
+  inspect!(ctx.getConstQNaNFloat(isNegative=true), content="float 0xFFF8000000000000")
+
+  inspect!(ctx.getConstQNaNDouble(), content="double 0x7FF8000000000000")
+  inspect!(ctx.getConstQNaNDouble(isNegative=true), content="double 0xFFF8000000000000")
+
+  inspect!(ctx.getConstInfFloat(), content="float 0x7FF0000000000000")
+  inspect!(ctx.getConstInfFloat(isNegative=true), content="float 0xFFF0000000000000")
+
+  inspect!(ctx.getConstInfDouble(), content="double 0x7FF0000000000000")
+  inspect!(ctx.getConstInfDouble(isNegative=true), content="double 0xFFF0000000000000")
+}

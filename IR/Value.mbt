@@ -17,7 +17,7 @@ pub enum ValueEnum {
   ConstantInt(ConstantInt)
   ConstantBool(ConstantBool)
   ConstantUInt(ConstantUInt)
-  //ConstantFP(ConstantFP)
+  ConstantFP(ConstantFP)
   //ConstantAggregateZero(ConstantAggregateZero)
   //ConstantAggregate(ConstantAggregate)
   //ConstantArray(ConstantArray)

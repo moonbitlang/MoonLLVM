@@ -609,3 +609,310 @@ pub fn LLVMContext::getConstFalse(self : LLVMContext) -> ConstantBool {
 pub fn LLVMContext::getConstBool(self : LLVMContext, b : Bool) -> ConstantBool {
   ConstantBool::new(self, b)
 }
+
+///| Create a constant with float type.
+///
+/// - See LLVM: `ConstantFP::get`.
+///
+/// ```moonbit
+/// test "LLVMContext::getConstFloat" {
+///   let ctx = LLVMContext::new()
+///
+///   let one = ctx.getConstFloat(1.0)
+///   let two = ctx.getConstFloat(2.0)
+///   inspect!(one, content="float 0x3FF0000000000000")
+///   inspect!(two, content="float 0x4000000000000000")
+/// }
+/// ```
+pub fn LLVMContext::getConstFloat(self: LLVMContext, value: Double) -> ConstantFP {
+  ConstantFP::new(self.getFloatTy(), value)
+}
+
+///| Create a constant with double type.
+///
+/// - See LLVM: `ConstantFP::get`.
+///
+/// ```moonbit
+/// test "LLVMContext::getConstDouble" {
+///   let ctx = LLVMContext::new()
+///
+///   let one = ctx.getConstDouble(1.0)
+///   let two = ctx.getConstDouble(2.0)
+///
+///   inspect!(one, content="double 0x3FF0000000000000")
+///   inspect!(two, content="double 0x4000000000000000")
+/// }
+/// ```
+pub fn LLVMContext::getConstDouble(self: LLVMContext, value: Double) -> ConstantFP {
+  ConstantFP::new(self.getDoubleTy(), value)
+}
+
+///| Create a constant zero with float type.
+///
+/// - See LLVM: `ConstantFP::getZero`.
+///
+/// **Parameter**:
+///
+///  - `isNegative`: If true, create a negative zero constant.
+///
+/// ```moonbit
+/// test "LLVMContext::getConstFloat" {
+///   let ctx = LLVMContext::new()
+///
+///   let zero = ctx.getConstZeroFloat()
+///   let neg_zero = ctx.getConstZeroFloat(isNegative=true)
+///
+///   inspect!(zero, content="float 0x0")
+///   inspect!(neg_zero, content="float 0x8000000000000000")
+/// }
+/// ```
+pub fn LLVMContext::getConstZeroFloat(self: LLVMContext, isNegative~: Bool = false) -> ConstantFP {
+  let uv = match isNegative {
+    false => 0UL
+    true => 0x8000_0000_0000_0000UL
+  }
+  ConstantFP::new(self.getFloatTy(), uv.reinterpret_as_double())
+}
+
+///| Create a constant zero with double type.
+///
+/// - See LLVM: `ConstantFP::getZero`.
+///
+/// **Parameter**:
+///
+/// - `isNegative`: If true, create a negative zero constant.
+///
+/// ```moonbit
+/// test "LLVMContext::getConstZeroDouble" {
+///  let ctx = LLVMContext::new()
+///
+///  let zero = ctx.getConstZeroDouble()
+///  let neg_zero = ctx.getConstZeroDouble(isNegative=true)
+///
+///  inspect!(zero, content="double 0x0")
+///  inspect!(neg_zero, content="double 0x8000000000000000")
+/// }
+/// ```
+pub fn LLVMContext::getConstZeroDouble(self: LLVMContext, isNegative~: Bool = false) -> ConstantFP {
+  let uv = match isNegative {
+    false => 0UL
+    true => 0x8000_0000_0000_0000UL
+  }
+  ConstantFP::new(self.getDoubleTy(), uv.reinterpret_as_double())
+}
+
+///| Create a constant NaN with double type.
+///
+/// - See LLVM: `ConstantFP::getZero`.
+///
+/// **Parameter**:
+///
+/// - `isNegative`: If true, create a negative zero constant.
+///
+/// ```moonbit
+/// test "LLVMContext::getConstNaNDouble" {
+///   let ctx = LLVMContext::new()
+///
+///   let nan = ctx.getConstNaNDouble()
+///   let neg_nan = ctx.getConstNaNDouble(isNegative=true)
+///
+///   inspect!(nan, content="double 0x7FF8000000000000")
+///   inspect!(neg_nan, content="double 0xFFF8000000000000")
+/// }
+/// ```
+pub fn LLVMContext::getConstNaNFloat(self: LLVMContext, isNegative~: Bool = false) -> ConstantFP {
+  let uv = match isNegative {
+    false => 0x7FF8_0000_0000_0000UL
+    true => 0xFFF8_0000_0000_0000UL
+  }
+  ConstantFP::new(self.getFloatTy(), uv.reinterpret_as_double())
+}
+
+///| Create a constant Quiet NaN with float type.
+///
+/// - See LLVM: `ConstantFP::getQNaN`.
+///
+/// **Parameter**:
+///
+/// - `isNegative`: If true, create a negative NaN constant.
+///
+/// ```moonbit
+/// test "LLVMContext::getConstQNaNFloat" {
+///   let ctx = LLVMContext::new()
+///
+///   let nan = ctx.getConstQNaNFloat()
+///   let neg_nan = ctx.getConstQNaNFloat(isNegative=true)
+///
+///   inspect!(nan, content="float 0x7FF8000000000000")
+///   inspect!(neg_nan, content="float 0xFFF8000000000000")
+/// }
+/// ```
+pub fn LLVMContext::getConstQNaNFloat(self: LLVMContext, isNegative~:Bool = false) -> ConstantFP {
+  let uv = match isNegative {
+    false => 0x7FF8_0000_0000_0000UL
+    true => 0xFFF8_0000_0000_0000UL
+  }
+  ConstantFP::new(self.getFloatTy(), uv.reinterpret_as_double())
+}
+
+///| Create a constant Signaling NaN with float type.
+///
+/// - See LLVM: `ConstantFP::getSNaN`.
+///
+/// **Parameter**:
+///
+/// - `isNegative`: If true, create a negative NaN constant.
+///
+/// ```moonbit
+/// test "LLVMContext::getConstSNaNFloat" {
+///   let ctx = LLVMContext::new()
+///
+///   let nan = ctx.getConstSNaNFloat()
+///   let neg_nan = ctx.getConstSNaNFloat(isNegative=true)
+///
+///   inspect!(nan, content="float 0x7FF4000000000000")
+///   inspect!(neg_nan, content="float 0xFFF4000000000000")
+/// }
+/// ```
+pub fn LLVMContext::getConstSNaNFloat(self: LLVMContext, isNegative~: Bool = false) -> ConstantFP {
+  let uv = match isNegative {
+    false => 0x7FF4_0000_0000_0000UL
+    true => 0xFFF4_0000_0000_0000UL
+  }
+  ConstantFP::new(self.getFloatTy(), uv.reinterpret_as_double())
+}
+
+///| Create a constant Infinity with float type.
+///
+/// - See LLVM: `ConstantFP::getInfinity`.
+///
+/// **Parameter**:
+///
+/// - `isNegative`: If true, create a negative Infinity constant.
+///
+/// ```moonbit
+/// test "LLVMContext::getConstInfFloat" {
+///   let ctx = LLVMContext::new()
+///
+///   let inf = ctx.getConstInfFloat()
+///   let neg_inf = ctx.getConstInfFloat(isNegative=true)
+///
+///   inspect!(inf, content="float 0x7FF0000000000000")
+///   inspect!(neg_inf, content="float 0xFFF0000000000000")
+/// }
+/// ```
+pub fn LLVMContext::getConstInfFloat(self: LLVMContext, isNegative~: Bool = false) -> ConstantFP {
+  let uv = match isNegative {
+    false => 0x7FF0_0000_0000_0000UL
+    true => 0xFFF0_0000_0000_0000UL
+  }
+  ConstantFP::new(self.getFloatTy(), uv.reinterpret_as_double())
+}
+
+///| Create a constant NaN with double type.
+///
+/// - See LLVM: `ConstantFP::getNaN`.
+///
+/// **Parameter**:
+///
+/// - `isNegative`: If true, create a negative NaN constant.
+///
+/// ```moonbit
+/// test "LLVMContext::getConstNaNDouble" {
+///   let ctx = LLVMContext::new()
+///
+///   let nan = ctx.getConstNaNDouble()
+///   let neg_nan = ctx.getConstNaNDouble(isNegative=true)
+///
+///   inspect!(nan, content="double 0x7FF8000000000000")
+///   inspect!(neg_nan, content="double 0xFFF8000000000000")
+/// }
+/// ```
+pub fn LLVMContext::getConstNaNDouble(self: LLVMContext, isNegative~:Bool = false) -> ConstantFP {
+  let uv = match isNegative {
+    false => 0x7FF8_0000_0000_0000UL
+    true => 0xFFF8_0000_0000_0000UL
+  }
+  ConstantFP::new(self.getDoubleTy(), uv.reinterpret_as_double())
+}
+
+///| Create a constant Quiet NaN with double type.
+///
+/// - See LLVM: `ConstantFP::getQNaN`.
+///
+/// **Parameter**:
+///
+/// - `isNegative`: If true, create a negative NaN constant.
+///
+/// ```moonbit
+/// test "LLVMContext::getConstQNaNDouble" {
+///   let ctx = LLVMContext::new()
+///
+///   let nan = ctx.getConstQNaNDouble()
+///   let neg_nan = ctx.getConstQNaNDouble(isNegative=true)
+///
+///   inspect!(nan, content="double 0x7FF8000000000000")
+///   inspect!(neg_nan, content="double 0xFFF8000000000000")
+/// }
+/// ```
+pub fn LLVMContext::getConstQNaNDouble(self: LLVMContext, isNegative~: Bool = false) -> ConstantFP {
+  let uv = match isNegative {
+    false => 0x7FF8_0000_0000_0000UL
+    true => 0xFFF8_0000_0000_0000UL
+  }
+  ConstantFP::new(self.getDoubleTy(), uv.reinterpret_as_double())
+}
+
+///| Create a constant Signaling NaN with double type.
+///
+/// - See LLVM: `ConstantFP::getSNaN`.
+///
+/// **Parameter**:
+///
+/// - `isNegative`: If true, create a negative NaN constant.
+///
+/// ```moonbit
+/// test "LLVMContext::getConstSNaNDouble" {
+///   let ctx = LLVMContext::new()
+///
+///   let nan = ctx.getConstSNaNDouble()
+///   let neg_nan = ctx.getConstSNaNDouble(isNegative=true)
+///
+///   inspect!(nan, content="double 0x7FF4000000000000")
+///   inspect!(neg_nan, content="double 0xFFF4000000000000")
+/// }
+/// ```
+pub fn LLVMContext::getConstSNaNDouble(self: LLVMContext, isNegative~: Bool = false) -> ConstantFP {
+  let uv = match isNegative {
+    false => 0x7FF4_0000_0000_0000UL
+    true => 0xFFF4_0000_0000_0000UL
+  }
+  ConstantFP::new(self.getDoubleTy(), uv.reinterpret_as_double())
+}
+
+///| Create a constant Infinity with double type.
+///
+/// - See LLVM: `ConstantFP::getInfinity`.
+///
+/// **Parameter**:
+///
+/// - `isNegative`: If true, create a negative Infinity constant.
+///
+/// ```moonbit
+/// test "LLVMContext::getConstInfDouble" {
+///   let ctx = LLVMContext::new()
+///
+///   let inf = ctx.getConstInfDouble()
+///   let neg_inf = ctx.getConstInfDouble(isNegative=true)
+///
+///   inspect!(inf, content="double 0x7FF0000000000000")
+///   inspect!(neg_inf, content="double 0xFFF0000000000000")
+/// }
+/// ```
+pub fn LLVMContext::getConstInfDouble(self: LLVMContext, isNegative~: Bool = false) -> ConstantFP {
+  let uv = match isNegative {
+    false => 0x7FF0_0000_0000_0000UL
+    true => 0xFFF0_0000_0000_0000UL
+  }
+  ConstantFP::new(self.getDoubleTy(), uv.reinterpret_as_double())
+}
