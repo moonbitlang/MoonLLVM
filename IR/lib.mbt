@@ -22,14 +22,11 @@ fn MbtSignedEnum::asClass(self : MbtSignedEnum) -> &MbtSigned {
 ///|
 fn MbtSignedEnum::to_int64(self : MbtSignedEnum) -> Int64 {
   match self {
-    Int8(v) =>
-      match v {
-        0..=127 => v.to_int64()
-        128..=255 => v.to_int64() - 256
-      }
+    Int8(b) if b is 0..=127  => b.to_int64()
+    Int8(b) => b.to_int64() - 256
     Int16(v) => v.to_int64()
     Int32(v) => v.to_int64()
-    Int64(v) => v.to_int64()
+    Int64(v) => v
   }
 }
 
@@ -104,9 +101,9 @@ fn MbtUnsignedEnum::asClass(self : MbtUnsignedEnum) -> &MbtUnsigned {
 fn MbtUnsignedEnum::to_uint64(self : MbtUnsignedEnum) -> UInt64 {
   match self {
     UInt8(v) => v.to_uint64()
-    UInt16(v) => v.to_uint64()
+    UInt16(v) => v.to_int().to_uint64()
     UInt32(v) => v.to_uint64()
-    UInt64(v) => v.to_uint64()
+    UInt64(v) => v
   }
 }
 

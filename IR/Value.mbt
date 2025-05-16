@@ -179,7 +179,25 @@ struct ValueBase {
 // ConstantInt
 // ====================================================================
 
-///|
+///| ConstantInt
+///
+/// Use `LLVMContext::getConstInt8, getConstInt16, getConstInt32, getConstInt64`
+/// To create a new ConstantInt.
+///
+/// ```moonbit
+/// test "Constant Signed Integer" {
+///   let ctx = LLVMContext::new()
+///   let i8 = ctx.getConstInt8(0)
+///   let i16 = ctx.getConstInt16(1)
+///   let i32 = ctx.getConstInt32(-2)
+///   let i64 = ctx.getConstInt64(16)
+///
+///   inspect!(i8, content="i8 0")
+///   inspect!(i16, content="i16 1")
+///   inspect!(i32, content="i32 -2")
+///   inspect!(i64, content="i64 16")
+/// }
+/// ```
 pub struct ConstantInt {
   base : ValueBase
   value : MbtSignedEnum
@@ -205,17 +223,68 @@ fn ConstantInt::new[T : MbtSigned](vty : &Type, value : T) -> ConstantInt {
 }
 
 ///|
-pub fn ConstantInt::getValue(self : ConstantInt) -> MbtSignedEnum {
+fn ConstantInt::getValue(self : ConstantInt) -> MbtSignedEnum {
   self.value
 }
 
-///|
+///| Get the value of this constant as a signed 64-bits integer.
+///
+/// ```moonbit
+/// test "ConstantInt getValueAsInt64" {
+///   let ctx = LLVMContext::new()
+///
+///   let i8_zero = ctx.getConstInt8(0)
+///   let i16_one = ctx.getConstInt16(1)
+///   let i32_two = ctx.getConstInt32(2)
+///   let i64_m1 = ctx.getConstInt64(-1)
+///   let i8_m1 = ctx.getConstInt8(-1)
+///
+///   assert_eq!(i8_zero.getValueAsInt64(), 0)
+///   assert_eq!(i16_one.getValueAsInt64(), 1)
+///   assert_eq!(i32_two.getValueAsInt64(), 2)
+///   assert_eq!(i64_m1.getValueAsInt64(), -1)
+///   assert_eq!(i8_m1.getValueAsInt64(), -1)
+/// }
+/// ```
+pub fn ConstantInt::getValueAsInt64(self : ConstantInt) -> Int64 {
+  self.value.to_int64()
+}
+
+///| Get the type of constant int value.
+///
+/// ```moonbit
+/// test "ConstantInt getIntegerType" {
+///   let ctx = LLVMContext::new()
+///
+///   let i8_zero = ctx.getConstInt8(0)
+///   let i16_one = ctx.getConstInt16(1)
+///   let i32_m2 = ctx.getConstInt32(-2)
+///   let i64_m16 = ctx.getConstInt64(-16)
+///
+///   inspect!(i8_zero.getIntegerType(), content="i8")
+///   inspect!(i16_one.getIntegerType(), content="i16")
+///   inspect!(i32_m2.getIntegerType(), content="i32")
+///   inspect!(i64_m16.getIntegerType(), content="i64")
+/// }
+/// ```
 pub fn ConstantInt::getIntegerType(self : ConstantInt) -> IntegerType {
   guard self.getType().asTypeEnum() is IntegerType(ity)
   ity
 }
 
-///|
+///| Compare the value of this constant int with a signed integer.
+///
+/// ```moonbit
+/// test "ConstantInt equals" {
+///   let ctx = LLVMContext::new()
+///
+///   assert_true!(ctx.getConstInt8(0).equals(0))
+///   assert_true!(ctx.getConstInt8(-1).equals(-1))
+///   assert_true!(ctx.getConstInt8(1).equals(1))
+///   assert_true!(ctx.getConstInt16(16).equals(16))
+///   assert_true!(ctx.getConstInt32(-128).equals(-128))
+/// }
+/// ```
 pub fn ConstantInt::equals[T : MbtSigned](
   self : ConstantInt,
   value : T
@@ -230,36 +299,6 @@ pub fn ConstantInt::isNegative(self : ConstantInt) -> Bool {
     Int16(b) => b < 0
     Int32(b) => b < 0
     Int64(b) => b < 0
-  }
-}
-
-///|
-pub fn ConstantInt::isZero(self : ConstantInt) -> Bool {
-  match self.value {
-    Int8(b) => b == 0
-    Int16(b) => b == 0
-    Int32(b) => b == 0
-    Int64(b) => b == 0
-  }
-}
-
-///|
-pub fn ConstantInt::isOne(self : ConstantInt) -> Bool {
-  match self.value {
-    Int8(b) => b == 1
-    Int16(b) => b == 1
-    Int32(b) => b == 1
-    Int64(b) => b == 1
-  }
-}
-
-///|
-pub fn ConstantInt::isMinusOne(self : ConstantInt) -> Bool {
-  match self.value {
-    Int8(b) => b == 255
-    Int16(b) => b == -1
-    Int32(b) => b == -1
-    Int64(b) => b == -1
   }
 }
 
@@ -288,6 +327,7 @@ impl Value for ConstantInt with base(self) {
   self.base
 }
 
+///|
 impl Value for ConstantInt with asValueEnum(self) {
   ConstantInt(self)
 }
@@ -309,7 +349,26 @@ pub impl Show for ConstantInt with output(self, logger) {
 // ConstantUInt
 // ====================================================================
 
-///|
+///| ConstantUInt.
+///
+/// Use `LLVMContext::getConstUInt8, getConstUInt16, getConstUInt32, getConstUInt64` 
+/// to create a new ConstantUInt.
+///
+/// ```moonbit
+/// test "Constant Unsigned Integer" {
+///   let ctx = LLVMContext::new()
+///
+///   let i8 = ctx.getConstUInt8(0)
+///   let i16 = ctx.getConstUInt16(1)
+///   let i32 = ctx.getConstUInt32(2)
+///   let i64 = ctx.getConstUInt64(16)
+///
+///   inspect!(i8, content="i8 0")
+///   inspect!(i16, content="i16 1")
+///   inspect!(i32, content="i32 2")
+///   inspect!(i64, content="i64 16")
+/// }
+/// ```
 pub struct ConstantUInt {
   base : ValueBase
   value : MbtUnsignedEnum
@@ -333,60 +392,72 @@ fn ConstantUInt::new[T : MbtUnsigned](vty : &Type, value : T) -> ConstantUInt {
   ConstantUInt::{ base, value }
 }
 
-///|
-pub fn ConstantUInt::getValueWithUInt64(self : ConstantUInt) -> UInt64 {
-  match self.value {
-    UInt8(b) => b.to_uint64()
-    UInt16(b) => b.to_int().to_uint64()
-    UInt32(b) => b.to_uint64()
-    UInt64(b) => b
-  }
+fn ConstantUInt::getValue(self : ConstantUInt) -> MbtUnsignedEnum {
+  self.value
 }
 
-///|
+///| Get the value of this constant as a unsigned 64-bits integer.
+///
+/// ```moonbit
+/// test "ConstantUInt getValueAsUInt64" {
+///   let ctx = LLVMContext::new()
+///
+///   let i8_zero = ctx.getConstUInt8(0)
+///   let i16_one = ctx.getConstUInt16(1)
+///   let i32_two = ctx.getConstUInt32(2)
+///   let i64_four = ctx.getConstUInt64(4)
+///
+///   assert_eq!(i8_zero.getValueAsUInt64(), 0)
+///   assert_eq!(i16_one.getValueAsUInt64(), 1)
+///   assert_eq!(i32_two.getValueAsUInt64(), 2)
+///   assert_eq!(i64_four.getValueAsUInt64(), 4)
+/// }
+/// ```
+pub fn ConstantUInt::getValueAsUInt64(self : ConstantUInt) -> UInt64 {
+  self.value.to_uint64()
+}
+
+///| Get the type of constant int value.
+///
+/// - See LLVM: `ConstantInt::getIntegerType`
+///
+/// ```moonbit
+/// test "ConstantUInt getIntegerType" {
+///   let ctx = LLVMContext::new()
+///
+///   let i8_zero = ctx.getConstUInt8(0)
+///   let i16_one = ctx.getConstUInt16(1)
+///   let i32_two = ctx.getConstUInt32(2)
+///   let i64_four = ctx.getConstUInt64(4)
+///
+///   inspect!(i8_zero.getIntegerType(), content="i8")
+///   inspect!(i16_one.getIntegerType(), content="i16")
+///   inspect!(i32_two.getIntegerType(), content="i32")
+///   inspect!(i64_four.getIntegerType(), content="i64")
+/// }
+/// ```
 pub fn ConstantUInt::getIntegerType(self : ConstantUInt) -> IntegerType {
   guard self.getType().asTypeEnum() is IntegerType(ity)
   ity
 }
 
-///|
-pub fn ConstantUInt::equalsUInt(self : ConstantUInt, value : UInt) -> Bool {
-  match self.value {
-    UInt8(b) => b.to_uint() == value
-    UInt16(b) => b.to_int().reinterpret_as_uint() == value
-    UInt32(b) => b == value
-    UInt64(b) => b.to_uint() == value
-  }
-}
-
-///|
-pub fn ConstantUInt::equalsUInt64(self : ConstantUInt, value : UInt64) -> Bool {
-  match self.value {
-    UInt8(b) => b.to_uint64() == value
-    UInt16(b) => b.to_int().to_uint64() == value
-    UInt32(b) => b.to_uint64() == value
-    UInt64(b) => b == value
-  }
-}
-
-///|
-pub fn ConstantUInt::isZero(self : ConstantUInt) -> Bool {
-  match self.value {
-    UInt8(b) => b == 0
-    UInt16(b) => b == 0
-    UInt32(b) => b == 0
-    UInt64(b) => b == 0
-  }
-}
-
-///|
-pub fn ConstantUInt::isOne(self : ConstantUInt) -> Bool {
-  match self.value {
-    UInt8(b) => b == 1
-    UInt16(b) => b == 1
-    UInt32(b) => b == 1
-    UInt64(b) => b == 1
-  }
+///| Compare the value of this constant int with a unsigned integer.
+///
+/// ```moonbit
+/// test "ConstantUInt equals" {
+///   let ctx = LLVMContext::new()
+///
+///   assert_true!(ctx.getConstUInt8(0).equals(0U))
+///   assert_true!(ctx.getConstUInt8(1).equals(1U))
+///   assert_true!(ctx.getConstUInt8(4).equals(4U))
+///   assert_true!(ctx.getConstUInt8(255).equals(255U))
+/// }
+/// ```
+pub fn ConstantUInt::equals[T : MbtUnsigned](
+  self : ConstantUInt,
+  value : T
+) -> Bool {
+  self.value.to_uint64() == value.to_uint64()
 }
 
 ///|
@@ -400,20 +471,11 @@ pub fn ConstantUInt::isMaxValue(self : ConstantUInt) -> Bool {
 }
 
 ///|
-pub fn ConstantUInt::isMinValue(self : ConstantUInt) -> Bool {
-  match self.value {
-    UInt8(b) => b == 0
-    UInt16(b) => b == 0
-    UInt32(b) => b == 0
-    UInt64(b) => b == 0
-  }
-}
-
-///|
 impl Value for ConstantUInt with base(self) {
   self.base
 }
 
+///|
 impl Value for ConstantUInt with asValueEnum(self) {
   ConstantUInt(self)
 }
@@ -431,7 +493,25 @@ pub impl Show for ConstantUInt with output(self, logger) {
 // ConstantBool
 // ====================================================================
 
-///|
+///| ConstantBool.
+///
+/// ```moonbit
+/// test "Constant Bool" {
+///   let ctx = LLVMContext::new()
+///
+///   let true_val = ctx.getConstTrue()
+///   let false_val = ctx.getConstFalse()
+///
+///   inspect!(true_val, content="i1 true")
+///   inspect!(false_val, content="i1 false")
+///
+///   let true_val = ctx.getConstBool(true)
+///   let false_val = ctx.getConstBool(false)
+///
+///   inspect!(true_val, content="i1 true")
+///   inspect!(false_val, content="i1 false")
+/// }
+/// ```
 pub struct ConstantBool {
   base : ValueBase
   value : Bool
@@ -450,20 +530,11 @@ pub fn ConstantBool::getValue(self : ConstantBool) -> Bool {
 }
 
 ///|
-pub fn ConstantBool::isTrue(self : ConstantBool) -> Bool {
-  self.value
-}
-
-///|
-pub fn ConstantBool::isFalse(self : ConstantBool) -> Bool {
-  self.value |> not
-}
-
-///|
 impl Value for ConstantBool with base(self) {
   self.base
 }
 
+///|
 impl Value for ConstantBool with asValueEnum(self) {
   ConstantBool(self)
 }

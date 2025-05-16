@@ -1313,6 +1313,11 @@ pub impl Type for VectorType with base(self) -> TypeBase {
 pub type AddressSpace UInt derive(Hash, Show, Eq, Default)
 
 ///|
+pub fn AddressSpace::new(v : UInt) -> AddressSpace {
+  AddressSpace(v)
+}
+
+///|
 /// **Note**: Before LLVM17, TypedPointer is supported. After LLVM17, all pointer
 /// are opaque pointer, and typed pointer is deprecated.
 ///

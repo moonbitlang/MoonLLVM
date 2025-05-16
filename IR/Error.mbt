@@ -14,5 +14,5 @@ type! LLVMTypeError {
 
 ///|
 //type! LLVMValueError {
-  //DuplicateValueName(String)
+//DuplicateValueName(String)
 //} derive(Show)
