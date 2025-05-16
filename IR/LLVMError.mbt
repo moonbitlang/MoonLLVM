@@ -13,12 +13,6 @@ type! LLVMTypeError {
 } derive(Show)
 
 ///|
-type! LLVMValueError {
+//type! LLVMValueError {
   //DuplicateValueName(String)
-  ConstantIntOnlyAcceptIntegerType(&Type)
-  ConstantUIntOnlyAcceptIntegerType(&Type)
-  ConstantIntTypeShouldNotBe1
-  ConstantUIntTypeShouldNotBe1
-  ConstantIntTypeMismatch(&Type, MbtSignedEnum)
-  ConstantUIntTypeMismatch(&Type, MbtUnsignedEnum)
-} derive(Show)
+//} derive(Show)

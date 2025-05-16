@@ -74,6 +74,7 @@ pub enum ValueEnum {
 ///|
 pub trait Value: Show + Hash {
   base(Self) -> ValueBase
+  asValueEnum(Self) -> ValueEnum
 
   // All values are typed, get the type of this value.
   getType(Self) -> &Type = _
@@ -186,33 +187,26 @@ pub struct ConstantInt {
 
 // TODO: eliminate guard in the future.
 ///|
-fn ConstantInt::new(
-  vty : &Type,
-  value : &MbtSigned
-) -> ConstantInt!LLVMValueError {
+fn ConstantInt::new[T : MbtSigned](vty : &Type, value : T) -> ConstantInt {
   guard vty.asTypeEnum() is IntegerType(ity) else {
     unreachable("ConstantInt::new: vty is not IntegerType")
   }
   let value = match (ity.getBitWidth(), value.asEnum()) {
     (8, Int8(b)) => Int8(b)
-    (16, Int16(b)) => Int16(b)
-    (32, Int32(b)) => Int32(b)
-    (64, Int64(b)) => Int64(b)
-    (1, _) => raise ConstantIntTypeShouldNotBe1
-    _ => raise ConstantIntTypeMismatch(vty, value.asEnum())
+    (16, Int16(s)) => Int16(s)
+    (32, Int32(i)) => Int32(i)
+    (64, Int64(l)) => Int64(l)
+    (1, _) =>
+      unreachable("ConstantInt::new: i1 type could not create constant int")
+    _ => unreachable("Type MisMatch")
   }
   let base = ValueBase::{ vty, name: None, users: [] }
   ConstantInt::{ base, value }
 }
 
 ///|
-pub fn ConstantInt::getValueWithInt64(self : ConstantInt) -> Int64 {
-  match self.value {
-    Int8(b) => b.to_int64()
-    Int16(b) => b.to_int64()
-    Int32(b) => b.to_int64()
-    Int64(b) => b
-  }
+pub fn ConstantInt::getValue(self : ConstantInt) -> MbtSignedEnum {
+  self.value
 }
 
 ///|
@@ -222,14 +216,11 @@ pub fn ConstantInt::getIntegerType(self : ConstantInt) -> IntegerType {
 }
 
 ///|
-pub fn ConstantInt::equalsInt(self : ConstantInt, value : &MbtSigned) -> Bool {
-  match (self.value, value.asEnum()) {
-    (Int8(b1), Int8(b2)) => b1 == b2
-    (Int16(b1), Int16(b2)) => b1 == b2
-    (Int32(b1), Int32(b2)) => b1 == b2
-    (Int64(b1), Int64(b2)) => b1 == b2
-    _ => false
-  }
+pub fn ConstantInt::equals[T : MbtSigned](
+  self : ConstantInt,
+  value : T
+) -> Bool {
+  self.value.to_int64() == value.to_int64()
 }
 
 ///|
@@ -297,10 +288,18 @@ impl Value for ConstantInt with base(self) {
   self.base
 }
 
+impl Value for ConstantInt with asValueEnum(self) {
+  ConstantInt(self)
+}
+
 ///|
 pub impl Show for ConstantInt with output(self, logger) {
   let val_str = match self.value {
-    Int8(b) => b.to_int().to_string()
+    Int8(b) =>
+      match b.to_int() {
+        0..=127 as v => v.to_string()
+        v => (v - 256).to_string()
+      }
     _ => self.value.asClass().to_string()
   }
   logger.write_string("\{self.getIntegerType()} \{val_str}")
@@ -317,20 +316,18 @@ pub struct ConstantUInt {
 } derive(Eq, Hash)
 
 ///|
-fn ConstantUInt::new(
-  vty : &Type,
-  value : &MbtUnsigned
-) -> ConstantUInt!LLVMValueError {
+fn ConstantUInt::new[T : MbtUnsigned](vty : &Type, value : T) -> ConstantUInt {
   guard vty.asTypeEnum() is IntegerType(ity) else {
     unreachable("ConstantUInt::new: vty is not IntegerType")
   }
   let value = match (ity.getBitWidth(), value.asEnum()) {
     (8, UInt8(b)) => UInt8(b)
-    (16, UInt16(b)) => UInt16(b)
-    (32, UInt32(b)) => UInt32(b)
-    (64, UInt64(b)) => UInt64(b)
-    (1, _) => raise ConstantUIntTypeShouldNotBe1
-    _ => raise ConstantUIntTypeMismatch(vty, value.asEnum())
+    (16, UInt16(s)) => UInt16(s)
+    (32, UInt32(i)) => UInt32(i)
+    (64, UInt64(l)) => UInt64(l)
+    (1, _) =>
+      unreachable("ConstantUInt::new: i1 type could not create constant int")
+    _ => unreachable("ConstantUInt::new: Type MisMatch")
   }
   let base = ValueBase::{ vty, name: None, users: [] }
   ConstantUInt::{ base, value }
@@ -353,16 +350,22 @@ pub fn ConstantUInt::getIntegerType(self : ConstantUInt) -> IntegerType {
 }
 
 ///|
-pub fn ConstantUInt::equalsInt(
-  self : ConstantUInt,
-  value : &MbtUnsigned
-) -> Bool {
-  match (self.value, value.asEnum()) {
-    (UInt8(b1), UInt8(b2)) => b1 == b2
-    (UInt16(b1), UInt16(b2)) => b1 == b2
-    (UInt32(b1), UInt32(b2)) => b1 == b2
-    (UInt64(b1), UInt64(b2)) => b1 == b2
-    _ => false
+pub fn ConstantUInt::equalsUInt(self : ConstantUInt, value : UInt) -> Bool {
+  match self.value {
+    UInt8(b) => b.to_uint() == value
+    UInt16(b) => b.to_int().reinterpret_as_uint() == value
+    UInt32(b) => b == value
+    UInt64(b) => b.to_uint() == value
+  }
+}
+
+///|
+pub fn ConstantUInt::equalsUInt64(self : ConstantUInt, value : UInt64) -> Bool {
+  match self.value {
+    UInt8(b) => b.to_uint64() == value
+    UInt16(b) => b.to_int().to_uint64() == value
+    UInt32(b) => b.to_uint64() == value
+    UInt64(b) => b == value
   }
 }
 
@@ -411,10 +414,14 @@ impl Value for ConstantUInt with base(self) {
   self.base
 }
 
+impl Value for ConstantUInt with asValueEnum(self) {
+  ConstantUInt(self)
+}
+
 ///|
 pub impl Show for ConstantUInt with output(self, logger) {
   let val_str = match self.value {
-    UInt8(b) => b.to_int().to_string()
+    UInt8(b) => b.to_uint().to_string()
     _ => self.value.asClass().to_string()
   }
   logger.write_string("\{self.getIntegerType()} \{val_str}")
@@ -457,11 +464,11 @@ impl Value for ConstantBool with base(self) {
   self.base
 }
 
+impl Value for ConstantBool with asValueEnum(self) {
+  ConstantBool(self)
+}
+
 ///|
 pub impl Show for ConstantBool with output(self, logger) {
-  let val_str = match self.value {
-    true => 1
-    false => 0
-  }
-  logger.write_string("\{self.getType()} \{val_str}")
+  logger.write_string("\{self.getType()} \{self.value}")
 }

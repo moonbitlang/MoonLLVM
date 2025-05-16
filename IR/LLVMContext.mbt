@@ -10,7 +10,6 @@ pub struct LLVMContext {
 
 ///|
 struct LLVMContextImpl {
-
   /// OwnedModules - The set of modules instantiated in this context, and which
   /// will be automatically deleted if this context is deleted.
   //ownedModules: Array[Module]
@@ -33,12 +32,6 @@ struct LLVMContextImpl {
   namedStructTypes : Map[String, StructType]
   pointerTypes : Map[AddressSpace, PointerType]
   mut literalStructID : UInt64
-
-  // Constants
-  intConstants : HashSet[ConstantInt]
-  uintConstants : HashSet[ConstantUInt]
-  mut trueConstant : ConstantBool?
-  mut falseConstant : ConstantBool?
 }
 
 ///|
@@ -71,14 +64,8 @@ pub fn LLVMContext::new() -> LLVMContext {
     namedStructTypes: Map::new(),
     literalStructID: 0,
     pointerTypes,
-    intConstants: @hashset.new(),
-    uintConstants: @hashset.new(),
-    trueConstant: None,
-    falseConstant: None,
   }
   ctx.pimpl = Some(pimpl)
-  pimpl.trueConstant = Some(ConstantBool::new(ctx, true))
-  pimpl.falseConstant = Some(ConstantBool::new(ctx, false))
   ctx
 }
 
@@ -410,65 +397,80 @@ pub fn LLVMContext::createVectorType(
 }
 
 ///|
-pub fn LLVMContext::getConstInt(
+pub fn LLVMContext::getConstInt8(
   self : LLVMContext,
-  ty : &Type,
-  value : Int64
-) -> ConstantInt!LLVMValueError {
-  let intConstants = self.pimpl.unwrap().intConstants
-  guard ty.asTypeEnum() is IntegerType(ity) else {
-    raise ConstantIntOnlyAcceptIntegerType(ty)
-  }
-  let value = match ity.getBitWidth() {
-    8 => (value.to_byte() : &MbtSigned)
-    16 => value.to_int16()
-    32 => value.to_int()
-    _ => value // 64
-  }
-  let const_int = ConstantInt::new!(ty, value)
-  if intConstants.contains(const_int) {
-    intConstants.add(const_int)
-  }
-  const_int
+  value : Int
+) -> ConstantInt {
+  ConstantInt::new(self.getInt8Ty(), value.reinterpret_as_uint().to_byte())
 }
 
 ///|
-pub fn LLVMContext::getConstUInt(
+pub fn LLVMContext::getConstInt16(
   self : LLVMContext,
-  ty : &Type,
+  value : Int16
+) -> ConstantInt {
+  ConstantInt::new(self.getInt16Ty(), value)
+}
+
+///|
+pub fn LLVMContext::getConstInt32(
+  self : LLVMContext,
+  value : Int
+) -> ConstantInt {
+  ConstantInt::new(self.getInt32Ty(), value)
+}
+
+///|
+pub fn LLVMContext::getConstInt64(
+  self : LLVMContext,
+  value : Int64
+) -> ConstantInt {
+  ConstantInt::new(self.getInt64Ty(), value)
+}
+
+///|
+pub fn LLVMContext::getConstUInt8(
+  self : LLVMContext,
+  value : Byte
+) -> ConstantUInt {
+  ConstantUInt::new(self.getInt8Ty(), value)
+}
+
+///|
+pub fn LLVMContext::getConstUInt16(
+  self : LLVMContext,
+  value : UInt16
+) -> ConstantUInt {
+  ConstantUInt::new(self.getInt16Ty(), value)
+}
+
+///|
+pub fn LLVMContext::getConstUInt32(
+  self : LLVMContext,
+  value : UInt
+) -> ConstantUInt {
+  ConstantUInt::new(self.getInt32Ty(), value)
+}
+
+///|
+pub fn LLVMContext::getConstUInt64(
+  self : LLVMContext,
   value : UInt64
-) -> ConstantUInt!LLVMValueError {
-  let uintConstants = self.pimpl.unwrap().uintConstants
-  guard ty.asTypeEnum() is IntegerType(ity) else {
-    raise ConstantUIntOnlyAcceptIntegerType(ty)
-  }
-  let value = match ity.getBitWidth() {
-    8 => (value.to_byte() : &MbtUnsigned)
-    16 => value.reinterpret_as_int64().to_uint16()
-    32 => value.to_uint()
-    _ => value // 64
-  }
-  let const_uint = ConstantUInt::new!(ty, value)
-  if uintConstants.contains(const_uint) {
-    uintConstants.add(const_uint)
-  }
-  const_uint
+) -> ConstantUInt {
+  ConstantUInt::new(self.getInt64Ty(), value)
 }
 
 ///|
 pub fn LLVMContext::getConstTrue(self : LLVMContext) -> ConstantBool {
-  self.pimpl.unwrap().trueConstant.unwrap()
+  ConstantBool::new(self, true)
 }
 
 ///|
 pub fn LLVMContext::getConstFalse(self : LLVMContext) -> ConstantBool {
-  self.pimpl.unwrap().falseConstant.unwrap()
+  ConstantBool::new(self, false)
 }
 
 ///|
 pub fn LLVMContext::getConstBool(self : LLVMContext, b : Bool) -> ConstantBool {
-  match b {
-    true => self.getConstTrue()
-    false => self.getConstFalse()
-  }
+  ConstantBool::new(self, b)
 }

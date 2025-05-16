@@ -1,5 +1,5 @@
 ///|
-typealias HashSet[T] = @hashset.T[T]
+//typealias HashSet[T] = @hashset.T[T]
 
 ///|
 enum MbtSignedEnum {
@@ -20,28 +20,66 @@ fn MbtSignedEnum::asClass(self : MbtSignedEnum) -> &MbtSigned {
 }
 
 ///|
-pub trait MbtSigned: Show {
-  asEnum(Self) -> MbtSignedEnum
+fn MbtSignedEnum::to_int64(self : MbtSignedEnum) -> Int64 {
+  match self {
+    Int8(v) =>
+      match v {
+        0..=127 => v.to_int64()
+        128..=255 => v.to_int64() - 256
+      }
+    Int16(v) => v.to_int64()
+    Int32(v) => v.to_int64()
+    Int64(v) => v.to_int64()
+  }
 }
 
 ///|
-impl MbtSigned for Byte with asEnum(self) {
+pub trait MbtSigned: Show {
+  asEnum(Self) -> MbtSignedEnum
+  to_int64(Self) -> Int64
+}
+
+///|
+pub impl MbtSigned for Byte with asEnum(self) {
   Int8(self)
 }
 
 ///|
-impl MbtSigned for Int16 with asEnum(self) {
+pub impl MbtSigned for Byte with to_int64(self) {
+  match self {
+    0..=127 => self.to_int64()
+    128..=255 => self.to_int64() - 256
+  }
+}
+
+///|
+pub impl MbtSigned for Int16 with asEnum(self) {
   Int16(self)
 }
 
 ///|
-impl MbtSigned for Int with asEnum(self) {
+pub impl MbtSigned for Int16 with to_int64(self) {
+  self.to_int64()
+}
+
+///|
+pub impl MbtSigned for Int with asEnum(self) {
   Int32(self)
 }
 
 ///|
-impl MbtSigned for Int64 with asEnum(self) {
+pub impl MbtSigned for Int with to_int64(self) {
+  self.to_int64()
+}
+
+///|
+pub impl MbtSigned for Int64 with asEnum(self) {
   Int64(self)
+}
+
+///|
+pub impl MbtSigned for Int64 with to_int64(self) {
+  self.to_int64()
 }
 
 ///|
@@ -63,26 +101,57 @@ fn MbtUnsignedEnum::asClass(self : MbtUnsignedEnum) -> &MbtUnsigned {
 }
 
 ///|
-pub trait MbtUnsigned: Show {
-  asEnum(Self) -> MbtUnsignedEnum
+fn MbtUnsignedEnum::to_uint64(self : MbtUnsignedEnum) -> UInt64 {
+  match self {
+    UInt8(v) => v.to_uint64()
+    UInt16(v) => v.to_uint64()
+    UInt32(v) => v.to_uint64()
+    UInt64(v) => v.to_uint64()
+  }
 }
 
 ///|
-impl MbtUnsigned for Byte with asEnum(self) {
+pub trait MbtUnsigned: Show {
+  asEnum(Self) -> MbtUnsignedEnum
+  to_uint64(Self) -> UInt64
+}
+
+///|
+pub impl MbtUnsigned for Byte with asEnum(self) {
   UInt8(self)
 }
 
 ///|
-impl MbtUnsigned for UInt16 with asEnum(self) {
+pub impl MbtUnsigned for Byte with to_uint64(self) {
+  self.to_uint64()
+}
+
+///|
+pub impl MbtUnsigned for UInt16 with asEnum(self) {
   UInt16(self)
 }
 
 ///|
-impl MbtUnsigned for UInt with asEnum(self) {
+pub impl MbtUnsigned for UInt16 with to_uint64(self) {
+  self.to_uint64()
+}
+
+///|
+pub impl MbtUnsigned for UInt with asEnum(self) {
   UInt32(self)
 }
 
 ///|
-impl MbtUnsigned for UInt64 with asEnum(self) {
+pub impl MbtUnsigned for UInt with to_uint64(self) {
+  self.to_uint64()
+}
+
+///|
+pub impl MbtUnsigned for UInt64 with asEnum(self) {
   UInt64(self)
+}
+
+///|
+pub impl MbtUnsigned for UInt64 with to_uint64(self) {
+  self.to_uint64()
 }
