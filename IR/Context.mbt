@@ -24,11 +24,11 @@ struct LLVMContextImpl {
   label_ty : LabelType
   metadata_ty : MetadataType
   token_ty : TokenType
-  i1ty : IntegerType
-  i8ty : IntegerType
-  i16ty : IntegerType
-  i32ty : IntegerType
-  i64ty : IntegerType
+  i1ty : Int1Type
+  i8ty : Int8Type
+  i16ty : Int16Type
+  i32ty : Int32Type
+  i64ty : Int64Type
   namedStructTypes : Map[String, StructType]
   pointerTypes : Map[AddressSpace, PointerType]
   mut literalStructID : UInt64
@@ -43,8 +43,6 @@ pub fn LLVMContext::new() -> LLVMContext {
     addr0,
     PointerType::new(ctx, addressSpace=addr0),
   )
-  let i1ty = IntegerType::new?(ctx, 1).unwrap()
-
   // Initialize the LLVMContextImpl.
   let pimpl = LLVMContextImpl::{
     half_ty: HalfType::new(ctx),
@@ -56,11 +54,11 @@ pub fn LLVMContext::new() -> LLVMContext {
     label_ty: LabelType::new(ctx),
     metadata_ty: MetadataType::new(ctx),
     token_ty: TokenType::new(ctx),
-    i1ty,
-    i8ty: IntegerType::new?(ctx, 8).unwrap(),
-    i16ty: IntegerType::new?(ctx, 16).unwrap(),
-    i32ty: IntegerType::new?(ctx, 32).unwrap(),
-    i64ty: IntegerType::new?(ctx, 64).unwrap(),
+    i1ty: Int1Type::new(ctx),
+    i8ty: Int8Type::new(ctx),
+    i16ty: Int16Type::new(ctx),
+    i32ty: Int32Type::new(ctx),
+    i64ty: Int64Type::new(ctx),
     namedStructTypes: Map::new(),
     literalStructID: 0,
     pointerTypes,
@@ -193,58 +191,28 @@ pub fn LLVMContext::getTokenTy(self : LLVMContext) -> TokenType {
 }
 
 ///| Get the integer type with 1 bit from context.
-pub fn LLVMContext::getInt1Ty(self : LLVMContext) -> IntegerType {
+pub fn LLVMContext::getInt1Ty(self : LLVMContext) -> Int1Type {
   self.pimpl.unwrap().i1ty
 }
 
 ///| Get the integer type with 8 bits from context.
-pub fn LLVMContext::getInt8Ty(self : LLVMContext) -> IntegerType {
+pub fn LLVMContext::getInt8Ty(self : LLVMContext) -> Int8Type {
   self.pimpl.unwrap().i8ty
 }
 
 ///| Get the integer type with 16 bits from context.
-pub fn LLVMContext::getInt16Ty(self : LLVMContext) -> IntegerType {
+pub fn LLVMContext::getInt16Ty(self : LLVMContext) -> Int16Type {
   self.pimpl.unwrap().i16ty
 }
 
 ///| Get the integer type with 32 bits from context.
-pub fn LLVMContext::getInt32Ty(self : LLVMContext) -> IntegerType {
+pub fn LLVMContext::getInt32Ty(self : LLVMContext) -> Int32Type {
   self.pimpl.unwrap().i32ty
 }
 
 ///| Get the integer type with 64 bits from context.
-pub fn LLVMContext::getInt64Ty(self : LLVMContext) -> IntegerType {
+pub fn LLVMContext::getInt64Ty(self : LLVMContext) -> Int64Type {
   self.pimpl.unwrap().i64ty
-}
-
-///| Get the integer type with N bits from context.
-///
-/// - See LLVM: `IntegerType::IntegerType`.
-///
-/// ```moonbit
-/// test "IntegerType" {
-///   let ctx = LLVMContext::new()
-///   inspect!(ctx.getInt1Ty(), content="i1")
-///   inspect!(ctx.getInt8Ty(), content="i8")
-///   inspect!(ctx.getInt16Ty(), content="i16")
-///   inspect!(ctx.getInt32Ty(), content="i32")
-///   inspect!(ctx.getInt64Ty(), content="i64")
-///   assert_true!(ctx.getIntNTy?(48).is_err())
-/// }
-/// ```
-pub fn LLVMContext::getIntNTy(
-  self : LLVMContext,
-  numBits : UInt
-) -> IntegerType!LLVMTypeError {
-  let pimpl = self.pimpl.unwrap()
-  match numBits {
-    1 => pimpl.i1ty
-    8 => pimpl.i8ty
-    16 => pimpl.i16ty
-    32 => pimpl.i32ty
-    64 => pimpl.i64ty
-    _ => raise InValidIntegerTypeNumBits(numBits)
-  }
 }
 
 ///| Get the Pointer type from context.

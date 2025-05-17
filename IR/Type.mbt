@@ -5,11 +5,15 @@ pub enum TypeEnum {
   FloatType(FloatType)
   DoubleType(DoubleType)
   FP128Type(FP128Type)
+  Int1Type(Int1Type)
+  Int8Type(Int8Type)
+  Int16Type(Int16Type)
+  Int32Type(Int32Type)
+  Int64Type(Int64Type)
   VoidType(VoidType)
   LabelType(LabelType)
   MetadataType(MetadataType)
   TokenType(TokenType)
-  IntegerType(IntegerType)
   FunctionType(FunctionType)
   StructType(StructType)
   ArrayType(ArrayType)
@@ -25,11 +29,15 @@ pub fn TypeEnum::asTypeClass(self : TypeEnum) -> &Type {
     FloatType(t) => t
     DoubleType(t) => t
     FP128Type(t) => t
+    Int1Type(t) => t
+    Int8Type(t) => t
+    Int16Type(t) => t
+    Int32Type(t) => t
+    Int64Type(t) => t
     VoidType(t) => t
     LabelType(t) => t
     MetadataType(t) => t
     TokenType(t) => t
-    IntegerType(t) => t
     FunctionType(t) => t
     StructType(t) => t
     ArrayType(t) => t
@@ -177,7 +185,8 @@ impl Type with isScalableTy(_) -> Bool {
 
 ///|
 impl Type with isIntOrIntVectorTy(self) -> Bool {
-  self.getScalarType().asTypeEnum() is IntegerType(_)
+  self.getScalarType().asTypeEnum()
+  is (Int1Type(_) | Int8Type(_) | Int16Type(_) | Int32Type(_) | Int64Type(_))
 }
 
 ///|
@@ -204,7 +213,13 @@ impl Type with canLosslesslyBitCastTo(self, ty : &Type) -> Bool {
 
 ///|
 impl Type with isIntOrPtrTy(self) -> Bool {
-  self.asTypeEnum() is (IntegerType(_) | PointerType(_))
+  self.asTypeEnum()
+  is (Int1Type(_)
+  | Int8Type(_)
+  | Int16Type(_)
+  | Int32Type(_)
+  | Int64Type(_)
+  | PointerType(_))
 }
 
 ///|
@@ -240,7 +255,8 @@ impl Type with isSingleValueType(self) -> Bool {
   match self.asTypeEnum() {
     HalfType(_) | BFloatType(_) | FloatType(_) | DoubleType(_) | FP128Type(_) =>
       true
-    IntegerType(_) => true
+    Int1Type(_) | Int8Type(_) | Int16Type(_) | Int32Type(_) | Int64Type(_) =>
+      true
     PointerType(_) => true
     VectorType(_) => true
     _ => false
@@ -258,7 +274,9 @@ impl Type with isAggregateType(self) -> Bool {
 ///|
 impl Type with isSized(self) -> Bool {
   match self.asTypeEnum() {
-    IntegerType(_) | PointerType(_) => true
+    Int1Type(_) | Int8Type(_) | Int16Type(_) | Int32Type(_) | Int64Type(_) =>
+      true // Integer types
+    PointerType(_) => true
     HalfType(_) | BFloatType(_) | FloatType(_) | DoubleType(_) | FP128Type(_) =>
       true // Floating point types
     StructType(sty) => sty.isSized()
@@ -278,7 +296,11 @@ impl Type with getPrimitiveSizeInBits(self) -> TypeSize {
     FloatType(_) => TypeSize::getFixed(32)
     DoubleType(_) => TypeSize::getFixed(64)
     FP128Type(_) => TypeSize::getFixed(128)
-    IntegerType(i) => TypeSize::getFixed(i.getBitWidth().to_uint64())
+    Int1Type(_) => TypeSize::getFixed(1)
+    Int8Type(_) => TypeSize::getFixed(8)
+    Int16Type(_) => TypeSize::getFixed(16)
+    Int32Type(_) => TypeSize::getFixed(32)
+    Int64Type(_) => TypeSize::getFixed(64)
     //FixedVectorType(_) => abort("getPrimitiveSizeInBits: FixedVectorType not implemented yet")
     //ScalableVectorType(_) => abort("getPrimitiveSizeInBits: ScalableVectorType not implemented yet")
     _ => TypeSize::getFixed(0)
@@ -534,6 +556,332 @@ pub impl FPType for FP128Type with asFPTypeEnum(self) -> FPTypeEnum {
 }
 
 // ====================================================================
+// IntegerType & IntegerTypeEnum
+// ====================================================================
+
+///| Collection of Int1Type, Int8Type, Int16Type, Int32Type, Int64Type
+///
+/// ```moonbit
+/// test "IntegerType trait" {
+///   let ctx = LLVMContext::new()
+///
+///   let i8ty :&IntegerType = ctx.getInt8Ty()
+///   assert_eq!(i8ty.getNumBits(), 8)
+///   inspect!(i8ty.getExtendedType().unwrap(), content="i16")
+///   assert_eq!(i8ty.getBitMask(), 0xFF)
+///   assert_eq!(i8ty.getExtendedType().unwrap().getSignBit(), 0x8000)
+///
+///   let i32ty = i8ty.getExtendedType().unwrap()
+///                   .getExtendedType().unwrap()
+///
+///   inspect!(i32ty, content="i32")
+///   guard i32ty.asIntegerTypeEnum() is Int32Type(i32ty)
+///   inspect!(i32ty, content="i32")
+/// }
+/// ```
+pub trait IntegerType: Type {
+  asIntegerTypeEnum(Self) -> IntegerTypeEnum
+  getNumBits(Self) -> UInt = _
+  getBitMask(Self) -> UInt64 = _
+  getSignBit(Self) -> UInt64 = _
+  getExtendedType(Self) -> &IntegerType? = _
+}
+
+///|
+impl IntegerType with getNumBits(self) -> UInt {
+  match self.asIntegerTypeEnum() {
+    Int1Type(_) => 1
+    Int8Type(_) => 8
+    Int16Type(_) => 16
+    Int32Type(_) => 32
+    Int64Type(_) => 64
+  }
+}
+
+///|
+impl IntegerType with getBitMask(self) -> UInt64 {
+  match self.asIntegerTypeEnum() {
+    Int1Type(_) => 0x1
+    Int8Type(_) => 0xFF
+    Int16Type(_) => 0xFFFF
+    Int32Type(_) => 0xFFFF_FFFF
+    Int64Type(_) => 0xFFFF_FFFF_FFFF_FFFF
+  }
+}
+
+///|
+impl IntegerType with getSignBit(self) -> UInt64 {
+  match self.asIntegerTypeEnum() {
+    Int1Type(_) => 0x1
+    Int8Type(_) => 0x80
+    Int16Type(_) => 0x8000
+    Int32Type(_) => 0x8000_0000
+    Int64Type(_) => 0x8000_0000_0000_0000
+  }
+}
+
+///|
+impl IntegerType with getExtendedType(self) -> &IntegerType? {
+  let ctx = self.getContext()
+  match self.asIntegerTypeEnum() {
+    Int8Type(_) => ctx.getInt16Ty() |> Some
+    Int16Type(_) => ctx.getInt32Ty() |> Some
+    Int32Type(_) => ctx.getInt64Ty() |> Some
+    Int64Type(_) => None
+    Int1Type(_) => None
+  }
+}
+
+///|
+pub enum IntegerTypeEnum {
+  Int1Type(Int1Type)
+  Int8Type(Int8Type)
+  Int16Type(Int16Type)
+  Int32Type(Int32Type)
+  Int64Type(Int64Type)
+} derive(Show)
+
+// ====================================================================
+// Int1Type
+// ====================================================================
+
+///| Int1Type
+///
+/// - See LLVM: `Type::getInt1Ty`.
+///
+/// ```moonbit
+/// test "Int1Type" {
+///   let ctx = LLVMContext::new()
+///
+///   inspect!(ctx.getInt1Ty(), content="i1")
+/// }
+/// ```
+pub struct Int1Type {
+  priv base : TypeBase
+} derive(Eq, Hash)
+
+///|
+fn Int1Type::new(context : LLVMContext) -> Int1Type {
+  let base = TypeBase::new(context)
+  Int1Type::{ base, }
+}
+
+///|
+pub impl Show for Int1Type with output(_, logger : &Logger) {
+  logger.write_string("i1")
+}
+
+///|
+pub impl Type for Int1Type with asTypeEnum(self) -> TypeEnum {
+  TypeEnum::Int1Type(self)
+}
+
+///|
+pub impl Type for Int1Type with base(self) -> TypeBase {
+  self.base
+}
+
+///|
+pub impl IntegerType for Int1Type with asIntegerTypeEnum(self) -> IntegerTypeEnum {
+  IntegerTypeEnum::Int1Type(self)
+}
+
+// ====================================================================
+// Int8Type
+// ====================================================================
+
+///| Int8Type
+///
+/// - See LLVM: `Type::getInt8Ty`.
+///
+/// ```moonbit
+/// test "Int8Type" {
+///   let ctx = LLVMContext::new()
+///
+///   inspect!(ctx.getInt8Ty(), content="i8")
+/// }
+/// ```
+pub struct Int8Type {
+  priv base : TypeBase
+} derive(Eq, Hash)
+
+///|
+fn Int8Type::new(context : LLVMContext) -> Int8Type {
+  let base = TypeBase::new(context)
+  Int8Type::{ base, }
+}
+
+///|
+pub fn Int8Type::getExtendedType(self : Int8Type) -> Int16Type {
+  self.getContext().getInt16Ty()
+}
+
+///|
+pub impl Show for Int8Type with output(_, logger : &Logger) {
+  logger.write_string("i8")
+}
+
+///|
+pub impl Type for Int8Type with asTypeEnum(self) -> TypeEnum {
+  TypeEnum::Int8Type(self)
+}
+
+///|
+pub impl Type for Int8Type with base(self) -> TypeBase {
+  self.base
+}
+
+///|
+pub impl IntegerType for Int8Type with asIntegerTypeEnum(self) -> IntegerTypeEnum {
+  IntegerTypeEnum::Int8Type(self)
+}
+
+// ====================================================================
+// Int16Type
+// ====================================================================
+
+///| Int16Type
+///
+/// - See LLVM: `Type::getInt16Ty`.
+///
+/// ```moonbit
+/// test "Int16Type" {
+///   let ctx = LLVMContext::new()
+///
+///   inspect!(ctx.getInt16Ty(), content="i16")
+/// }
+/// ```
+pub struct Int16Type {
+  priv base : TypeBase
+} derive(Eq, Hash)
+
+///|
+fn Int16Type::new(context : LLVMContext) -> Int16Type {
+  let base = TypeBase::new(context)
+  Int16Type::{ base, }
+}
+
+///|
+pub fn Int16Type::getExtendedType(self : Int16Type) -> Int32Type {
+  self.getContext().getInt32Ty()
+}
+
+///|
+pub impl Show for Int16Type with output(_, logger : &Logger) {
+  logger.write_string("i16")
+}
+
+///|
+pub impl Type for Int16Type with asTypeEnum(self) -> TypeEnum {
+  TypeEnum::Int16Type(self)
+}
+
+///|
+pub impl Type for Int16Type with base(self) -> TypeBase {
+  self.base
+}
+
+///|
+pub impl IntegerType for Int16Type with asIntegerTypeEnum(self) -> IntegerTypeEnum {
+  IntegerTypeEnum::Int16Type(self)
+}
+
+// ====================================================================
+// Int32Type
+// ====================================================================
+
+///| Int32Type
+///
+/// - See LLVM: `Type::getInt32Ty`.
+///
+/// ```moonbit
+/// test "Int32Type" {
+///   let ctx = LLVMContext::new()
+///
+///   inspect!(ctx.getInt32Ty(), content="i32")
+/// }
+/// ```
+pub struct Int32Type {
+  priv base : TypeBase
+} derive(Eq, Hash)
+
+///|
+fn Int32Type::new(context : LLVMContext) -> Int32Type {
+  let base = TypeBase::new(context)
+  Int32Type::{ base, }
+}
+
+///|
+pub fn Int32Type::getExtendedType(self : Int32Type) -> Int64Type {
+  self.getContext().getInt64Ty()
+}
+
+///|
+pub impl Show for Int32Type with output(_, logger : &Logger) {
+  logger.write_string("i32")
+}
+
+///|
+pub impl Type for Int32Type with asTypeEnum(self) -> TypeEnum {
+  TypeEnum::Int32Type(self)
+}
+
+///|
+pub impl Type for Int32Type with base(self) -> TypeBase {
+  self.base
+}
+
+///|
+pub impl IntegerType for Int32Type with asIntegerTypeEnum(self) -> IntegerTypeEnum {
+  IntegerTypeEnum::Int32Type(self)
+}
+
+// ====================================================================
+// Int64Type
+// ====================================================================
+
+///| Int64Type
+///
+/// - See LLVM: `Type::getInt64Ty`.
+///
+/// ```moonbit
+/// test "Int64Type" {
+///   let ctx = LLVMContext::new()
+///
+///   inspect!(ctx.getInt64Ty(), content="i64")
+/// }
+/// ```
+pub struct Int64Type {
+  priv base : TypeBase
+} derive(Eq, Hash)
+
+///|
+fn Int64Type::new(context : LLVMContext) -> Int64Type {
+  let base = TypeBase::new(context)
+  Int64Type::{ base, }
+}
+
+///|
+pub impl Show for Int64Type with output(_, logger : &Logger) {
+  logger.write_string("i64")
+}
+
+///|
+pub impl Type for Int64Type with asTypeEnum(self) -> TypeEnum {
+  TypeEnum::Int64Type(self)
+}
+
+///|
+pub impl Type for Int64Type with base(self) -> TypeBase {
+  self.base
+}
+
+///|
+pub impl IntegerType for Int64Type with asIntegerTypeEnum(self) -> IntegerTypeEnum {
+  IntegerTypeEnum::Int64Type(self)
+}
+
+// ====================================================================
 // VoidType
 // ====================================================================
 
@@ -694,121 +1042,121 @@ pub impl Type for TokenType with base(self) -> TypeBase {
 // IntegerType
 // ====================================================================
 
-///|
-pub struct IntegerType {
-  priv base : TypeBase
-  numBits : UInt
-} derive(Eq, Hash)
-
-///| Create a IntegerType.
-fn IntegerType::new(
-  context : LLVMContext,
-  numBits : UInt
-) -> IntegerType!LLVMTypeError {
-  guard numBits is (1 | 8 | 16 | 32 | 64) else {
-    raise InValidIntegerTypeNumBits(numBits)
-  }
-  IntegerType::{ base: TypeBase::new(context), numBits }
-}
-
-///| Return type twice as wide the input type.
-///
-/// - See LLVM: `IntegerType::getExtendedType`.
-///
-/// ```moonbit
-/// test "IntegerType getExtendedType" {
-///   let ctx = LLVMContext::new()
-///   let i16ty = ctx.getInt16Ty()
-///   let i32ty = ctx.getInt32Ty()
-///
-///   let i16exd_ty = i16ty.getExtendedType!()
-///   inspect!(i16exd_ty, content="i32")
-///
-///   let i32exd_ty = i32ty.getExtendedType!()
-///   inspect!(i32exd_ty, content="i64")
-/// }
-/// ```
-pub fn IntegerType::getExtendedType(
-  self : IntegerType
-) -> IntegerType!LLVMTypeError {
-  self.getContext().getIntNTy!(self.getScalarSizeInBits() * 2)
-}
-
-///| Get the number of bits in this Integertype.
-///
-/// - See LLVM: `IntegerType::getBitWidth`.
-///
-/// ```moonbit
-/// test "IntegerType getBitWidth" {
-///   let ctx = LLVMContext::new()
-///
-///   let i8ty = ctx.getInt8Ty()
-///   let i16ty = ctx.getInt16Ty()
-///   let i32ty = ctx.getInt32Ty()
-///   let i64ty = ctx.getInt64Ty()
-///
-///   assert_eq!(i8ty.getBitWidth(), 8)
-///   assert_eq!(i16ty.getBitWidth(), 16)
-///   assert_eq!(i32ty.getBitWidth(), 32)
-///   assert_eq!(i64ty.getBitWidth(), 64)
-/// }
-/// ```
-pub fn IntegerType::getBitWidth(self : IntegerType) -> UInt {
-  self.numBits
-}
-
-///| Return a uint64_t with just the most significant bit set (the sign bit, if
-/// the value is treated as a signed number).
-///
-/// - See LLVM: `IntegerType::getBitMask`.
-///
-/// **Note**: Try to get the bit mask from over 64-bit integer will raise an error.
-/// It's different from LLVM, In LLVM, if you try to get the bit mask from i128
-/// it has same result as getBitMask from int64ty.
-///
-/// ```moonbit
-/// test "IntegerType getSignMask" {
-///   let ctx = LLVMContext::new()
-///   let i32ty = ctx.getInt32Ty()
-///
-///   assert_eq!(i32ty.getBitMask(), 0xFFFFFFFF)
-/// }
-/// ```
-pub fn IntegerType::getBitMask(self : IntegerType) -> UInt64 {
-  0UL.lnot() >> (64 - self.getBitWidth().reinterpret_as_int())
-}
-
-///| Return a uint64_t with just the most significant bit set (the sign bit, if
-/// the value is treated as a signed number).
-///
-/// - See LLVM: `IntegerType::getSignBit`.
-///
-/// ```moonbit
-/// test "IntegerType getSignBit" {
-///   let ctx = LLVMContext::new()
-///   let i32ty = ctx.getInt32Ty()
-///
-///   assert_eq!(i32ty.getSignBit(), 0x80000000)
-/// }
-/// ```
-pub fn IntegerType::getSignBit(self : IntegerType) -> UInt64 {
-  1UL << (self.getBitWidth() - 1U).reinterpret_as_int()
-}
-
-///|
-pub impl Show for IntegerType with output(self, logger : &Logger) {
-  logger.write_string("i\{self.getBitWidth()}")
-}
-
-///|
-pub impl Type for IntegerType with asTypeEnum(self) -> TypeEnum {
-  TypeEnum::IntegerType(self)
-}
-
-///|
-pub impl Type for IntegerType with base(self) -> TypeBase {
-  self.base
-}
+/////|
+//pub struct IntegerType {
+//  priv base : TypeBase
+//  numBits : UInt
+//} derive(Eq, Hash)
+//
+/////| Create a IntegerType.
+//fn IntegerType::new(
+//  context : LLVMContext,
+//  numBits : UInt
+//) -> IntegerType!LLVMTypeError {
+//  guard numBits is (1 | 8 | 16 | 32 | 64) else {
+//    raise InValidIntegerTypeNumBits(numBits)
+//  }
+//  IntegerType::{ base: TypeBase::new(context), numBits }
+//}
+//
+/////| Return type twice as wide the input type.
+/////
+///// - See LLVM: `IntegerType::getExtendedType`.
+/////
+///// ```moonbit
+///// test "IntegerType getExtendedType" {
+/////   let ctx = LLVMContext::new()
+/////   let i16ty = ctx.getInt16Ty()
+/////   let i32ty = ctx.getInt32Ty()
+/////
+/////   let i16exd_ty = i16ty.getExtendedType!()
+/////   inspect!(i16exd_ty, content="i32")
+/////
+/////   let i32exd_ty = i32ty.getExtendedType!()
+/////   inspect!(i32exd_ty, content="i64")
+///// }
+///// ```
+//pub fn IntegerType::getExtendedType(
+//  self : IntegerType
+//) -> IntegerType!LLVMTypeError {
+//  self.getContext().getIntNTy!(self.getScalarSizeInBits() * 2)
+//}
+//
+/////| Get the number of bits in this Integertype.
+/////
+///// - See LLVM: `IntegerType::getBitWidth`.
+/////
+///// ```moonbit
+///// test "IntegerType getBitWidth" {
+/////   let ctx = LLVMContext::new()
+/////
+/////   let i8ty = ctx.getInt8Ty()
+/////   let i16ty = ctx.getInt16Ty()
+/////   let i32ty = ctx.getInt32Ty()
+/////   let i64ty = ctx.getInt64Ty()
+/////
+/////   assert_eq!(i8ty.getBitWidth(), 8)
+/////   assert_eq!(i16ty.getBitWidth(), 16)
+/////   assert_eq!(i32ty.getBitWidth(), 32)
+/////   assert_eq!(i64ty.getBitWidth(), 64)
+///// }
+///// ```
+//pub fn IntegerType::getBitWidth(self : IntegerType) -> UInt {
+//  self.numBits
+//}
+//
+/////| Return a uint64_t with just the most significant bit set (the sign bit, if
+///// the value is treated as a signed number).
+/////
+///// - See LLVM: `IntegerType::getBitMask`.
+/////
+///// **Note**: Try to get the bit mask from over 64-bit integer will raise an error.
+///// It's different from LLVM, In LLVM, if you try to get the bit mask from i128
+///// it has same result as getBitMask from int64ty.
+/////
+///// ```moonbit
+///// test "IntegerType getSignMask" {
+/////   let ctx = LLVMContext::new()
+/////   let i32ty = ctx.getInt32Ty()
+/////
+/////   assert_eq!(i32ty.getBitMask(), 0xFFFFFFFF)
+///// }
+///// ```
+//pub fn IntegerType::getBitMask(self : IntegerType) -> UInt64 {
+//  0UL.lnot() >> (64 - self.getBitWidth().reinterpret_as_int())
+//}
+//
+/////| Return a uint64_t with just the most significant bit set (the sign bit, if
+///// the value is treated as a signed number).
+/////
+///// - See LLVM: `IntegerType::getSignBit`.
+/////
+///// ```moonbit
+///// test "IntegerType getSignBit" {
+/////   let ctx = LLVMContext::new()
+/////   let i32ty = ctx.getInt32Ty()
+/////
+/////   assert_eq!(i32ty.getSignBit(), 0x80000000)
+///// }
+///// ```
+//pub fn IntegerType::getSignBit(self : IntegerType) -> UInt64 {
+//  1UL << (self.getBitWidth() - 1U).reinterpret_as_int()
+//}
+//
+/////|
+//pub impl Show for IntegerType with output(self, logger : &Logger) {
+//  logger.write_string("i\{self.getBitWidth()}")
+//}
+//
+/////|
+//pub impl Type for IntegerType with asTypeEnum(self) -> TypeEnum {
+//  TypeEnum::IntegerType(self)
+//}
+//
+/////|
+//pub impl Type for IntegerType with base(self) -> TypeBase {
+//  self.base
+//}
 
 // ====================================================================
 // FunctionType
@@ -1268,7 +1616,8 @@ fn VectorType::new(
 ///| Check if the element type is valid.
 fn VectorType::isValidElementType(eleTy : &Type) -> Bool {
   match eleTy.asTypeEnum() {
-    IntegerType(_) => true
+    Int1Type(_) | Int8Type(_) | Int16Type(_) | Int32Type(_) | Int64Type(_) =>
+      true
     HalfType(_) | BFloatType(_) | FloatType(_) | DoubleType(_) => true
     _ => false
   }

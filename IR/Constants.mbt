@@ -26,20 +26,14 @@ pub struct ConstantInt {
   value : MbtSignedEnum
 } derive(Eq, Hash)
 
-// TODO: eliminate guard in the future.
 ///|
 fn ConstantInt::new[T : MbtSigned](vty : &Type, value : T) -> ConstantInt {
-  guard vty.asTypeEnum() is IntegerType(ity) else {
-    unreachable("ConstantInt::new: vty is not IntegerType")
-  }
-  let value = match (ity.getBitWidth(), value.asEnum()) {
-    (8, Int8(b)) => Int8(b)
-    (16, Int16(s)) => Int16(s)
-    (32, Int32(i)) => Int32(i)
-    (64, Int64(l)) => Int64(l)
-    (1, _) =>
-      unreachable("ConstantInt::new: i1 type could not create constant int")
-    _ => unreachable("Type MisMatch")
+  let value = match (vty.asTypeEnum(), value.asEnum()) {
+    (Int8Type(_), Int8(b)) => Int8(b)
+    (Int16Type(_), Int16(s)) => Int16(s)
+    (Int32Type(_), Int32(i)) => Int32(i)
+    (Int64Type(_), Int64(l)) => Int64(l)
+    _ => unreachable("ConstantInt::new: Type MisMatch")
   }
   let base = ValueBase::{ vty, name: None, users: [] }
   ConstantInt::{ base, value }
@@ -90,9 +84,14 @@ pub fn ConstantInt::getValueAsInt64(self : ConstantInt) -> Int64 {
 ///   inspect!(i64_m16.getIntegerType(), content="i64")
 /// }
 /// ```
-pub fn ConstantInt::getIntegerType(self : ConstantInt) -> IntegerType {
-  guard self.getType().asTypeEnum() is IntegerType(ity)
-  ity
+pub fn ConstantInt::getIntegerType(self : ConstantInt) -> &IntegerType {
+  match self.getType().asTypeEnum() {
+    Int8Type(i8ty) => (i8ty : &IntegerType)
+    Int16Type(i16ty) => i16ty
+    Int32Type(i32ty) => i32ty
+    Int64Type(i64ty) => i64ty
+    _ => unreachable("ConstantInt::getIntegerType: Type MisMatch")
+  }
 }
 
 ///| Compare the value of this constant int with a signed integer.
@@ -199,16 +198,14 @@ pub struct ConstantUInt {
 
 ///|
 fn ConstantUInt::new[T : MbtUnsigned](vty : &Type, value : T) -> ConstantUInt {
-  guard vty.asTypeEnum() is IntegerType(ity) else {
-    unreachable("ConstantUInt::new: vty is not IntegerType")
-  }
-  let value = match (ity.getBitWidth(), value.asEnum()) {
-    (8, UInt8(b)) => UInt8(b)
-    (16, UInt16(s)) => UInt16(s)
-    (32, UInt32(i)) => UInt32(i)
-    (64, UInt64(l)) => UInt64(l)
-    (1, _) =>
-      unreachable("ConstantUInt::new: i1 type could not create constant int")
+  //guard vty.asTypeEnum() is IntegerType(ity) else {
+  //  unreachable("ConstantUInt::new: vty is not IntegerType")
+  //}
+  let value = match (vty.asTypeEnum(), value.asEnum()) {
+    (Int8Type(_), UInt8(b)) => UInt8(b)
+    (Int16Type(_), UInt16(s)) => UInt16(s)
+    (Int32Type(_), UInt32(i)) => UInt32(i)
+    (Int64Type(_), UInt64(l)) => UInt64(l)
     _ => unreachable("ConstantUInt::new: Type MisMatch")
   }
   let base = ValueBase::{ vty, name: None, users: [] }
@@ -260,9 +257,14 @@ pub fn ConstantUInt::getValueAsUInt64(self : ConstantUInt) -> UInt64 {
 ///   inspect!(i64_four.getIntegerType(), content="i64")
 /// }
 /// ```
-pub fn ConstantUInt::getIntegerType(self : ConstantUInt) -> IntegerType {
-  guard self.getType().asTypeEnum() is IntegerType(ity)
-  ity
+pub fn ConstantUInt::getIntegerType(self : ConstantUInt) -> &IntegerType {
+  match self.getType().asTypeEnum() {
+    Int8Type(i8ty) => (i8ty : &IntegerType)
+    Int16Type(i16ty) => i16ty
+    Int32Type(i32ty) => i32ty
+    Int64Type(i64ty) => i64ty
+    _ => unreachable("ConstantUInt::getIntegerType: Type MisMatch")
+  }
 }
 
 ///| Compare the value of this constant int with a unsigned integer.
