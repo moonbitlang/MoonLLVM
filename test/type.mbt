@@ -37,9 +37,9 @@ test "Function Type Print" {
   let f32ty = ctx.getFloatTy()
   let f64ty = ctx.getDoubleTy()
   let voidty = ctx.getVoidTy()
-  let fty = ctx.createFunctionType!(voidty, [i32ty, f64ty, f32ty])
+  let fty = ctx.getFunctionType!(voidty, [i32ty, f64ty, f32ty])
   inspect!(fty, content="void (i32, double, float)")
-  let fty = ctx.createFunctionType!(
+  let fty = ctx.getFunctionType!(
     i64ty,
     [i32ty, f64ty, f32ty],
     isVarArgs=true,
@@ -53,15 +53,15 @@ test "Struct Type Print" {
   let i32ty = ctx.getInt32Ty()
   let f32ty = ctx.getFloatTy()
   let f64ty = ctx.getDoubleTy()
-  let opaque = ctx.createStructType!([], name="baz")
+  let opaque = ctx.getStructType!([], name="baz")
   inspect!(opaque, content="%baz = opaque")
-  let literal = ctx.createStructType!([i32ty, f32ty, f64ty])
+  let literal = ctx.getStructType!([i32ty, f32ty, f64ty])
   inspect!(literal, content="%\"&literal.0\" = type { i32, float, double }")
-  let named = ctx.createStructType!([i32ty, f32ty, f64ty], name="foo")
+  let named = ctx.getStructType!([i32ty, f32ty, f64ty], name="foo")
   inspect!(named, content="%foo = type { i32, float, double }")
-  let named2 = ctx.createStructType!([i32ty, f32ty, f64ty], name="bar")
+  let named2 = ctx.getStructType!([i32ty, f32ty, f64ty], name="bar")
   inspect!(named2, content="%bar = type { i32, float, double }")
-  let packed = ctx.createStructType!(
+  let packed = ctx.getStructType!(
     [i32ty, f32ty, f64ty],
     name="bax",
     isPacked=true,
@@ -75,11 +75,11 @@ test "ArrayType, VectorType" {
   let i32ty = ctx.getInt32Ty()
   let i64ty = ctx.getInt64Ty()
   let f32ty = ctx.getFloatTy()
-  let arrTy = ctx.createArrayType!(i32ty, 16)
+  let arrTy = ctx.getArrayType!(i32ty, 16)
   inspect!(arrTy, content="[16 x i32]")
-  let fixedVecTy = ctx.createVectorType!(i64ty, 32)
+  let fixedVecTy = ctx.getFixedVectorType!(i64ty, 32)
   inspect!(fixedVecTy, content="<32 x i64>")
-  let scalableVecTy = ctx.createVectorType!(f32ty, 16, isScalable=true)
+  let scalableVecTy = ctx.getScalableVectorType!(f32ty, 16)
   inspect!(scalableVecTy, content="<vscale x 16 x float>")
 }
 
@@ -109,7 +109,7 @@ test "Function Type Functionality Test" {
   let i32ty = ctx.getInt32Ty()
   let f64ty = ctx.getDoubleTy()
   let paramTypes : Array[&Type] = [i32ty, f64ty]
-  let fty = ctx.createFunctionType!(voidty, paramTypes)
+  let fty = ctx.getFunctionType!(voidty, paramTypes)
   inspect!(fty.getReturnType(), content="void")
   inspect!(fty.getNumParams(), content="2")
   inspect!(fty.getParamType(0), content="Some(i32)")
@@ -129,18 +129,18 @@ test "Struct Type Functionality Test" {
   let f64ty = ctx.getDoubleTy()
 
   // opaque and anonymous is not allowed
-  assert_true!(ctx.createStructType?([]).is_err())
+  assert_true!(ctx.getStructType?([]).is_err())
 
   // opaque
-  let opaque = ctx.createStructType!([], name="bar")
+  let opaque = ctx.getStructType!([], name="bar")
   inspect!(opaque, content="%bar = opaque")
   assert_true!(opaque.isOpaque())
 
   // literal
-  let literal = ctx.createStructType!([i32ty, f32ty, f64ty])
+  let literal = ctx.getStructType!([i32ty, f32ty, f64ty])
   inspect!(literal, content="%\"&literal.0\" = type { i32, float, double }")
   assert_true!(literal.isLiteral())
-  let named = ctx.createStructType!([i32ty, f32ty], name="foo")
+  let named = ctx.getStructType!([i32ty, f32ty], name="foo")
   inspect!(named, content="%foo = type { i32, float }")
   assert_eq!(named.getName().unwrap(), "foo")
 

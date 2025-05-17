@@ -253,7 +253,7 @@ pub fn LLVMContext::getPtrTy(
 /// This is different with the method of creating function type in LLVM.
 /// In LLVM, usually use `FunctionType::get` to create a function type.
 ///
-/// In Moonbit Aether framework, we use `LLVMContext::createFunctionType` to create a function type.
+/// In Moonbit Aether framework, we use `LLVMContext::getFunctionType` to create a function type.
 ///
 /// - See LLVM: `FunctionType::get`.
 ///
@@ -264,14 +264,14 @@ pub fn LLVMContext::getPtrTy(
 ///   let i32ty = ctx.getInt32Ty()
 ///   let f64ty = ctx.getDoubleTy()
 ///
-///   let fty = ctx.createFunctionType!(voidty, [i32ty, f64ty])
+///   let fty = ctx.getFunctionType!(voidty, [i32ty, f64ty])
 ///   inspect!(fty, content="void (i32, double)")
 ///
-///   let fty2 = ctx.createFunctionType!(voidty, [i32ty, f64ty], isVarArgs = true)
+///   let fty2 = ctx.getFunctionType!(voidty, [i32ty, f64ty], isVarArgs = true)
 ///   inspect!(fty2, content="void (i32, double, ...)")
 /// }
 /// ```
-pub fn LLVMContext::createFunctionType(
+pub fn LLVMContext::getFunctionType(
   self : LLVMContext,
   returnType : &Type,
   paramTypes : Array[&Type],
@@ -286,7 +286,7 @@ pub fn LLVMContext::createFunctionType(
 /// This is different with the method of creating struct type in LLVM.
 /// In LLVM, usually use `StructType::create` to create a struct type.
 ///
-/// In Moonbit Aether framework, we use `LLVMContext::createStructType` to create a struct type.
+/// In Moonbit Aether framework, we use `LLVMContext::getStructType` to create a struct type.
 ///
 /// - See LLVM: `StructType::create`.
 ///
@@ -297,18 +297,18 @@ pub fn LLVMContext::createFunctionType(
 ///   let f32ty = ctx.getFloatTy()
 ///   let f64ty = ctx.getDoubleTy()
 ///
-///   let sty = ctx.createStructType!([i32ty, f32ty, f64ty], name = "foo")
+///   let sty = ctx.getStructType!([i32ty, f32ty, f64ty], name = "foo")
 ///   inspect!(sty, content="%foo = type { i32, float, double }")
 ///
 ///   // Cannot create a ananymous struct type with empty elements.
-///   assert_true!(ctx.createStructType?([]).is_err())
+///   assert_true!(ctx.getStructType?([]).is_err())
 ///
 ///   // Cannot create a struct which has same name with other struct.
 ///   // the `foo` struct is already created.
-///   assert_true!(ctx.createStructType?([], name="foo").is_err())
+///   assert_true!(ctx.getStructType?([], name="foo").is_err())
 /// }
 /// ```
-pub fn LLVMContext::createStructType(
+pub fn LLVMContext::getStructType(
   self : LLVMContext,
   elements : Array[&Type],
   name~ : String = "",
@@ -323,7 +323,7 @@ pub fn LLVMContext::createStructType(
 /// This is different with the method of creating array type in LLVM.
 /// In LLVM, usually use `ArrayType::get` to create an array type.
 ///
-/// In Moonbit Aether framework, we use `LLVMContext::createArrayType` to create an array type.
+/// In Moonbit Aether framework, we use `LLVMContext::getArrayType` to create an array type.
 ///
 /// - See LLVM: `ArrayType::get`.
 ///
@@ -331,17 +331,15 @@ pub fn LLVMContext::createStructType(
 /// test "ArrayType" {
 ///   let ctx = LLVMContext::new()
 ///   let i32ty = ctx.getInt32Ty()
-///   let f32ty = ctx.getFloatTy()
-///   let f64ty = ctx.getDoubleTy()
 ///
-///   let arrty = ctx.createArrayType!(i32ty, 16)
+///   let arrty = ctx.getArrayType!(i32ty, 16)
 ///   inspect!(arrty, content="[16 x i32]")
 ///   inspect!(arrty.getElementType(), content="i32")
 ///
-///   assert_eq!(arrty.getNumElements(), 16)
+///   assert_eq!(arrty.getElementCount(), 16)
 /// }
 /// ```
-pub fn LLVMContext::createArrayType(
+pub fn LLVMContext::getArrayType(
   self : LLVMContext,
   elementType : &Type,
   numElements : UInt
@@ -349,37 +347,46 @@ pub fn LLVMContext::createArrayType(
   ArrayType::new!(self, elementType, numElements)
 }
 
-///| Create a vector type in the context.
+///| Create a fixed length vector type in the context.
 ///
-/// This is different with the method of creating vector type in LLVM.
-/// In LLVM, if you want to create a fixed vector, you need to use `FixedVectorType::get`
-/// and for scalable vector, you need to use `ScalableVectorType::get`.
-///
-/// While In Moon Ather framework, we use `LLVMContext::createVectorType` to create a vector type.
-/// In default, it will create a fixed vector type. If you want to create a scalable vector type,
-/// you can set the `isScalable` parameter to true.
-///
-/// - See LLVM: `FixedVectorType::get` and `ScalableVectorType::get`.
+/// - See LLVM: `FixedVectorType::get`.
 ///
 /// ```moonbit
-/// test "VectorType" {
+/// test "FixedVectorType" {
 ///   let ctx = LLVMContext::new()
 ///   let i32ty = ctx.getInt32Ty()
 ///
-///   let fixedVecTy = ctx.createVectorType!(i32ty, 32)
+///   let fixedVecTy = ctx.getFixedVectorType!(i32ty, 32)
 ///   inspect!(fixedVecTy, content="<32 x i32>")
-///
-///   let scalableVecTy = ctx.createVectorType!(i32ty, 16, isScalable=true)
-///   inspect!(scalableVecTy, content="<vscale x 16 x i32>")
 /// }
 /// ```
-pub fn LLVMContext::createVectorType(
+pub fn LLVMContext::getFixedVectorType(
   self : LLVMContext,
   elementType : &Type,
   elementQuantity : UInt,
-  isScalable~ : Bool = false
-) -> VectorType!LLVMTypeError {
-  VectorType::new!(self, elementType, elementQuantity, isScalable~)
+) -> FixedVectorType!LLVMTypeError {
+  FixedVectorType::new!(self, elementType, elementQuantity)
+}
+
+///| Create a scalable vector type in the context.
+///
+/// - See LLVM: `ScalableVectorType::get`.
+///
+/// ```moonbit
+/// test "ScalableVectorType" {
+///   let ctx = LLVMContext::new()
+///   let i32ty = ctx.getInt32Ty()
+///
+///   let scalableVecTy = ctx.getScalableVectorType!(i32ty, 16)
+///   inspect!(scalableVecTy, content="<vscale x 16 x i32>")
+/// }
+/// ```
+pub fn LLVMContext::getScalableVectorType(
+  self : LLVMContext,
+  elementType : &Type,
+  elementQuantity : UInt,
+) -> ScalableVectorType!LLVMTypeError {
+  ScalableVectorType::new!(self, elementType, elementQuantity)
 }
 
 ///| Create a constant with int8 type.

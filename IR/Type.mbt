@@ -17,7 +17,8 @@ pub enum TypeEnum {
   FunctionType(FunctionType)
   StructType(StructType)
   ArrayType(ArrayType)
-  VectorType(VectorType)
+  FixedVectorType(FixedVectorType)
+  ScalableVectorType(ScalableVectorType)
   PointerType(PointerType)
 } derive(Eq, Show, Hash)
 
@@ -41,7 +42,8 @@ pub fn TypeEnum::asTypeClass(self : TypeEnum) -> &Type {
     FunctionType(t) => t
     StructType(t) => t
     ArrayType(t) => t
-    VectorType(t) => t
+    FixedVectorType(t) => t
+    ScalableVectorType(t) => t
     PointerType(t) => t
   }
 }
@@ -204,8 +206,8 @@ impl Type with canLosslesslyBitCastTo(self, ty : &Type) -> Bool {
   if not(self.isFirstClassType()) || not(ty.isFirstClassType()) {
     return false
   }
-  if self.asTypeEnum() is VectorType(vec1) &&
-    self.asTypeEnum() is VectorType(vec2) {
+  if self.asTypeEnum() is FixedVectorType(vec1) &&
+    self.asTypeEnum() is FixedVectorType(vec2) {
     return vec1.getPrimitiveSizeInBits() == vec2.getPrimitiveSizeInBits()
   }
   false
@@ -230,7 +232,7 @@ impl Type with isPtrOrPtrVectorTy(self) -> Bool {
 ///|
 impl Type with isEmptyTy(self) -> Bool {
   match self.asTypeEnum() {
-    ArrayType(arr) if arr.getNumElements() == 0 => true
+    ArrayType(arr) if arr.getElementCount() == 0 => true
     ArrayType(arr) => arr.getElementType().isEmptyTy()
     StructType(sty) if sty.isOpaque() => true
     StructType(sty) => sty.elements().iter().all(fn { ty => ty.isEmptyTy() })
@@ -258,7 +260,7 @@ impl Type with isSingleValueType(self) -> Bool {
     Int1Type(_) | Int8Type(_) | Int16Type(_) | Int32Type(_) | Int64Type(_) =>
       true
     PointerType(_) => true
-    VectorType(_) => true
+    FixedVectorType(_) => true
     _ => false
   }
 }
@@ -280,7 +282,7 @@ impl Type with isSized(self) -> Bool {
     HalfType(_) | BFloatType(_) | FloatType(_) | DoubleType(_) | FP128Type(_) =>
       true // Floating point types
     StructType(sty) => sty.isSized()
-    ArrayType(_) | VectorType(_) => true // Derived types
+    ArrayType(_) | FixedVectorType(_) => true // Derived types
     _ =>
       // in cpp, there is `isSizedDerivedType` function
       //println("\{self.getTypeID()} is sized or not has not been implemented yet")
@@ -314,7 +316,7 @@ impl Type with getScalarSizeInBits(self) -> UInt {
 
 ///|
 impl Type with getScalarType(self) {
-  if self.asTypeEnum() is VectorType(vec) {
+  if self.asTypeEnum() is FixedVectorType(vec) {
     vec.getElementType()
   } else {
     self
@@ -1039,138 +1041,10 @@ pub impl Type for TokenType with base(self) -> TypeBase {
 }
 
 // ====================================================================
-// IntegerType
-// ====================================================================
-
-/////|
-//pub struct IntegerType {
-//  priv base : TypeBase
-//  numBits : UInt
-//} derive(Eq, Hash)
-//
-/////| Create a IntegerType.
-//fn IntegerType::new(
-//  context : LLVMContext,
-//  numBits : UInt
-//) -> IntegerType!LLVMTypeError {
-//  guard numBits is (1 | 8 | 16 | 32 | 64) else {
-//    raise InValidIntegerTypeNumBits(numBits)
-//  }
-//  IntegerType::{ base: TypeBase::new(context), numBits }
-//}
-//
-/////| Return type twice as wide the input type.
-/////
-///// - See LLVM: `IntegerType::getExtendedType`.
-/////
-///// ```moonbit
-///// test "IntegerType getExtendedType" {
-/////   let ctx = LLVMContext::new()
-/////   let i16ty = ctx.getInt16Ty()
-/////   let i32ty = ctx.getInt32Ty()
-/////
-/////   let i16exd_ty = i16ty.getExtendedType!()
-/////   inspect!(i16exd_ty, content="i32")
-/////
-/////   let i32exd_ty = i32ty.getExtendedType!()
-/////   inspect!(i32exd_ty, content="i64")
-///// }
-///// ```
-//pub fn IntegerType::getExtendedType(
-//  self : IntegerType
-//) -> IntegerType!LLVMTypeError {
-//  self.getContext().getIntNTy!(self.getScalarSizeInBits() * 2)
-//}
-//
-/////| Get the number of bits in this Integertype.
-/////
-///// - See LLVM: `IntegerType::getBitWidth`.
-/////
-///// ```moonbit
-///// test "IntegerType getBitWidth" {
-/////   let ctx = LLVMContext::new()
-/////
-/////   let i8ty = ctx.getInt8Ty()
-/////   let i16ty = ctx.getInt16Ty()
-/////   let i32ty = ctx.getInt32Ty()
-/////   let i64ty = ctx.getInt64Ty()
-/////
-/////   assert_eq!(i8ty.getBitWidth(), 8)
-/////   assert_eq!(i16ty.getBitWidth(), 16)
-/////   assert_eq!(i32ty.getBitWidth(), 32)
-/////   assert_eq!(i64ty.getBitWidth(), 64)
-///// }
-///// ```
-//pub fn IntegerType::getBitWidth(self : IntegerType) -> UInt {
-//  self.numBits
-//}
-//
-/////| Return a uint64_t with just the most significant bit set (the sign bit, if
-///// the value is treated as a signed number).
-/////
-///// - See LLVM: `IntegerType::getBitMask`.
-/////
-///// **Note**: Try to get the bit mask from over 64-bit integer will raise an error.
-///// It's different from LLVM, In LLVM, if you try to get the bit mask from i128
-///// it has same result as getBitMask from int64ty.
-/////
-///// ```moonbit
-///// test "IntegerType getSignMask" {
-/////   let ctx = LLVMContext::new()
-/////   let i32ty = ctx.getInt32Ty()
-/////
-/////   assert_eq!(i32ty.getBitMask(), 0xFFFFFFFF)
-///// }
-///// ```
-//pub fn IntegerType::getBitMask(self : IntegerType) -> UInt64 {
-//  0UL.lnot() >> (64 - self.getBitWidth().reinterpret_as_int())
-//}
-//
-/////| Return a uint64_t with just the most significant bit set (the sign bit, if
-///// the value is treated as a signed number).
-/////
-///// - See LLVM: `IntegerType::getSignBit`.
-/////
-///// ```moonbit
-///// test "IntegerType getSignBit" {
-/////   let ctx = LLVMContext::new()
-/////   let i32ty = ctx.getInt32Ty()
-/////
-/////   assert_eq!(i32ty.getSignBit(), 0x80000000)
-///// }
-///// ```
-//pub fn IntegerType::getSignBit(self : IntegerType) -> UInt64 {
-//  1UL << (self.getBitWidth() - 1U).reinterpret_as_int()
-//}
-//
-/////|
-//pub impl Show for IntegerType with output(self, logger : &Logger) {
-//  logger.write_string("i\{self.getBitWidth()}")
-//}
-//
-/////|
-//pub impl Type for IntegerType with asTypeEnum(self) -> TypeEnum {
-//  TypeEnum::IntegerType(self)
-//}
-//
-/////|
-//pub impl Type for IntegerType with base(self) -> TypeBase {
-//  self.base
-//}
-
-// ====================================================================
 // FunctionType
 // ====================================================================
 
-///|
-pub struct FunctionType {
-  priv base : TypeBase
-  returnType : &Type
-  paramTypes : Array[&Type]
-  isVarArgs : Bool
-} derive(Eq, Hash)
-
-///| Create a FunctionType
+///| FunctionType
 ///
 /// See LLVM: `FunctionType::FunctionType`.
 ///
@@ -1181,14 +1055,22 @@ pub struct FunctionType {
 ///   let voidty = ctx.getVoidTy()
 ///   let f32ty = ctx.getFloatTy()
 ///   let f64ty = ctx.getDoubleTy()
-///   let fty = ctx.createFunctionType!(voidty, [int32ty, f32ty, f64ty])
+///   let fty = ctx.getFunctionType!(voidty, [int32ty, f32ty, f64ty])
 ///   inspect!(fty, content="void (i32, float, double)")
 ///
-///   let fty = ctx.createFunctionType!(voidty, [int32ty, f32ty, f64ty], isVarArgs=true)
+///   let fty = ctx.getFunctionType!(voidty, [int32ty, f32ty, f64ty], isVarArgs=true)
 ///   inspect!(fty, content="void (i32, float, double, ...)")
 /// }
 /// ```
-pub fn FunctionType::new(
+pub struct FunctionType {
+  priv base : TypeBase
+  returnType : &Type
+  paramTypes : Array[&Type]
+  isVarArgs : Bool
+} derive(Eq, Hash)
+
+///| Create a FunctionType
+fn FunctionType::new(
   returnType : &Type,
   paramsTypes : Array[&Type],
   isVarArgs~ : Bool = false
@@ -1277,7 +1159,26 @@ impl Type for FunctionType with base(self) -> TypeBase {
 // StructType
 // ====================================================================
 
-///|
+///| Struct Type
+///
+/// - See LLVM: `StructType::get`.
+///
+/// ```moonbit
+/// test "StructType" {
+///   let ctx = LLVMContext::new()
+///
+///   let i8ty = ctx.getInt8Ty()
+///   let i16ty = ctx.getInt16Ty()
+///   let i32ty = ctx.getInt32Ty()
+///   let f32ty = ctx.getFloatTy()
+///
+///   let sty = ctx.getStructType!([i32ty, f32ty], name="foo")
+///   inspect!(sty, content="%foo = type { i32, float }")
+///
+///   let sty = ctx.getStructType!([i8ty, i16ty], name="bar", isPacked=true)
+///   inspect!(sty, content="%bar = type <{ i8, i16 }>")
+/// }
+/// ```
 pub struct StructType {
   priv base : TypeBase
   priv mut name : String?
@@ -1346,8 +1247,8 @@ fn StructType::new(
 ///   let i32ty = ctx.getInt32Ty()
 ///   let f32ty = ctx.getFloatTy()
 ///
-///   let foo = ctx.createStructType!([i32ty, f32ty])
-///   let bar = ctx.createStructType!([i32ty, f32ty], name="bar")
+///   let foo = ctx.getStructType!([i32ty, f32ty])
+///   let bar = ctx.getStructType!([i32ty, f32ty], name="bar")
 ///
 ///   assert_true!(foo.isLiteral())
 ///   assert_false!(bar.isLiteral())
@@ -1369,8 +1270,8 @@ pub fn StructType::isLiteral(self : StructType) -> Bool {
 ///   let i32ty = ctx.getInt32Ty()
 ///   let f32ty = ctx.getFloatTy()
 ///
-///   let foo = ctx.createStructType!([], name="foo")
-///   let bar = ctx.createStructType!([i32ty, f32ty], name="bar")
+///   let foo = ctx.getStructType!([], name="foo")
+///   let bar = ctx.getStructType!([i32ty, f32ty], name="bar")
 ///   assert_true!(foo.isOpaque())
 ///   assert_false!(bar.isOpaque())
 /// }
@@ -1531,24 +1432,40 @@ pub impl Type for StructType with base(self) -> TypeBase {
 // ArrayType
 // ====================================================================
 
-///|
+///| ArrayType
+///
+/// - See LLVM: `ArrayType::get`.
+///
+/// ```moonbit
+/// test "ArrayType" {
+///   let ctx = LLVMContext::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///
+///   let arrty = ctx.getArrayType!(i32ty, 16)
+///   inspect!(arrty, content="[16 x i32]")
+///
+///   assert_eq!(arrty.getElementCount(), 16)
+///   inspect!(arrty.getElementType(), content="i32")
+/// }
+/// ```
 pub struct ArrayType {
   priv base : TypeBase
   elementType : &Type
-  numElements : UInt
+  elementCount: UInt
 } derive(Eq, Hash)
 
 ///|
 fn ArrayType::new(
   context : LLVMContext,
   elementType : &Type,
-  numElements : UInt
+  elementCount : UInt
 ) -> ArrayType!LLVMTypeError {
   guard ArrayType::isValidElementType(elementType) else {
     raise InValidArrayElementType(elementType)
   }
   let base = TypeBase::new(context)
-  ArrayType::{ base, elementType, numElements }
+  ArrayType::{ base, elementType, elementCount }
 }
 
 ///|
@@ -1561,8 +1478,8 @@ fn ArrayType::isValidElementType(eleTy : &Type) -> Bool {
 }
 
 ///|
-pub fn ArrayType::getNumElements(self : ArrayType) -> UInt {
-  self.numElements
+pub fn ArrayType::getElementCount(self : ArrayType) -> UInt {
+  self.elementCount
 }
 
 ///|
@@ -1572,9 +1489,7 @@ pub fn ArrayType::getElementType(self : ArrayType) -> &Type {
 
 ///|
 pub impl Show for ArrayType with output(self, logger : &Logger) {
-  let elementType = self.getElementType()
-  let numElements = self.getNumElements()
-  logger.write_string("[\{numElements} x \{elementType}]")
+  logger.write_string("[\{self.getElementCount()} x \{self.getElementType()}]")
 }
 
 ///|
@@ -1588,33 +1503,46 @@ impl Type for ArrayType with base(self) -> TypeBase {
 }
 
 // ====================================================================
-// VectorType
+// FixedVectorType
 // ====================================================================
 
 ///| Base class of all SIMD vector types.
-pub struct VectorType {
+///
+/// - See LLVM: `FixedVectorType::get`.
+///
+/// ```moonbit
+/// test "FixedVectorType" {
+///   let ctx = LLVMContext::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let vecty = ctx.getFixedVectorType!(i32ty, 16)
+///
+///   inspect!(vecty, content="<16 x i32>")
+///   assert_eq!(vecty.getElementCount(), 16)
+///   inspect!(vecty.getElementType(), content="i32")
+/// }
+/// ```
+pub struct FixedVectorType {
   priv base : TypeBase
-  elementQuantity : UInt
   elementType : &Type
-  isScalable : Bool
+  elementCount : UInt
 } derive(Eq, Hash)
 
-///| Create a VectorType.
-fn VectorType::new(
+///| Create a FixedVectorType.
+fn FixedVectorType::new(
   context : LLVMContext,
   elementType : &Type,
-  elementQuantity : UInt,
-  isScalable~ : Bool = false
-) -> VectorType!LLVMTypeError {
-  guard VectorType::isValidElementType(elementType) else {
+  elementCount : UInt,
+) -> FixedVectorType!LLVMTypeError {
+  guard FixedVectorType::isValidElementType(elementType) else {
     raise InValidVectorElementType(elementType)
   }
   let base = TypeBase::new(context)
-  VectorType::{ base, elementQuantity, elementType, isScalable }
+  FixedVectorType::{ base, elementType, elementCount }
 }
 
 ///| Check if the element type is valid.
-fn VectorType::isValidElementType(eleTy : &Type) -> Bool {
+fn FixedVectorType::isValidElementType(eleTy : &Type) -> Bool {
   match eleTy.asTypeEnum() {
     Int1Type(_) | Int8Type(_) | Int16Type(_) | Int32Type(_) | Int64Type(_) =>
       true
@@ -1624,33 +1552,101 @@ fn VectorType::isValidElementType(eleTy : &Type) -> Bool {
 }
 
 ///| Get the element type of the vector.
-pub fn VectorType::getElementType(self : VectorType) -> &Type {
+pub fn FixedVectorType::getElementType(self : FixedVectorType) -> &Type {
   self.elementType
 }
 
 ///| Get the number of elements in the vector.
-pub fn VectorType::getElementCount(self : VectorType) -> UInt {
-  self.elementQuantity
+pub fn FixedVectorType::getElementCount(self : FixedVectorType) -> UInt {
+  self.elementCount
 }
 
 ///|
-pub impl Show for VectorType with output(self, logger : &Logger) {
-  let elementType = self.getElementType()
-  let elementCount = self.getElementCount()
-  if self.isScalable {
-    logger.write_string("<vscale x \{elementCount} x \{elementType}>")
-  } else {
-    logger.write_string("<\{elementCount} x \{elementType}>")
+pub impl Show for FixedVectorType with output(self, logger : &Logger) {
+  logger.write_string("<\{self.getElementCount()} x \{self.getElementType()}>")
+}
+
+///|
+pub impl Type for FixedVectorType with asTypeEnum(self) -> TypeEnum {
+  TypeEnum::FixedVectorType(self)
+}
+
+///|
+pub impl Type for FixedVectorType with base(self) -> TypeBase {
+  self.base
+}
+
+// ====================================================================
+// ScalableVectorType
+// ====================================================================
+
+///| Base class of all SIMD vector types.
+///
+/// - See LLVM: `ScalableVectorType::get`.
+///
+/// ```moonbit
+/// test "ScalableVectorType" {
+///   let ctx = LLVMContext::new()
+///
+///   let f32ty = ctx.getFloatTy()
+///   let vecty = ctx.getScalableVectorType!(f32ty, 16)
+///
+///   inspect!(vecty, content="<vscale x 16 x float>")
+///   assert_eq!(vecty.getElementCount(), 16)
+///   inspect!(vecty.getElementType(), content="float")
+/// }
+/// ```
+pub struct ScalableVectorType {
+  priv base : TypeBase
+  elementType : &Type
+  elementCount : UInt
+} derive(Eq, Hash)
+
+///| Create a ScalableVectorType.
+fn ScalableVectorType::new(
+  context : LLVMContext,
+  elementType : &Type,
+  elementCount : UInt,
+) -> ScalableVectorType!LLVMTypeError {
+  guard ScalableVectorType::isValidElementType(elementType) else {
+    raise InValidVectorElementType(elementType)
+  }
+  let base = TypeBase::new(context)
+  ScalableVectorType::{ base, elementType, elementCount }
+}
+
+///| Check if the element type is valid.
+fn ScalableVectorType::isValidElementType(eleTy : &Type) -> Bool {
+  match eleTy.asTypeEnum() {
+    Int1Type(_) | Int8Type(_) | Int16Type(_) | Int32Type(_) | Int64Type(_) =>
+      true
+    HalfType(_) | BFloatType(_) | FloatType(_) | DoubleType(_) => true
+    _ => false
   }
 }
 
-///|
-pub impl Type for VectorType with asTypeEnum(self) -> TypeEnum {
-  TypeEnum::VectorType(self)
+///| Get the element type of the vector.
+pub fn ScalableVectorType::getElementType(self : ScalableVectorType) -> &Type {
+  self.elementType
+}
+
+///| Get the number of elements in the vector.
+pub fn ScalableVectorType::getElementCount(self : ScalableVectorType) -> UInt {
+  self.elementCount
 }
 
 ///|
-pub impl Type for VectorType with base(self) -> TypeBase {
+pub impl Show for ScalableVectorType with output(self, logger : &Logger) {
+  logger.write_string("<vscale x \{self.getElementCount()} x \{self.getElementType()}>")
+}
+
+///|
+pub impl Type for ScalableVectorType with asTypeEnum(self) -> TypeEnum {
+  TypeEnum::ScalableVectorType(self)
+}
+
+///|
+pub impl Type for ScalableVectorType with base(self) -> TypeBase {
   self.base
 }
 
@@ -1666,12 +1662,30 @@ pub fn AddressSpace::new(v : UInt) -> AddressSpace {
   AddressSpace(v)
 }
 
-///|
+///| PointerType
 /// **Note**: Before LLVM17, TypedPointer is supported. After LLVM17, all pointer
 /// are opaque pointer, and typed pointer is deprecated.
 ///
 /// In Moonbit Aether framework, we follow the design of LLVM20, so all pointer is
 /// also opaque pointer, and will not mark type for pointer.
+///
+/// ```moonbit
+/// test "PointerType" {
+///   let ctx = LLVMContext::new()
+///
+///   inspect!(ctx.getPtrTy(), content="ptr")
+///
+///   let addressSpace = AddressSpace::new(0)
+///   let ptr = ctx.getPtrTy(addressSpace~)
+///   inspect!(ptr, content="ptr")
+///
+///   let i32ty = ctx.getInt32Ty()
+///   assert_true!(PointerType::isLoadableOrStorableType(i32ty))
+///
+///   let voidty = ctx.getVoidTy()
+///   assert_false!(PointerType::isLoadableOrStorableType(voidty))
+/// }
+/// ```
 pub struct PointerType {
   priv base : TypeBase
   addressSpace : AddressSpace

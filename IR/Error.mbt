@@ -5,7 +5,6 @@ type! LLVMTypeError {
   RecursiveStructDefinition
   InValidStructName(String)
   DuplicateStructName(String)
-  InValidIntegerTypeNumBits(UInt)
   InValidFunctionReturnType(&Type)
   InValidFunctionArgumentType(&Type)
   InValidArrayElementType(&Type)
