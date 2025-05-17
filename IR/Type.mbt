@@ -1452,7 +1452,7 @@ pub impl Type for StructType with base(self) -> TypeBase {
 pub struct ArrayType {
   priv base : TypeBase
   elementType : &Type
-  elementCount: UInt
+  elementCount : UInt
 } derive(Eq, Hash)
 
 ///|
@@ -1532,7 +1532,7 @@ pub struct FixedVectorType {
 fn FixedVectorType::new(
   context : LLVMContext,
   elementType : &Type,
-  elementCount : UInt,
+  elementCount : UInt
 ) -> FixedVectorType!LLVMTypeError {
   guard FixedVectorType::isValidElementType(elementType) else {
     raise InValidVectorElementType(elementType)
@@ -1606,7 +1606,7 @@ pub struct ScalableVectorType {
 fn ScalableVectorType::new(
   context : LLVMContext,
   elementType : &Type,
-  elementCount : UInt,
+  elementCount : UInt
 ) -> ScalableVectorType!LLVMTypeError {
   guard ScalableVectorType::isValidElementType(elementType) else {
     raise InValidVectorElementType(elementType)
@@ -1637,7 +1637,9 @@ pub fn ScalableVectorType::getElementCount(self : ScalableVectorType) -> UInt {
 
 ///|
 pub impl Show for ScalableVectorType with output(self, logger : &Logger) {
-  logger.write_string("<vscale x \{self.getElementCount()} x \{self.getElementType()}>")
+  logger.write_string(
+    "<vscale x \{self.getElementCount()} x \{self.getElementType()}>",
+  )
 }
 
 ///|

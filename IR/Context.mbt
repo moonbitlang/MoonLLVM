@@ -363,7 +363,7 @@ pub fn LLVMContext::getArrayType(
 pub fn LLVMContext::getFixedVectorType(
   self : LLVMContext,
   elementType : &Type,
-  elementQuantity : UInt,
+  elementQuantity : UInt
 ) -> FixedVectorType!LLVMTypeError {
   FixedVectorType::new!(self, elementType, elementQuantity)
 }
@@ -384,7 +384,7 @@ pub fn LLVMContext::getFixedVectorType(
 pub fn LLVMContext::getScalableVectorType(
   self : LLVMContext,
   elementType : &Type,
-  elementQuantity : UInt,
+  elementQuantity : UInt
 ) -> ScalableVectorType!LLVMTypeError {
   ScalableVectorType::new!(self, elementType, elementQuantity)
 }

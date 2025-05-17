@@ -39,11 +39,7 @@ test "Function Type Print" {
   let voidty = ctx.getVoidTy()
   let fty = ctx.getFunctionType!(voidty, [i32ty, f64ty, f32ty])
   inspect!(fty, content="void (i32, double, float)")
-  let fty = ctx.getFunctionType!(
-    i64ty,
-    [i32ty, f64ty, f32ty],
-    isVarArgs=true,
-  )
+  let fty = ctx.getFunctionType!(i64ty, [i32ty, f64ty, f32ty], isVarArgs=true)
   inspect!(fty, content="i64 (i32, double, float, ...)")
 }
 
