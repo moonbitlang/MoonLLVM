@@ -19,19 +19,17 @@ pub enum ValueEnum {
   ConstantUInt(ConstantUInt)
   ConstantFP(ConstantFP)
   //ConstantAggregateZero(ConstantAggregateZero)
+  ConstantPointerNull(ConstantPointerNull)
   //ConstantAggregate(ConstantAggregate)
-  //ConstantArray(ConstantArray)
+  ConstantArray(ConstantArray)
   //ConstantStruct(ConstantStruct)
   //ConstantVector(ConstantVector)
-  //ConstantPointerNull(ConstantPointerNull)
-  //ConstantDataArray(ConstantDataArray)
   //ConstantDataVector(ConstantDataVector)
   //ConstantTokenNone(ConstantTokenNone)
   //UndefValue(UndefValue)
   //PoisonValue(PoisonValue)
   //
   //BlockAddress(BlockAddress)
-  //ConstantExpr(ConstantExpr)
 
   // ======= Instruction Values =======
   // ------- Unary Instruction
@@ -168,9 +166,29 @@ struct ValueBase {
   vty : &Type
   name : String?
   users : Array[&Value]
-  // uses: Array[&Value]
 } derive(Eq, Hash)
 
 //trait User: Value {
+//  asUserEnum(Self) -> UserEnum
 //  getOperands(Self) -> Array[&Value]
 //}
+
+///|
+pub enum ConstantEnum {
+  ConstantInt(ConstantInt)
+  ConstantBool(ConstantBool)
+  ConstantUInt(ConstantUInt)
+  ConstantFP(ConstantFP)
+  ConstantPointerNull(ConstantPointerNull)
+  ConstantArray(ConstantArray)
+} derive(Eq)
+
+///|
+trait Constant: Value {
+  asConstantEnum(Self) -> ConstantEnum
+}
+
+///|
+impl Eq for &Constant with op_equal(self, other) {
+  self.asConstantEnum() == other.asConstantEnum()
+}

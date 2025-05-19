@@ -23,13 +23,13 @@
 /// ```
 pub struct ConstantInt {
   base : ValueBase
-  value : MbtSignedEnum
+  value : SignedEnum
 } derive(Eq, Hash)
 
 ///|
-fn ConstantInt::new[T : MbtSigned](vty : &Type, value : T) -> ConstantInt {
+fn ConstantInt::new[T : Signed](vty : &Type, value : T) -> ConstantInt {
   let value = match (vty.asTypeEnum(), value.asEnum()) {
-    (Int8Type(_), Int8(b)) => Int8(b)
+    (Int8Type(_), Int8(b)) => SignedEnum::Int8(b)
     (Int16Type(_), Int16(s)) => Int16(s)
     (Int32Type(_), Int32(i)) => Int32(i)
     (Int64Type(_), Int64(l)) => Int64(l)
@@ -40,7 +40,7 @@ fn ConstantInt::new[T : MbtSigned](vty : &Type, value : T) -> ConstantInt {
 }
 
 ///|
-fn ConstantInt::getValue(self : ConstantInt) -> MbtSignedEnum {
+fn ConstantInt::getValue(self : ConstantInt) -> SignedEnum {
   self.value
 }
 
@@ -107,17 +107,14 @@ pub fn ConstantInt::getIntegerType(self : ConstantInt) -> &IntegerType {
 ///   assert_true!(ctx.getConstInt32(-128).equals(-128))
 /// }
 /// ```
-pub fn ConstantInt::equals[T : MbtSigned](
-  self : ConstantInt,
-  value : T
-) -> Bool {
-  self.value.to_int64() == value.to_int64()
+pub fn ConstantInt::equals[T : Signed](self : ConstantInt, value : T) -> Bool {
+  self.value.to_int64() == value.convert_to_int64()
 }
 
 ///|
 pub fn ConstantInt::isNegative(self : ConstantInt) -> Bool {
   match self.value {
-    Int8(b) => b > 127
+    Int8(b) => b < 0
     Int16(b) => b < 0
     Int32(b) => b < 0
     Int64(b) => b < 0
@@ -127,7 +124,7 @@ pub fn ConstantInt::isNegative(self : ConstantInt) -> Bool {
 ///|
 pub fn ConstantInt::isMaxValue(self : ConstantInt) -> Bool {
   match self.value {
-    Int8(b) => b == 127
+    Int8(b) => b == @int8.max_value
     Int16(b) => b == @int16.max_value
     Int32(b) => b == @int.max_value
     Int64(b) => b == @int64.max_value
@@ -137,7 +134,7 @@ pub fn ConstantInt::isMaxValue(self : ConstantInt) -> Bool {
 ///|
 pub fn ConstantInt::isMinValue(self : ConstantInt) -> Bool {
   match self.value {
-    Int8(b) => b == 128
+    Int8(b) => b == @int8.min_value
     Int16(b) => b == @int16.min_value
     Int32(b) => b == @int.min_value
     Int64(b) => b == @int64.min_value
@@ -150,6 +147,11 @@ pub impl Value for ConstantInt with base(self) {
 }
 
 ///|
+pub impl Constant for ConstantInt with asConstantEnum(self) {
+  ConstantInt(self)
+}
+
+///|
 pub impl Value for ConstantInt with asValueEnum(self) {
   ConstantInt(self)
 }
@@ -157,12 +159,10 @@ pub impl Value for ConstantInt with asValueEnum(self) {
 ///|
 pub impl Show for ConstantInt with output(self, logger) {
   let val_str = match self.value {
-    Int8(b) =>
-      match b.to_int() {
-        0..=127 as v => v.to_string()
-        v => (v - 256).to_string()
-      }
-    _ => self.value.asClass().to_string()
+    Int8(b) => b.to_string()
+    Int16(s) => s.to_string()
+    Int32(i) => i.to_string()
+    Int64(l) => l.to_string()
   }
   logger.write_string("\{self.getIntegerType()} \{val_str}")
 }
@@ -193,16 +193,16 @@ pub impl Show for ConstantInt with output(self, logger) {
 /// ```
 pub struct ConstantUInt {
   base : ValueBase
-  value : MbtUnsignedEnum
+  value : UnSignedEnum
 } derive(Eq, Hash)
 
 ///|
-fn ConstantUInt::new[T : MbtUnsigned](vty : &Type, value : T) -> ConstantUInt {
+fn ConstantUInt::new[T : UnSigned](vty : &Type, value : T) -> ConstantUInt {
   //guard vty.asTypeEnum() is IntegerType(ity) else {
   //  unreachable("ConstantUInt::new: vty is not IntegerType")
   //}
   let value = match (vty.asTypeEnum(), value.asEnum()) {
-    (Int8Type(_), UInt8(b)) => UInt8(b)
+    (Int8Type(_), UInt8(b)) => UnSignedEnum::UInt8(b)
     (Int16Type(_), UInt16(s)) => UInt16(s)
     (Int32Type(_), UInt32(i)) => UInt32(i)
     (Int64Type(_), UInt64(l)) => UInt64(l)
@@ -213,7 +213,7 @@ fn ConstantUInt::new[T : MbtUnsigned](vty : &Type, value : T) -> ConstantUInt {
 }
 
 ///|
-fn ConstantUInt::getValue(self : ConstantUInt) -> MbtUnsignedEnum {
+fn ConstantUInt::getValue(self : ConstantUInt) -> UnSignedEnum {
   self.value
 }
 
@@ -279,11 +279,11 @@ pub fn ConstantUInt::getIntegerType(self : ConstantUInt) -> &IntegerType {
 ///   assert_true!(ctx.getConstUInt8(255).equals(255U))
 /// }
 /// ```
-pub fn ConstantUInt::equals[T : MbtUnsigned](
+pub fn ConstantUInt::equals[T : UnSigned](
   self : ConstantUInt,
   value : T
 ) -> Bool {
-  self.value.to_uint64() == value.to_uint64()
+  self.value.to_uint64() == value.convert_to_uint64()
 }
 
 ///|
@@ -307,10 +307,17 @@ pub impl Value for ConstantUInt with asValueEnum(self) {
 }
 
 ///|
+pub impl Constant for ConstantUInt with asConstantEnum(self) {
+  ConstantUInt(self)
+}
+
+///|
 pub impl Show for ConstantUInt with output(self, logger) {
   let val_str = match self.value {
-    UInt8(b) => b.to_uint().to_string()
-    _ => self.value.asClass().to_string()
+    UInt8(b) => b.to_string()
+    UInt16(s) => s.to_string()
+    UInt32(i) => i.to_string()
+    UInt64(l) => l.to_string()
   }
   logger.write_string("\{self.getIntegerType()} \{val_str}")
 }
@@ -366,6 +373,11 @@ pub impl Value for ConstantBool with asValueEnum(self) {
 }
 
 ///|
+pub impl Constant for ConstantBool with asConstantEnum(self) {
+  ConstantBool(self)
+}
+
+///|
 pub impl Show for ConstantBool with output(self, logger) {
   logger.write_string("\{self.getType()} \{self.value}")
 }
@@ -401,12 +413,12 @@ pub fn ConstantFP::getValueAsDouble(self : ConstantFP) -> Double {
 }
 
 ///|
-pub fn ConstantFP::equals[T : MbtFloat](self : ConstantFP, value : T) -> Bool {
+pub fn ConstantFP::equals[T : Floating](self : ConstantFP, value : T) -> Bool {
   self.value.to_float64() == value.to_float64()
 }
 
 ///|
-pub fn ConstantFP::exactlyEquals[T : MbtFloat](
+pub fn ConstantFP::exactlyEquals[T : Floating](
   self : ConstantFP,
   value : T
 ) -> Bool {
@@ -425,10 +437,407 @@ pub impl Value for ConstantFP with asValueEnum(self) {
 }
 
 ///|
+pub impl Constant for ConstantFP with asConstantEnum(self) {
+  ConstantFP(self)
+}
+
+///|
 pub impl Show for ConstantFP with output(self, logger) {
   let val_str = self.value
     .reinterpret_as_uint64()
     .to_string(radix=16)
     .to_upper()
   logger.write_string("\{self.getType()} 0x\{val_str}")
+}
+
+// ====================================================================
+// ConstantAggregateZero
+// ====================================================================
+
+//pub struct ConstantAggregateZero {
+//  base : ValueBase
+//} derive(Eq, Hash)
+//
+//fn ConstantAggregateZero::new(vty : &Type) -> ConstantAggregateZero {
+//  guard vty.asTypeEnum() is (
+//    ArrayType(_)
+//    | StructType(_)
+//    | FixedVectorType(_)
+//    | ScalableVectorType(_)) else {
+//    unreachable("ConstantAggregateZero::new: vty is not ArrayType, VectorType or StructType")
+//  }
+//  let base = ValueBase::{ vty, name: None, users: [] }
+//  ConstantAggregateZero::{ base }
+//}
+//
+//impl Value for ConstantAggregateZero with base(self) {
+//  self.base
+//}
+//
+//impl Value for ConstantAggregateZero with asValueEnum(self) {
+//  ConstantAggregateZero(self)
+//}
+//
+//impl Show for ConstantAggregateZero with output(self, logger) {
+//  logger.write_string("\{self.getType()} zeroinitializer")
+//}
+
+// ====================================================================
+// ConstantPointerNull
+// ====================================================================
+
+///|
+pub struct ConstantPointerNull {
+  base : ValueBase
+} derive(Eq, Hash)
+
+///|
+fn ConstantPointerNull::new(vty : &Type) -> ConstantPointerNull {
+  guard vty.asTypeEnum() is PointerType(_) else {
+    unreachable("ConstantPointerNull::new: vty is not PointerType")
+  }
+  let base = ValueBase::{ vty, name: None, users: [] }
+  ConstantPointerNull::{ base, }
+}
+
+///|
+impl Value for ConstantPointerNull with base(self) {
+  self.base
+}
+
+///|
+impl Value for ConstantPointerNull with asValueEnum(self) {
+  ConstantPointerNull(self)
+}
+
+///|
+impl Constant for ConstantPointerNull with asConstantEnum(self) {
+  ConstantPointerNull(self)
+}
+
+///|
+impl Show for ConstantPointerNull with output(self, logger) {
+  logger.write_string("\{self.getType()} null")
+}
+
+// ====================================================================
+// ConstantDataArray
+// ====================================================================
+
+///|
+pub struct ConstantArray {
+  base : ValueBase
+  data : Either[Array[&Constant], NumberArrayEnum]
+} derive(Eq, Hash)
+
+///|
+fn ConstantArray::newConstantArray(
+  vty : &Type,
+  data : Array[&Constant]
+) -> ConstantArray {
+  guard vty.asTypeEnum() is ArrayType(arrTy) else {
+    unreachable("ConstantArray::new: vty is not ArrayType")
+  }
+  let eleCnt = arrTy.getElementCount().reinterpret_as_int()
+  guard data.length() == eleCnt else {
+    unreachable("ConstantArray::new: data length is not equal to element count")
+  }
+  let eleTy = arrTy.getElementType()
+  let consistancy = data
+    .map(fn { d => d.getType() })
+    .fold(init=true, fn(acc, ty) { acc && ty == eleTy })
+  guard consistancy else {
+    unreachable(
+      "ConstantArray::new: data type is not consistant with elementType",
+    )
+  }
+  let base = ValueBase::{ vty, name: None, users: [] }
+  ConstantArray::{ base, data: Either::Left(data) }
+}
+
+// TODO: use `Int8` instead of `Int` when stard support `Int8`
+///|
+fn ConstantArray::newInt8Array(vty : &Type, data : Array[Int]) -> ConstantArray {
+  guard vty.asTypeEnum() is ArrayType(arrTy) else {
+    unreachable("ConstantArray::new: vty is not ArrayType")
+  }
+  let eleCnt = arrTy.getElementCount().reinterpret_as_int()
+  guard data.length() == eleCnt else {
+    unreachable("ConstantArray::new: data length is not equal to element count")
+  }
+  guard arrTy.elementType.asTypeEnum() is Int8Type(_) else {
+    unreachable("ConstantArray::new: elementType is not Int8Type")
+  }
+  let data = data.map(fn { i => Int8::from(i) })
+    |> Int8Array::from
+    |> NumberArrayEnum::Int8Array
+    |> Either::Right
+  let base = ValueBase::{ vty, name: None, users: [] }
+  ConstantArray::{ base, data }
+}
+
+///|
+fn ConstantArray::newInt16Array(
+  vty : &Type,
+  data : Array[Int16]
+) -> ConstantArray {
+  guard vty.asTypeEnum() is ArrayType(arrTy) else {
+    unreachable("ConstantArray::new: vty is not ArrayType")
+  }
+  let eleCnt = arrTy.getElementCount().reinterpret_as_int()
+  guard data.length() == eleCnt else {
+    unreachable("ConstantArray::new: data length is not equal to element count")
+  }
+  guard arrTy.elementType.asTypeEnum() is Int16Type(_) else {
+    unreachable("ConstantArray::new: elementType is not Int16Type")
+  }
+  let data = data
+    |> Int16Array::from
+    |> NumberArrayEnum::Int16Array
+    |> Either::Right
+  let base = ValueBase::{ vty, name: None, users: [] }
+  ConstantArray::{ base, data }
+}
+
+///|
+fn ConstantArray::newInt32Array(
+  vty : &Type,
+  data : Array[Int]
+) -> ConstantArray {
+  guard vty.asTypeEnum() is ArrayType(arrTy) else {
+    unreachable("ConstantArray::new: vty is not ArrayType")
+  }
+  let eleCnt = arrTy.getElementCount().reinterpret_as_int()
+  guard data.length() == eleCnt else {
+    unreachable("ConstantArray::new: data length is not equal to element count")
+  }
+  guard arrTy.elementType.asTypeEnum() is Int32Type(_) else {
+    unreachable("ConstantArray::new: elementType is not Int32Type")
+  }
+  let data = data
+    |> Int32Array::from
+    |> NumberArrayEnum::Int32Array
+    |> Either::Right
+  let base = ValueBase::{ vty, name: None, users: [] }
+  ConstantArray::{ base, data }
+}
+
+///|
+fn ConstantArray::newInt64Array(
+  vty : &Type,
+  data : Array[Int64]
+) -> ConstantArray {
+  guard vty.asTypeEnum() is ArrayType(arrTy) else {
+    unreachable("ConstantArray::new: vty is not ArrayType")
+  }
+  let eleCnt = arrTy.getElementCount().reinterpret_as_int()
+  guard data.length() == eleCnt else {
+    unreachable("ConstantArray::new: data length is not equal to element count")
+  }
+  guard arrTy.elementType.asTypeEnum() is Int64Type(_) else {
+    unreachable("ConstantArray::new: elementType is not Int64Type")
+  }
+  let data = data
+    |> Int64Array::from
+    |> NumberArrayEnum::Int64Array
+    |> Either::Right
+  let base = ValueBase::{ vty, name: None, users: [] }
+  ConstantArray::{ base, data }
+}
+
+///|
+fn ConstantArray::newUInt8Array(
+  vty : &Type,
+  data : Array[Byte]
+) -> ConstantArray {
+  guard vty.asTypeEnum() is ArrayType(arrTy) else {
+    unreachable("ConstantArray::new: vty is not ArrayType")
+  }
+  let eleCnt = arrTy.getElementCount().reinterpret_as_int()
+  guard data.length() == eleCnt else {
+    unreachable("ConstantArray::new: data length is not equal to element count")
+  }
+  guard arrTy.elementType.asTypeEnum() is Int8Type(_) else {
+    unreachable("ConstantArray::new: elementType is not Int8Type")
+  }
+  let data = data.map(fn { i => UInt8::from(i) })
+    |> UInt8Array::from
+    |> NumberArrayEnum::UInt8Array
+    |> Either::Right
+  let base = ValueBase::{ vty, name: None, users: [] }
+  ConstantArray::{ base, data }
+}
+
+///|
+fn ConstantArray::newUInt16Array(
+  vty : &Type,
+  data : Array[UInt16]
+) -> ConstantArray {
+  guard vty.asTypeEnum() is ArrayType(arrTy) else {
+    unreachable("ConstantArray::new: vty is not ArrayType")
+  }
+  let eleCnt = arrTy.getElementCount().reinterpret_as_int()
+  guard data.length() == eleCnt else {
+    unreachable("ConstantArray::new: data length is not equal to element count")
+  }
+  guard arrTy.elementType.asTypeEnum() is Int16Type(_) else {
+    unreachable("ConstantArray::new: elementType is not Int16Type")
+  }
+  let data = data
+    |> UInt16Array::from
+    |> NumberArrayEnum::UInt16Array
+    |> Either::Right
+  let base = ValueBase::{ vty, name: None, users: [] }
+  ConstantArray::{ base, data }
+}
+
+///|
+fn ConstantArray::newUInt32Array(
+  vty : &Type,
+  data : Array[UInt]
+) -> ConstantArray {
+  guard vty.asTypeEnum() is ArrayType(arrTy) else {
+    unreachable("ConstantArray::new: vty is not ArrayType")
+  }
+  let eleCnt = arrTy.getElementCount().reinterpret_as_int()
+  guard data.length() == eleCnt else {
+    unreachable("ConstantArray::new: data length is not equal to element count")
+  }
+  guard arrTy.elementType.asTypeEnum() is Int32Type(_) else {
+    unreachable("ConstantArray::new: elementType is not Int32Type")
+  }
+  let data = data
+    |> UInt32Array::from
+    |> NumberArrayEnum::UInt32Array
+    |> Either::Right
+  let base = ValueBase::{ vty, name: None, users: [] }
+  ConstantArray::{ base, data }
+}
+
+///|
+fn ConstantArray::newUInt64Array(
+  vty : &Type,
+  data : Array[UInt64]
+) -> ConstantArray {
+  guard vty.asTypeEnum() is ArrayType(arrTy) else {
+    unreachable("ConstantArray::new: vty is not ArrayType")
+  }
+  let eleCnt = arrTy.getElementCount().reinterpret_as_int()
+  guard data.length() == eleCnt else {
+    unreachable("ConstantArray::new: data length is not equal to element count")
+  }
+  guard arrTy.elementType.asTypeEnum() is Int64Type(_) else {
+    unreachable("ConstantArray::new: elementType is not Int64Type")
+  }
+  let data = data
+    |> UInt64Array::from
+    |> NumberArrayEnum::UInt64Array
+    |> Either::Right
+  let base = ValueBase::{ vty, name: None, users: [] }
+  ConstantArray::{ base, data }
+}
+
+///|
+fn ConstantArray::newFloatArray(
+  vty : &Type,
+  data : Array[Float]
+) -> ConstantArray {
+  guard vty.asTypeEnum() is ArrayType(arrTy) else {
+    unreachable("ConstantArray::new: vty is not ArrayType")
+  }
+  let eleCnt = arrTy.getElementCount().reinterpret_as_int()
+  guard data.length() == eleCnt else {
+    unreachable("ConstantArray::new: data length is not equal to element count")
+  }
+  guard arrTy.elementType.asTypeEnum() is FloatType(_) else {
+    unreachable("ConstantArray::new: elementType is not FloatType")
+  }
+  let data = data
+    |> FloatArray::from
+    |> NumberArrayEnum::FloatArray
+    |> Either::Right
+  let base = ValueBase::{ vty, name: None, users: [] }
+  ConstantArray::{ base, data }
+}
+
+///|
+fn ConstantArray::newDoubleArray(
+  vty : &Type,
+  data : Array[Double]
+) -> ConstantArray {
+  guard vty.asTypeEnum() is ArrayType(arrTy) else {
+    unreachable("ConstantArray::new: vty is not ArrayType")
+  }
+  let eleCnt = arrTy.getElementCount().reinterpret_as_int()
+  guard data.length() == eleCnt else {
+    unreachable("ConstantArray::new: data length is not equal to element count")
+  }
+  guard arrTy.elementType.asTypeEnum() is DoubleType(_) else {
+    unreachable("ConstantArray::new: elementType is not DoubleType")
+  }
+  let data = data
+    |> DoubleArray::from
+    |> NumberArrayEnum::DoubleArray
+    |> Either::Right
+  let base = ValueBase::{ vty, name: None, users: [] }
+  ConstantArray::{ base, data }
+}
+
+///|
+impl Value for ConstantArray with base(self) {
+  self.base
+}
+
+///|
+impl Value for ConstantArray with asValueEnum(self) {
+  ConstantArray(self)
+}
+
+///|
+impl Constant for ConstantArray with asConstantEnum(self) {
+  ConstantArray(self)
+}
+
+///|
+pub impl Show for ConstantArray with output(self, logger) {
+  let data_str = match self.data {
+    Left(constants) => constants.map(fn { c => c.to_string() }).join(", ")
+    Right(arr) =>
+      match arr {
+        Int8Array(i8arr) => i8arr.iter().map(fn { i => "i8 \{i}" }).join(", ")
+        Int16Array(i16arr) =>
+          i16arr.iter().map(fn { i => "i16 \{i}" }).join(", ")
+        Int32Array(i32arr) =>
+          i32arr.iter().map(fn { i => "i32 \{i}" }).join(", ")
+        Int64Array(i64arr) =>
+          i64arr.iter().map(fn { i => "i64 \{i}" }).join(", ")
+        UInt8Array(u8arr) => u8arr.iter().map(fn { i => "i8 \{i}" }).join(", ")
+        UInt16Array(u16arr) =>
+          u16arr.iter().map(fn { i => "i16 \{i}" }).join(", ")
+        UInt32Array(u32arr) =>
+          u32arr.iter().map(fn { i => "i32 \{i}" }).join(", ")
+        UInt64Array(u64arr) =>
+          u64arr.iter().map(fn { i => "i64 \{i}" }).join(", ")
+        FloatArray(farr) => {
+          fn to_str(f : Float) {
+            let nd = f.to_double()
+            let ud = nd.reinterpret_as_uint64()
+            let sd = ud.to_string(radix=16).to_upper()
+            "float 0x\{sd}"
+          }
+
+          farr.iter().map(to_str).join(", ")
+        }
+        DoubleArray(darr) => {
+          fn to_str(nd : Double) {
+            let ud = nd.reinterpret_as_uint64()
+            let sd = ud.to_string(radix=16).to_upper()
+            "double 0x\{sd}"
+          }
+
+          darr.iter().map(to_str).join(", ")
+        }
+      }
+  }
+  logger.write_string("\{self.getType()} [\{data_str}]")
 }

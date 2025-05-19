@@ -1,1 +1,7 @@
-{}
+{
+  "import" : [
+    "Kaida-Amethyst/Aether/int8",
+    "Kaida-Amethyst/Aether/uint8",
+    "Kaida-Amethyst/Aether/Either"
+  ]
+}
