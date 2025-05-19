@@ -1170,3 +1170,250 @@ pub fn LLVMContext::getConstDoubleArray(
     .unwrap()
   ConstantArray::newDoubleArray(ty, data)
 }
+
+// ---------------------------
+
+///| Create a constant vector with int8 type.
+///
+/// -  See LLVM: `ConstantDataVector::get`.
+///
+/// **Note**:
+///
+/// - Core does not support `int8` currently, hence the type
+/// of parameter `data` is `Array[Int]`.
+///
+/// ```moonbit
+/// test "LLVMContext::getConstInt8Vector" {
+///   let ctx = LLVMContext::new()
+///
+///   let data : Array[Int] = [42, 63, 77, 89]
+///   let arr = ctx.getConstInt8Vector(data)
+///   inspect!(arr, content="<4 x i8> <i8 42, i8 63, i8 77, i8 89>")
+/// }
+/// ```
+pub fn LLVMContext::getConstInt8Vector(
+  self : LLVMContext,
+  data : Array[Int]
+) -> ConstantVector {
+  let ty = self
+    .getFixedVectorType?(self.getInt8Ty(), data.length().reinterpret_as_uint())
+    .unwrap()
+  ConstantVector::newInt8Vector(ty, data)
+}
+
+///| Create a constant vector with int16 type.
+///
+/// -  See LLVM: `ConstantDataVector::get`.
+///
+/// ```moonbit
+/// test "LLVMContext::getConstInt16Vector" {
+///   let ctx = LLVMContext::new()
+///
+///   let data : Array[Int16] = [42, 63, 77, 89]
+///   let arr = ctx.getConstInt16Vector(data)
+///   inspect!(arr, content="<4 x i16> <i16 42, i16 63, i16 77, i16 89>")
+/// }
+/// ```
+pub fn LLVMContext::getConstInt16Vector(
+  self : LLVMContext,
+  data : Array[Int16]
+) -> ConstantVector {
+  let ty = self
+    .getFixedVectorType?(self.getInt16Ty(), data.length().reinterpret_as_uint())
+    .unwrap()
+  ConstantVector::newInt16Vector(ty, data)
+}
+
+///| Create a constant vector with int32 type.
+///
+/// -  See LLVM: `ConstantDataVector::get`.
+///
+/// ```moonbit
+/// test "LLVMContext::getConstInt32Vector" {
+///   let ctx = LLVMContext::new()
+///
+///   let data : Array[Int] = [42, 63, 77, 89]
+///   let arr = ctx.getConstInt32Vector(data)
+///   inspect!(arr, content="<4 x i32> <i32 42, i32 63, i32 77, i32 89>")
+/// }
+/// ```
+pub fn LLVMContext::getConstInt32Vector(
+  self : LLVMContext,
+  data : Array[Int]
+) -> ConstantVector {
+  let ty = self
+    .getFixedVectorType?(self.getInt32Ty(), data.length().reinterpret_as_uint())
+    .unwrap()
+  ConstantVector::newInt32Vector(ty, data)
+}
+
+///| Create a constant array with int32 type.
+///
+/// -  See LLVM: `ConstantDataVector::get`.
+///
+/// ```moonbit
+/// test "LLVMContext::getConstInt64Vector" {
+///   let ctx = LLVMContext::new()
+///
+///   let data : Array[Int64] = [42, 63, 77, 89]
+///   let arr = ctx.getConstInt64Vector(data)
+///   inspect!(arr, content="<4 x i64> <i64 42, i64 63, i64 77, i64 89>")
+/// }
+/// ```
+pub fn LLVMContext::getConstInt64Vector(
+  self : LLVMContext,
+  data : Array[Int64]
+) -> ConstantVector {
+  let ty = self
+    .getFixedVectorType?(self.getInt64Ty(), data.length().reinterpret_as_uint())
+    .unwrap()
+  ConstantVector::newInt64Vector(ty, data)
+}
+
+///| Create a constant array with uint8 type.
+///
+/// -  See LLVM: `ConstantDataVector::get`.
+///
+/// ```moonbit
+/// test "LLVMContext::getConstUInt8Vector" {
+///   let ctx = LLVMContext::new()
+///
+///   let data : Array[Byte] = [42, 63, 77, 89]
+///   let arr = ctx.getConstUInt8Vector(data)
+///   inspect!(arr, content="<4 x i8> <i8 42, i8 63, i8 77, i8 89>")
+/// }
+/// ```
+pub fn LLVMContext::getConstUInt8Vector(
+  self : LLVMContext,
+  data : Array[Byte]
+) -> ConstantVector {
+  let ty = self
+    .getFixedVectorType?(self.getInt8Ty(), data.length().reinterpret_as_uint())
+    .unwrap()
+  ConstantVector::newUInt8Vector(ty, data)
+}
+
+///| Create a constant array with uint16 type.
+///
+/// -  See LLVM: `ConstantDataVector::get`.
+///
+/// ```moonbit
+/// test "LLVMContext::getConstUInt16Vector" {
+///   let ctx = LLVMContext::new()
+///
+///   let data : Array[UInt16] = [42, 63, 77, 89]
+///   let arr = ctx.getConstUInt16Vector(data)
+///   inspect!(arr, content="<4 x i16> <i16 42, i16 63, i16 77, i16 89>")
+/// }
+/// ```
+pub fn LLVMContext::getConstUInt16Vector(
+  self : LLVMContext,
+  data : Array[UInt16]
+) -> ConstantVector {
+  let ty = self
+    .getFixedVectorType?(self.getInt16Ty(), data.length().reinterpret_as_uint())
+    .unwrap()
+  ConstantVector::newUInt16Vector(ty, data)
+}
+
+///| Create a constant array with uint32 type.
+///
+/// -  See LLVM: `ConstantDataVector::get`.
+///
+/// ```moonbit
+/// test "LLVMContext::getConstUInt32Vector" {
+///   let ctx = LLVMContext::new()
+///
+///   let data : Array[UInt] = [42, 63, 77, 89]
+///   let arr = ctx.getConstUInt32Vector(data)
+///   inspect!(arr, content="<4 x i32> <i32 42, i32 63, i32 77, i32 89>")
+/// }
+/// ```
+pub fn LLVMContext::getConstUInt32Vector(
+  self : LLVMContext,
+  data : Array[UInt]
+) -> ConstantVector {
+  let ty = self
+    .getFixedVectorType?(self.getInt32Ty(), data.length().reinterpret_as_uint())
+    .unwrap()
+  ConstantVector::newUInt32Vector(ty, data)
+}
+
+///| Create a constant array with uint64 type.
+///
+/// -  See LLVM: `ConstantDataVector::get`.
+///
+/// ```moonbit
+/// test "LLVMContext::getConstUInt64Vector" {
+///   let ctx = LLVMContext::new()
+///
+///   let data : Array[UInt64] = [42, 63, 77, 89]
+///   let arr = ctx.getConstUInt64Vector(data)
+///   inspect!(arr, content="<4 x i64> <i64 42, i64 63, i64 77, i64 89>")
+/// }
+/// ```
+pub fn LLVMContext::getConstUInt64Vector(
+  self : LLVMContext,
+  data : Array[UInt64]
+) -> ConstantVector {
+  let ty = self
+    .getFixedVectorType?(self.getInt64Ty(), data.length().reinterpret_as_uint())
+    .unwrap()
+  ConstantVector::newUInt64Vector(ty, data)
+}
+
+///| Create a constant array with float type.
+///
+/// -  See LLVM: `ConstantDataVector::get`.
+///
+/// ```moonbit
+/// test "LLVMContext::getConstFloatVector" {
+///   let ctx = LLVMContext::new()
+///
+///   let data : Array[Float] = [1.0, 2.0]
+///   let arr = ctx.getConstFloatVector(data)
+///   inspect!(
+///     arr,
+///     content="<2 x float> <float 0x3FF0000000000000, float 0x4000000000000000>"
+///   )
+/// }
+/// ```
+pub fn LLVMContext::getConstFloatVector(
+  self : LLVMContext,
+  data : Array[Float]
+) -> ConstantVector {
+  let ty = self
+    .getFixedVectorType?(self.getFloatTy(), data.length().reinterpret_as_uint())
+    .unwrap()
+  ConstantVector::newFloatVector(ty, data)
+}
+
+///| Create a constant array with double type.
+///
+/// -  See LLVM: `ConstantDataVector::get`.
+///
+/// ```moonbit
+/// test "LLVMContext::getConstDoubleVector" {
+///   let ctx = LLVMContext::new()
+///
+///   let data : Array[Double] = [1.0, 2.0]
+///   let arr = ctx.getConstDoubleVector(data)
+///
+///   inspect!(
+///     arr,
+///     content="<2 x double> <double 0x3FF0000000000000, double 0x4000000000000000>"
+///   )
+/// }
+/// ```
+pub fn LLVMContext::getConstDoubleVector(
+  self : LLVMContext,
+  data : Array[Double]
+) -> ConstantVector {
+  let ty = self
+    .getFixedVectorType?(
+      self.getDoubleTy(),
+      data.length().reinterpret_as_uint(),
+    )
+    .unwrap()
+  ConstantVector::newDoubleVector(ty, data)
+}

@@ -244,124 +244,124 @@ pub impl Floating for Double with to_float64(self) {
 // ====================================================
 
 ///|
-priv enum NumberEnum {
-  Int8(Int8)
-  Int16(Int16)
-  Int32(Int)
-  Int64(Int64)
-  UInt8(UInt8)
-  UInt16(UInt16)
-  UInt32(UInt)
-  UInt64(UInt64)
-  Float(Float)
-  Double(Double)
-}
-
-///|
-trait Number: Show {
-  asEnum(Self) -> NumberEnum
-  zero() -> Self
-}
-
-///|
-impl Number for Int8 with asEnum(self) {
-  Int8(self)
-}
-
-///|
-impl Number for Int8 with zero() {
-  0
-}
-
-///|
-impl Number for Int16 with asEnum(self) {
-  Int16(self)
-}
-
-///|
-impl Number for Int16 with zero() {
-  0
-}
-
-///|
-impl Number for Int with asEnum(self) {
-  Int32(self)
-}
-
-///|
-impl Number for Int with zero() {
-  0
-}
-
-///|
-impl Number for Int64 with asEnum(self) {
-  Int64(self)
-}
-
-///|
-impl Number for Int64 with zero() {
-  0
-}
-
-///|
-impl Number for UInt8 with asEnum(self) {
-  UInt8(self)
-}
-
-///|
-impl Number for UInt8 with zero() {
-  0
-}
-
-///|
-impl Number for UInt16 with asEnum(self) {
-  UInt16(self)
-}
-
-///|
-impl Number for UInt16 with zero() {
-  0
-}
-
-///|
-impl Number for UInt with asEnum(self) {
-  UInt32(self)
-}
-
-///|
-impl Number for UInt with zero() {
-  0
-}
-
-///|
-impl Number for UInt64 with asEnum(self) {
-  UInt64(self)
-}
-
-///|
-impl Number for UInt64 with zero() {
-  0
-}
-
-///|
-impl Number for Float with asEnum(self) {
-  Float(self)
-}
-
-///|
-impl Number for Float with zero() {
-  0
-}
-
-///|
-impl Number for Double with asEnum(self) {
-  Double(self)
-}
-
-///|
-impl Number for Double with zero() {
-  0
-}
+//priv enum NumberEnum {
+//  Int8(Int8)
+//  Int16(Int16)
+//  Int32(Int)
+//  Int64(Int64)
+//  UInt8(UInt8)
+//  UInt16(UInt16)
+//  UInt32(UInt)
+//  UInt64(UInt64)
+//  Float(Float)
+//  Double(Double)
+//}
+//
+/////|
+//trait Number: Show {
+//  asEnum(Self) -> NumberEnum
+//  zero() -> Self
+//}
+//
+/////|
+//impl Number for Int8 with asEnum(self) {
+//  Int8(self)
+//}
+//
+/////|
+//impl Number for Int8 with zero() {
+//  0
+//}
+//
+/////|
+//impl Number for Int16 with asEnum(self) {
+//  Int16(self)
+//}
+//
+/////|
+//impl Number for Int16 with zero() {
+//  0
+//}
+//
+/////|
+//impl Number for Int with asEnum(self) {
+//  Int32(self)
+//}
+//
+/////|
+//impl Number for Int with zero() {
+//  0
+//}
+//
+/////|
+//impl Number for Int64 with asEnum(self) {
+//  Int64(self)
+//}
+//
+/////|
+//impl Number for Int64 with zero() {
+//  0
+//}
+//
+/////|
+//impl Number for UInt8 with asEnum(self) {
+//  UInt8(self)
+//}
+//
+/////|
+//impl Number for UInt8 with zero() {
+//  0
+//}
+//
+/////|
+//impl Number for UInt16 with asEnum(self) {
+//  UInt16(self)
+//}
+//
+/////|
+//impl Number for UInt16 with zero() {
+//  0
+//}
+//
+/////|
+//impl Number for UInt with asEnum(self) {
+//  UInt32(self)
+//}
+//
+/////|
+//impl Number for UInt with zero() {
+//  0
+//}
+//
+/////|
+//impl Number for UInt64 with asEnum(self) {
+//  UInt64(self)
+//}
+//
+/////|
+//impl Number for UInt64 with zero() {
+//  0
+//}
+//
+/////|
+//impl Number for Float with asEnum(self) {
+//  Float(self)
+//}
+//
+/////|
+//impl Number for Float with zero() {
+//  0
+//}
+//
+/////|
+//impl Number for Double with asEnum(self) {
+//  Double(self)
+//}
+//
+/////|
+//impl Number for Double with zero() {
+//  0
+//}
 
 // ====================================================
 // NumberArray & NumberArrayEnum

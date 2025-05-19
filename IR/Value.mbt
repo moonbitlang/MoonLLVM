@@ -18,13 +18,12 @@ pub enum ValueEnum {
   ConstantBool(ConstantBool)
   ConstantUInt(ConstantUInt)
   ConstantFP(ConstantFP)
-  //ConstantAggregateZero(ConstantAggregateZero)
   ConstantPointerNull(ConstantPointerNull)
+  //ConstantAggregateZero(ConstantAggregateZero)
   //ConstantAggregate(ConstantAggregate)
   ConstantArray(ConstantArray)
+  ConstantVector(ConstantVector)
   //ConstantStruct(ConstantStruct)
-  //ConstantVector(ConstantVector)
-  //ConstantDataVector(ConstantDataVector)
   //ConstantTokenNone(ConstantTokenNone)
   //UndefValue(UndefValue)
   //PoisonValue(PoisonValue)
@@ -181,6 +180,7 @@ pub enum ConstantEnum {
   ConstantFP(ConstantFP)
   ConstantPointerNull(ConstantPointerNull)
   ConstantArray(ConstantArray)
+  ConstantVector(ConstantVector)
 } derive(Eq)
 
 ///|
