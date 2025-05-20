@@ -2,7 +2,28 @@
 // Argument
 // ====================================================================
 
-///|
+///| Argument of a function.
+///
+/// - See `llvm::Argument`.
+///
+/// ```moonbit
+/// test "Argument" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.newProgram("demo")
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
+///
+///   let f = prog.addFunction!(fty, "add")
+///
+///   let arg0 = f.getArg(0).unwrap()
+///   let arg1 = f.getArg(1).unwrap()
+///
+///   inspect!(arg0, content="i32 %0")
+///   inspect!(arg1.getType(), content="i32")
+///   assert_true!(f.getArg(2) is None)
+/// }
+/// ```
 pub struct Argument {
   base : ValueBase
   parent : Function
@@ -16,30 +37,97 @@ fn Argument::new(vty : &Type, argNo : UInt, parent : Function) -> Argument {
 }
 
 ///|
-pub fn Argument::setName(self : Argument, name : String) -> Unit!LLVMValueError {
-  let symbols = self.parent.symbols
-  guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
-  self.parent.argNames.set(self.argNo, name)
+pub fn Argument::getName(self : Argument) -> String? {
+  self.parent.argNames.get(self.argNo)
 }
 
-///|
-pub fn Argument::addAttribute(self : Argument, attr : ArgAttr) -> Unit {
-  let attrSet = self.parent.attrSet.argAttrs.get(self.argNo).unwrap()
+///| Set name for the argument.
+///
+/// - See `llvm::Argument::setName`.
+///
+/// ```moonbit
+/// test "Argument::setName" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.newProgram("demo")
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
+///
+///   let f = prog.addFunction!(fty, "add")
+///
+///   let arg0 = f.getArg(0).unwrap()
+///   let arg1 = f.getArg(1).unwrap()
+///
+///   assert_true!(f.getArg(2) is None)
+///   inspect!(arg0, content="i32 %0")
+///   inspect!(arg1.getType(), content="i32")
+///
+///   arg0.setName!("lhs")
+///   arg1.setName!("rhs")
+///   inspect!(arg0, content="i32 %lhs")
+///   inspect!(arg1, content="i32 %rhs")
+///
+///   assert_true!(arg1.setName?("lhs") is Err(_))
+/// }
+/// ```
+pub fn Argument::setName(self : Argument, name : String) -> Unit!LLVMValueError {
+  guard self.getName() != Some(name) else { return }
+  let symbols = self.parent.symbols
+  let argNames = self.parent.argNames
+  guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
+  argNames.set(self.argNo, name)
+  symbols.set(name, self)
+}
+
+///| Assign an attribute to the argument.
+///
+/// - See `llvm::Argument::addAttribute`.
+///
+/// ```moonbit`
+/// test "Argument::addAttribute" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.newProgram("demo")
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
+///
+///   let fval = prog.addFunction!(fty, "add")
+///
+///   let arg0 = f.getArg(0).unwrap()
+///   let arg1 = f.getArg(1).unwrap()
+///
+///   arg0.addAttr!(NoAlias)
+///   inspect!(fval, content="declare i32 @add(i32 noalias, i32)")
+///
+///   arg1.addAttr!(NonNull)
+///   inspect!(fval, content="declare i32 @add(i32 noalias, i32 nonnull)")
+/// }
+/// ```
+pub fn Argument::addAttr(self : Argument, attr : ArgAttr) -> Unit {
+  let argAttrs = self.parent.attrSet.argAttrs
+  let attrSet = match argAttrs.get(self.argNo) {
+    Some(attrSet) => attrSet
+    None => {
+      let attrSet = @hashset.new()
+      argAttrs.set(self.argNo, attrSet)
+      attrSet
+    }
+  }
   attrSet.add(attr)
 }
 
 ///|
-impl Value for Argument with base(self) {
+pub impl Value for Argument with base(self) {
   self.base
 }
 
 ///|
-impl Value for Argument with asValueEnum(self) {
+pub impl Value for Argument with asValueEnum(self) {
   Argument(self)
 }
 
 ///|
-impl Show for Argument with output(self, logger) {
+pub impl Show for Argument with output(self, logger) {
   let ty = self.getType()
   let str = match self.parent.argNames.get(self.argNo) {
     Some(name) => "\{ty} %\{name}"
@@ -52,7 +140,7 @@ impl Show for Argument with output(self, logger) {
 // Function
 // ====================================================================
 
-///|
+///| Function of a program.
 pub struct Function {
   base : ValueBase
   program : Program
@@ -114,6 +202,11 @@ pub fn Function::getFunctionType(self : Function) -> FunctionType {
 }
 
 ///|
+pub fn Function::addAttr(self : Function, attr : FnAttr) -> Unit {
+  self.attrSet.fnAttrs.add(attr)
+}
+
+///|
 pub fn Function::getReturnType(self : Function) -> &Type {
   guard self.base.vty.asTypeEnum() is FunctionType(fty)
   fty.getReturnType()
@@ -155,17 +248,31 @@ pub impl Show for Function with output(self, logger) {
   let ret_attrs = self.attrSet.retAttrs
   let ret_attrs_str = ret_attrs.iter().map(fn(a) { "\{a}" }).join(" ")
   let arg_strs = self.arguments.map(fn(arg) {
-    let arg_attrs = self.attrSet.argAttrs.get(arg.argNo).unwrap()
-    let arg_attrs_str = arg_attrs.iter().map(fn(a) { "\{a}" }).join(" ")
+    let arg_attrs = match self.attrSet.argAttrs.get(arg.argNo) {
+      Some(attrs) => attrs.iter().collect()
+      None => []
+    }
+    let arg_attrs_str = arg_attrs.map(fn(a) { "\{a}" }).join(" ")
     let ty = arg.getType()
-    "\{ty} \{arg_attrs_str}"
+    if not(arg_attrs_str.is_empty()) {
+      "\{ty} \{arg_attrs_str}"
+    } else {
+      "\{ty}"
+    }
   })
+  if not(fn_attrs_str.is_empty()) {
+    logger.write_string("; Function Attrs: \{fn_attrs_str}\n")
+  }
   let arg_str = arg_strs.join(", ")
   let ret_ty = self.getReturnType()
-  logger.write_string("; Function Attrs: \{fn_attrs_str}\n")
-  logger.write_string(
-    "declare \{self.linkage} \{ret_attrs_str} \{ret_ty} @\{self.name}(\{arg_str}) #\{self.index}\n",
-  )
+  let linkage_str = self.linkage.to_string()
+  let func_info = "declare " +
+    (if not(linkage_str.is_empty()) { linkage_str + " " } else { "" }) +
+    (if not(ret_attrs_str.is_empty()) { ret_attrs_str + " " } else { "" }) +
+    ret_ty.to_string() +
+    " @\{self.name}(\{arg_str})" +
+    (if not(fn_attrs_str.is_empty()) { " #\{self.index}" } else { "" })
+  logger.write_string(func_info)
 }
 
 ///|

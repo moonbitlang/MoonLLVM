@@ -79,9 +79,13 @@ pub impl Hash for LLVMContext with hash_combine(self, hasher) {
 }
 
 ///|
-pub fn LLVMContext::newProgram(self : LLVMContext, programID : String) -> Unit {
+pub fn LLVMContext::newProgram(
+  self : LLVMContext,
+  programID : String
+) -> Program {
   let prog = Program::new(programID, self)
   self.pimpl.unwrap().ownedPrograms.push(prog)
+  prog
 }
 
 ///| Get the half type from context.
