@@ -12,6 +12,7 @@ type! LLVMTypeError {
 } derive(Show)
 
 ///|
-//type! LLVMValueError {
-//DuplicateValueName(String)
-//} derive(Show)
+type! LLVMValueError {
+  DuplicateFunctionName(String)
+  DuplicateArgumentName(String)
+} derive(Show)

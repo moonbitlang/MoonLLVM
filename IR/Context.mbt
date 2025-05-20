@@ -12,7 +12,7 @@ pub struct LLVMContext {
 struct LLVMContextImpl {
   /// OwnedModules - The set of modules instantiated in this context, and which
   /// will be automatically deleted if this context is deleted.
-  //ownedModules: Array[Module]
+  ownedPrograms : Array[Program]
 
   // Types
   half_ty : HalfType
@@ -45,6 +45,7 @@ pub fn LLVMContext::new() -> LLVMContext {
   )
   // Initialize the LLVMContextImpl.
   let pimpl = LLVMContextImpl::{
+    ownedPrograms: Array::new(),
     half_ty: HalfType::new(ctx),
     bfloat_ty: BFloatType::new(ctx),
     float_ty: FloatType::new(ctx),
@@ -75,6 +76,12 @@ pub impl Eq for LLVMContext with op_equal(self, other) {
 ///|
 pub impl Hash for LLVMContext with hash_combine(self, hasher) {
   hasher.combine_uint(self.key)
+}
+
+///|
+pub fn LLVMContext::newProgram(self : LLVMContext, programID : String) -> Unit {
+  let prog = Program::new(programID, self)
+  self.pimpl.unwrap().ownedPrograms.push(prog)
 }
 
 ///| Get the half type from context.

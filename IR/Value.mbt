@@ -1,9 +1,13 @@
+// =======================================================
+// Value
+// =======================================================
+
 ///|
 pub enum ValueEnum {
 
   // ======= Constant Values =======
   /// The following two is global values.
-  //Function(Function)
+  Function(Function)
   //GlobalIFunc(GlobalIFunc)
 
   /// Base class for constants with no operands.
@@ -62,7 +66,7 @@ pub enum ValueEnum {
   //AtomicRMWInst(AtomicRMWInst)
   //
   // =========
-  // Argument(Argument)
+  Argument(Argument)
   // BasicBlock(BasicBlock)
   // InlineAsm(InlineAsm)
   // MetadataAsValue(MetadataAsValue)
@@ -78,10 +82,6 @@ pub trait Value: Show + Hash {
 
   // All values hold a context through their type.
   getContext(Self) -> LLVMContext = _
-
-  /// All values can potentially be named.
-  /// use `getName() is None` to check if a value has no name.
-  getName(Self) -> String? = _
 
   /// Change the name of the value.
   ///
@@ -126,10 +126,6 @@ impl Value with getContext(self) {
   self.base().vty.getContext()
 }
 
-///|
-impl Value with getName(self) {
-  self.base().name
-}
 //impl Value with setName(_, name: String) {
 //  raise DuplicateValueName(name)
 //}
@@ -163,7 +159,6 @@ impl Value with user_empty(self) {
 /// uses of %1 : []
 struct ValueBase {
   vty : &Type
-  name : String?
   users : Array[&Value]
 } derive(Eq, Hash)
 
@@ -171,6 +166,10 @@ struct ValueBase {
 //  asUserEnum(Self) -> UserEnum
 //  getOperands(Self) -> Array[&Value]
 //}
+
+// =======================================================
+// Constant
+// =======================================================
 
 ///|
 pub enum ConstantEnum {
@@ -191,4 +190,70 @@ trait Constant: Value {
 ///|
 impl Eq for &Constant with op_equal(self, other) {
   self.asConstantEnum() == other.asConstantEnum()
+}
+
+// =======================================================
+// GlobalValue
+// =======================================================
+
+///|
+pub(all) enum LinkageTypes {
+  /// Externally visible function
+  ExternalLinkage
+  /// Available for inspection, not emission.
+  AvailableExternallyLinkage
+  /// Keep one copy of function when linking (inline)
+  LinkOnceAnyLinkage
+  /// Keep one copy of function when linking,\
+  /// but only replaced by something equivalent.
+  LinkOnceODRLinkage
+  /// Keep one copy of named function when linking (weak)
+  WeakAnyLinkage
+  /// Keep one copy of named function when linkin,
+  /// but only replaced by something equivalent.
+  WeakODRLinkage
+  /// Special purpose, only applies to global arrays
+  AppendingLinkage
+  /// Rename collisions when linking (static functions).
+  InternalLinkage
+  /// Like Internal, but omit from symbol table.
+  PrivateLinkage
+  /// ExternalWeak linkage description.
+  ExternalWeakLinkage
+  /// Tentative definitions.
+  CommonLinkage
+}
+
+///|
+pub impl Show for LinkageTypes with output(self, logger) {
+  let s = match self {
+    ExternalLinkage => ""
+    AvailableExternallyLinkage => "available_externally"
+    LinkOnceODRLinkage => "linkonce_odr"
+    LinkOnceAnyLinkage => "linkonce"
+    WeakAnyLinkage => "weak"
+    WeakODRLinkage => "weak_odr"
+    AppendingLinkage => "appending"
+    InternalLinkage => "internal"
+    PrivateLinkage => "private"
+    ExternalWeakLinkage => "external_weak"
+    CommonLinkage => "common"
+  }
+  logger.write_string(s)
+}
+
+///|
+pub(all) enum VisibilityTypes {
+  DefaultVisibility
+  HiddenVisibility
+  ProtectedVisibility
+}
+
+///|
+pub(all) enum DLLStorageClassTypes {
+  DefaultDLLStorageClass
+  /// Function to be imported from DLL.
+  DLLImportStorageClass
+  /// Function to be accessoble from DLL.
+  DLLExportStorageClass
 }

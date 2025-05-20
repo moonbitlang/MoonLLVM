@@ -29,5 +29,11 @@ test "Init Type" {
   // We follow the design of LLVM20, also unsupport typed pointer
   let ptrty = ctx.getPtrTy()
   inspect!(ptrty, content="ptr")
+
+  // Struct Type
+  // Notice that this may raise error, because some type cannot be one of element type of
+  // struction, for example, FunctionType.(You can only store function pointer to it).
+  let struct_type = ctx.getStructType!([i16ty, i32ty, i64ty], name = "foo")
+  inspect!(struct_type, content="%foo = type { i16, i32, i64 }")
 }
 ```
