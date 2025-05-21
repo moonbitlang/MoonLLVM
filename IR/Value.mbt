@@ -36,12 +36,12 @@ pub enum ValueEnum {
 
   // ======= Instruction Values =======
   // ------- Unary Instruction
-  // AllocaInst(AllocaInst)
-  // LoadInst(LoadInst)
+  AllocaInst(AllocaInst)
+  //LoadInst(LoadInst)
   // VAArgInst(VAArgInst)
   // ExtractValueInst(ExtractValueInst)
   // FreezeInst(FreezeInst)
-  // CastInst(CastInst)
+  //CastInst(CastInst)
   //BinaryInstruction(BinaryInstruction)
   //CmpInst(CompareInst)
   //StoreInst(StoreInst)
@@ -162,10 +162,90 @@ struct ValueBase {
   users : Array[&Value]
 } derive(Eq, Hash)
 
-//trait User: Value {
-//  asUserEnum(Self) -> UserEnum
-//  getOperands(Self) -> Array[&Value]
+// =======================================================
+// User
+// =======================================================
+
+pub struct UserBase {
+  name: String?
+  operands: Array[&Value]
+} derive(Hash)
+
+trait User: Value {
+  asUserEnum(Self) -> UserEnum
+  getUserBase(Self) -> UserBase
+  getName(Self) -> String? = _
+  getOperands(Self) -> Array[&Value] = _
+}
+
+impl User with getName(self) {
+  self.getUserBase().name
+}
+
+impl User with getOperands(self) {
+  self.getUserBase().operands
+}
+
+pub enum UserEnum {
+  //Instruction(Instruction)
+  AllocaInst(AllocaInst)
+  //LoadInst(LoadInst)
+  //VAArgInst(VAArgInst)
+  //ExtractValueInst(ExtractValueInst)
+  //FreezeInst(FreezeInst)
+  //CastInst(CastInst)
+}
+
+// =======================================================
+// Instruction
+// =======================================================
+
+pub struct InstBase {
+  name: String?
+  parent: Function
+  //bb: BasicBlock
+  next: &Instruction?
+  prev: &Instruction?
+} derive(Hash)
+
+trait Instruction: User {
+  getInstBase(Self) -> InstBase
+  asInstEnum(Self) -> InstEnum
+  //next(Self) -> &Instruction? = _
+  //prev(Self) -> &Instruction? = _
+  // insertBefore(self, pos: &Instruction) -> Unit!LLVMValueError = _
+  // insertAfter(self, pos: &Instruction) -> Unit!LLVMValueError = _
+}
+
+//impl Instruction with next(self) {
+//  self.getInstBase().next
 //}
+//
+//impl Instruction with prev(self) {
+//  self.getInstBase().prev
+//}
+
+pub enum InstEnum {
+  AllocaInst(AllocaInst)
+}
+
+// =======================================================
+// UnaryInst
+// =======================================================
+
+trait UnaryInst: Instruction {
+  asUnaryInstEnum(Self) -> UnaryInstEnum
+}
+
+pub enum UnaryInstEnum {
+  AllocaInst(AllocaInst)
+  //LoadInst(LoadInst)
+  //VAArgInst(VAArgInst)
+  //ExtractValueInst(ExtractValueInst)
+  //FreezeInst(FreezeInst)
+  //CastInst(CastInst)
+}
+
 
 // =======================================================
 // Constant

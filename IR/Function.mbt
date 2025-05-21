@@ -28,17 +28,18 @@ pub struct Argument {
   base : ValueBase
   parent : Function
   argNo : UInt
+  mut name: String?
 } derive(Hash)
 
 ///|
 fn Argument::new(vty : &Type, argNo : UInt, parent : Function) -> Argument {
   let base = ValueBase::{ vty, users: [] }
-  Argument::{ base, parent, argNo }
+  Argument::{ base, parent, argNo, name: None }
 }
 
 ///|
 pub fn Argument::getName(self : Argument) -> String? {
-  self.parent.argNames.get(self.argNo)
+  self.name
 }
 
 ///| Set name for the argument.
@@ -73,9 +74,8 @@ pub fn Argument::getName(self : Argument) -> String? {
 pub fn Argument::setName(self : Argument, name : String) -> Unit!LLVMValueError {
   guard self.getName() != Some(name) else { return }
   let symbols = self.parent.symbols
-  let argNames = self.parent.argNames
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
-  argNames.set(self.argNo, name)
+  self.name = Some(name)
   symbols.set(name, self)
 }
 
@@ -129,7 +129,7 @@ pub impl Value for Argument with asValueEnum(self) {
 ///|
 pub impl Show for Argument with output(self, logger) {
   let ty = self.getType()
-  let str = match self.parent.argNames.get(self.argNo) {
+  let str = match self.name {
     Some(name) => "\{ty} %\{name}"
     None => "\{ty} %\{self.argNo}"
   }
@@ -149,7 +149,6 @@ pub struct Function {
   linkage : LinkageTypes
   name : String
   addressSpace : AddressSpace
-  argNames : Map[UInt, String]
   arguments : Array[Argument]
   symbols : Map[String, &Value]
   attrSet : AttributeSet
@@ -179,7 +178,6 @@ fn Function::new(
     linkage,
     name,
     addressSpace,
-    argNames: Map::new(),
     arguments: Array::new(),
     symbols: Map::new(),
     attrSet: AttributeSet::new(),
@@ -210,11 +208,6 @@ pub fn Function::addAttr(self : Function, attr : FnAttr) -> Unit {
 pub fn Function::getReturnType(self : Function) -> &Type {
   guard self.base.vty.asTypeEnum() is FunctionType(fty)
   fty.getReturnType()
-}
-
-///|
-pub fn Function::getContext(self : Function) -> LLVMContext {
-  self.program.getContext()
 }
 
 ///|
