@@ -1,0 +1,58 @@
+///|
+pub struct BasicBlock {
+  base : ValueBase
+  parent : Function
+  name : String?
+  head : &Instruction?
+  id : Int
+}
+
+///|
+fn BasicBlock::new(
+  parent : Function,
+  name~ : String? = None,
+  before~ : BasicBlock? = None
+) -> BasicBlock {
+  let base = ValueBase::{ vty: parent.getContext().getLabelTy(), users: [] }
+  let bb = BasicBlock::{
+    base,
+    parent,
+    name,
+    head: None,
+    id: parent.getNumBasicBlocks(),
+  }
+  parent.addBasicBlock(bb, before~)
+  bb
+}
+
+///|
+pub fn BasicBlock::lastInst(self : BasicBlock) -> &Instruction? {
+  if self.head is None {
+    return None
+  }
+  let head = self.head.unwrap()
+  loop head.next() {
+    Some(n) => continue n.next()
+    None => break Some(head)
+  }
+}
+
+///|
+pub impl Value for BasicBlock with getValueBase(self) {
+  self.base
+}
+
+///|
+pub impl Value for BasicBlock with asValueEnum(self) {
+  BasicBlock(self)
+}
+
+///|
+pub impl Eq for BasicBlock with op_equal(self, other) {
+  self.parent == other.parent && self.id == other.id
+}
+
+///|
+pub impl Show for BasicBlock with output(_, logger) {
+  logger.write_string("BasicBlock")
+}

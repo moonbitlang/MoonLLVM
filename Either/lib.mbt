@@ -2,7 +2,7 @@
 pub(all) enum Either[L, R] {
   Left(L)
   Right(R)
-} derive(Hash, Show, Eq, Compare)
+} derive(Eq)
 
 ///|
 pub fn Either::is_left[L, R](self : Either[L, R]) -> Bool {

@@ -67,7 +67,7 @@ pub enum ValueEnum {
   //
   // =========
   Argument(Argument)
-  // BasicBlock(BasicBlock)
+  BasicBlock(BasicBlock)
   // InlineAsm(InlineAsm)
   // MetadataAsValue(MetadataAsValue)
 }
@@ -166,11 +166,13 @@ struct ValueBase {
 // User
 // =======================================================
 
+///|
 pub struct UserBase {
-  name: String?
-  operands: Array[&Value]
+  name : String?
+  operands : Array[&Value]
 }
 
+///|
 pub trait User: Value {
   asUserEnum(Self) -> UserEnum
   getUserBase(Self) -> UserBase
@@ -178,14 +180,17 @@ pub trait User: Value {
   getOperands(Self) -> Array[&Value] = _
 }
 
+///|
 impl User with getName(self) {
   self.getUserBase().name
 }
 
+///|
 impl User with getOperands(self) {
   self.getUserBase().operands
 }
 
+///|
 pub enum UserEnum {
   //Instruction(Instruction)
   AllocaInst(AllocaInst)
@@ -200,31 +205,48 @@ pub enum UserEnum {
 // Instruction
 // =======================================================
 
+///|
 pub struct InstBase {
-  name: String?
-  parent: Function
-  //bb: BasicBlock
-  next: &Instruction?
-  prev: &Instruction?
+  name : String?
+  parent : Function
+  bb : BasicBlock
+  next : &Instruction?
+  prev : &Instruction?
 }
 
+///|
 pub trait Instruction: User {
   getInstBase(Self) -> InstBase
   asInstEnum(Self) -> InstEnum
-  //next(Self) -> &Instruction? = _
-  //prev(Self) -> &Instruction? = _
+  getParent(Self) -> Function = _
+  getBasicBlock(Self) -> BasicBlock = _
+  next(Self) -> &Instruction? = _
+  prev(Self) -> &Instruction? = _
   // insertBefore(self, pos: &Instruction) -> Unit!LLVMValueError = _
   // insertAfter(self, pos: &Instruction) -> Unit!LLVMValueError = _
 }
 
-//impl Instruction with next(self) {
-//  self.getInstBase().next
-//}
-//
-//impl Instruction with prev(self) {
-//  self.getInstBase().prev
-//}
+///|
+impl Instruction with getParent(self) {
+  self.getInstBase().parent
+}
 
+///|
+impl Instruction with getBasicBlock(self) {
+  self.getInstBase().bb
+}
+
+///|
+impl Instruction with next(self) {
+  self.getInstBase().next
+}
+
+///|
+impl Instruction with prev(self) {
+  self.getInstBase().prev
+}
+
+///|
 pub enum InstEnum {
   AllocaInst(AllocaInst)
 }
@@ -233,10 +255,12 @@ pub enum InstEnum {
 // UnaryInst
 // =======================================================
 
+///|
 pub trait UnaryInst: Instruction {
   asUnaryInstEnum(Self) -> UnaryInstEnum
 }
 
+///|
 pub enum UnaryInstEnum {
   AllocaInst(AllocaInst)
   //LoadInst(LoadInst)
@@ -245,7 +269,6 @@ pub enum UnaryInstEnum {
   //FreezeInst(FreezeInst)
   //CastInst(CastInst)
 }
-
 
 // =======================================================
 // Constant
@@ -276,29 +299,34 @@ impl Eq for &Constant with op_equal(self, other) {
 // GlobalValue
 // =======================================================
 
-pub trait GlobalValue : Value {
+///|
+pub trait GlobalValue: Value {
   getGlobalValueBase(Self) -> GlobalValueBase
   asGlobalValueEnum(Self) -> GlobalValueEnum
   getLinkage(Self) -> LinkageTypes = _
-  setLinkage(Self, linkage: LinkageTypes) -> Unit = _
+  setLinkage(Self, linkage : LinkageTypes) -> Unit = _
 }
 
+///|
 impl GlobalValue with getLinkage(self) {
   self.getGlobalValueBase().linkage
 }
 
-impl GlobalValue with setLinkage(self, linkage: LinkageTypes) {
+///|
+impl GlobalValue with setLinkage(self, linkage : LinkageTypes) {
   self.getGlobalValueBase().linkage = linkage
 }
 
+///|
 struct GlobalValueBase {
-  mut linkage: LinkageTypes
+  mut linkage : LinkageTypes
   //visibility: VisibilityTypes
   //unnamed_addr: UnnamedAddr
   //dllStorageClass: DLLStorageClassTypes
   //threadLoacal: ThreadLocalTypes
 }
 
+///|
 pub enum GlobalValueEnum {
   Function(Function)
   //GlobalIFunc(GlobalIFunc)

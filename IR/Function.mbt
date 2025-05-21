@@ -28,7 +28,7 @@ pub struct Argument {
   base : ValueBase
   parent : Function
   argNo : UInt
-  mut name: String?
+  mut name : String?
 }
 
 ///|
@@ -147,7 +147,7 @@ pub impl Show for Argument with output(self, logger) {
 /// - `Function` can be `&Value`, `GlobalValue`
 pub struct Function {
   base : ValueBase
-  gv_base: GlobalValueBase
+  gv_base : GlobalValueBase
   program : Program
   /// index of the function in the program
   index : UInt
@@ -156,6 +156,7 @@ pub struct Function {
   arguments : Array[Argument]
   symbols : Map[String, &Value]
   attrSet : AttributeSet
+  basicBlocks : Array[BasicBlock]
 
   // hasLazyArguments: Bool
   // hasPrefixData: Bool
@@ -186,6 +187,7 @@ fn Function::new(
     arguments: Array::new(),
     symbols: Map::new(),
     attrSet: AttributeSet::new(),
+    basicBlocks: Array::new(),
   }
   fty
   .params()
@@ -221,8 +223,43 @@ pub fn Function::getNumArgs(self : Function) -> Int {
 }
 
 ///|
+pub fn Function::getNumBasicBlocks(self : Function) -> Int {
+  self.basicBlocks.length()
+}
+
+///|
+pub fn Function::addBasicBlock(
+  self : Function,
+  bb : BasicBlock,
+  before~ : BasicBlock? = None
+) -> Unit {
+  match before {
+    None => self.basicBlocks.push(bb)
+    Some(before) => {
+      let idx = match self.basicBlocks.search(before) {
+        Some(idx) => idx
+        None => {
+          println(
+            #|Serious error: loc: Function::addBasicBlock.
+            #|the `before` block's parent is not the same as the function's parent
+            ,
+          )
+          panic()
+        }
+      }
+      self.basicBlocks.insert(idx, bb)
+    }
+  }
+}
+
+///|
 pub fn Function::getArg(self : Function, idx : Int) -> Argument? {
   @option.when(idx >= 0 && idx < self.getNumArgs(), fn() { self.arguments[idx] })
+}
+
+///|
+pub impl Eq for Function with op_equal(self, other) {
+  self.index == other.index
 }
 
 ///|
@@ -235,10 +272,12 @@ pub impl Value for Function with asValueEnum(self) {
   Function(self)
 }
 
+///|
 pub impl GlobalValue for Function with getGlobalValueBase(self) {
   self.gv_base
 }
 
+///|
 pub impl GlobalValue for Function with asGlobalValueEnum(self) {
   Function(self)
 }

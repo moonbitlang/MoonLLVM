@@ -11,6 +11,11 @@ test "Function" {
   let fval = prog.addFunction!(fty, "add")
   inspect!(fval, content="declare i32 @add(i32, i32)")
 
+  // Set linkage
+  fval.setLinkage(PrivateLinkage)
+  inspect!(fval, content="declare private i32 @add(i32, i32)")
+  fval.setLinkage(ExternalLinkage)
+
   // add attribute `alwaysinline`.
   fval.addAttr(AlwaysInline)
   inspect!(
