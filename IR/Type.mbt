@@ -50,7 +50,7 @@ pub fn TypeEnum::asTypeClass(self : TypeEnum) -> &Type {
 
 ///|
 pub trait Type: Show + Hash {
-  base(Self) -> TypeBase
+  getTypeBase(Self) -> TypeBase
   asTypeEnum(Self) -> TypeEnum
   getContext(Self) -> LLVMContext = _
   //print(Self, logger: &Logger, isForDebug~ = false, noDetails~ = false)
@@ -155,7 +155,7 @@ impl Eq for &Type with op_equal(self, other) {
 
 ///|
 impl Type with getContext(self) -> LLVMContext {
-  self.base().context
+  self.getTypeBase().context
 }
 
 ///|
@@ -409,7 +409,7 @@ pub impl Type for HalfType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for HalfType with base(self) -> TypeBase {
+pub impl Type for HalfType with getTypeBase(self) -> TypeBase {
   self.base
 }
 
@@ -443,7 +443,7 @@ pub impl Type for BFloatType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for BFloatType with base(self) -> TypeBase {
+pub impl Type for BFloatType with getTypeBase(self) -> TypeBase {
   self.base
 }
 
@@ -478,7 +478,7 @@ pub impl Type for FloatType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for FloatType with base(self) -> TypeBase {
+pub impl Type for FloatType with getTypeBase(self) -> TypeBase {
   self.base
 }
 
@@ -513,7 +513,7 @@ pub impl Type for DoubleType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for DoubleType with base(self) -> TypeBase {
+pub impl Type for DoubleType with getTypeBase(self) -> TypeBase {
   self.base
 }
 
@@ -548,7 +548,7 @@ pub impl Type for FP128Type with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for FP128Type with base(self) -> TypeBase {
+pub impl Type for FP128Type with getTypeBase(self) -> TypeBase {
   self.base
 }
 
@@ -679,7 +679,7 @@ pub impl Type for Int1Type with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for Int1Type with base(self) -> TypeBase {
+pub impl Type for Int1Type with getTypeBase(self) -> TypeBase {
   self.base
 }
 
@@ -729,7 +729,7 @@ pub impl Type for Int8Type with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for Int8Type with base(self) -> TypeBase {
+pub impl Type for Int8Type with getTypeBase(self) -> TypeBase {
   self.base
 }
 
@@ -779,7 +779,7 @@ pub impl Type for Int16Type with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for Int16Type with base(self) -> TypeBase {
+pub impl Type for Int16Type with getTypeBase(self) -> TypeBase {
   self.base
 }
 
@@ -829,7 +829,7 @@ pub impl Type for Int32Type with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for Int32Type with base(self) -> TypeBase {
+pub impl Type for Int32Type with getTypeBase(self) -> TypeBase {
   self.base
 }
 
@@ -874,7 +874,7 @@ pub impl Type for Int64Type with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for Int64Type with base(self) -> TypeBase {
+pub impl Type for Int64Type with getTypeBase(self) -> TypeBase {
   self.base
 }
 
@@ -913,7 +913,7 @@ pub impl Show for VoidType with output(_, logger : &Logger) {
 }
 
 ///|
-pub impl Type for VoidType with base(self) -> TypeBase {
+pub impl Type for VoidType with getTypeBase(self) -> TypeBase {
   self.base
 }
 
@@ -957,7 +957,7 @@ pub impl Type for LabelType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for LabelType with base(self) -> TypeBase {
+pub impl Type for LabelType with getTypeBase(self) -> TypeBase {
   self.base
 }
 
@@ -997,7 +997,7 @@ pub impl Type for MetadataType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for MetadataType with base(self) -> TypeBase {
+pub impl Type for MetadataType with getTypeBase(self) -> TypeBase {
   self.base
 }
 
@@ -1036,7 +1036,7 @@ pub impl Type for TokenType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for TokenType with base(self) -> TypeBase {
+pub impl Type for TokenType with getTypeBase(self) -> TypeBase {
   self.base
 }
 
@@ -1151,7 +1151,7 @@ impl Type for FunctionType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-impl Type for FunctionType with base(self) -> TypeBase {
+impl Type for FunctionType with getTypeBase(self) -> TypeBase {
   self.base
 }
 
@@ -1424,7 +1424,7 @@ pub impl Type for StructType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for StructType with base(self) -> TypeBase {
+pub impl Type for StructType with getTypeBase(self) -> TypeBase {
   self.base
 }
 
@@ -1498,7 +1498,7 @@ impl Type for ArrayType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-impl Type for ArrayType with base(self) -> TypeBase {
+impl Type for ArrayType with getTypeBase(self) -> TypeBase {
   self.base
 }
 
@@ -1572,7 +1572,7 @@ pub impl Type for FixedVectorType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for FixedVectorType with base(self) -> TypeBase {
+pub impl Type for FixedVectorType with getTypeBase(self) -> TypeBase {
   self.base
 }
 
@@ -1648,7 +1648,7 @@ pub impl Type for ScalableVectorType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for ScalableVectorType with base(self) -> TypeBase {
+pub impl Type for ScalableVectorType with getTypeBase(self) -> TypeBase {
   self.base
 }
 
@@ -1734,6 +1734,6 @@ pub impl Type for PointerType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for PointerType with base(self) -> TypeBase {
+pub impl Type for PointerType with getTypeBase(self) -> TypeBase {
   self.base
 }
