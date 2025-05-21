@@ -141,12 +141,16 @@ pub impl Show for Argument with output(self, logger) {
 // ====================================================================
 
 ///| Function of a program.
+///
+/// **Developer Note**:
+///
+/// - `Function` can be `&Value`, `GlobalValue`
 pub struct Function {
   base : ValueBase
+  gv_base: GlobalValueBase
   program : Program
   /// index of the function in the program
   index : UInt
-  linkage : LinkageTypes
   name : String
   addressSpace : AddressSpace
   arguments : Array[Argument]
@@ -171,11 +175,12 @@ fn Function::new(
   program : Program
 ) -> Function {
   let base = ValueBase::{ vty: fty, users: [] }
+  let gv_base = GlobalValueBase::{ linkage, }
   let f = Function::{
     base,
+    gv_base,
     program,
     index,
-    linkage,
     name,
     addressSpace,
     arguments: Array::new(),
@@ -230,6 +235,14 @@ pub impl Value for Function with asValueEnum(self) {
   Function(self)
 }
 
+pub impl GlobalValue for Function with getGlobalValueBase(self) {
+  self.gv_base
+}
+
+pub impl GlobalValue for Function with asGlobalValueEnum(self) {
+  Function(self)
+}
+
 // TODO: This only implemented empty body.
 ///|
 pub impl Show for Function with output(self, logger) {
@@ -258,7 +271,7 @@ pub impl Show for Function with output(self, logger) {
   }
   let arg_str = arg_strs.join(", ")
   let ret_ty = self.getReturnType()
-  let linkage_str = self.linkage.to_string()
+  let linkage_str = self.getLinkage().to_string()
   let func_info = "declare " +
     (if not(linkage_str.is_empty()) { linkage_str + " " } else { "" }) +
     (if not(ret_attrs_str.is_empty()) { ret_attrs_str + " " } else { "" }) +

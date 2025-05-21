@@ -171,7 +171,7 @@ pub struct UserBase {
   operands: Array[&Value]
 }
 
-trait User: Value {
+pub trait User: Value {
   asUserEnum(Self) -> UserEnum
   getUserBase(Self) -> UserBase
   getName(Self) -> String? = _
@@ -208,7 +208,7 @@ pub struct InstBase {
   prev: &Instruction?
 }
 
-trait Instruction: User {
+pub trait Instruction: User {
   getInstBase(Self) -> InstBase
   asInstEnum(Self) -> InstEnum
   //next(Self) -> &Instruction? = _
@@ -233,7 +233,7 @@ pub enum InstEnum {
 // UnaryInst
 // =======================================================
 
-trait UnaryInst: Instruction {
+pub trait UnaryInst: Instruction {
   asUnaryInstEnum(Self) -> UnaryInstEnum
 }
 
@@ -275,6 +275,34 @@ impl Eq for &Constant with op_equal(self, other) {
 // =======================================================
 // GlobalValue
 // =======================================================
+
+pub trait GlobalValue : Value {
+  getGlobalValueBase(Self) -> GlobalValueBase
+  asGlobalValueEnum(Self) -> GlobalValueEnum
+  getLinkage(Self) -> LinkageTypes = _
+  setLinkage(Self, linkage: LinkageTypes) -> Unit = _
+}
+
+impl GlobalValue with getLinkage(self) {
+  self.getGlobalValueBase().linkage
+}
+
+impl GlobalValue with setLinkage(self, linkage: LinkageTypes) {
+  self.getGlobalValueBase().linkage = linkage
+}
+
+struct GlobalValueBase {
+  mut linkage: LinkageTypes
+  //visibility: VisibilityTypes
+  //unnamed_addr: UnnamedAddr
+  //dllStorageClass: DLLStorageClassTypes
+  //threadLoacal: ThreadLocalTypes
+}
+
+pub enum GlobalValueEnum {
+  Function(Function)
+  //GlobalIFunc(GlobalIFunc)
+}
 
 ///|
 pub(all) enum LinkageTypes {
