@@ -73,7 +73,7 @@ pub enum ValueEnum {
 }
 
 ///|
-pub trait Value: Show + Hash {
+pub trait Value: Show {
   base(Self) -> ValueBase
   asValueEnum(Self) -> ValueEnum
 
@@ -160,7 +160,7 @@ impl Value with user_empty(self) {
 struct ValueBase {
   vty : &Type
   users : Array[&Value]
-} derive(Eq, Hash)
+} derive(Eq)
 
 // =======================================================
 // User
@@ -169,7 +169,7 @@ struct ValueBase {
 pub struct UserBase {
   name: String?
   operands: Array[&Value]
-} derive(Hash)
+}
 
 trait User: Value {
   asUserEnum(Self) -> UserEnum
@@ -206,7 +206,7 @@ pub struct InstBase {
   //bb: BasicBlock
   next: &Instruction?
   prev: &Instruction?
-} derive(Hash)
+}
 
 trait Instruction: User {
   getInstBase(Self) -> InstBase

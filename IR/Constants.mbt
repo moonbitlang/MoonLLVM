@@ -24,7 +24,7 @@
 pub struct ConstantInt {
   base : ValueBase
   value : SignedEnum
-} derive(Eq, Hash)
+} derive(Eq)
 
 ///|
 fn ConstantInt::new[T : Signed](vty : &Type, value : T) -> ConstantInt {
@@ -194,7 +194,7 @@ pub impl Show for ConstantInt with output(self, logger) {
 pub struct ConstantUInt {
   base : ValueBase
   value : UnSignedEnum
-} derive(Eq, Hash)
+} derive(Eq)
 
 ///|
 fn ConstantUInt::new[T : UnSigned](vty : &Type, value : T) -> ConstantUInt {
@@ -348,7 +348,7 @@ pub impl Show for ConstantUInt with output(self, logger) {
 pub struct ConstantBool {
   base : ValueBase
   value : Bool
-} derive(Eq, Hash)
+} derive(Eq)
 
 ///|
 fn ConstantBool::new(ctx : LLVMContext, value : Bool) -> ConstantBool {
@@ -390,7 +390,7 @@ pub impl Show for ConstantBool with output(self, logger) {
 pub struct ConstantFP {
   base : ValueBase
   value : Double
-} derive(Eq, Hash)
+} derive(Eq)
 
 // TODO: eliminate guard in the future.
 ///|
@@ -489,7 +489,7 @@ pub impl Show for ConstantFP with output(self, logger) {
 ///|
 pub struct ConstantPointerNull {
   base : ValueBase
-} derive(Eq, Hash)
+} derive(Eq)
 
 ///|
 fn ConstantPointerNull::new(vty : &Type) -> ConstantPointerNull {
@@ -528,7 +528,7 @@ impl Show for ConstantPointerNull with output(self, logger) {
 pub struct ConstantArray {
   base : ValueBase
   data : Either[Array[&Constant], NumberArrayEnum]
-} derive(Eq, Hash)
+} derive(Eq)
 
 ///|
 fn ConstantArray::newConstantArray(
@@ -850,7 +850,7 @@ pub impl Show for ConstantArray with output(self, logger) {
 pub struct ConstantVector {
   base : ValueBase
   data : Either[Array[&Constant], NumberArrayEnum]
-} derive(Eq, Hash)
+} derive(Eq)
 
 ///|
 fn ConstantVector::newConstantVector(

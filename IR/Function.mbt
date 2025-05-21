@@ -29,7 +29,7 @@ pub struct Argument {
   parent : Function
   argNo : UInt
   mut name: String?
-} derive(Hash)
+}
 
 ///|
 fn Argument::new(vty : &Type, argNo : UInt, parent : Function) -> Argument {
@@ -266,9 +266,4 @@ pub impl Show for Function with output(self, logger) {
     " @\{self.name}(\{arg_str})" +
     (if not(fn_attrs_str.is_empty()) { " #\{self.index}" } else { "" })
   logger.write_string(func_info)
-}
-
-///|
-pub impl Hash for Function with hash_combine(self, hasher) {
-  hasher.combine_string(self.name)
 }

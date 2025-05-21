@@ -7,7 +7,7 @@ pub struct AllocaInst {
   user_base: UserBase
   inst_base: InstBase
   operands: Array[&Value]
-} derive(Hash)
+}
 
 pub impl Value for AllocaInst with base(self) {
   self.base
