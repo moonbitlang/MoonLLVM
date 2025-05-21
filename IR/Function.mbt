@@ -117,7 +117,7 @@ pub fn Argument::addAttr(self : Argument, attr : ArgAttr) -> Unit {
 }
 
 ///|
-pub impl Value for Argument with base(self) {
+pub impl Value for Argument with getValueBase(self) {
   self.base
 }
 
@@ -226,7 +226,7 @@ pub fn Function::getArg(self : Function, idx : Int) -> Argument? {
 }
 
 ///|
-pub impl Value for Function with base(self) {
+pub impl Value for Function with getValueBase(self) {
   self.base
 }
 

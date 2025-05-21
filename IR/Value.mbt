@@ -74,7 +74,7 @@ pub enum ValueEnum {
 
 ///|
 pub trait Value: Show {
-  base(Self) -> ValueBase
+  getValueBase(Self) -> ValueBase
   asValueEnum(Self) -> ValueEnum
 
   // All values are typed, get the type of this value.
@@ -113,17 +113,17 @@ pub trait Value: Show {
 
 ///|
 impl Eq for &Value with op_equal(self, other) {
-  self.base() == other.base()
+  self.getValueBase() == other.getValueBase()
 }
 
 ///|
 impl Value with getType(self) {
-  self.base().vty
+  self.getValueBase().vty
 }
 
 ///|
 impl Value with getContext(self) {
-  self.base().vty.getContext()
+  self.getValueBase().vty.getContext()
 }
 
 //impl Value with setName(_, name: String) {
@@ -132,7 +132,7 @@ impl Value with getContext(self) {
 
 ///|
 impl Value with getUsers(self) {
-  self.base().users
+  self.getValueBase().users
 }
 
 ///|

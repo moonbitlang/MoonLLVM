@@ -9,7 +9,7 @@ pub struct AllocaInst {
   operands: Array[&Value]
 }
 
-pub impl Value for AllocaInst with base(self) {
+pub impl Value for AllocaInst with getValueBase(self) {
   self.base
 }
 

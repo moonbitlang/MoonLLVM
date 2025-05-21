@@ -142,7 +142,7 @@ pub fn ConstantInt::isMinValue(self : ConstantInt) -> Bool {
 }
 
 ///|
-pub impl Value for ConstantInt with base(self) {
+pub impl Value for ConstantInt with getValueBase(self) {
   self.base
 }
 
@@ -297,7 +297,7 @@ pub fn ConstantUInt::isMaxValue(self : ConstantUInt) -> Bool {
 }
 
 ///|
-pub impl Value for ConstantUInt with base(self) {
+pub impl Value for ConstantUInt with getValueBase(self) {
   self.base
 }
 
@@ -363,7 +363,7 @@ pub fn ConstantBool::getValue(self : ConstantBool) -> Bool {
 }
 
 ///|
-pub impl Value for ConstantBool with base(self) {
+pub impl Value for ConstantBool with getValueBase(self) {
   self.base
 }
 
@@ -427,7 +427,7 @@ pub fn ConstantFP::exactlyEquals[T : Floating](
 }
 
 ///|
-pub impl Value for ConstantFP with base(self) {
+pub impl Value for ConstantFP with getValueBase(self) {
   self.base
 }
 
@@ -470,7 +470,7 @@ pub impl Show for ConstantFP with output(self, logger) {
 //  ConstantAggregateZero::{ base }
 //}
 //
-//impl Value for ConstantAggregateZero with base(self) {
+//impl Value for ConstantAggregateZero with getValueBase(self) {
 //  self.base
 //}
 //
@@ -501,7 +501,7 @@ fn ConstantPointerNull::new(vty : &Type) -> ConstantPointerNull {
 }
 
 ///|
-impl Value for ConstantPointerNull with base(self) {
+impl Value for ConstantPointerNull with getValueBase(self) {
   self.base
 }
 
@@ -784,7 +784,7 @@ fn ConstantArray::newDoubleArray(
 }
 
 ///|
-impl Value for ConstantArray with base(self) {
+impl Value for ConstantArray with getValueBase(self) {
   self.base
 }
 
@@ -1131,7 +1131,7 @@ fn ConstantVector::newDoubleVector(
 }
 
 ///|
-impl Value for ConstantVector with base(self) {
+impl Value for ConstantVector with getValueBase(self) {
   self.base
 }
 
