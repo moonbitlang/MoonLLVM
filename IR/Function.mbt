@@ -257,6 +257,10 @@ pub fn Function::getArg(self : Function, idx : Int) -> Argument? {
   @option.when(idx >= 0 && idx < self.getNumArgs(), fn() { self.arguments[idx] })
 }
 
+pub fn Function::getDataLayout(self: Function) -> DataLayout {
+  self.program.dataLayout
+}
+
 ///|
 pub impl Eq for Function with op_equal(self, other) {
   self.index == other.index

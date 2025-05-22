@@ -15,4 +15,5 @@ type! LLVMTypeError {
 type! LLVMValueError {
   DuplicateFunctionName(String)
   DuplicateArgumentName(String)
+  OnlyIndependInstructionCanBeInsert
 } derive(Show)

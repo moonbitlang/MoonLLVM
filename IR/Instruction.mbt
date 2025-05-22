@@ -7,7 +7,17 @@ pub struct AllocaInst {
   base : ValueBase
   user_base : UserBase
   inst_base : InstBase
-  operands : Array[&Value]
+  data_ty: &Type
+  align: Align
+}
+
+pub fn AllocaInst::new(data_ty: &Type, name~: String = "", parent: Function) -> AllocaInst {
+  let vty = data_ty.getContext().getPtrTy()
+  let base = ValueBase::{ vty, users: [] }
+  let user_base = UserBase::{ name, operands: [] }
+  let inst_base = InstBase::{parent, bb: None, next: None, prev: None}
+  let align = parent.getDataLayout().getAlignment(data_ty)
+  AllocaInst::{ base, user_base, inst_base, data_ty, align }
 }
 
 ///|
@@ -46,6 +56,6 @@ pub impl UnaryInst for AllocaInst with asUnaryInstEnum(self) {
 }
 
 ///|
-pub impl Show for AllocaInst with output(_, logger) {
-  logger.write_string("AllocaInst")
+pub impl Show for AllocaInst with output(self, logger) {
+  logger.write_string("alloca \{self.data_ty}, \{self.align}")
 }

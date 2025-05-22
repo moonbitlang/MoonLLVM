@@ -168,7 +168,7 @@ struct ValueBase {
 
 ///|
 pub struct UserBase {
-  name : String?
+  name : String
   operands : Array[&Value]
 }
 
@@ -176,7 +176,7 @@ pub struct UserBase {
 pub trait User: Value {
   asUserEnum(Self) -> UserEnum
   getUserBase(Self) -> UserBase
-  getName(Self) -> String? = _
+  getName(Self) -> String = _
   getOperands(Self) -> Array[&Value] = _
 }
 
@@ -207,11 +207,10 @@ pub enum UserEnum {
 
 ///|
 pub struct InstBase {
-  name : String?
   parent : Function
-  bb : BasicBlock
-  next : &Instruction?
-  prev : &Instruction?
+  priv mut bb : BasicBlock?
+  priv mut next : &Instruction?
+  priv mut prev : &Instruction?
 }
 
 ///|
@@ -219,11 +218,12 @@ pub trait Instruction: User {
   getInstBase(Self) -> InstBase
   asInstEnum(Self) -> InstEnum
   getParent(Self) -> Function = _
-  getBasicBlock(Self) -> BasicBlock = _
+  getBasicBlock(Self) -> BasicBlock? = _
+  isIndependent(Self) -> Bool = _
   next(Self) -> &Instruction? = _
   prev(Self) -> &Instruction? = _
-  // insertBefore(self, pos: &Instruction) -> Unit!LLVMValueError = _
-  // insertAfter(self, pos: &Instruction) -> Unit!LLVMValueError = _
+  insertAfter(Self, &Instruction) -> Unit!LLVMValueError = _
+  insertBefore(Self, &Instruction) -> Unit!LLVMValueError = _
 }
 
 ///|
@@ -236,6 +236,13 @@ impl Instruction with getBasicBlock(self) {
   self.getInstBase().bb
 }
 
+impl Instruction with isIndependent(self) {
+  let bb = self.getBasicBlock()
+  let prev = self.prev()
+  let next = self.next()
+  bb is None && prev is None && next is None
+}
+
 ///|
 impl Instruction with next(self) {
   self.getInstBase().next
@@ -244,6 +251,46 @@ impl Instruction with next(self) {
 ///|
 impl Instruction with prev(self) {
   self.getInstBase().prev
+}
+
+impl Instruction with insertAfter(self, next : &Instruction) {
+  guard self.isIndependent() else {
+    raise OnlyIndependInstructionCanBeInsert
+  }
+  match self.next() {
+    None => {
+      self.getInstBase().next = Some(next)
+      next.getInstBase().prev = Some(self)
+      next.getInstBase().bb = self.getBasicBlock()
+    }
+    Some(ori_next) => {
+      self.getInstBase().next = Some(next)
+      next.getInstBase().prev = Some(self)
+      next.getInstBase().next = Some(ori_next)
+      ori_next.getInstBase().prev = Some(next)
+      next.getInstBase().bb = self.getBasicBlock()
+    }
+  }
+}
+
+impl Instruction with insertBefore(self, next: &Instruction) {
+  guard self.isIndependent() else {
+    raise OnlyIndependInstructionCanBeInsert
+  }
+  match self.prev() {
+    None => {
+      self.getInstBase().prev = Some(next)
+      next.getInstBase().next = Some(self)
+      next.getInstBase().bb = self.getBasicBlock()
+    }
+    Some(ori_prev) => {
+      self.getInstBase().prev = Some(next)
+      next.getInstBase().next = Some(self)
+      next.getInstBase().prev = Some(ori_prev)
+      ori_prev.getInstBase().next = Some(next)
+      next.getInstBase().bb = self.getBasicBlock()
+    }
+  }
 }
 
 ///|

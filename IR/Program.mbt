@@ -7,6 +7,7 @@ pub struct Program {
   functions : Map[String, Function]
   srcFileName : String
   programID : String
+  dataLayout : DataLayout
 }
 
 ///|
@@ -16,6 +17,7 @@ fn Program::new(programID : String, ctx : LLVMContext) -> Program {
     functions: Map::new(),
     srcFileName: programID,
     programID,
+    dataLayout: DataLayout::new(Little)
   }
 }
 

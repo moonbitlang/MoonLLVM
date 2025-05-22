@@ -41,7 +41,7 @@ pub fn IRBuilder::setInsertPoint[T : InsertPoint](
       self.insertPt = bb.lastInst()
     }
     Instruction(inst) => {
-      self.bb = Some(inst.getBasicBlock())
+      self.bb = inst.getBasicBlock()
       self.insertPt = Some(inst)
     }
   }
