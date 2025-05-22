@@ -17,7 +17,7 @@ fn Program::new(programID : String, ctx : LLVMContext) -> Program {
     functions: Map::new(),
     srcFileName: programID,
     programID,
-    dataLayout: DataLayout::new(Little)
+    dataLayout: DataLayout::new(Little),
   }
 }
 
@@ -33,7 +33,7 @@ pub fn Program::addFunction(
     raise DuplicateFunctionName(name)
   }
   let index = self.functions.size().reinterpret_as_uint()
-  let f = Function::new(fty, name, linkage~, addressSpace~, index, self)
+  let f = Function::new!(fty, name, linkage~, addressSpace~, index, self)
   self.functions.set(name, f)
   f
 }

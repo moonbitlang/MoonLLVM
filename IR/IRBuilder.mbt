@@ -46,3 +46,34 @@ pub fn IRBuilder::setInsertPoint[T : InsertPoint](
     }
   }
 }
+
+///|
+fn IRBuilder::insert(self : IRBuilder, inst : &Instruction) -> Unit!Error {
+  guard self.bb is Some(_) else { raise UnsetInsertPoint }
+  match self.insertPt {
+    Some(insertPt) => inst.insertAfter!(insertPt)
+    None => self.bb.unwrap().head = Some(inst)
+  }
+}
+
+///|
+fn IRBuilder::getInsertFunction(self : IRBuilder) -> Function {
+  self.bb.unwrap().parent
+}
+
+///|
+pub fn IRBuilder::createAlloca(
+  self : IRBuilder,
+  data_ty : &Type,
+  addressSpace~ : AddressSpace = AddressSpace::default(),
+  name~ : String = ""
+) -> AllocaInst!Error {
+  let allocaInst = AllocaInst::new(
+    data_ty,
+    self.getInsertFunction(),
+    addressSpace~,
+    name,
+  )
+  self.insert!(allocaInst)
+  allocaInst
+}

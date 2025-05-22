@@ -33,7 +33,7 @@ pub struct Argument {
 
 ///|
 fn Argument::new(vty : &Type, argNo : UInt, parent : Function) -> Argument {
-  let base = ValueBase::{ vty, users: [] }
+  let base = ValueBase::new(vty)
   Argument::{ base, parent, argNo, name: None }
 }
 
@@ -131,7 +131,15 @@ pub impl Show for Argument with output(self, logger) {
   let ty = self.getType()
   let str = match self.name {
     Some(name) => "\{ty} %\{name}"
-    None => "\{ty} %\{self.argNo}"
+    None if self.parent.getSlot(self) is Some(s) => "\{ty} %\{s}"
+    None => {
+      self.parent.precessSlot()
+      if self.parent.getSlot(self) is Some(s) {
+        "\{ty} %\{s}"
+      } else {
+        "\{ty} %<badref>"
+      }
+    }
   }
   logger.write_string(str)
 }
@@ -157,6 +165,7 @@ pub struct Function {
   symbols : Map[String, &Value]
   attrSet : AttributeSet
   basicBlocks : Array[BasicBlock]
+  mut slotTracker : SlotTracker?
 
   // hasLazyArguments: Bool
   // hasPrefixData: Bool
@@ -174,9 +183,16 @@ fn Function::new(
   addressSpace~ : AddressSpace,
   index : UInt,
   program : Program
-) -> Function {
-  let base = ValueBase::{ vty: fty, users: [] }
+) -> Function!LLVMValueError {
+  guard Function::isValidFunctionName(name) else {
+    raise InValidFunctionName(name)
+  }
+  let base = ValueBase::new(fty)
   let gv_base = GlobalValueBase::{ linkage, }
+  let arguments = Array::new()
+  let symbols = Map::new()
+  let attrSet = AttributeSet::new()
+  let basicBlocks = Array::new()
   let f = Function::{
     base,
     gv_base,
@@ -184,10 +200,11 @@ fn Function::new(
     index,
     name,
     addressSpace,
-    arguments: Array::new(),
-    symbols: Map::new(),
-    attrSet: AttributeSet::new(),
-    basicBlocks: Array::new(),
+    arguments,
+    symbols,
+    attrSet,
+    basicBlocks,
+    slotTracker: None,
   }
   fty
   .params()
@@ -197,7 +214,17 @@ fn Function::new(
     let arg = Argument::new(ty, ui, f)
     f.arguments.push(arg)
   })
+  f.slotTracker = SlotTracker::new(f) |> Some
   f
+}
+
+// TODO: Not fully implemented.
+///|
+fn Function::isValidFunctionName(name : String) -> Bool {
+  match name {
+    "" => false
+    _ => true
+  }
 }
 
 ///|
@@ -257,7 +284,18 @@ pub fn Function::getArg(self : Function, idx : Int) -> Argument? {
   @option.when(idx >= 0 && idx < self.getNumArgs(), fn() { self.arguments[idx] })
 }
 
-pub fn Function::getDataLayout(self: Function) -> DataLayout {
+///|
+pub fn Function::getSlot[V : Value](self : Function, val : V) -> UInt64? {
+  self.slotTracker.unwrap().getSlot(val)
+}
+
+///|
+pub fn Function::precessSlot(self : Function) -> Unit {
+  self.slotTracker.unwrap().process()
+}
+
+///|
+pub fn Function::getDataLayout(self : Function) -> DataLayout {
   self.program.dataLayout
 }
 

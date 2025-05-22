@@ -9,6 +9,9 @@ typealias Int8 = @int8.Int8
 ///|
 typealias UInt8 = @uint8.UInt8
 
+///|
+let valueOIDAssigner : Ref[UInt64] = Ref::new(0)
+
 // ====================================================
 // Signed & SignedEnum
 // ====================================================

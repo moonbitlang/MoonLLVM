@@ -3,7 +3,7 @@ pub struct BasicBlock {
   base : ValueBase
   parent : Function
   name : String?
-  head : &Instruction?
+  mut head : &Instruction?
   id : Int
 }
 
@@ -13,7 +13,8 @@ fn BasicBlock::new(
   name~ : String? = None,
   before~ : BasicBlock? = None
 ) -> BasicBlock {
-  let base = ValueBase::{ vty: parent.getContext().getLabelTy(), users: [] }
+  let labelTy = parent.getContext().getLabelTy()
+  let base = ValueBase::new(labelTy)
   let bb = BasicBlock::{
     base,
     parent,
@@ -23,6 +24,11 @@ fn BasicBlock::new(
   }
   parent.addBasicBlock(bb, before~)
   bb
+}
+
+///|
+fn BasicBlock::getName(self : BasicBlock) -> String? {
+  self.name
 }
 
 ///|

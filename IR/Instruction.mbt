@@ -7,15 +7,21 @@ pub struct AllocaInst {
   base : ValueBase
   user_base : UserBase
   inst_base : InstBase
-  data_ty: &Type
-  align: Align
+  data_ty : &Type
+  align : Align
 }
 
-pub fn AllocaInst::new(data_ty: &Type, name~: String = "", parent: Function) -> AllocaInst {
-  let vty = data_ty.getContext().getPtrTy()
-  let base = ValueBase::{ vty, users: [] }
-  let user_base = UserBase::{ name, operands: [] }
-  let inst_base = InstBase::{parent, bb: None, next: None, prev: None}
+///|
+fn AllocaInst::new(
+  data_ty : &Type,
+  parent : Function,
+  addressSpace~ : AddressSpace,
+  name : String
+) -> AllocaInst {
+  let vty = data_ty.getContext().getPtrTy(addressSpace~)
+  let base = ValueBase::new(vty)
+  let user_base = UserBase::new(name)
+  let inst_base = InstBase::new(parent)
   let align = parent.getDataLayout().getAlignment(data_ty)
   AllocaInst::{ base, user_base, inst_base, data_ty, align }
 }
@@ -57,5 +63,16 @@ pub impl UnaryInst for AllocaInst with asUnaryInstEnum(self) {
 
 ///|
 pub impl Show for AllocaInst with output(self, logger) {
-  logger.write_string("alloca \{self.data_ty}, \{self.align}")
+  let prefix = match self.getName() {
+    Some(name) => "%\{name}"
+    None if self.getParent().getSlot(self) is Some(s) => "%\{s}"
+    None => {
+      self.getParent().precessSlot()
+      match self.getParent().getSlot(self) {
+        Some(s) => "%\{s}"
+        None => "<badref>"
+      }
+    }
+  }
+  logger.write_string("\{prefix} = alloca \{self.data_ty}, \{self.align}")
 }

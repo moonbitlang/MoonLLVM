@@ -35,7 +35,7 @@ fn ConstantInt::new[T : Signed](vty : &Type, value : T) -> ConstantInt {
     (Int64Type(_), Int64(l)) => Int64(l)
     _ => unreachable("ConstantInt::new: Type MisMatch")
   }
-  let base = ValueBase::{ vty, users: [] }
+  let base = ValueBase::new(vty)
   ConstantInt::{ base, value }
 }
 
@@ -208,7 +208,7 @@ fn ConstantUInt::new[T : UnSigned](vty : &Type, value : T) -> ConstantUInt {
     (Int64Type(_), UInt64(l)) => UInt64(l)
     _ => unreachable("ConstantUInt::new: Type MisMatch")
   }
-  let base = ValueBase::{ vty, users: [] }
+  let base = ValueBase::new(vty)
   ConstantUInt::{ base, value }
 }
 
@@ -353,7 +353,7 @@ pub struct ConstantBool {
 ///|
 fn ConstantBool::new(ctx : LLVMContext, value : Bool) -> ConstantBool {
   let vty = ctx.getInt1Ty()
-  let base = ValueBase::{ vty, users: [] }
+  let base = ValueBase::new(vty)
   ConstantBool::{ base, value }
 }
 
@@ -398,7 +398,7 @@ fn ConstantFP::new(vty : &Type, value : Double) -> ConstantFP {
   guard vty.asTypeEnum() is (FloatType(_) | DoubleType(_)) else {
     unreachable("ConstantFP::new: vty is not FloatType")
   }
-  let base = ValueBase::{ vty, users: [] }
+  let base = ValueBase::new(vty)
   ConstantFP::{ base, value }
 }
 
@@ -496,7 +496,7 @@ fn ConstantPointerNull::new(vty : &Type) -> ConstantPointerNull {
   guard vty.asTypeEnum() is PointerType(_) else {
     unreachable("ConstantPointerNull::new: vty is not PointerType")
   }
-  let base = ValueBase::{ vty, users: [] }
+  let base = ValueBase::new(vty)
   ConstantPointerNull::{ base, }
 }
 
@@ -551,7 +551,7 @@ fn ConstantArray::newConstantArray(
       "ConstantArray::new: data type is not consistant with elementType",
     )
   }
-  let base = ValueBase::{ vty, users: [] }
+  let base = ValueBase::new(vty)
   ConstantArray::{ base, data: Either::Left(data) }
 }
 
@@ -572,7 +572,7 @@ fn ConstantArray::newInt8Array(vty : &Type, data : Array[Int]) -> ConstantArray 
     |> Int8Array::from
     |> NumberArrayEnum::Int8Array
     |> Either::Right
-  let base = ValueBase::{ vty, users: [] }
+  let base = ValueBase::new(vty)
   ConstantArray::{ base, data }
 }
 
@@ -595,7 +595,7 @@ fn ConstantArray::newInt16Array(
     |> Int16Array::from
     |> NumberArrayEnum::Int16Array
     |> Either::Right
-  let base = ValueBase::{ vty, users: [] }
+  let base = ValueBase::new(vty)
   ConstantArray::{ base, data }
 }
 
@@ -618,7 +618,7 @@ fn ConstantArray::newInt32Array(
     |> Int32Array::from
     |> NumberArrayEnum::Int32Array
     |> Either::Right
-  let base = ValueBase::{ vty, users: [] }
+  let base = ValueBase::new(vty)
   ConstantArray::{ base, data }
 }
 
@@ -641,7 +641,7 @@ fn ConstantArray::newInt64Array(
     |> Int64Array::from
     |> NumberArrayEnum::Int64Array
     |> Either::Right
-  let base = ValueBase::{ vty, users: [] }
+  let base = ValueBase::new(vty)
   ConstantArray::{ base, data }
 }
 
@@ -664,7 +664,7 @@ fn ConstantArray::newUInt8Array(
     |> UInt8Array::from
     |> NumberArrayEnum::UInt8Array
     |> Either::Right
-  let base = ValueBase::{ vty, users: [] }
+  let base = ValueBase::new(vty)
   ConstantArray::{ base, data }
 }
 
@@ -687,7 +687,7 @@ fn ConstantArray::newUInt16Array(
     |> UInt16Array::from
     |> NumberArrayEnum::UInt16Array
     |> Either::Right
-  let base = ValueBase::{ vty, users: [] }
+  let base = ValueBase::new(vty)
   ConstantArray::{ base, data }
 }
 
@@ -710,7 +710,7 @@ fn ConstantArray::newUInt32Array(
     |> UInt32Array::from
     |> NumberArrayEnum::UInt32Array
     |> Either::Right
-  let base = ValueBase::{ vty, users: [] }
+  let base = ValueBase::new(vty)
   ConstantArray::{ base, data }
 }
 
@@ -733,7 +733,7 @@ fn ConstantArray::newUInt64Array(
     |> UInt64Array::from
     |> NumberArrayEnum::UInt64Array
     |> Either::Right
-  let base = ValueBase::{ vty, users: [] }
+  let base = ValueBase::new(vty)
   ConstantArray::{ base, data }
 }
 
@@ -756,7 +756,7 @@ fn ConstantArray::newFloatArray(
     |> FloatArray::from
     |> NumberArrayEnum::FloatArray
     |> Either::Right
-  let base = ValueBase::{ vty, users: [] }
+  let base = ValueBase::new(vty)
   ConstantArray::{ base, data }
 }
 
@@ -779,7 +779,7 @@ fn ConstantArray::newDoubleArray(
     |> DoubleArray::from
     |> NumberArrayEnum::DoubleArray
     |> Either::Right
-  let base = ValueBase::{ vty, users: [] }
+  let base = ValueBase::new(vty)
   ConstantArray::{ base, data }
 }
 
@@ -875,7 +875,7 @@ fn ConstantVector::newConstantVector(
       "ConstantVector::new: data type is not consistant with elementType",
     )
   }
-  let base = ValueBase::{ vty, users: [] }
+  let base = ValueBase::new(vty)
   ConstantVector::{ base, data: Either::Left(data) }
 }
 
@@ -901,7 +901,7 @@ fn ConstantVector::newInt8Vector(
     |> Int8Array::from
     |> NumberArrayEnum::Int8Array
     |> Either::Right
-  let base = ValueBase::{ vty, users: [] }
+  let base = ValueBase::new(vty)
   ConstantVector::{ base, data }
 }
 
@@ -926,7 +926,7 @@ fn ConstantVector::newInt16Vector(
     |> Int16Array::from
     |> NumberArrayEnum::Int16Array
     |> Either::Right
-  let base = ValueBase::{ vty, users: [] }
+  let base = ValueBase::new(vty)
   ConstantVector::{ base, data }
 }
 
@@ -951,7 +951,7 @@ fn ConstantVector::newInt32Vector(
     |> Int32Array::from
     |> NumberArrayEnum::Int32Array
     |> Either::Right
-  let base = ValueBase::{ vty, users: [] }
+  let base = ValueBase::new(vty)
   ConstantVector::{ base, data }
 }
 
@@ -976,7 +976,7 @@ fn ConstantVector::newInt64Vector(
     |> Int64Array::from
     |> NumberArrayEnum::Int64Array
     |> Either::Right
-  let base = ValueBase::{ vty, users: [] }
+  let base = ValueBase::new(vty)
   ConstantVector::{ base, data }
 }
 
@@ -1001,7 +1001,7 @@ fn ConstantVector::newUInt8Vector(
     |> UInt8Array::from
     |> NumberArrayEnum::UInt8Array
     |> Either::Right
-  let base = ValueBase::{ vty, users: [] }
+  let base = ValueBase::new(vty)
   ConstantVector::{ base, data }
 }
 
@@ -1026,7 +1026,7 @@ fn ConstantVector::newUInt16Vector(
     |> UInt16Array::from
     |> NumberArrayEnum::UInt16Array
     |> Either::Right
-  let base = ValueBase::{ vty, users: [] }
+  let base = ValueBase::new(vty)
   ConstantVector::{ base, data }
 }
 
@@ -1051,7 +1051,7 @@ fn ConstantVector::newUInt32Vector(
     |> UInt32Array::from
     |> NumberArrayEnum::UInt32Array
     |> Either::Right
-  let base = ValueBase::{ vty, users: [] }
+  let base = ValueBase::new(vty)
   ConstantVector::{ base, data }
 }
 
@@ -1076,7 +1076,7 @@ fn ConstantVector::newUInt64Vector(
     |> UInt64Array::from
     |> NumberArrayEnum::UInt64Array
     |> Either::Right
-  let base = ValueBase::{ vty, users: [] }
+  let base = ValueBase::new(vty)
   ConstantVector::{ base, data }
 }
 
@@ -1101,7 +1101,7 @@ fn ConstantVector::newFloatVector(
     |> FloatArray::from
     |> NumberArrayEnum::FloatArray
     |> Either::Right
-  let base = ValueBase::{ vty, users: [] }
+  let base = ValueBase::new(vty)
   ConstantVector::{ base, data }
 }
 
@@ -1126,7 +1126,7 @@ fn ConstantVector::newDoubleVector(
     |> DoubleArray::from
     |> NumberArrayEnum::DoubleArray
     |> Either::Right
-  let base = ValueBase::{ vty, users: [] }
+  let base = ValueBase::new(vty)
   ConstantVector::{ base, data }
 }
 

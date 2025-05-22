@@ -73,6 +73,46 @@ pub enum ValueEnum {
 }
 
 ///|
+pub fn ValueEnum::tryAsConstantEnum(self : ValueEnum) -> ConstantEnum? {
+  match self {
+    ConstantInt(c) => ConstantInt(c) |> Some
+    ConstantBool(c) => ConstantBool(c) |> Some
+    ConstantUInt(c) => ConstantUInt(c) |> Some
+    ConstantFP(c) => ConstantFP(c) |> Some
+    ConstantPointerNull(c) => ConstantPointerNull(c) |> Some
+    ConstantArray(c) => ConstantArray(c) |> Some
+    ConstantVector(c) => ConstantVector(c) |> Some
+    _ => None
+  }
+}
+
+///|
+pub fn ValueEnum::tryAsUserEnum(self : ValueEnum) -> UserEnum? {
+  match self {
+    AllocaInst(c) => AllocaInst(c) |> Some
+    //LoadInst(c) => LoadInst(c) |> Some
+    //VAArgInst(c) => VAArgInst(c) |> Some
+    //ExtractValueInst(c) => ExtractValueInst(c) |> Some
+    //FreezeInst(c) => FreezeInst(c) |> Some
+    //CastInst(c) => CastInst(c) |> Some
+    _ => None
+  }
+}
+
+///|
+pub fn ValueEnum::tryAsInstEnum(self : ValueEnum) -> InstEnum? {
+  match self {
+    AllocaInst(c) => AllocaInst(c) |> Some
+    //LoadInst(c) => LoadInst(c) |> Some
+    //VAArgInst(c) => VAArgInst(c) |> Some
+    //ExtractValueInst(c) => ExtractValueInst(c) |> Some
+    //FreezeInst(c) => FreezeInst(c) |> Some
+    //CastInst(c) => CastInst(c) |> Some
+    _ => None
+  }
+}
+
+///|
 pub trait Value: Show {
   getValueBase(Self) -> ValueBase
   asValueEnum(Self) -> ValueEnum
@@ -82,6 +122,7 @@ pub trait Value: Show {
 
   // All values hold a context through their type.
   getContext(Self) -> LLVMContext = _
+  getValueName(Self) -> String? = _
 
   /// Change the name of the value.
   ///
@@ -109,6 +150,7 @@ pub trait Value: Show {
   // Please note that in LLVM, this API is `use_empty`, while here
   // is `user_empty`.
   user_empty(Self) -> Bool = _
+  tryAsConstant(Self) -> &Constant? = _
 }
 
 ///|
@@ -126,9 +168,21 @@ impl Value with getContext(self) {
   self.getValueBase().vty.getContext()
 }
 
-//impl Value with setName(_, name: String) {
-//  raise DuplicateValueName(name)
-//}
+///|
+impl Value with getValueName(self) {
+  match self.asValueEnum() {
+    Function(f) => Some(f.name)
+    Argument(a) => a.getName()
+    BasicBlock(bb) => bb.getName()
+    v if v.tryAsConstantEnum() is Some(_) => None
+    u if u.tryAsUserEnum() is Some(u) =>
+      match u.getUserName() {
+        None => None
+        Some(name) => Some(name)
+      }
+    _ => None
+  }
+}
 
 ///|
 impl Value with getUsers(self) {
@@ -138,6 +192,25 @@ impl Value with getUsers(self) {
 ///|
 impl Value with user_empty(self) {
   self.getUsers().is_empty()
+}
+
+///|
+impl Value with tryAsConstant(self) {
+  match self.asValueEnum() {
+    ConstantInt(c) => Some((c : &Constant))
+    ConstantBool(c) => Some(c)
+    ConstantUInt(c) => Some(c)
+    ConstantFP(c) => Some(c)
+    ConstantPointerNull(c) => Some(c)
+    ConstantArray(c) => Some(c)
+    ConstantVector(c) => Some(c)
+    _ => None
+  }
+}
+
+///|
+impl Hash for &Value with hash_combine(self, hasher) {
+  hasher.combine_uint64(self.getValueBase().oid)
 }
 
 ///|
@@ -160,7 +233,15 @@ impl Value with user_empty(self) {
 struct ValueBase {
   vty : &Type
   users : Array[&Value]
+  oid : UInt64
 } derive(Eq)
+
+///|
+fn ValueBase::new(vty : &Type, users~ : Array[&Value] = []) -> ValueBase {
+  let oid = valueOIDAssigner.val
+  valueOIDAssigner.val += 1
+  ValueBase::{ vty, users, oid }
+}
 
 // =======================================================
 // User
@@ -168,20 +249,29 @@ struct ValueBase {
 
 ///|
 pub struct UserBase {
-  name : String
+  name : String?
   operands : Array[&Value]
+}
+
+///|
+pub fn UserBase::new(name : String, operands~ : Array[&Value] = []) -> UserBase {
+  let name = match name {
+    "" => None
+    name => Some(name)
+  }
+  UserBase::{ name, operands }
 }
 
 ///|
 pub trait User: Value {
   asUserEnum(Self) -> UserEnum
   getUserBase(Self) -> UserBase
-  getName(Self) -> String = _
+  getUserName(Self) -> String? = _
   getOperands(Self) -> Array[&Value] = _
 }
 
 ///|
-impl User with getName(self) {
+impl User with getUserName(self) {
   self.getUserBase().name
 }
 
@@ -201,6 +291,13 @@ pub enum UserEnum {
   //CastInst(CastInst)
 }
 
+///|
+pub fn UserEnum::getUserName(self : UserEnum) -> String? {
+  match self {
+    AllocaInst(c) => c.getUserName()
+  }
+}
+
 // =======================================================
 // Instruction
 // =======================================================
@@ -214,9 +311,20 @@ pub struct InstBase {
 }
 
 ///|
+pub fn InstBase::new(
+  parent : Function,
+  bb~ : BasicBlock? = None,
+  next~ : &Instruction? = None,
+  prev~ : &Instruction? = None
+) -> InstBase {
+  InstBase::{ parent, bb, next, prev }
+}
+
+///|
 pub trait Instruction: User {
   getInstBase(Self) -> InstBase
   asInstEnum(Self) -> InstEnum
+  getName(Self) -> String? = _
   getParent(Self) -> Function = _
   getBasicBlock(Self) -> BasicBlock? = _
   isIndependent(Self) -> Bool = _
@@ -224,6 +332,11 @@ pub trait Instruction: User {
   prev(Self) -> &Instruction? = _
   insertAfter(Self, &Instruction) -> Unit!LLVMValueError = _
   insertBefore(Self, &Instruction) -> Unit!LLVMValueError = _
+}
+
+///|
+impl Instruction with getName(self) {
+  self.getUserName()
 }
 
 ///|
@@ -236,6 +349,7 @@ impl Instruction with getBasicBlock(self) {
   self.getInstBase().bb
 }
 
+///|
 impl Instruction with isIndependent(self) {
   let bb = self.getBasicBlock()
   let prev = self.prev()
@@ -253,10 +367,9 @@ impl Instruction with prev(self) {
   self.getInstBase().prev
 }
 
+///|
 impl Instruction with insertAfter(self, next : &Instruction) {
-  guard self.isIndependent() else {
-    raise OnlyIndependInstructionCanBeInsert
-  }
+  guard self.isIndependent() else { raise OnlyIndependInstructionCanBeInsert }
   match self.next() {
     None => {
       self.getInstBase().next = Some(next)
@@ -273,10 +386,9 @@ impl Instruction with insertAfter(self, next : &Instruction) {
   }
 }
 
-impl Instruction with insertBefore(self, next: &Instruction) {
-  guard self.isIndependent() else {
-    raise OnlyIndependInstructionCanBeInsert
-  }
+///|
+impl Instruction with insertBefore(self, next : &Instruction) {
+  guard self.isIndependent() else { raise OnlyIndependInstructionCanBeInsert }
   match self.prev() {
     None => {
       self.getInstBase().prev = Some(next)

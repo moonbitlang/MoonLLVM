@@ -1,21 +1,26 @@
-type Align (UInt64) derive(Eq)
+///|
+type Align UInt64 derive(Eq)
 
-fn Align::new(v: UInt64) -> Align {
+///|
+fn Align::new(v : UInt64) -> Align {
   guard Align::isPowerOfTwo(v) else {
     unreachable("Alignment must be a power of two, \{v} is not.")
   }
   Align(v)
 }
 
-fn Align::isPowerOfTwo(n: UInt64) -> Bool {
+///|
+fn Align::isPowerOfTwo(n : UInt64) -> Bool {
   n > 0 && (n & (n - 1)) == 0
 }
 
-fn Align::previous(v: Align) -> Align {
+///|
+fn Align::previous(v : Align) -> Align {
   let Align(value) = v
   Align(value >> 1)
 }
 
+///|
 pub impl Show for Align with output(self, logger) {
   let Align(v) = self
   logger.write_string("align \{v}")
@@ -36,26 +41,29 @@ pub impl Show for Align with output(self, logger) {
 //  isNonIntegral: Bool
 //}
 
+///|
 pub(all) enum Endian {
   Little
   Big
 }
 
+///|
 struct DataLayout {
-  endian: Endian
+  endian : Endian
 }
 
-fn DataLayout::new(endian: Endian) -> DataLayout {
-  DataLayout::{
-    endian,
-  }
+///|
+fn DataLayout::new(endian : Endian) -> DataLayout {
+  DataLayout::{ endian, }
 }
 
-fn DataLayout::getEndian(self: DataLayout) -> Endian {
+///|
+fn DataLayout::getEndian(self : DataLayout) -> Endian {
   self.endian
 }
 
-fn DataLayout::getAlignment(self: DataLayout, ty: &Type) -> Align {
+///|
+fn DataLayout::getAlignment(self : DataLayout, ty : &Type) -> Align {
   ignore(self)
   match ty.asTypeEnum() {
     HalfType(_) => Align(2)
@@ -67,21 +75,18 @@ fn DataLayout::getAlignment(self: DataLayout, ty: &Type) -> Align {
     Int16Type(_) => Align(2)
     Int32Type(_) => Align(4)
     Int64Type(_) => Align(8)
-    StructType(_) => {
-      unreachable("StructType alignment not implemented")
-    }
+    StructType(_) => unreachable("StructType alignment not implemented")
     ArrayType(arr) => DataLayout::getAlignment(self, arr.getElementType())
     // TODO: Actually it's not enough, the alignment of ptr is different in different
     // Architectures, AddressSpace and other factors.
     PointerType(_) => Align(8)
-    FixedVectorType(_) => {
+    FixedVectorType(_) =>
       unreachable("FixedVectorType alignment not implemented")
-    }
-    ScalableVectorType(_) => {
+    ScalableVectorType(_) =>
       unreachable("ScalableVectorType alignment not implemented")
-    }
-    _ as ty => {
-      unreachable("DataLayout::getAlignment: Bad type for getting alignment: \{ty}")
-    }
+    _ as ty =>
+      unreachable(
+        "DataLayout::getAlignment: Bad type for getting alignment: \{ty}",
+      )
   }
 }
