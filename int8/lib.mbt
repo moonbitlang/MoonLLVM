@@ -9,11 +9,11 @@ pub let min_value : Int8 = -128
 
 ///|
 pub fn Int8::from(val : Int) -> Int8 {
-  let val = match val {
-    _..<0 => (val & 0xFF) | 0xFFFFFF00
-    0..<_ => val & 0xFF
+  let masked = val & 0xFF
+  match masked & 0x80 {
+    0x80 => Int8(masked | 0xFFFFFF00)
+    _ => Int8(masked)
   }
-  Int8(val)
 }
 
 ///|
@@ -38,6 +38,75 @@ pub fn Int8::to_uint64(self : Int8) -> UInt64 {
 }
 
 ///|
+pub impl Add for Int8 with op_add(self: Int8, other: Int8) -> Int8 {
+  let Int8(v1) = self
+  let Int8(v2) = other
+  Int8::from(v1 + v2)
+}
+
+pub impl Sub for Int8 with op_sub(self: Int8, other: Int8) -> Int8 {
+  let Int8(v1) = self
+  let Int8(v2) = other
+  Int8::from(v1 - v2)
+}
+
+pub impl Mul for Int8 with op_mul(self: Int8, other: Int8) -> Int8 {
+  let Int8(v1) = self
+  let Int8(v2) = other
+  Int8::from(v1 * v2)
+}
+
+pub impl Div for Int8 with op_div(self: Int8, other: Int8) -> Int8 {
+  let Int8(v1) = self
+  let Int8(v2) = other
+  Int8::from(v1 / v2)
+}
+
+
+///|
 pub impl Show for Int8 with output(self, logger) {
   logger.write_string("\{self.to_int()}")
+}
+
+test "Int8" {
+  // normal
+  inspect!(Int8::from(0), content = "0")
+  inspect!(Int8::from(1), content = "1")
+  inspect!(Int8::from(-1), content = "-1")
+  inspect!(Int8::from(-2), content = "-2")
+
+  // overflow
+  inspect!(Int8::from(127), content = "127")
+  inspect!(Int8::from(128), content = "-128")
+  inspect!(Int8::from(-128), content = "-128")
+  inspect!(Int8::from(129), content = "-127")
+  inspect!(Int8::from(255), content = "-1")
+
+  // add
+  inspect!(Int8::from(1) + Int8::from(1), content = "2")
+  inspect!(Int8::from(1) + Int8::from(-1), content = "0")
+  inspect!(Int8::from(-1) + Int8::from(-1), content = "-2")
+  inspect!(Int8::from(127) + Int8::from(1), content = "-128")
+  inspect!(Int8::from(127) + Int8::from(-1), content = "126")
+
+  // sub
+  inspect!(Int8::from(1) - Int8::from(1), content = "0")
+  inspect!(Int8::from(1) - Int8::from(-1), content = "2")
+  inspect!(Int8::from(-1) - Int8::from(-1), content = "0")
+  inspect!(Int8::from(127) - Int8::from(1), content = "126")
+  inspect!(Int8::from(127) - Int8::from(-1), content = "-128")
+
+  // mul
+  inspect!(Int8::from(1) * Int8::from(1), content = "1")
+  inspect!(Int8::from(1) * Int8::from(-1), content = "-1")
+  inspect!(Int8::from(-1) * Int8::from(-1), content = "1")
+  inspect!(Int8::from(127) * Int8::from(1), content = "127")
+  inspect!(Int8::from(127) * Int8::from(-1), content = "-127")
+
+  // div
+  inspect!(Int8::from(1) / Int8::from(1), content = "1")
+  inspect!(Int8::from(1) / Int8::from(-1), content = "-1")
+  inspect!(Int8::from(-1) / Int8::from(-1), content = "1")
+  inspect!(Int8::from(127) / Int8::from(1), content = "127")
+
 }

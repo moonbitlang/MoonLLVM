@@ -36,6 +36,30 @@ pub fn UInt8::to_uint64(self : UInt8) -> UInt64 {
   val.to_uint64()
 }
 
+pub impl Add for UInt8 with op_add(self, other) {
+  let UInt8(val1) = self
+  let UInt8(val2) = other
+  UInt8(val1 + val2)
+}
+
+pub impl Sub for UInt8 with op_sub(self, other) {
+  let UInt8(val1) = self
+  let UInt8(val2) = other
+  UInt8(val1 - val2)
+}
+
+pub impl Mul for UInt8 with op_mul(self, other) {
+  let UInt8(val1) = self
+  let UInt8(val2) = other
+  UInt8(val1 * val2)
+}
+
+pub impl Div for UInt8 with op_div(self, other) {
+  let UInt8(val1) = self
+  let UInt8(val2) = other
+  UInt8(val1 / val2)
+}
+
 ///|
 pub impl Show for UInt8 with output(self, logger) {
   logger.write_string("\{self.to_uint()}")

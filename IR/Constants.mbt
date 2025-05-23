@@ -141,6 +141,58 @@ pub fn ConstantInt::isMinValue(self : ConstantInt) -> Bool {
   }
 }
 
+pub fn ConstantInt::add(self: ConstantInt, other: ConstantInt) -> ConstantInt!LLVMValueError {
+  let (lty, rty) = (self.getType(), other.getType())
+  let value = match (self.value, other.value) {
+    (Int8(l), Int8(r)) => Int8(l + r)
+    (Int16(l), Int16(r)) => Int16(l + r)
+    (Int32(l), Int32(r)) => Int32(l + r)
+    (Int64(l), Int64(r)) => Int64(l + r)
+    _ => raise TypeMismatchForBinaryOp(lty, rty)
+  }
+  let base = self.base
+  ConstantInt::{ base, value }
+}
+
+pub fn ConstantInt::sub(self: ConstantInt, other: ConstantInt) -> ConstantInt!LLVMValueError {
+  let (lty, rty) = (self.getType(), other.getType())
+  let value = match (self.value, other.value) {
+    (Int8(l), Int8(r)) => Int8(l - r)
+    (Int16(l), Int16(r)) => Int16(l - r)
+    (Int32(l), Int32(r)) => Int32(l - r)
+    (Int64(l), Int64(r)) => Int64(l - r)
+    _ => raise TypeMismatchForBinaryOp(lty, rty)
+  }
+  let base = self.base
+  ConstantInt::{ base, value }
+}
+
+pub fn ConstantInt::mul(self: ConstantInt, other: ConstantInt) -> ConstantInt!LLVMValueError {
+  let (lty, rty) = (self.getType(), other.getType())
+  let value = match (self.value, other.value) {
+    (Int8(l), Int8(r)) => Int8(l * r)
+    (Int16(l), Int16(r)) => Int16(l * r)
+    (Int32(l), Int32(r)) => Int32(l * r)
+    (Int64(l), Int64(r)) => Int64(l * r)
+    _ => raise TypeMismatchForBinaryOp(lty, rty)
+  }
+  let base = self.base
+  ConstantInt::{ base, value }
+}
+
+pub fn ConstantInt::div(self: ConstantInt, other: ConstantInt) -> ConstantInt!LLVMValueError {
+  let (lty, rty) = (self.getType(), other.getType())
+  let value = match (self.value, other.value) {
+    (Int8(l), Int8(r)) => Int8(l / r)
+    (Int16(l), Int16(r)) => Int16(l / r)
+    (Int32(l), Int32(r)) => Int32(l / r)
+    (Int64(l), Int64(r)) => Int64(l / r)
+    _ => raise TypeMismatchForBinaryOp(lty, rty)
+  }
+  let base = self.base
+  ConstantInt::{ base, value }
+}
+
 ///|
 pub impl Value for ConstantInt with getValueBase(self) {
   self.base
@@ -299,6 +351,58 @@ pub fn ConstantUInt::isMaxValue(self : ConstantUInt) -> Bool {
     UInt32(b) => b == @uint.max_value
     UInt64(b) => b == @uint64.max_value
   }
+}
+
+pub fn ConstantUInt::add(self: ConstantUInt, other: ConstantUInt) -> ConstantUInt!LLVMValueError {
+  let (lty, rty) = (self.getType(), other.getType())
+  let value = match (self.value, other.value) {
+    (UInt8(l), UInt8(r)) => UInt8(l + r)
+    (UInt16(l), UInt16(r)) => UInt16(l + r)
+    (UInt32(l), UInt32(r)) => UInt32(l + r)
+    (UInt64(l), UInt64(r)) => UInt64(l + r)
+    _ => raise TypeMismatchForBinaryOp(lty, rty)
+  }
+  let base = self.base
+  ConstantUInt::{ base, value }
+}
+
+pub fn ConstantUInt::sub(self: ConstantUInt, other: ConstantUInt) -> ConstantUInt!LLVMValueError {
+  let (lty, rty) = (self.getType(), other.getType())
+  let value = match (self.value, other.value) {
+    (UInt8(l), UInt8(r)) => UInt8(l - r)
+    (UInt16(l), UInt16(r)) => UInt16(l - r)
+    (UInt32(l), UInt32(r)) => UInt32(l - r)
+    (UInt64(l), UInt64(r)) => UInt64(l - r)
+    _ => raise TypeMismatchForBinaryOp(lty, rty)
+  }
+  let base = self.base
+  ConstantUInt::{ base, value }
+}
+
+pub fn ConstantUInt::mul(self: ConstantUInt, other: ConstantUInt) -> ConstantUInt!LLVMValueError {
+  let (lty, rty) = (self.getType(), other.getType())
+  let value = match (self.value, other.value) {
+    (UInt8(l), UInt8(r)) => UInt8(l * r)
+    (UInt16(l), UInt16(r)) => UInt16(l * r)
+    (UInt32(l), UInt32(r)) => UInt32(l * r)
+    (UInt64(l), UInt64(r)) => UInt64(l * r)
+    _ => raise TypeMismatchForBinaryOp(lty, rty)
+  }
+  let base = self.base
+  ConstantUInt::{ base, value }
+}
+
+pub fn ConstantUInt::div(self: ConstantUInt, other: ConstantUInt) -> ConstantUInt!LLVMValueError {
+  let (lty, rty) = (self.getType(), other.getType())
+  let value = match (self.value, other.value) {
+    (UInt8(l), UInt8(r)) => UInt8(l / r)
+    (UInt16(l), UInt16(r)) => UInt16(l / r)
+    (UInt32(l), UInt32(r)) => UInt32(l / r)
+    (UInt64(l), UInt64(r)) => UInt64(l / r)
+    _ => raise TypeMismatchForBinaryOp(lty, rty)
+  }
+  let base = self.base
+  ConstantUInt::{ base, value }
 }
 
 ///|

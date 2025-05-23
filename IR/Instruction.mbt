@@ -2,12 +2,12 @@ pub enum BinaryOps {
   // Standard binary operators.
   Add
   //FAdd
-  //Sub
+  Sub
   //FSub
-  //Mul
+  Mul
   //FMul
-  //SDiv
-  //UDiv
+  SDiv
+  UDiv
   //FDiv
   //URem
   //SRem
@@ -26,12 +26,12 @@ pub impl Show for BinaryOps with output(self, logger) {
   let str = match self {
     Add => "add"
     //FAdd => "fadd"
-    //Sub => "sub"
+    Sub => "sub"
     //FSub => "fsub"
-    //Mul => "mul"
+    Mul => "mul"
     //FMul => "fmul"
-    //SDiv => "sdiv"
-    //UDiv => "udiv"
+    SDiv => "sdiv"
+    UDiv => "udiv"
     //FDiv => "fdiv"
     //URem => "urem"
     //SRem => "srem"
@@ -50,7 +50,7 @@ pub enum BinaryOpFlags {
 
   // Only add, sub, mul, and shl
   // could have NoUnsignedWrap and NoSignedWrap flags.
-  //NoUnsignedWrap
+  NoUnsignedWrap
   NoSignedWrap
 
   // only sdiv, udiv, ashr, lshr
@@ -63,7 +63,7 @@ pub enum BinaryOpFlags {
 
 pub impl Show for BinaryOpFlags with output(self, logger) {
   let str = match self {
-    //NoUnsignedWrap => "nuw"
+    NoUnsignedWrap => "nuw"
     NoSignedWrap => "nsw"
     //Exact => "exact"
     //Disjoint => "disjoint"
@@ -154,7 +154,7 @@ pub impl Show for AllocaInst with output(self, logger) {
 // LoadInst
 // =======================================================
 
-///|
+///| TODO: Not full implemented, remember erase `all`.
 pub(all) struct LoadInst {
   base: ValueBase
   inst_base: InstBase
@@ -215,9 +215,14 @@ pub struct BinaryInstruction {
   flags: Set[BinaryOpFlags]
 }
 
-fn BinaryInstruction::newNSWAdd(
+fn BinaryInstruction::newStandardOp(
+  opcode: BinaryOps,
   lhs: &Value, rhs: &Value, parent: Function, name: String,
+  has_nsw: Bool, has_nuw: Bool
 ) -> BinaryInstruction!LLVMValueError {
+  guard opcode is (Add|Sub|Mul|SDiv|UDiv) else {
+    unreachable("Should not call BinaryInstruction::newStandardOp with opcode \{opcode}")
+  }
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
     raise TypeMismatchForBinaryOp(lhsTy, rhsTy)
@@ -232,7 +237,12 @@ fn BinaryInstruction::newNSWAdd(
   user_base.operands.push(lhs)
   user_base.operands.push(rhs)
   let flags = Set::new()
-  flags.add(NoSignedWrap)
+  if has_nsw {
+    flags.add(NoSignedWrap)
+  }
+  if has_nuw {
+    flags.add(NoUnsignedWrap)
+  }
   BinaryInstruction::{
     base,
     user_base,
@@ -283,13 +293,13 @@ pub impl Show for BinaryInstruction with output(self, logger) {
   let lhs = self.getOperand(0).unwrap()
   let rhs = self.getOperand(1).unwrap()
   let lhs_str = match lhs.getValueName() {
-    Some(lhs) => lhs
+    Some(lhs) => "%\{lhs}"
     None if parent.getSlot(lhs) is Some(lhs_slot) => "%\{lhs_slot}"
     None if lhs.tryAsConstant() is Some(c) => c.valstr()
     _ => "<badref>"
   }
   let rhs_str = match rhs.getValueName() {
-    Some(rhs) => rhs
+    Some(rhs) => "%\{rhs}"
     None if parent.getSlot(rhs) is Some(rhs_slot) => "%\{rhs_slot}"
     None if rhs.tryAsConstant() is Some(c) => c.valstr()
     _ => "<badref>"

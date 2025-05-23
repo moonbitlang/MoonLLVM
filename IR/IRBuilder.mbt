@@ -67,7 +67,7 @@ pub fn IRBuilder::createAlloca(
   data_ty : &Type,
   addressSpace~ : AddressSpace = AddressSpace::default(),
   name~ : String = ""
-) -> AllocaInst!Error {
+) -> &Value!Error {
   let allocaInst = AllocaInst::new(
     data_ty,
     self.getInsertFunction(),
@@ -76,4 +76,44 @@ pub fn IRBuilder::createAlloca(
   )
   self.insert!(allocaInst)
   allocaInst
+}
+
+pub fn IRBuilder::createAdd(
+  self: IRBuilder, 
+  lhs: &Value, rhs:&Value,
+  name~:String = "",
+  has_nsw~: Bool = false,
+  has_nuw~: Bool = false
+) -> &Value!Error {
+  match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
+    (Some(ConstantInt(lhs)), Some(ConstantInt(rhs))) => return lhs.add!(rhs)
+    (Some(ConstantUInt(lhs)), Some(ConstantUInt(rhs))) => return lhs.add!(rhs)
+    _ => ()
+  }
+  let parent = self.getInsertFunction()
+  let inst = BinaryInstruction::newStandardOp!(
+    BinaryOps::Add, lhs, rhs, parent, name, has_nsw, has_nuw
+  )
+  self.insert!(inst)
+  inst
+}
+
+pub fn IRBuilder::createNSWAdd(
+  self: IRBuilder, 
+  lhs: &Value, rhs:&Value,
+  name~:String = ""
+) -> &Value!Error {
+  self.createAdd(
+    lhs, rhs, name~, has_nsw=true, has_nuw=false
+  )
+}
+
+pub fn IRBuilder::createNUWAdd(
+  self: IRBuilder, 
+  lhs: &Value, rhs:&Value,
+  name~:String = ""
+) -> &Value!Error {
+  self.createAdd(
+    lhs, rhs, name~, has_nsw=false, has_nuw=true
+  )
 }

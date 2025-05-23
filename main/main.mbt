@@ -10,7 +10,10 @@ fn main_err() -> Unit!Error {
   builder.setInsertPoint(entryBB)
   let arg0 = fval.getArg(0).unwrap()
   arg0.setName?("first").unwrap()
-  let _ = builder.createAlloca!(i32ty)
+  let arg1 = fval.getArg(1).unwrap()
+  //let _ = builder.createAlloca!(i32ty)
+  //println(fval)
+  let _ = builder.createNSWAdd!(arg0, arg1)
   println(fval)
 }
 

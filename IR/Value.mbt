@@ -151,6 +151,7 @@ pub trait Value: Show {
   // is `user_empty`.
   user_empty(Self) -> Bool = _
   tryAsConstant(Self) -> &Constant? = _
+  tryAsConstantEnum(Self) -> ConstantEnum? = _
 }
 
 ///|
@@ -204,6 +205,19 @@ impl Value with tryAsConstant(self) {
     ConstantPointerNull(c) => Some(c)
     ConstantArray(c) => Some(c)
     ConstantVector(c) => Some(c)
+    _ => None
+  }
+}
+
+impl Value with tryAsConstantEnum(self) {
+  match self.asValueEnum() {
+    ConstantInt(c) => Some(ConstantInt(c))
+    ConstantBool(c) => Some(ConstantBool(c))
+    ConstantUInt(c) => Some(ConstantUInt(c))
+    ConstantFP(c) => Some(ConstantFP(c))
+    ConstantPointerNull(c) => Some(ConstantPointerNull(c))
+    ConstantArray(c) => Some(ConstantArray(c))
+    ConstantVector(c) => Some(ConstantVector(c))
     _ => None
   }
 }
