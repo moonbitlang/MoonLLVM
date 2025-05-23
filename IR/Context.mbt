@@ -40,10 +40,7 @@ pub fn LLVMContext::new() -> LLVMContext {
   contextKey.val += 1
   let addr0 = AddressSpace::default()
   let pointerTypes = Map::new()
-  pointerTypes.set(
-    addr0,
-    PointerType::new(ctx, addressSpace=addr0),
-  )
+  pointerTypes.set(addr0, PointerType::new(ctx, addressSpace=addr0))
   // Initialize the LLVMContextImpl.
   let pimpl = LLVMContextImpl::{
     ownedPrograms: Array::new(),

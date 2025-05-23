@@ -336,6 +336,7 @@ impl Type with tryAsFPTypeEnum(self) -> FPTypeEnum? {
   }
 }
 
+///|
 impl Type with tryAsIntegerTypeEnum(self) -> IntegerTypeEnum? {
   match self.asTypeEnum() {
     Int1Type(int1) => Some(Int1Type(int1))

@@ -27,7 +27,7 @@ pub struct ConstantInt {
 } derive(Eq)
 
 ///|
-fn ConstantInt::new[T : Signed](vty : &Type, value : T) -> ConstantInt {
+fn[T : Signed] ConstantInt::new(vty : &Type, value : T) -> ConstantInt {
   let value = match (vty.asTypeEnum(), value.asEnum()) {
     (Int8Type(_), Int8(b)) => SignedEnum::Int8(b)
     (Int16Type(_), Int16(s)) => Int16(s)
@@ -107,7 +107,7 @@ pub fn ConstantInt::getIntegerType(self : ConstantInt) -> &IntegerType {
 ///   assert_true!(ctx.getConstInt32(-128).equals(-128))
 /// }
 /// ```
-pub fn ConstantInt::equals[T : Signed](self : ConstantInt, value : T) -> Bool {
+pub fn[T : Signed] ConstantInt::equals(self : ConstantInt, value : T) -> Bool {
   self.value.to_int64() == value.convert_to_int64()
 }
 
@@ -141,7 +141,11 @@ pub fn ConstantInt::isMinValue(self : ConstantInt) -> Bool {
   }
 }
 
-pub fn ConstantInt::add(self: ConstantInt, other: ConstantInt) -> ConstantInt!LLVMValueError {
+///|
+pub fn ConstantInt::add(
+  self : ConstantInt,
+  other : ConstantInt
+) -> ConstantInt!LLVMValueError {
   let (lty, rty) = (self.getType(), other.getType())
   let value = match (self.value, other.value) {
     (Int8(l), Int8(r)) => Int8(l + r)
@@ -154,7 +158,11 @@ pub fn ConstantInt::add(self: ConstantInt, other: ConstantInt) -> ConstantInt!LL
   ConstantInt::{ base, value }
 }
 
-pub fn ConstantInt::sub(self: ConstantInt, other: ConstantInt) -> ConstantInt!LLVMValueError {
+///|
+pub fn ConstantInt::sub(
+  self : ConstantInt,
+  other : ConstantInt
+) -> ConstantInt!LLVMValueError {
   let (lty, rty) = (self.getType(), other.getType())
   let value = match (self.value, other.value) {
     (Int8(l), Int8(r)) => Int8(l - r)
@@ -167,7 +175,11 @@ pub fn ConstantInt::sub(self: ConstantInt, other: ConstantInt) -> ConstantInt!LL
   ConstantInt::{ base, value }
 }
 
-pub fn ConstantInt::mul(self: ConstantInt, other: ConstantInt) -> ConstantInt!LLVMValueError {
+///|
+pub fn ConstantInt::mul(
+  self : ConstantInt,
+  other : ConstantInt
+) -> ConstantInt!LLVMValueError {
   let (lty, rty) = (self.getType(), other.getType())
   let value = match (self.value, other.value) {
     (Int8(l), Int8(r)) => Int8(l * r)
@@ -180,7 +192,11 @@ pub fn ConstantInt::mul(self: ConstantInt, other: ConstantInt) -> ConstantInt!LL
   ConstantInt::{ base, value }
 }
 
-pub fn ConstantInt::div(self: ConstantInt, other: ConstantInt) -> ConstantInt!LLVMValueError {
+///|
+pub fn ConstantInt::div(
+  self : ConstantInt,
+  other : ConstantInt
+) -> ConstantInt!LLVMValueError {
   let (lty, rty) = (self.getType(), other.getType())
   let value = match (self.value, other.value) {
     (Int8(l), Int8(r)) => Int8(l / r)
@@ -208,6 +224,7 @@ pub impl Constant for ConstantInt with asConstantEnum(self) {
   ConstantInt(self)
 }
 
+///|
 pub impl Constant for ConstantInt with valstr(self) {
   let val_str = match self.value {
     Int8(b) => b.to_string()
@@ -254,7 +271,7 @@ pub struct ConstantUInt {
 } derive(Eq)
 
 ///|
-fn ConstantUInt::new[T : UnSigned](vty : &Type, value : T) -> ConstantUInt {
+fn[T : UnSigned] ConstantUInt::new(vty : &Type, value : T) -> ConstantUInt {
   //guard vty.asTypeEnum() is IntegerType(ity) else {
   //  unreachable("ConstantUInt::new: vty is not IntegerType")
   //}
@@ -336,7 +353,7 @@ pub fn ConstantUInt::getIntegerType(self : ConstantUInt) -> &IntegerType {
 ///   assert_true!(ctx.getConstUInt8(255).equals(255U))
 /// }
 /// ```
-pub fn ConstantUInt::equals[T : UnSigned](
+pub fn[T : UnSigned] ConstantUInt::equals(
   self : ConstantUInt,
   value : T
 ) -> Bool {
@@ -353,7 +370,11 @@ pub fn ConstantUInt::isMaxValue(self : ConstantUInt) -> Bool {
   }
 }
 
-pub fn ConstantUInt::add(self: ConstantUInt, other: ConstantUInt) -> ConstantUInt!LLVMValueError {
+///|
+pub fn ConstantUInt::add(
+  self : ConstantUInt,
+  other : ConstantUInt
+) -> ConstantUInt!LLVMValueError {
   let (lty, rty) = (self.getType(), other.getType())
   let value = match (self.value, other.value) {
     (UInt8(l), UInt8(r)) => UInt8(l + r)
@@ -366,7 +387,11 @@ pub fn ConstantUInt::add(self: ConstantUInt, other: ConstantUInt) -> ConstantUIn
   ConstantUInt::{ base, value }
 }
 
-pub fn ConstantUInt::sub(self: ConstantUInt, other: ConstantUInt) -> ConstantUInt!LLVMValueError {
+///|
+pub fn ConstantUInt::sub(
+  self : ConstantUInt,
+  other : ConstantUInt
+) -> ConstantUInt!LLVMValueError {
   let (lty, rty) = (self.getType(), other.getType())
   let value = match (self.value, other.value) {
     (UInt8(l), UInt8(r)) => UInt8(l - r)
@@ -379,7 +404,11 @@ pub fn ConstantUInt::sub(self: ConstantUInt, other: ConstantUInt) -> ConstantUIn
   ConstantUInt::{ base, value }
 }
 
-pub fn ConstantUInt::mul(self: ConstantUInt, other: ConstantUInt) -> ConstantUInt!LLVMValueError {
+///|
+pub fn ConstantUInt::mul(
+  self : ConstantUInt,
+  other : ConstantUInt
+) -> ConstantUInt!LLVMValueError {
   let (lty, rty) = (self.getType(), other.getType())
   let value = match (self.value, other.value) {
     (UInt8(l), UInt8(r)) => UInt8(l * r)
@@ -392,7 +421,11 @@ pub fn ConstantUInt::mul(self: ConstantUInt, other: ConstantUInt) -> ConstantUIn
   ConstantUInt::{ base, value }
 }
 
-pub fn ConstantUInt::div(self: ConstantUInt, other: ConstantUInt) -> ConstantUInt!LLVMValueError {
+///|
+pub fn ConstantUInt::div(
+  self : ConstantUInt,
+  other : ConstantUInt
+) -> ConstantUInt!LLVMValueError {
   let (lty, rty) = (self.getType(), other.getType())
   let value = match (self.value, other.value) {
     (UInt8(l), UInt8(r)) => UInt8(l / r)
@@ -420,6 +453,7 @@ pub impl Constant for ConstantUInt with asConstantEnum(self) {
   ConstantUInt(self)
 }
 
+///|
 pub impl Constant for ConstantUInt with valstr(self) {
   match self.value {
     UInt8(b) => b.to_string()
@@ -490,6 +524,7 @@ pub impl Constant for ConstantBool with asConstantEnum(self) {
   ConstantBool(self)
 }
 
+///|
 pub impl Constant for ConstantBool with valstr(self) {
   if self.value {
     "true"
@@ -534,12 +569,12 @@ pub fn ConstantFP::getValueAsDouble(self : ConstantFP) -> Double {
 }
 
 ///|
-pub fn ConstantFP::equals[T : Floating](self : ConstantFP, value : T) -> Bool {
+pub fn[T : Floating] ConstantFP::equals(self : ConstantFP, value : T) -> Bool {
   self.value.to_float64() == value.to_float64()
 }
 
 ///|
-pub fn ConstantFP::exactlyEquals[T : Floating](
+pub fn[T : Floating] ConstantFP::exactlyEquals(
   self : ConstantFP,
   value : T
 ) -> Bool {
@@ -562,6 +597,7 @@ pub impl Constant for ConstantFP with asConstantEnum(self) {
   ConstantFP(self)
 }
 
+///|
 pub impl Constant for ConstantFP with valstr(self) {
   let val_str = self.value
     .reinterpret_as_uint64()
@@ -641,10 +677,10 @@ pub impl Constant for ConstantPointerNull with asConstantEnum(self) {
   ConstantPointerNull(self)
 }
 
+///|
 pub impl Constant for ConstantPointerNull with valstr(_) {
   "null"
 }
-
 
 ///|
 impl Show for ConstantPointerNull with output(self, logger) {
@@ -929,6 +965,7 @@ impl Constant for ConstantArray with asConstantEnum(self) {
   ConstantArray(self)
 }
 
+///|
 impl Constant for ConstantArray with valstr(self) {
   match self.data {
     Left(constants) => constants.map(fn { c => c.to_string() }).join(", ")
@@ -1280,6 +1317,7 @@ impl Constant for ConstantVector with asConstantEnum(self) {
   ConstantVector(self)
 }
 
+///|
 impl Constant for ConstantVector with valstr(self) {
   match self.data {
     Left(constants) => constants.map(fn { c => c.to_string() }).join(", ")

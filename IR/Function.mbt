@@ -302,7 +302,7 @@ pub fn Function::getArg(self : Function, idx : Int) -> Argument? {
 }
 
 ///|
-pub fn Function::getSlot[V : Value](self : Function, val : V) -> UInt64? {
+pub fn[V : Value] Function::getSlot(self : Function, val : V) -> UInt64? {
   self.slotTracker.unwrap().getSlot(val)
 }
 

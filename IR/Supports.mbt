@@ -1,5 +1,5 @@
 ///|
-fn unreachable[T](msg : String) -> T {
+fn[T] unreachable(msg : String) -> T {
   println(msg)
   abort(msg)
 }

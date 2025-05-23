@@ -1,3 +1,4 @@
+///|
 pub enum BinaryOps {
   // Standard binary operators.
   Add
@@ -22,6 +23,7 @@ pub enum BinaryOps {
   //Xor
 } derive(Hash, Eq)
 
+///|
 pub impl Show for BinaryOps with output(self, logger) {
   let str = match self {
     Add => "add"
@@ -46,6 +48,7 @@ pub impl Show for BinaryOps with output(self, logger) {
   logger.write_string(str)
 }
 
+///|
 pub enum BinaryOpFlags {
 
   // Only add, sub, mul, and shl
@@ -61,6 +64,7 @@ pub enum BinaryOpFlags {
   //Disjoint
 } derive(Hash, Eq)
 
+///|
 pub impl Show for BinaryOpFlags with output(self, logger) {
   let str = match self {
     NoUnsignedWrap => "nuw"
@@ -156,11 +160,11 @@ pub impl Show for AllocaInst with output(self, logger) {
 
 ///| TODO: Not full implemented, remember erase `all`.
 pub(all) struct LoadInst {
-  base: ValueBase
-  inst_base: InstBase
-  user_base: UserBase
-  data_ty: &Type
-  align: Int
+  base : ValueBase
+  inst_base : InstBase
+  user_base : UserBase
+  data_ty : &Type
+  align : Int
 }
 
 ///|
@@ -168,6 +172,7 @@ pub impl Value for LoadInst with asValueEnum(self) {
   LoadInst(self)
 }
 
+///|
 pub impl Value for LoadInst with getValueBase(self) {
   self.base
 }
@@ -206,27 +211,32 @@ pub impl Show for LoadInst with output(_, logger) {
 // BinaryInstructions
 // =======================================================
 
-
+///|
 pub struct BinaryInstruction {
   base : ValueBase
   user_base : UserBase
   inst_base : InstBase
-  opcode: BinaryOps
-  flags: Set[BinaryOpFlags]
+  opcode : BinaryOps
+  flags : Set[BinaryOpFlags]
 }
 
+///|
 fn BinaryInstruction::newStandardOp(
-  opcode: BinaryOps,
-  lhs: &Value, rhs: &Value, parent: Function, name: String,
-  has_nsw: Bool, has_nuw: Bool
+  opcode : BinaryOps,
+  lhs : &Value,
+  rhs : &Value,
+  parent : Function,
+  name : String,
+  has_nsw : Bool,
+  has_nuw : Bool
 ) -> BinaryInstruction!LLVMValueError {
-  guard opcode is (Add|Sub|Mul|SDiv|UDiv) else {
-    unreachable("Should not call BinaryInstruction::newStandardOp with opcode \{opcode}")
+  guard opcode is (Add | Sub | Mul | SDiv | UDiv) else {
+    unreachable(
+      "Should not call BinaryInstruction::newStandardOp with opcode \{opcode}",
+    )
   }
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
-  guard lhsTy == rhsTy else {
-    raise TypeMismatchForBinaryOp(lhsTy, rhsTy)
-  }
+  guard lhsTy == rhsTy else { raise TypeMismatchForBinaryOp(lhsTy, rhsTy) }
   guard lhsTy.tryAsIntegerTypeEnum() is Some(_) else {
     raise TypeNotSupportForBinaryOp(lhsTy, Add)
   }
@@ -243,39 +253,40 @@ fn BinaryInstruction::newStandardOp(
   if has_nuw {
     flags.add(NoUnsignedWrap)
   }
-  BinaryInstruction::{
-    base,
-    user_base,
-    inst_base,
-    opcode: Add,
-    flags
-  }
+  BinaryInstruction::{ base, user_base, inst_base, opcode: Add, flags }
 }
 
+///|
 pub impl Value for BinaryInstruction with getValueBase(self) {
   self.base
 }
 
+///|
 pub impl Value for BinaryInstruction with asValueEnum(self) {
   BinaryInstruction(self)
 }
 
+///|
 pub impl User for BinaryInstruction with asUserEnum(self) {
   BinaryInstruction(self)
 }
 
+///|
 pub impl User for BinaryInstruction with getUserBase(self) {
   self.user_base
 }
 
+///|
 pub impl Instruction for BinaryInstruction with getInstBase(self) {
   self.inst_base
 }
 
+///|
 pub impl Instruction for BinaryInstruction with asInstEnum(self) {
   InstEnum::BinaryInstruction(self)
 }
 
+///|
 pub impl Show for BinaryInstruction with output(self, logger) {
   let parent = self.getParent()
   let ty = self.getType()
@@ -304,11 +315,9 @@ pub impl Show for BinaryInstruction with output(self, logger) {
     None if rhs.tryAsConstant() is Some(c) => c.valstr()
     _ => "<badref>"
   }
-  let flags_str = self.flags.iter().map(fn {f =>"\{f}"}).join(" ")
-  let flags_str = if flags_str.is_empty() {
-    ""
-  } else {
-    " " + flags_str
-  }
-  logger.write_string("  %\{prefix} = \{self.opcode}\{flags_str} \{ty} \{lhs_str}, \{rhs_str}")
+  let flags_str = self.flags.iter().map(fn { f => "\{f}" }).join(" ")
+  let flags_str = if flags_str.is_empty() { "" } else { " " + flags_str }
+  logger.write_string(
+    "  %\{prefix} = \{self.opcode}\{flags_str} \{ty} \{lhs_str}, \{rhs_str}",
+  )
 }

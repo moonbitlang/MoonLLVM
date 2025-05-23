@@ -31,7 +31,7 @@ pub fn IRBuilder::new() -> IRBuilder {
 }
 
 ///|
-pub fn IRBuilder::setInsertPoint[T : InsertPoint](
+pub fn[T : InsertPoint] IRBuilder::setInsertPoint(
   self : IRBuilder,
   insertPt : T
 ) -> Unit {
@@ -78,12 +78,14 @@ pub fn IRBuilder::createAlloca(
   allocaInst
 }
 
+///|
 pub fn IRBuilder::createAdd(
-  self: IRBuilder, 
-  lhs: &Value, rhs:&Value,
-  name~:String = "",
-  has_nsw~: Bool = false,
-  has_nuw~: Bool = false
+  self : IRBuilder,
+  lhs : &Value,
+  rhs : &Value,
+  name~ : String = "",
+  has_nsw~ : Bool = false,
+  has_nuw~ : Bool = false
 ) -> &Value!Error {
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
     (Some(ConstantInt(lhs)), Some(ConstantInt(rhs))) => return lhs.add!(rhs)
@@ -92,28 +94,34 @@ pub fn IRBuilder::createAdd(
   }
   let parent = self.getInsertFunction()
   let inst = BinaryInstruction::newStandardOp!(
-    BinaryOps::Add, lhs, rhs, parent, name, has_nsw, has_nuw
+    BinaryOps::Add,
+    lhs,
+    rhs,
+    parent,
+    name,
+    has_nsw,
+    has_nuw,
   )
   self.insert!(inst)
   inst
 }
 
+///|
 pub fn IRBuilder::createNSWAdd(
-  self: IRBuilder, 
-  lhs: &Value, rhs:&Value,
-  name~:String = ""
+  self : IRBuilder,
+  lhs : &Value,
+  rhs : &Value,
+  name~ : String = ""
 ) -> &Value!Error {
-  self.createAdd(
-    lhs, rhs, name~, has_nsw=true, has_nuw=false
-  )
+  self.createAdd(lhs, rhs, name~, has_nsw=true, has_nuw=false)
 }
 
+///|
 pub fn IRBuilder::createNUWAdd(
-  self: IRBuilder, 
-  lhs: &Value, rhs:&Value,
-  name~:String = ""
+  self : IRBuilder,
+  lhs : &Value,
+  rhs : &Value,
+  name~ : String = ""
 ) -> &Value!Error {
-  self.createAdd(
-    lhs, rhs, name~, has_nsw=false, has_nuw=true
-  )
+  self.createAdd(lhs, rhs, name~, has_nsw=false, has_nuw=true)
 }

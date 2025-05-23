@@ -209,6 +209,7 @@ impl Value with tryAsConstant(self) {
   }
 }
 
+///|
 impl Value with tryAsConstantEnum(self) {
   match self.asValueEnum() {
     ConstantInt(c) => Some(ConstantInt(c))
@@ -295,11 +296,10 @@ impl User with getOperands(self) {
   self.getUserBase().operands
 }
 
+///|
 impl User with getOperand(self, index : Int) {
   let operands = self.getOperands()
-  guard index >= 0 && index < operands.length() else {
-    return None
-  }
+  guard index >= 0 && index < operands.length() else { return None }
   Some(operands[index])
 }
 
