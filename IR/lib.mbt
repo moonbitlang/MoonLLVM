@@ -1,5 +1,3 @@
-//typealias HashSet[T] = @hashset.T[T]
-
 ///|
 typealias Either[L, R] = @Either.Either[L, R]
 

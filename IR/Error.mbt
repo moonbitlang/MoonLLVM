@@ -17,9 +17,11 @@ type! LLVMValueError {
   DuplicateArgumentName(String)
   OnlyIndependInstructionCanBeInsert
   InValidFunctionName(String)
+  TypeMismatchForBinaryOp(&Type, &Type)
+  TypeNotSupportForBinaryOp(&Type, BinaryOps)
 } derive(Show)
 
 ///|
-type! BuilderError {
+priv type! BuilderError {
   UnsetInsertPoint
 } derive(Show)

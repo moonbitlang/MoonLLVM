@@ -146,6 +146,7 @@ pub trait Type: Show + Hash {
   getScalarSizeInBits(Self) -> UInt = _
   getScalarType(Self) -> &Type = _
   tryAsFPTypeEnum(Self) -> FPTypeEnum? = _
+  tryAsIntegerTypeEnum(Self) -> IntegerTypeEnum? = _
 }
 
 ///|
@@ -331,6 +332,17 @@ impl Type with tryAsFPTypeEnum(self) -> FPTypeEnum? {
     FloatType(float) => Some(FloatType(float))
     DoubleType(double) => Some(DoubleType(double))
     FP128Type(fp128) => Some(FP128Type(fp128))
+    _ => None
+  }
+}
+
+impl Type with tryAsIntegerTypeEnum(self) -> IntegerTypeEnum? {
+  match self.asTypeEnum() {
+    Int1Type(int1) => Some(Int1Type(int1))
+    Int8Type(int8) => Some(Int8Type(int8))
+    Int16Type(int16) => Some(Int16Type(int16))
+    Int32Type(int32) => Some(Int32Type(int32))
+    Int64Type(int64) => Some(Int64Type(int64))
     _ => None
   }
 }

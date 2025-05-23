@@ -42,7 +42,7 @@ pub enum ValueEnum {
   // ExtractValueInst(ExtractValueInst)
   // FreezeInst(FreezeInst)
   //CastInst(CastInst)
-  //BinaryInstruction(BinaryInstruction)
+  BinaryInstruction(BinaryInstruction)
   //CmpInst(CompareInst)
   //StoreInst(StoreInst)
   //GetElementPtrInst(GetElementPtrInst)
@@ -268,6 +268,7 @@ pub trait User: Value {
   getUserBase(Self) -> UserBase
   getUserName(Self) -> String? = _
   getOperands(Self) -> Array[&Value] = _
+  getOperand(Self, index : Int) -> &Value? = _
 }
 
 ///|
@@ -280,6 +281,14 @@ impl User with getOperands(self) {
   self.getUserBase().operands
 }
 
+impl User with getOperand(self, index : Int) {
+  let operands = self.getOperands()
+  guard index >= 0 && index < operands.length() else {
+    return None
+  }
+  Some(operands[index])
+}
+
 ///|
 pub enum UserEnum {
   //Instruction(Instruction)
@@ -289,6 +298,7 @@ pub enum UserEnum {
   //ExtractValueInst(ExtractValueInst)
   //FreezeInst(FreezeInst)
   //CastInst(CastInst)
+  BinaryInstruction(BinaryInstruction)
 }
 
 ///|
@@ -296,6 +306,7 @@ pub fn UserEnum::getUserName(self : UserEnum) -> String? {
   match self {
     AllocaInst(c) => c.getUserName()
     LoadInst(l) => l.getUserName()
+    BinaryInstruction(b) => b.getUserName()
   }
 }
 
@@ -414,6 +425,7 @@ pub enum InstEnum {
   //ExtractValueInst(ExtractValueInst)
   //FreezeInst(FreezeInst)
   //CastInst(CastInst)
+  BinaryInstruction(BinaryInstruction)
 }
 
 // =======================================================
@@ -453,6 +465,7 @@ pub enum ConstantEnum {
 ///|
 trait Constant: Value {
   asConstantEnum(Self) -> ConstantEnum
+  valstr(Self) -> String
 }
 
 ///|

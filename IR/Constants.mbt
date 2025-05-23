@@ -147,23 +147,28 @@ pub impl Value for ConstantInt with getValueBase(self) {
 }
 
 ///|
-pub impl Constant for ConstantInt with asConstantEnum(self) {
-  ConstantInt(self)
-}
-
-///|
 pub impl Value for ConstantInt with asValueEnum(self) {
   ConstantInt(self)
 }
 
 ///|
-pub impl Show for ConstantInt with output(self, logger) {
+pub impl Constant for ConstantInt with asConstantEnum(self) {
+  ConstantInt(self)
+}
+
+pub impl Constant for ConstantInt with valstr(self) {
   let val_str = match self.value {
     Int8(b) => b.to_string()
     Int16(s) => s.to_string()
     Int32(i) => i.to_string()
     Int64(l) => l.to_string()
   }
+  val_str
+}
+
+///|
+pub impl Show for ConstantInt with output(self, logger) {
+  let val_str = self.valstr()
   logger.write_string("\{self.getIntegerType()} \{val_str}")
 }
 
@@ -311,14 +316,18 @@ pub impl Constant for ConstantUInt with asConstantEnum(self) {
   ConstantUInt(self)
 }
 
-///|
-pub impl Show for ConstantUInt with output(self, logger) {
-  let val_str = match self.value {
+pub impl Constant for ConstantUInt with valstr(self) {
+  match self.value {
     UInt8(b) => b.to_string()
     UInt16(s) => s.to_string()
     UInt32(i) => i.to_string()
     UInt64(l) => l.to_string()
   }
+}
+
+///|
+pub impl Show for ConstantUInt with output(self, logger) {
+  let val_str = self.valstr()
   logger.write_string("\{self.getIntegerType()} \{val_str}")
 }
 
@@ -375,6 +384,14 @@ pub impl Value for ConstantBool with asValueEnum(self) {
 ///|
 pub impl Constant for ConstantBool with asConstantEnum(self) {
   ConstantBool(self)
+}
+
+pub impl Constant for ConstantBool with valstr(self) {
+  if self.value {
+    "true"
+  } else {
+    "false"
+  }
 }
 
 ///|
@@ -441,12 +458,17 @@ pub impl Constant for ConstantFP with asConstantEnum(self) {
   ConstantFP(self)
 }
 
-///|
-pub impl Show for ConstantFP with output(self, logger) {
+pub impl Constant for ConstantFP with valstr(self) {
   let val_str = self.value
     .reinterpret_as_uint64()
     .to_string(radix=16)
     .to_upper()
+  val_str
+}
+
+///|
+pub impl Show for ConstantFP with output(self, logger) {
+  let val_str = self.valstr()
   logger.write_string("\{self.getType()} 0x\{val_str}")
 }
 
@@ -501,19 +523,24 @@ fn ConstantPointerNull::new(vty : &Type) -> ConstantPointerNull {
 }
 
 ///|
-impl Value for ConstantPointerNull with getValueBase(self) {
+pub impl Value for ConstantPointerNull with getValueBase(self) {
   self.base
 }
 
 ///|
-impl Value for ConstantPointerNull with asValueEnum(self) {
+pub impl Value for ConstantPointerNull with asValueEnum(self) {
   ConstantPointerNull(self)
 }
 
 ///|
-impl Constant for ConstantPointerNull with asConstantEnum(self) {
+pub impl Constant for ConstantPointerNull with asConstantEnum(self) {
   ConstantPointerNull(self)
 }
+
+pub impl Constant for ConstantPointerNull with valstr(_) {
+  "null"
+}
+
 
 ///|
 impl Show for ConstantPointerNull with output(self, logger) {
@@ -798,9 +825,8 @@ impl Constant for ConstantArray with asConstantEnum(self) {
   ConstantArray(self)
 }
 
-///|
-pub impl Show for ConstantArray with output(self, logger) {
-  let data_str = match self.data {
+impl Constant for ConstantArray with valstr(self) {
+  match self.data {
     Left(constants) => constants.map(fn { c => c.to_string() }).join(", ")
     Right(arr) =>
       match arr {
@@ -839,6 +865,11 @@ pub impl Show for ConstantArray with output(self, logger) {
         }
       }
   }
+}
+
+///|
+pub impl Show for ConstantArray with output(self, logger) {
+  let data_str = self.valstr()
   logger.write_string("\{self.getType()} [\{data_str}]")
 }
 
@@ -1145,9 +1176,8 @@ impl Constant for ConstantVector with asConstantEnum(self) {
   ConstantVector(self)
 }
 
-///|
-pub impl Show for ConstantVector with output(self, logger) {
-  let data_str = match self.data {
+impl Constant for ConstantVector with valstr(self) {
+  match self.data {
     Left(constants) => constants.map(fn { c => c.to_string() }).join(", ")
     Right(arr) =>
       match arr {
@@ -1186,5 +1216,10 @@ pub impl Show for ConstantVector with output(self, logger) {
         }
       }
   }
+}
+
+///|
+pub impl Show for ConstantVector with output(self, logger) {
+  let data_str = self.valstr()
   logger.write_string("\{self.getType()} <\{data_str}>")
 }

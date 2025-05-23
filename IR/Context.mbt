@@ -39,7 +39,8 @@ pub fn LLVMContext::new() -> LLVMContext {
   let ctx = LLVMContext::{ key: contextKey.val, pimpl: None }
   contextKey.val += 1
   let addr0 = AddressSpace::default()
-  let pointerTypes = Map::new()..set(
+  let pointerTypes = Map::new()
+  pointerTypes.set(
     addr0,
     PointerType::new(ctx, addressSpace=addr0),
   )
