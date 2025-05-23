@@ -64,15 +64,67 @@ pub impl UnaryInst for AllocaInst with asUnaryInstEnum(self) {
 ///|
 pub impl Show for AllocaInst with output(self, logger) {
   let prefix = match self.getName() {
-    Some(name) => "%\{name}"
-    None if self.getParent().getSlot(self) is Some(s) => "%\{s}"
+    Some(name) => "\{name}"
+    None if self.getParent().getSlot(self) is Some(s) => "\{s}"
     None => {
       self.getParent().precessSlot()
       match self.getParent().getSlot(self) {
-        Some(s) => "%\{s}"
+        Some(s) => "\{s}"
         None => "<badref>"
       }
     }
   }
-  logger.write_string("\{prefix} = alloca \{self.data_ty}, \{self.align}")
+  logger.write_string("  %\{prefix} = alloca \{self.data_ty}, \{self.align}")
+}
+
+// =======================================================
+// LoadInst
+// =======================================================
+
+///|
+pub struct LoadInst {
+  base: ValueBase
+  inst_base: InstBase
+  user_base: UserBase
+  data_ty: &Type
+  align: Int
+}
+
+///|
+pub impl Value for LoadInst with asValueEnum(self) {
+  ValueEnum::LoadInst(self)
+}
+
+pub impl Value for LoadInst with getValueBase(self) {
+  self.base
+}
+
+///|
+pub impl User for LoadInst with asUserEnum(self) {
+  UserEnum::LoadInst(self)
+}
+
+///|
+pub impl User for LoadInst with getUserBase(self) {
+  self.user_base
+}
+
+///|
+pub impl Instruction for LoadInst with getInstBase(self) {
+  self.inst_base
+}
+
+///|
+pub impl Instruction for LoadInst with asInstEnum(self) {
+  InstEnum::LoadInst(self)
+}
+
+///|
+pub impl UnaryInst for LoadInst with asUnaryInstEnum(self) {
+  UnaryInstEnum::LoadInst(self)
+}
+
+///|
+pub impl Show for LoadInst with output(_, logger) {
+  logger.write_string("load")
 }

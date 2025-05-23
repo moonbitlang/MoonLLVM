@@ -79,7 +79,7 @@ pub impl Hash for LLVMContext with hash_combine(self, hasher) {
 }
 
 ///|
-pub fn LLVMContext::newProgram(
+pub fn LLVMContext::addProgram(
   self : LLVMContext,
   programID : String
 ) -> Program {

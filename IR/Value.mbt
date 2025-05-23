@@ -37,7 +37,7 @@ pub enum ValueEnum {
   // ======= Instruction Values =======
   // ------- Unary Instruction
   AllocaInst(AllocaInst)
-  //LoadInst(LoadInst)
+  LoadInst(LoadInst)
   // VAArgInst(VAArgInst)
   // ExtractValueInst(ExtractValueInst)
   // FreezeInst(FreezeInst)
@@ -90,7 +90,7 @@ pub fn ValueEnum::tryAsConstantEnum(self : ValueEnum) -> ConstantEnum? {
 pub fn ValueEnum::tryAsUserEnum(self : ValueEnum) -> UserEnum? {
   match self {
     AllocaInst(c) => AllocaInst(c) |> Some
-    //LoadInst(c) => LoadInst(c) |> Some
+    LoadInst(c) => LoadInst(c) |> Some
     //VAArgInst(c) => VAArgInst(c) |> Some
     //ExtractValueInst(c) => ExtractValueInst(c) |> Some
     //FreezeInst(c) => FreezeInst(c) |> Some
@@ -103,7 +103,7 @@ pub fn ValueEnum::tryAsUserEnum(self : ValueEnum) -> UserEnum? {
 pub fn ValueEnum::tryAsInstEnum(self : ValueEnum) -> InstEnum? {
   match self {
     AllocaInst(c) => AllocaInst(c) |> Some
-    //LoadInst(c) => LoadInst(c) |> Some
+    LoadInst(c) => LoadInst(c) |> Some
     //VAArgInst(c) => VAArgInst(c) |> Some
     //ExtractValueInst(c) => ExtractValueInst(c) |> Some
     //FreezeInst(c) => FreezeInst(c) |> Some
@@ -284,7 +284,7 @@ impl User with getOperands(self) {
 pub enum UserEnum {
   //Instruction(Instruction)
   AllocaInst(AllocaInst)
-  //LoadInst(LoadInst)
+  LoadInst(LoadInst)
   //VAArgInst(VAArgInst)
   //ExtractValueInst(ExtractValueInst)
   //FreezeInst(FreezeInst)
@@ -295,6 +295,7 @@ pub enum UserEnum {
 pub fn UserEnum::getUserName(self : UserEnum) -> String? {
   match self {
     AllocaInst(c) => c.getUserName()
+    LoadInst(l) => l.getUserName()
   }
 }
 
@@ -408,6 +409,11 @@ impl Instruction with insertBefore(self, next : &Instruction) {
 ///|
 pub enum InstEnum {
   AllocaInst(AllocaInst)
+  LoadInst(LoadInst)
+  //VAArgInst(VAArgInst)
+  //ExtractValueInst(ExtractValueInst)
+  //FreezeInst(FreezeInst)
+  //CastInst(CastInst)
 }
 
 // =======================================================
@@ -422,7 +428,7 @@ pub trait UnaryInst: Instruction {
 ///|
 pub enum UnaryInstEnum {
   AllocaInst(AllocaInst)
-  //LoadInst(LoadInst)
+  LoadInst(LoadInst)
   //VAArgInst(VAArgInst)
   //ExtractValueInst(ExtractValueInst)
   //FreezeInst(FreezeInst)

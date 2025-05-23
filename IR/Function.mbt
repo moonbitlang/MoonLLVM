@@ -9,7 +9,7 @@
 /// ```moonbit
 /// test "Argument" {
 ///   let ctx = LLVMContext::new()
-///   let prog = ctx.newProgram("demo")
+///   let prog = ctx.addProgram("demo")
 ///
 ///   let i32ty = ctx.getInt32Ty()
 ///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
@@ -49,7 +49,7 @@ pub fn Argument::getName(self : Argument) -> String? {
 /// ```moonbit
 /// test "Argument::setName" {
 ///   let ctx = LLVMContext::new()
-///   let prog = ctx.newProgram("demo")
+///   let prog = ctx.addProgram("demo")
 ///
 ///   let i32ty = ctx.getInt32Ty()
 ///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
@@ -86,7 +86,7 @@ pub fn Argument::setName(self : Argument, name : String) -> Unit!LLVMValueError 
 /// ```moonbit`
 /// test "Argument::addAttribute" {
 ///   let ctx = LLVMContext::new()
-///   let prog = ctx.newProgram("demo")
+///   let prog = ctx.addProgram("demo")
 ///
 ///   let i32ty = ctx.getInt32Ty()
 ///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
@@ -127,21 +127,25 @@ pub impl Value for Argument with asValueEnum(self) {
 }
 
 ///|
-pub impl Show for Argument with output(self, logger) {
-  let ty = self.getType()
-  let str = match self.name {
-    Some(name) => "\{ty} %\{name}"
-    None if self.parent.getSlot(self) is Some(s) => "\{ty} %\{s}"
+fn Argument::getNameOrSlot(self : Argument) -> String {
+  match self.name {
+    Some(name) => name
     None => {
       self.parent.precessSlot()
       if self.parent.getSlot(self) is Some(s) {
-        "\{ty} %\{s}"
+        s.to_string()
       } else {
-        "\{ty} %<badref>"
+        "<badref>"
       }
     }
   }
-  logger.write_string(str)
+}
+
+///|
+pub impl Show for Argument with output(self, logger) {
+  let ty = self.getType()
+  let label = self.getNameOrSlot()
+  logger.write_string("\{ty} %\{label}")
 }
 
 // ====================================================================
@@ -257,6 +261,19 @@ pub fn Function::getNumBasicBlocks(self : Function) -> Int {
 ///|
 pub fn Function::addBasicBlock(
   self : Function,
+  name~ : String = "",
+  before~ : BasicBlock? = None
+) -> BasicBlock {
+  let name = match name {
+    "" => None
+    _ => Some(name)
+  }
+  BasicBlock::new(self, name, before~)
+}
+
+///|
+fn Function::appendBasicBlock(
+  self : Function,
   bb : BasicBlock,
   before~ : BasicBlock? = None
 ) -> Unit {
@@ -300,6 +317,11 @@ pub fn Function::getDataLayout(self : Function) -> DataLayout {
 }
 
 ///|
+pub fn Function::hasBody(self : Function) -> Bool {
+  self.basicBlocks.length() > 0
+}
+
+///|
 pub impl Eq for Function with op_equal(self, other) {
   self.index == other.index
 }
@@ -327,6 +349,7 @@ pub impl GlobalValue for Function with asGlobalValueEnum(self) {
 // TODO: This only implemented empty body.
 ///|
 pub impl Show for Function with output(self, logger) {
+  let hasBody = self.hasBody()
   // Print Function Attributes
   let fn_attrs = self.attrSet.fnAttrs
   let fn_attrs_str = fn_attrs.iter().map(fn(a) { "\{a}" }).join(" ")
@@ -341,11 +364,12 @@ pub impl Show for Function with output(self, logger) {
     }
     let arg_attrs_str = arg_attrs.map(fn(a) { "\{a}" }).join(" ")
     let ty = arg.getType()
-    if not(arg_attrs_str.is_empty()) {
+    (if not(arg_attrs_str.is_empty()) {
       "\{ty} \{arg_attrs_str}"
     } else {
       "\{ty}"
-    }
+    }) +
+    (if hasBody { " %" + arg.getNameOrSlot() } else { "" })
   })
   if not(fn_attrs_str.is_empty()) {
     logger.write_string("; Function Attrs: \{fn_attrs_str}\n")
@@ -353,11 +377,19 @@ pub impl Show for Function with output(self, logger) {
   let arg_str = arg_strs.join(", ")
   let ret_ty = self.getReturnType()
   let linkage_str = self.getLinkage().to_string()
-  let func_info = "declare " +
+  let hasBody = self.hasBody()
+  let func_info = (if hasBody { "define " } else { "declare " }) +
     (if not(linkage_str.is_empty()) { linkage_str + " " } else { "" }) +
     (if not(ret_attrs_str.is_empty()) { ret_attrs_str + " " } else { "" }) +
     ret_ty.to_string() +
     " @\{self.name}(\{arg_str})" +
-    (if not(fn_attrs_str.is_empty()) { " #\{self.index}" } else { "" })
+    (if not(fn_attrs_str.is_empty()) { " #\{self.index}" } else { "" }) +
+    (if hasBody { " {\n" } else { "" })
   logger.write_string(func_info)
+  if hasBody {
+    for bb in self.basicBlocks {
+      logger.write_string(bb.to_string())
+    }
+    logger.write_string("}\n")
+  }
 }

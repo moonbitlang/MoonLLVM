@@ -1,7 +1,7 @@
 ///|
 test "Function" {
   let ctx = LLVMContext::new()
-  let prog = ctx.newProgram("demo")
+  let prog = ctx.addProgram("demo")
 
   // get data type and function type
   let i32ty = ctx.getInt32Ty()

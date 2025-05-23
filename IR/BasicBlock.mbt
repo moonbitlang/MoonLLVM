@@ -10,7 +10,7 @@ pub struct BasicBlock {
 ///|
 fn BasicBlock::new(
   parent : Function,
-  name~ : String? = None,
+  name : String?,
   before~ : BasicBlock? = None
 ) -> BasicBlock {
   let labelTy = parent.getContext().getLabelTy()
@@ -22,7 +22,7 @@ fn BasicBlock::new(
     head: None,
     id: parent.getNumBasicBlocks(),
   }
-  parent.addBasicBlock(bb, before~)
+  parent.appendBasicBlock(bb, before~)
   bb
 }
 
@@ -59,6 +59,25 @@ pub impl Eq for BasicBlock with op_equal(self, other) {
 }
 
 ///|
-pub impl Show for BasicBlock with output(_, logger) {
-  logger.write_string("BasicBlock")
+pub impl Show for BasicBlock with output(self, logger) {
+  //logger.write_string("BasicBlock")
+  let label = match self.getName() {
+    Some(name) => name
+    None if self.parent.getSlot(self) is Some(s) => "%\{s}"
+    None => {
+      self.parent.precessSlot()
+      match self.parent.getSlot(self) {
+        Some(s) => "%\{s}"
+        None => "<badlabel>"
+      }
+    }
+  }
+  logger.write_string("\{label}:\n")
+  loop self.head {
+    Some(i) => {
+      logger.write_string("\{i}\n")
+      continue i.next()
+    }
+    None => break
+  }
 }
