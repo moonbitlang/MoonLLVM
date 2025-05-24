@@ -141,7 +141,34 @@ pub fn ConstantInt::isMinValue(self : ConstantInt) -> Bool {
   }
 }
 
-///|
+///| Add two ConstantInt, useful in constant folding.
+///
+/// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
+/// ConstantInt are not the same.
+///
+/// ```moonbit
+/// test "ConstantInt::add" {
+///   let ctx = LLVMContext::new()
+///
+///   let i8_0 = ctx.getConstInt8(0)
+///   let i8_31 = ctx.getConstInt8(31)
+///   inspect!(i8_0.add(i8_31), content="i8 31")
+///
+///   let i16_5 = ctx.getConstInt16(5)
+///   let i16_72 = ctx.getConstInt16(72)
+///   inspect!(i16_5.add(i16_72), content="i16 77")
+///
+///   let i32_m7 = ctx.getConstInt32(-7)
+///   let i32_81 = ctx.getConstInt32(81)
+///   inspect!(i32_m7.add(i32_81), content="i32 74")
+///
+///   let i64_16 = ctx.getConstInt64(16)
+///   let i64_m33 = ctx.getConstInt64(-33)
+///   inspect!(i64_16.add(i64_m33), content="i64 -17")
+///
+///   assert_true!(i8_0.add?(i16_5) is Err(_))
+/// }
+/// ```
 pub fn ConstantInt::add(
   self : ConstantInt,
   other : ConstantInt
@@ -158,7 +185,35 @@ pub fn ConstantInt::add(
   ConstantInt::{ base, value }
 }
 
-///|
+///| Subtract two ConstantInt, useful in constant folding.
+///
+/// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
+/// ConstantInt are not the same.
+///
+/// ```moonbit
+/// test "ConstantInt::sub" {
+///   let ctx = LLVMContext::new()
+///
+///   let i8_0 = ctx.getConstInt8(0)
+///   let i8_31 = ctx.getConstInt8(31)
+///   inspect!(i8_31.sub(i8_0), content="i8 31")
+///   inspect!(i8_0.sub(i8_31), content="i8 -31")
+///
+///   let i16_5 = ctx.getConstInt16(5)
+///   let i16_72 = ctx.getConstInt16(72)
+///   inspect!(i16_72.sub(i16_5), content="i16 67")
+///
+///   let i32_m7 = ctx.getConstInt32(-7)
+///   let i32_81 = ctx.getConstInt32(81)
+///   inspect!(i32_m7.sub(i32_81), content="i32 -88")
+///
+///   let i64_16 = ctx.getConstInt64(16)
+///   let i64_m33 = ctx.getConstInt64(-33)
+///   inspect!(i64_16.sub(i64_m33), content="i64 49")
+///
+///   assert_true!(i32_81.sub?(i64_16) is Err(_))
+/// }
+/// ```
 pub fn ConstantInt::sub(
   self : ConstantInt,
   other : ConstantInt
@@ -175,7 +230,34 @@ pub fn ConstantInt::sub(
   ConstantInt::{ base, value }
 }
 
-///|
+///| Multiply two ConstantInt, useful in constant folding.
+///
+/// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
+/// ConstantInt are not the same.
+///
+/// ```moonbit
+/// test "ConstantInt::mul" {
+///   let ctx = LLVMContext::new()
+///
+///   let i8_0 = ctx.getConstInt8(0)
+///   let i8_31 = ctx.getConstInt8(31)
+///   inspect!(i8_0.mul(i8_31), content="i8 0")
+///
+///   let i16_5 = ctx.getConstInt16(5)
+///   let i16_72 = ctx.getConstInt16(72)
+///   inspect!(i16_5.mul(i16_72), content="i16 360")
+///
+///   let i32_m7 = ctx.getConstInt32(-7)
+///   let i32_81 = ctx.getConstInt32(81)
+///   inspect!(i32_m7.mul(i32_81), content="i32 -567")
+///
+///   let i64_16 = ctx.getConstInt64(16)
+///   let i64_m33 = ctx.getConstInt64(-33)
+///   inspect!(i64_16.mul(i64_m33), content="i64 -528")
+///
+///   assert_true!(i8_31.mul?(i16_5) is Err(_))
+/// }
+/// ```
 pub fn ConstantInt::mul(
   self : ConstantInt,
   other : ConstantInt
@@ -192,7 +274,34 @@ pub fn ConstantInt::mul(
   ConstantInt::{ base, value }
 }
 
-///|
+///| Divide two ConstantInt, useful in constant folding.
+///
+/// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
+/// ConstantInt are not the same.
+///
+/// ```moonbit
+/// test "ConstantInt::div" {
+///   let ctx = LLVMContext::new()
+///
+///   let i8_1 = ctx.getConstInt8(1)
+///   let i8_31 = ctx.getConstInt8(31)
+///   inspect!(i8_31.div(i8_1), content="i8 31")
+///
+///   let i16_5 = ctx.getConstInt16(5)
+///   let i16_72 = ctx.getConstInt16(72)
+///   inspect!(i16_72.div(i16_5), content="i16 14")
+///
+///   let i32_m7 = ctx.getConstInt32(-7)
+///   let i32_81 = ctx.getConstInt32(81)
+///   inspect!(i32_m7.div(i32_81), content="i32 0")
+///
+///   let i64_16 = ctx.getConstInt64(16)
+///   let i64_m33 = ctx.getConstInt64(-33)
+///   inspect!(i64_16.div(i64_m33), content="i64 0")
+///
+///   assert_true!(i8_31.div?(i16_5) is Err(_))
+/// }
+/// ```
 pub fn ConstantInt::div(
   self : ConstantInt,
   other : ConstantInt
@@ -370,7 +479,34 @@ pub fn ConstantUInt::isMaxValue(self : ConstantUInt) -> Bool {
   }
 }
 
-///|
+///| Add two ConstantUInt, useful in constant folding.
+///
+/// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
+/// ConstantUInt are not the same.
+///
+/// ```moonbit
+/// test "ConstantUInt::add" {
+///   let ctx = LLVMContext::new()
+///
+///   let u8_0 = ctx.getConstUInt8(0)
+///   let u8_31 = ctx.getConstUInt8(31)
+///   inspect!(u8_0.add(u8_31), content="i8 31")
+///
+///   let u16_5 = ctx.getConstUInt16(5)
+///   let u16_72 = ctx.getConstUInt16(72)
+///   inspect!(u16_5.add(u16_72), content="i16 77")
+///
+///   let u32_7 = ctx.getConstUInt32(7)
+///   let u32_81 = ctx.getConstUInt32(81)
+///   inspect!(u32_7.add(u32_81), content="i32 88")
+///
+///   let u64_16 = ctx.getConstUInt64(16)
+///   let u64_33 = ctx.getConstUInt64(33)
+///   inspect!(u64_16.add(u64_33), content="i64 49")
+///
+///   assert_true!(u8_31.add?(u16_5) is Err(_))
+/// }
+/// ```
 pub fn ConstantUInt::add(
   self : ConstantUInt,
   other : ConstantUInt
@@ -387,7 +523,34 @@ pub fn ConstantUInt::add(
   ConstantUInt::{ base, value }
 }
 
-///|
+///| Subtract two ConstantUInt, useful in constant folding.
+///
+/// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
+/// ConstantUInt are not the same.
+///
+/// ```moonbit
+/// test "ConstantUInt::sub" {
+///   let ctx = LLVMContext::new()
+///
+///   let u8_0 = ctx.getConstUInt8(0)
+///   let u8_31 = ctx.getConstUInt8(31)
+///   inspect!(u8_31.sub(u8_0), content="i8 31")
+///
+///   let u16_5 = ctx.getConstUInt16(5)
+///   let u16_72 = ctx.getConstUInt16(72)
+///   inspect!(u16_72.sub(u16_5), content="i16 67")
+///
+///   let u32_7 = ctx.getConstUInt32(7)
+///   let u32_81 = ctx.getConstUInt32(81)
+///   inspect!(u32_81.sub(u32_7), content="i32 74")
+///
+///   let u64_16 = ctx.getConstUInt64(16)
+///   let u64_33 = ctx.getConstUInt64(33)
+///   inspect!(u64_33.sub(u64_16), content="i64 17")
+///
+///   assert_true!(u8_31.sub?(u16_5) is Err(_))
+/// }
+/// ```
 pub fn ConstantUInt::sub(
   self : ConstantUInt,
   other : ConstantUInt
@@ -404,7 +567,34 @@ pub fn ConstantUInt::sub(
   ConstantUInt::{ base, value }
 }
 
-///|
+///| Multiply two ConstantUInt, useful in constant folding.
+///
+/// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
+/// ConstantUInt are not the same.
+///
+/// ```moonbit
+/// test "ConstantUInt::mul" {
+///   let ctx = LLVMContext::new()
+///
+///   let u8_0 = ctx.getConstUInt8(0)
+///   let u8_31 = ctx.getConstUInt8(31)
+///   inspect!(u8_0.mul(u8_31), content="i8 0")
+///
+///   let u16_5 = ctx.getConstUInt16(5)
+///   let u16_72 = ctx.getConstUInt16(72)
+///   inspect!(u16_5.mul(u16_72), content="i16 360")
+///
+///   let u32_7 = ctx.getConstUInt32(7)
+///   let u32_81 = ctx.getConstUInt32(81)
+///   inspect!(u32_7.mul(u32_81), content="i32 567")
+///
+///   let u64_16 = ctx.getConstUInt64(16)
+///   let u64_33 = ctx.getConstUInt64(33)
+///   inspect!(u64_16.mul(u64_33), content="i64 528")
+///
+///   assert_true!(u8_31.mul?(u16_5) is Err(_))
+/// }
+/// ```
 pub fn ConstantUInt::mul(
   self : ConstantUInt,
   other : ConstantUInt
@@ -421,7 +611,34 @@ pub fn ConstantUInt::mul(
   ConstantUInt::{ base, value }
 }
 
-///|
+///| Divide two ConstantUInt, useful in constant folding.
+///
+/// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
+/// ConstantUInt are not the same.
+///
+/// ```moonbit
+/// test "ConstantUInt::div" {
+///   let ctx = LLVMContext::new()
+///
+///   let u8_1 = ctx.getConstUInt8(1)
+///   let u8_31 = ctx.getConstUInt8(31)
+///   inspect!(u8_31.div(u8_1), content="i8 31")
+///
+///   let u16_5 = ctx.getConstUInt16(5)
+///   let u16_72 = ctx.getConstUInt16(72)
+///   inspect!(u16_72.div(u16_5), content="i16 14")
+///
+///   let u32_7 = ctx.getConstUInt32(7)
+///   let u32_81 = ctx.getConstUInt32(81)
+///   inspect!(u32_7.div(u32_81), content="i32 0")
+///
+///   let u64_16 = ctx.getConstUInt64(16)
+///   let u64_33 = ctx.getConstUInt64(33)
+///   inspect!(u64_16.div(u64_33), content="i64 0")
+///
+///   assert_true!(u8_31.div?(u16_5) is Err(_))
+/// }
+/// ```
 pub fn ConstantUInt::div(
   self : ConstantUInt,
   other : ConstantUInt
@@ -509,6 +726,48 @@ pub fn ConstantBool::getValue(self : ConstantBool) -> Bool {
   self.value
 }
 
+///| Perform logical AND operation between two ConstantBool values.
+///
+/// ```moonbit
+/// test "ConstantBool::and" {
+///   let ctx = LLVMContext::new()
+///
+///   let true_val = ctx.getConstTrue()
+///   let false_val = ctx.getConstFalse()
+///
+///   inspect!(true_val.and(true_val), content="i1 true")
+///   inspect!(true_val.and(false_val), content="i1 false")
+///   inspect!(false_val.and(true_val), content="i1 false")
+///   inspect!(false_val.and(false_val), content="i1 false")
+/// }
+/// ```
+pub fn ConstantBool::and(self : ConstantBool, other : ConstantBool) -> ConstantBool {
+  let value = self.value && other.value
+  let base = self.base
+  ConstantBool::{ base, value }
+}
+
+///| Perform logical OR operation between two ConstantBool values.
+///
+/// ```moonbit
+/// test "ConstantBool::or" {
+///   let ctx = LLVMContext::new()
+///
+///   let true_val = ctx.getConstTrue()
+///   let false_val = ctx.getConstFalse()
+///
+///   inspect!(true_val.or(true_val), content="i1 true")
+///   inspect!(true_val.or(false_val), content="i1 true")
+///   inspect!(false_val.or(true_val), content="i1 true")
+///   inspect!(false_val.or(false_val), content="i1 false")
+/// }
+/// ```
+pub fn ConstantBool::or(self : ConstantBool, other : ConstantBool) -> ConstantBool {
+  let value = self.value || other.value
+  let base = self.base
+  ConstantBool::{ base, value }
+}
+
 ///|
 pub impl Value for ConstantBool with getValueBase(self) {
   self.base
@@ -580,6 +839,126 @@ pub fn[T : Floating] ConstantFP::exactlyEquals(
 ) -> Bool {
   self.value.reinterpret_as_uint64() ==
   value.to_float64().reinterpret_as_uint64()
+}
+
+///| Add two ConstantFP, useful in constant folding.
+///
+/// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
+/// ConstantFP are not the same.
+///
+/// ```moonbit
+/// test "ConstantFP::add" {
+///   let ctx = LLVMContext::new()
+///
+///   let f32_0 = ctx.getConstFloat(0.0)
+///   let f32_1_5 = ctx.getConstFloat(1.5)
+///   inspect!(f32_0.add(f32_1_5), content="float 0x3FF8000000000000")
+///
+///   let f64_2_5 = ctx.getConstDouble(2.5)
+///   let f64_m1_5 = ctx.getConstDouble(-1.5)
+///   inspect!(f64_2_5.add(f64_m1_5), content="double 0x3FF0000000000000")
+///
+///   assert_true!(f32_0.add?(f64_2_5) is Err(_))
+/// }
+/// ```
+pub fn ConstantFP::add(self : ConstantFP, other : ConstantFP) -> ConstantFP!LLVMValueError {
+  let (lty, rty) = (self.getType(), other.getType())
+  guard lty == rty else {
+    raise TypeMismatchForBinaryOp(lty, rty)
+  }
+  let value = self.value + other.value
+  let base = self.base
+  ConstantFP::{ base, value }
+}
+
+///| Subtract two ConstantFP, useful in constant folding.
+///
+/// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
+/// ConstantFP are not the same.
+///
+/// ```moonbit
+/// test "ConstantFP::sub" {
+///   let ctx = LLVMContext::new()
+///
+///   let f32_0 = ctx.getConstFloat(0.0)
+///   let f32_1_5 = ctx.getConstFloat(1.5)
+///   inspect!(f32_0.sub(f32_1_5), content="float 0xBFF8000000000000")
+///
+///   let f64_2_5 = ctx.getConstDouble(2.5)
+///   let f64_m1_5 = ctx.getConstDouble(-1.5)
+///   inspect!(f64_2_5.sub(f64_m1_5), content="double 0x4010000000000000")
+///
+///   assert_true!(f32_0.sub?(f64_2_5) is Err(_))
+/// }
+/// ```
+pub fn ConstantFP::sub(self : ConstantFP, other : ConstantFP) -> ConstantFP!LLVMValueError {
+  let (lty, rty) = (self.getType(), other.getType())
+  guard lty == rty else {
+    raise TypeMismatchForBinaryOp(lty, rty)
+  }
+  let value = self.value - other.value
+  let base = self.base
+  ConstantFP::{ base, value }
+}
+
+///| Multiply two ConstantFP, useful in constant folding.
+///
+/// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
+/// ConstantFP are not the same.
+///
+/// ```moonbit
+/// test "ConstantFP::mul" {
+///   let ctx = LLVMContext::new()
+///
+///   let f32_0 = ctx.getConstFloat(0.0)
+///   let f32_1_5 = ctx.getConstFloat(1.5)
+///   inspect!(f32_0.mul(f32_1_5), content="float 0x0")
+///
+///   let f64_2_5 = ctx.getConstDouble(2.5)
+///   let f64_m1_5 = ctx.getConstDouble(-1.5)
+///   inspect!(f64_2_5.mul(f64_m1_5), content="double 0xC00E000000000000")
+///
+///   assert_true!(f32_0.mul?(f64_2_5) is Err(_))
+/// }
+/// ```
+pub fn ConstantFP::mul(self : ConstantFP, other : ConstantFP) -> ConstantFP!LLVMValueError {
+  let (lty, rty) = (self.getType(), other.getType())
+  guard lty == rty else {
+    raise TypeMismatchForBinaryOp(lty, rty)
+  }
+  let value = self.value * other.value
+  let base = self.base
+  ConstantFP::{ base, value }
+}
+
+///| Divide two ConstantFP, useful in constant folding.
+///
+/// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
+/// ConstantFP are not the same.
+///
+/// ```moonbit
+/// test "ConstantFP::div" {
+///   let ctx = LLVMContext::new()
+///
+///   let f32_0 = ctx.getConstFloat(0.0)
+///   let f32_1_5 = ctx.getConstFloat(1.5)
+///   inspect!(f32_0.div(f32_1_5), content="float 0x0")
+///
+///   let f64_2_5 = ctx.getConstDouble(2.5)
+///   let f64_m1_5 = ctx.getConstDouble(-1.5)
+///   inspect!(f64_2_5.div(f64_m1_5), content="double 0xBFFAAAAAAAAAAAAB") 
+///
+///   assert_true!(f32_0.div?(f64_2_5) is Err(_))
+/// }
+/// ```
+pub fn ConstantFP::div(self : ConstantFP, other : ConstantFP) -> ConstantFP!LLVMValueError {
+  let (lty, rty) = (self.getType(), other.getType())
+  guard lty == rty else {
+    raise TypeMismatchForBinaryOp(lty, rty)
+  }
+  let value = self.value / other.value
+  let base = self.base
+  ConstantFP::{ base, value }
 }
 
 ///|
