@@ -326,13 +326,18 @@ pub impl Show for BinaryInstruction with output(self, logger) {
 // ReturnInst
 // =======================================================
 
+///|
 pub struct ReturnInst {
   base : ValueBase
   user_base : UserBase
   inst_base : InstBase
 }
 
-fn ReturnInst::new(retVal: &Value?, parent: Function) -> ReturnInst!LLVMValueError {
+///|
+fn ReturnInst::new(
+  retVal : &Value?,
+  parent : Function
+) -> ReturnInst!LLVMValueError {
   let vty = match retVal {
     Some(val) => val.getType()
     None => parent.getContext().getVoidTy()
@@ -349,44 +354,53 @@ fn ReturnInst::new(retVal: &Value?, parent: Function) -> ReturnInst!LLVMValueErr
   ReturnInst::{ base, user_base, inst_base }
 }
 
+///|
 pub impl Value for ReturnInst with getValueBase(self) {
   self.base
 }
 
+///|
 pub impl Value for ReturnInst with asValueEnum(self) {
   ReturnInst(self)
 }
 
+///|
 pub impl User for ReturnInst with asUserEnum(self) {
   ReturnInst(self)
 }
 
+///|
 pub impl User for ReturnInst with getUserBase(self) {
   self.user_base
 }
 
+///|
 pub impl Instruction for ReturnInst with getInstBase(self) {
   self.inst_base
 }
 
+///|
 pub impl Instruction for ReturnInst with asInstEnum(self) {
   ReturnInst(self)
 }
 
+///|
 pub impl Show for ReturnInst with output(self, logger) {
   let retStr = match self.getOperand(0) {
-    Some(val) => "\{val.getType()} " + (match val.getValueName() {
-      Some(name) => "%\{name}"
-      None if val.tryAsConstant() is Some(c) => c.valstr()
-      None if self.getParent().getSlot(val) is Some(s) => "%\{s}"
-      None => {
-        self.getParent().precessSlot()
-        match self.getParent().getSlot(val) {
-          Some(s) => "%\{s}"
-          None => "<badref>"
+    Some(val) =>
+      "\{val.getType()} " +
+      (match val.getValueName() {
+        Some(name) => "%\{name}"
+        None if val.tryAsConstant() is Some(c) => c.valstr()
+        None if self.getParent().getSlot(val) is Some(s) => "%\{s}"
+        None => {
+          self.getParent().precessSlot()
+          match self.getParent().getSlot(val) {
+            Some(s) => "%\{s}"
+            None => "<badref>"
+          }
         }
-      }
-    })
+      })
     None => "void"
   }
   logger.write_string("  ret \{retStr}")

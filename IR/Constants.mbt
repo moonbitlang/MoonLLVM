@@ -741,7 +741,10 @@ pub fn ConstantBool::getValue(self : ConstantBool) -> Bool {
 ///   inspect!(false_val.and(false_val), content="i1 false")
 /// }
 /// ```
-pub fn ConstantBool::and(self : ConstantBool, other : ConstantBool) -> ConstantBool {
+pub fn ConstantBool::and(
+  self : ConstantBool,
+  other : ConstantBool
+) -> ConstantBool {
   let value = self.value && other.value
   let base = self.base
   ConstantBool::{ base, value }
@@ -762,7 +765,10 @@ pub fn ConstantBool::and(self : ConstantBool, other : ConstantBool) -> ConstantB
 ///   inspect!(false_val.or(false_val), content="i1 false")
 /// }
 /// ```
-pub fn ConstantBool::or(self : ConstantBool, other : ConstantBool) -> ConstantBool {
+pub fn ConstantBool::or(
+  self : ConstantBool,
+  other : ConstantBool
+) -> ConstantBool {
   let value = self.value || other.value
   let base = self.base
   ConstantBool::{ base, value }
@@ -861,11 +867,12 @@ pub fn[T : Floating] ConstantFP::exactlyEquals(
 ///   assert_true!(f32_0.add?(f64_2_5) is Err(_))
 /// }
 /// ```
-pub fn ConstantFP::add(self : ConstantFP, other : ConstantFP) -> ConstantFP!LLVMValueError {
+pub fn ConstantFP::add(
+  self : ConstantFP,
+  other : ConstantFP
+) -> ConstantFP!LLVMValueError {
   let (lty, rty) = (self.getType(), other.getType())
-  guard lty == rty else {
-    raise TypeMismatchForBinaryOp(lty, rty)
-  }
+  guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
   let value = self.value + other.value
   let base = self.base
   ConstantFP::{ base, value }
@@ -891,11 +898,12 @@ pub fn ConstantFP::add(self : ConstantFP, other : ConstantFP) -> ConstantFP!LLVM
 ///   assert_true!(f32_0.sub?(f64_2_5) is Err(_))
 /// }
 /// ```
-pub fn ConstantFP::sub(self : ConstantFP, other : ConstantFP) -> ConstantFP!LLVMValueError {
+pub fn ConstantFP::sub(
+  self : ConstantFP,
+  other : ConstantFP
+) -> ConstantFP!LLVMValueError {
   let (lty, rty) = (self.getType(), other.getType())
-  guard lty == rty else {
-    raise TypeMismatchForBinaryOp(lty, rty)
-  }
+  guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
   let value = self.value - other.value
   let base = self.base
   ConstantFP::{ base, value }
@@ -921,11 +929,12 @@ pub fn ConstantFP::sub(self : ConstantFP, other : ConstantFP) -> ConstantFP!LLVM
 ///   assert_true!(f32_0.mul?(f64_2_5) is Err(_))
 /// }
 /// ```
-pub fn ConstantFP::mul(self : ConstantFP, other : ConstantFP) -> ConstantFP!LLVMValueError {
+pub fn ConstantFP::mul(
+  self : ConstantFP,
+  other : ConstantFP
+) -> ConstantFP!LLVMValueError {
   let (lty, rty) = (self.getType(), other.getType())
-  guard lty == rty else {
-    raise TypeMismatchForBinaryOp(lty, rty)
-  }
+  guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
   let value = self.value * other.value
   let base = self.base
   ConstantFP::{ base, value }
@@ -951,11 +960,12 @@ pub fn ConstantFP::mul(self : ConstantFP, other : ConstantFP) -> ConstantFP!LLVM
 ///   assert_true!(f32_0.div?(f64_2_5) is Err(_))
 /// }
 /// ```
-pub fn ConstantFP::div(self : ConstantFP, other : ConstantFP) -> ConstantFP!LLVMValueError {
+pub fn ConstantFP::div(
+  self : ConstantFP,
+  other : ConstantFP
+) -> ConstantFP!LLVMValueError {
   let (lty, rty) = (self.getType(), other.getType())
-  guard lty == rty else {
-    raise TypeMismatchForBinaryOp(lty, rty)
-  }
+  guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
   let value = self.value / other.value
   let base = self.base
   ConstantFP::{ base, value }

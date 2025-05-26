@@ -29,7 +29,8 @@ fn SlotTracker::process(self : SlotTracker) -> Unit {
       slot += 1
     }
     loop bb.head {
-      Some(i) if i.getName() is None && not(i.getType().asTypeEnum() is VoidType(_)) => {
+      Some(i) if i.getName() is None &&
+        not(i.getType().asTypeEnum() is VoidType(_)) => {
         self.valueMap.set(i, slot)
         slot += 1
         continue i.next()
