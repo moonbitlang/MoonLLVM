@@ -51,8 +51,14 @@ pub fn[T : InsertPoint] IRBuilder::setInsertPoint(
 fn IRBuilder::insert(self : IRBuilder, inst : &Instruction) -> Unit!Error {
   guard self.bb is Some(_) else { raise UnsetInsertPoint }
   match self.insertPt {
-    Some(insertPt) => inst.insertAfter!(insertPt)
-    None => self.bb.unwrap().head = Some(inst)
+    Some(insertPt) => {
+      inst.insertAfter!(insertPt)
+      self.insertPt = Some(inst)
+    }
+    None => {
+      self.bb.unwrap().head = Some(inst)
+      self.insertPt = Some(inst)
+    }
   }
 }
 
@@ -124,4 +130,15 @@ pub fn IRBuilder::createNUWAdd(
   name~ : String = ""
 ) -> &Value!Error {
   self.createAdd(lhs, rhs, name~, has_nsw=false, has_nuw=true)
+}
+
+///|
+pub fn IRBuilder::createRet(
+  self : IRBuilder,
+  retVal : &Value
+) -> &Instruction!Error {
+  let parent = self.getInsertFunction()
+  let retInst = ReturnInst::new(Some(retVal), parent)
+  self.insert!(retInst)
+  retInst
 }

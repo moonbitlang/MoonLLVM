@@ -19,6 +19,7 @@ type! LLVMValueError {
   InValidFunctionName(String)
   TypeMismatchForBinaryOp(&Type, &Type)
   TypeNotSupportForBinaryOp(&Type, BinaryOps)
+  TypeMismatchForReturnInst(&Type, &Type)
 } derive(Show)
 
 ///|

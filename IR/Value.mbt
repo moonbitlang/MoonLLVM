@@ -51,7 +51,7 @@ pub enum ValueEnum {
   //InsertElementInst(InsertElementInst)
   //ShuffleVectorInst(ShuffleVectorInst)
   //PHINode(PHINodeInst)
-  //ReturnInst(ReturnInst)
+  ReturnInst(ReturnInst)
   //BranchInst(BranchInst)
   //SwitchInst(SwitchInst)
   //IndirectBrInst(IndirectBrInst)
@@ -313,6 +313,7 @@ pub enum UserEnum {
   //FreezeInst(FreezeInst)
   //CastInst(CastInst)
   BinaryInstruction(BinaryInstruction)
+  ReturnInst(ReturnInst)
 }
 
 ///|
@@ -321,6 +322,7 @@ pub fn UserEnum::getUserName(self : UserEnum) -> String? {
     AllocaInst(c) => c.getUserName()
     LoadInst(l) => l.getUserName()
     BinaryInstruction(b) => b.getUserName()
+    ReturnInst(_) => None
   }
 }
 
@@ -394,39 +396,39 @@ impl Instruction with prev(self) {
 }
 
 ///|
-impl Instruction with insertAfter(self, next : &Instruction) {
+impl Instruction with insertAfter(self, insertPt : &Instruction) {
   guard self.isIndependent() else { raise OnlyIndependInstructionCanBeInsert }
-  match self.next() {
+  match insertPt.next() {
     None => {
-      self.getInstBase().next = Some(next)
-      next.getInstBase().prev = Some(self)
-      next.getInstBase().bb = self.getBasicBlock()
+      insertPt.getInstBase().next = Some(self)
+      self.getInstBase().prev = Some(insertPt)
+      self.getInstBase().bb = insertPt.getBasicBlock()
     }
     Some(ori_next) => {
-      self.getInstBase().next = Some(next)
-      next.getInstBase().prev = Some(self)
-      next.getInstBase().next = Some(ori_next)
-      ori_next.getInstBase().prev = Some(next)
-      next.getInstBase().bb = self.getBasicBlock()
+      insertPt.getInstBase().next = Some(self)
+      self.getInstBase().prev = Some(insertPt)
+      self.getInstBase().next = Some(ori_next)
+      ori_next.getInstBase().prev = Some(self)
+      self.getInstBase().bb = insertPt.getBasicBlock()
     }
   }
 }
 
 ///|
-impl Instruction with insertBefore(self, next : &Instruction) {
+impl Instruction with insertBefore(self, insertPt : &Instruction) {
   guard self.isIndependent() else { raise OnlyIndependInstructionCanBeInsert }
-  match self.prev() {
+  match insertPt.prev() {
     None => {
-      self.getInstBase().prev = Some(next)
-      next.getInstBase().next = Some(self)
-      next.getInstBase().bb = self.getBasicBlock()
+      insertPt.getInstBase().prev = Some(self)
+      self.getInstBase().next = Some(insertPt)
+      self.getInstBase().bb = insertPt.getBasicBlock()
     }
     Some(ori_prev) => {
-      self.getInstBase().prev = Some(next)
-      next.getInstBase().next = Some(self)
-      next.getInstBase().prev = Some(ori_prev)
-      ori_prev.getInstBase().next = Some(next)
-      next.getInstBase().bb = self.getBasicBlock()
+      insertPt.getInstBase().prev = Some(self)
+      self.getInstBase().next = Some(insertPt)
+      self.getInstBase().prev = Some(ori_prev)
+      ori_prev.getInstBase().next = Some(self)
+      self.getInstBase().bb = insertPt.getBasicBlock()
     }
   }
 }
@@ -440,6 +442,7 @@ pub enum InstEnum {
   //FreezeInst(FreezeInst)
   //CastInst(CastInst)
   BinaryInstruction(BinaryInstruction)
+  ReturnInst(ReturnInst)
 }
 
 // =======================================================
