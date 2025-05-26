@@ -227,8 +227,7 @@ fn BinaryInstruction::newStandardOp(
   rhs : &Value,
   parent : Function,
   name : String,
-  has_nsw : Bool,
-  has_nuw : Bool
+  flags : Set[BinaryOpFlags],
 ) -> BinaryInstruction!LLVMValueError {
   guard opcode is (Add | Sub | Mul | SDiv | UDiv | SRem | URem) else {
     unreachable(
@@ -238,7 +237,7 @@ fn BinaryInstruction::newStandardOp(
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else { raise TypeMismatchForBinaryOp(lhsTy, rhsTy) }
   guard lhsTy.tryAsIntegerTypeEnum() is Some(_) else {
-    raise TypeNotSupportForBinaryOp(lhsTy, Add)
+    raise TypeNotSupportForBinaryOp(lhsTy, opcode)
   }
   let vty = lhsTy
   let base = ValueBase::new(vty)
@@ -246,13 +245,6 @@ fn BinaryInstruction::newStandardOp(
   let inst_base = InstBase::new(parent)
   user_base.operands.push(lhs)
   user_base.operands.push(rhs)
-  let flags = Set::new()
-  if has_nuw {
-    flags.add(NoUnsignedWrap)
-  }
-  if has_nsw {
-    flags.add(NoSignedWrap)
-  }
   BinaryInstruction::{ base, user_base, inst_base, opcode, flags }
 }
 

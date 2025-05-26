@@ -182,14 +182,20 @@ pub fn IRBuilder::createAdd(
     _ => ()
   }
   let parent = self.getInsertFunction()
+  let flags = Set::new()
+  if has_nuw {
+    flags.add(BinaryOpFlags::NoUnsignedWrap)
+  }
+  if has_nsw {
+    flags.add(BinaryOpFlags::NoSignedWrap)
+  }
   let inst = BinaryInstruction::newStandardOp!(
     BinaryOps::Add,
     lhs,
     rhs,
     parent,
     name,
-    has_nsw,
-    has_nuw,
+    flags,
   )
   self.insert!(inst)
   inst
@@ -455,14 +461,20 @@ pub fn IRBuilder::createSub(
     _ => ()
   }
   let parent = self.getInsertFunction()
+  let flags = Set::new()
+  if has_nuw {
+    flags.add(BinaryOpFlags::NoUnsignedWrap)
+  }
+  if has_nsw {
+    flags.add(BinaryOpFlags::NoSignedWrap)
+  }
   let inst = BinaryInstruction::newStandardOp!(
     BinaryOps::Sub,
     lhs,
     rhs,
     parent,
     name,
-    has_nsw,
-    has_nuw,
+    flags,
   )
   self.insert!(inst)
   inst
@@ -726,14 +738,20 @@ pub fn IRBuilder::createMul(
     _ => ()
   }
   let parent = self.getInsertFunction()
+  let flags = Set::new()
+  if has_nuw {
+    flags.add(BinaryOpFlags::NoUnsignedWrap)
+  }
+  if has_nsw {
+    flags.add(BinaryOpFlags::NoSignedWrap)
+  }
   let inst = BinaryInstruction::newStandardOp!(
     BinaryOps::Mul,
     lhs,
     rhs,
     parent,
     name,
-    has_nsw,
-    has_nuw,
+    flags,
   )
   self.insert!(inst)
   inst
@@ -948,21 +966,25 @@ pub fn IRBuilder::createSDiv(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
+  is_exact~ : Bool = false
 ) -> &Value!Error {
   // match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
   //   (Some(ConstantInt(c_lhs)), Some(ConstantInt(c_rhs))) => return c_lhs.sdiv!(c_rhs) // Assuming ConstantInt has sdiv!
   //   _ => ()
   // }
   let parent = self.getInsertFunction()
+  let flags = Set::new()
+  if is_exact {
+    flags.add(BinaryOpFlags::Exact)
+  }
   let inst = BinaryInstruction::newStandardOp!(
     BinaryOps::SDiv,
     lhs,
     rhs,
     parent,
     name,
-    false, // has_nsw is not applicable to SDiv
-    false  // has_nuw is not applicable to SDiv
+    flags,
   )
   self.insert!(inst)
   inst
@@ -1018,24 +1040,7 @@ pub fn IRBuilder::createExactSDiv(
   rhs : &Value,
   name~ : String = ""
 ) -> &Value!Error {
-  // match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
-  //  (Some(ConstantInt(c_lhs)), Some(ConstantInt(c_rhs))) => return c_lhs.sdiv!(c_rhs) // Assuming ConstantInt has sdiv!
-  //   _ => ()
-  // }
-  let parent = self.getInsertFunction()
-  // Note: BinaryInstruction::newStandardOp does not have an 'is_exact' parameter.
-  // The 'exact' property is not set on the instruction here.
-  let inst = BinaryInstruction::newStandardOp!(
-    BinaryOps::SDiv,
-    lhs,
-    rhs,
-    parent,
-    name,
-    false, // has_nsw is not applicable to SDiv
-    false  // has_nuw is not applicable to SDiv
-  )
-  self.insert!(inst)
-  inst
+  self.createSDiv(lhs, rhs, name~, is_exact=true)
 }
 
 ///| Create UDiv (unsigned division) Instruction.
@@ -1081,21 +1086,25 @@ pub fn IRBuilder::createUDiv(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
+  is_exact~ : Bool = false
 ) -> &Value!Error {
   // match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
   //   (Some(ConstantUInt(c_lhs)), Some(ConstantUInt(c_rhs))) => return c_lhs.udiv!(c_rhs) // Assumed missing
   //   _ => ()
   // }
   let parent = self.getInsertFunction()
+  let flags = Set::new()
+  if is_exact {
+    flags.add(BinaryOpFlags::Exact)
+  }
   let inst = BinaryInstruction::newStandardOp!(
     BinaryOps::UDiv,
     lhs,
     rhs,
     parent,
     name,
-    false, // has_nsw is not applicable to UDiv
-    false  // has_nuw is not applicable to UDiv
+    flags,
   )
   self.insert!(inst)
   inst
@@ -1152,24 +1161,7 @@ pub fn IRBuilder::createExactUDiv(
   rhs : &Value,
   name~ : String = ""
 ) -> &Value!Error {
-  // match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
-  //   (Some(ConstantUInt(c_lhs)), Some(ConstantUInt(c_rhs))) => return c_lhs.udiv!(c_rhs) // Assumed missing
-  //   _ => ()
-  // }
-  let parent = self.getInsertFunction()
-  // Note: BinaryInstruction::newStandardOp does not have an 'is_exact' parameter.
-  // The 'exact' property is not set on the instruction here.
-  let inst = BinaryInstruction::newStandardOp!(
-    BinaryOps::UDiv,
-    lhs,
-    rhs,
-    parent,
-    name,
-    false, // has_nsw is not applicable to UDiv
-    false  // has_nuw is not applicable to UDiv
-  )
-  self.insert!(inst)
-  inst
+  self.createUDiv(lhs, rhs, name~, is_exact=true)
 }
 
 ///| Create SRem (signed remainder) Instruction.
@@ -1227,14 +1219,14 @@ pub fn IRBuilder::createSRem(
   // }
 
   let parent = self.getInsertFunction()
+  let flags = Set::of([]) // nsw, nuw, exact are not applicable to SRem
   let inst = BinaryInstruction::newStandardOp!(
     BinaryOps::SRem,
     lhs,
     rhs,
     parent,
     name,
-    false, // nsw is not applicable to SRem
-    false  // nuw is not applicable to SRem
+    flags,
   )
   self.insert!(inst)
   inst
@@ -1292,14 +1284,14 @@ pub fn IRBuilder::createURem(
   // }
 
   let parent = self.getInsertFunction()
+  let flags = Set::of([]) // nsw, nuw, exact are not applicable to URem
   let inst = BinaryInstruction::newStandardOp!(
     BinaryOps::URem,
     lhs,
     rhs,
     parent,
     name,
-    false, // nsw is not applicable to URem
-    false  // nuw is not applicable to URem
+    flags,
   )
   self.insert!(inst)
   inst
