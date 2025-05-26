@@ -13,7 +13,7 @@ fn main_err() -> Unit!Error {
   let arg1 = fval.getArg(1).unwrap()
   //let _ = builder.createAlloca!(i32ty)
   //println(fval)
-  let r = builder.createNSWAdd!(arg0, arg1)
+  let r = builder.createNSWSub!(arg0, arg1)
   let _ = builder.createRet!(r)
   println(fval)
 }

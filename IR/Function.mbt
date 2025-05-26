@@ -390,6 +390,6 @@ pub impl Show for Function with output(self, logger) {
     for bb in self.basicBlocks {
       logger.write_string(bb.to_string())
     }
-    logger.write_string("}\n")
+    logger.write_string("}")
   }
 }

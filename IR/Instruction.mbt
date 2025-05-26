@@ -247,13 +247,13 @@ fn BinaryInstruction::newStandardOp(
   user_base.operands.push(lhs)
   user_base.operands.push(rhs)
   let flags = Set::new()
-  if has_nsw {
-    flags.add(NoSignedWrap)
-  }
   if has_nuw {
     flags.add(NoUnsignedWrap)
   }
-  BinaryInstruction::{ base, user_base, inst_base, opcode: Add, flags }
+  if has_nsw {
+    flags.add(NoSignedWrap)
+  }
+  BinaryInstruction::{ base, user_base, inst_base, opcode, flags }
 }
 
 ///|
