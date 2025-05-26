@@ -298,29 +298,29 @@ pub fn ConstantInt::mul(
 /// ConstantInt are not the same.
 ///
 /// ```moonbit
-/// test "ConstantInt::div" {
+/// test "ConstantInt::sdiv" {
 ///   let ctx = LLVMContext::new()
 ///
 ///   let i8_1 = ctx.getConstInt8(1)
 ///   let i8_31 = ctx.getConstInt8(31)
-///   inspect!(i8_31.div(i8_1), content="i8 31")
+///   inspect!(i8_31.sdiv(i8_1), content="i8 31")
 ///
 ///   let i16_5 = ctx.getConstInt16(5)
 ///   let i16_72 = ctx.getConstInt16(72)
-///   inspect!(i16_72.div(i16_5), content="i16 14")
+///   inspect!(i16_72.sdiv(i16_5), content="i16 14")
 ///
 ///   let i32_m7 = ctx.getConstInt32(-7)
 ///   let i32_81 = ctx.getConstInt32(81)
-///   inspect!(i32_m7.div(i32_81), content="i32 0")
+///   inspect!(i32_m7.sdiv(i32_81), content="i32 0")
 ///
 ///   let i64_16 = ctx.getConstInt64(16)
 ///   let i64_m33 = ctx.getConstInt64(-33)
-///   inspect!(i64_16.div(i64_m33), content="i64 0")
+///   inspect!(i64_16.sdiv(i64_m33), content="i64 0")
 ///
-///   assert_true!(i8_31.div?(i16_5) is Err(_))
+///   assert_true!(i8_31.sdiv?(i16_5) is Err(_))
 /// }
 /// ```
-pub fn ConstantInt::div(
+pub fn ConstantInt::sdiv(
   self : ConstantInt,
   other : ConstantInt
 ) -> ConstantInt!LLVMValueError {

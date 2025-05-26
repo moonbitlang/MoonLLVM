@@ -10,8 +10,8 @@ pub enum BinaryOps {
   SDiv
   UDiv
   //FDiv
-  //URem
-  //SRem
+  URem
+  SRem
   //FRem
 
   // Logical operators
@@ -35,8 +35,8 @@ pub impl Show for BinaryOps with output(self, logger) {
     SDiv => "sdiv"
     UDiv => "udiv"
     //FDiv => "fdiv"
-    //URem => "urem"
-    //SRem => "srem"
+    URem => "urem"
+    SRem => "srem"
     //FRem => "frem"
     //Shl => "shl"
     //LShr => "lshr"
@@ -58,7 +58,7 @@ pub enum BinaryOpFlags {
 
   // only sdiv, udiv, ashr, lshr
   // could have Exact flag.
-  //Exact
+  Exact
 
   // Only Or could have Disjoint flag.
   //Disjoint
@@ -69,7 +69,7 @@ pub impl Show for BinaryOpFlags with output(self, logger) {
   let str = match self {
     NoUnsignedWrap => "nuw"
     NoSignedWrap => "nsw"
-    //Exact => "exact"
+    Exact => "exact"
     //Disjoint => "disjoint"
   }
   logger.write_string(str)
@@ -230,7 +230,7 @@ fn BinaryInstruction::newStandardOp(
   has_nsw : Bool,
   has_nuw : Bool
 ) -> BinaryInstruction!LLVMValueError {
-  guard opcode is (Add | Sub | Mul | SDiv | UDiv) else {
+  guard opcode is (Add | Sub | Mul | SDiv | UDiv | SRem | URem) else {
     unreachable(
       "Should not call BinaryInstruction::newStandardOp with opcode \{opcode}",
     )

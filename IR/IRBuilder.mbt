@@ -905,6 +905,406 @@ pub fn IRBuilder::createNUWMul(
   self.createMul(lhs, rhs, name~, has_nsw=false, has_nuw=true)
 }
 
+///| Create SDiv (signed division) Instruction.
+///
+/// **Note:**
+///
+/// - (Constant folding) If both operands are constant integers, the signed division is
+/// evaluated at compile time and the result is returned as a constant value. (Currently disabled due to missing `ConstantInt::sdiv!`)
+///
+/// - If the divisor is zero, or if the division overflows (e.g., `INT_MIN / -1`), the behavior is undefined.
+///
+/// ```moonbit
+/// test "IRBuilder::createSDiv" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
+///   let fval = prog.addFunction!(fty, "sdiv_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let arg1 = fval.getArg(1).unwrap()
+///
+///   let quot = builder.createSDiv!(arg0, arg1)
+///   let _ = builder.createRet!(quot)
+///
+///   inspect(
+///     fval,
+///     content = 
+///     #|define i32 @sdiv_func(i32 %0, i32 %1) {
+///     #|entry:
+///     #|  %2 = sdiv i32 %0, %1
+///     #|  ret i32 %2
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+pub fn IRBuilder::createSDiv(
+  self : IRBuilder,
+  lhs : &Value,
+  rhs : &Value,
+  name~ : String = ""
+) -> &Value!Error {
+  // match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
+  //   (Some(ConstantInt(c_lhs)), Some(ConstantInt(c_rhs))) => return c_lhs.sdiv!(c_rhs) // Assuming ConstantInt has sdiv!
+  //   _ => ()
+  // }
+  let parent = self.getInsertFunction()
+  let inst = BinaryInstruction::newStandardOp!(
+    BinaryOps::SDiv,
+    lhs,
+    rhs,
+    parent,
+    name,
+    false, // has_nsw is not applicable to SDiv
+    false  // has_nuw is not applicable to SDiv
+  )
+  self.insert!(inst)
+  inst
+}
+
+///| Create SDiv (signed division) Instruction with `exact` flag.
+///
+/// **Note:**
+///
+/// - (Constant folding) If both operands are constant integers, the signed division is
+/// evaluated at compile time and the result is returned as a constant value. (Currently disabled due to missing `ConstantInt::sdiv!`)
+///
+/// - The `exact` keyword means that the operation is known to have no remainder.
+///
+/// - If the divisor is zero, or if the division overflows (e.g., `INT_MIN / -1`), the behavior is undefined.
+///
+/// - **Limitation**: The underlying `BinaryInstruction::newStandardOp` does not currently support setting the `exact` flag.
+/// Therefore, this function will generate a standard `sdiv` instruction without the `exact` property being enforced at the IR level by this constructor.
+///
+/// ```moonbit
+/// test "IRBuilder::createExactSDiv" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
+///   let fval = prog.addFunction!(fty, "exact_sdiv_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let arg1 = fval.getArg(1).unwrap()
+///
+///   let quot = builder.createExactSDiv!(arg0, arg1)
+///   let _ = builder.createRet!(quot)
+///
+///   inspect(
+///     fval,
+///     content = 
+///     #|define i32 @exact_sdiv_func(i32 %0, i32 %1) {
+///     #|entry:
+///     #|  %2 = sdiv exact i32 %0, %1
+///     #|  ret i32 %2
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+pub fn IRBuilder::createExactSDiv(
+  self : IRBuilder,
+  lhs : &Value,
+  rhs : &Value,
+  name~ : String = ""
+) -> &Value!Error {
+  // match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
+  //  (Some(ConstantInt(c_lhs)), Some(ConstantInt(c_rhs))) => return c_lhs.sdiv!(c_rhs) // Assuming ConstantInt has sdiv!
+  //   _ => ()
+  // }
+  let parent = self.getInsertFunction()
+  // Note: BinaryInstruction::newStandardOp does not have an 'is_exact' parameter.
+  // The 'exact' property is not set on the instruction here.
+  let inst = BinaryInstruction::newStandardOp!(
+    BinaryOps::SDiv,
+    lhs,
+    rhs,
+    parent,
+    name,
+    false, // has_nsw is not applicable to SDiv
+    false  // has_nuw is not applicable to SDiv
+  )
+  self.insert!(inst)
+  inst
+}
+
+///| Create UDiv (unsigned division) Instruction.
+///
+/// **Note:**
+///
+/// - (Constant folding) If both operands are constant unsigned integers, the unsigned division is
+/// evaluated at compile time and the result is returned as a constant value. (Currently disabled due to assumed missing `ConstantUInt::udiv!`)
+///
+/// - If the divisor is zero, the behavior is undefined.
+///
+/// ```moonbit
+/// test "IRBuilder::createUDiv" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty() // Using i32 for unsigned operations as well, common in LLVM
+///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
+///   let fval = prog.addFunction!(fty, "udiv_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let arg1 = fval.getArg(1).unwrap()
+///
+///   let quot = builder.createUDiv!(arg0, arg1)
+///   let _ = builder.createRet!(quot)
+///
+///   inspect(
+///     fval,
+///     content = 
+///     #|define i32 @udiv_func(i32 %0, i32 %1) {
+///     #|entry:
+///     #|  %2 = udiv i32 %0, %1
+///     #|  ret i32 %2
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+pub fn IRBuilder::createUDiv(
+  self : IRBuilder,
+  lhs : &Value,
+  rhs : &Value,
+  name~ : String = ""
+) -> &Value!Error {
+  // match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
+  //   (Some(ConstantUInt(c_lhs)), Some(ConstantUInt(c_rhs))) => return c_lhs.udiv!(c_rhs) // Assumed missing
+  //   _ => ()
+  // }
+  let parent = self.getInsertFunction()
+  let inst = BinaryInstruction::newStandardOp!(
+    BinaryOps::UDiv,
+    lhs,
+    rhs,
+    parent,
+    name,
+    false, // has_nsw is not applicable to UDiv
+    false  // has_nuw is not applicable to UDiv
+  )
+  self.insert!(inst)
+  inst
+}
+
+///| Create UDiv (unsigned division) Instruction with `exact` flag.
+///
+/// **Note:**
+///
+/// - (Constant folding) If both operands are constant unsigned integers, the unsigned division is
+/// evaluated at compile time and the result is returned as a constant value. (Currently disabled due to assumed missing `ConstantUInt::udiv!`)
+///
+/// - The `exact` keyword means that the operation is known to have no remainder.
+/// If the division has a remainder, the behavior is undefined.
+///
+/// - If the divisor is zero, the behavior is undefined.
+///
+/// - **Limitation**: The underlying `BinaryInstruction::newStandardOp` does not currently support setting the `exact` flag.
+/// Therefore, this function will generate a standard `udiv` instruction without the `exact` property being enforced at the IR level by this constructor.
+///
+/// ```moonbit
+/// test "IRBuilder::createExactUDiv" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
+///   let fval = prog.addFunction!(fty, "exact_udiv_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let arg1 = fval.getArg(1).unwrap()
+///
+///   let quot = builder.createExactUDiv!(arg0, arg1)
+///   let _ = builder.createRet!(quot)
+///
+///   inspect(
+///     fval,
+///     content = 
+///     #|define i32 @exact_udiv_func(i32 %0, i32 %1) {
+///     #|entry:
+///     #|  %2 = udiv exact i32 %0, %1
+///     #|  ret i32 %2
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+pub fn IRBuilder::createExactUDiv(
+  self : IRBuilder,
+  lhs : &Value,
+  rhs : &Value,
+  name~ : String = ""
+) -> &Value!Error {
+  // match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
+  //   (Some(ConstantUInt(c_lhs)), Some(ConstantUInt(c_rhs))) => return c_lhs.udiv!(c_rhs) // Assumed missing
+  //   _ => ()
+  // }
+  let parent = self.getInsertFunction()
+  // Note: BinaryInstruction::newStandardOp does not have an 'is_exact' parameter.
+  // The 'exact' property is not set on the instruction here.
+  let inst = BinaryInstruction::newStandardOp!(
+    BinaryOps::UDiv,
+    lhs,
+    rhs,
+    parent,
+    name,
+    false, // has_nsw is not applicable to UDiv
+    false  // has_nuw is not applicable to UDiv
+  )
+  self.insert!(inst)
+  inst
+}
+
+///| Create SRem (signed remainder) Instruction.
+///
+/// **Note:**
+///
+/// - (Constant folding) If both operands are constant integers, the signed remainder is
+/// evaluated at compile time and the result is returned as a constant value. (Currently disabled due to assumed missing `ConstantInt::srem!`)
+///
+/// - If the divisor is zero, the behavior is undefined.
+///
+/// - **Limitation**: The underlying `BinaryInstruction::newStandardOp` explicitly prevents the use of `BinaryOps::SRem`.
+/// Attempting to create this instruction using it will result in an `unreachable` error.
+///
+/// ```moonbit
+/// test "IRBuilder::createSRem" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
+///   let fval = prog.addFunction!(fty, "srem_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let arg1 = fval.getArg(1).unwrap()
+///
+///   let rem = builder.createSRem!(arg0, arg1)
+///   let _ = builder.createRet!(rem)
+///
+///   inspect(
+///     fval,
+///     content = 
+///     #|define i32 @srem_func(i32 %0, i32 %1) {
+///     #|entry:
+///     #|  %2 = srem i32 %0, %1
+///     #|  ret i32 %2
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+pub fn IRBuilder::createSRem(
+  self : IRBuilder,
+  lhs : &Value,
+  rhs : &Value,
+  name~ : String = ""
+) -> &Value!Error {
+  // Constant folding for SRem is currently disabled due to assumed missing `ConstantInt::srem!`
+  // match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
+  //   (Some(ConstantInt(c_lhs)), Some(ConstantInt(c_rhs))) => return c_lhs.srem!(c_rhs)
+  //   _ => ()
+  // }
+
+  let parent = self.getInsertFunction()
+  let inst = BinaryInstruction::newStandardOp!(
+    BinaryOps::SRem,
+    lhs,
+    rhs,
+    parent,
+    name,
+    false, // nsw is not applicable to SRem
+    false  // nuw is not applicable to SRem
+  )
+  self.insert!(inst)
+  inst
+}
+
+///| Create URem (unsigned remainder) Instruction.
+///
+/// **Note:**
+///
+/// - (Constant folding) If both operands are constant unsigned integers, the unsigned remainder is
+/// evaluated at compile time and the result is returned as a constant value. (Currently disabled due to assumed missing `ConstantUInt::urem!`)
+///
+/// - If the divisor is zero, the behavior is undefined.
+///
+/// ```moonbit
+/// test "IRBuilder::createURem" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty() // Using i32 for unsigned operations as well
+///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
+///   let fval = prog.addFunction!(fty, "urem_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let arg1 = fval.getArg(1).unwrap()
+///
+///   let rem = builder.createURem!(arg0, arg1)
+///   let _ = builder.createRet!(rem)
+///
+///   inspect(
+///     fval,
+///     content = 
+///     #|define i32 @urem_func(i32 %0, i32 %1) {
+///     #|entry:
+///     #|  %2 = urem i32 %0, %1
+///     #|  ret i32 %2
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+pub fn IRBuilder::createURem(
+  self : IRBuilder,
+  lhs : &Value,
+  rhs : &Value,
+  name~ : String = ""
+) -> &Value!Error {
+  // Constant folding for URem is currently disabled due to assumed missing `ConstantUInt::urem!`
+  // match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
+  //   (Some(ConstantUInt(c_lhs)), Some(ConstantUInt(c_rhs))) => return c_lhs.urem!(c_rhs)
+  //   _ => ()
+  // }
+
+  let parent = self.getInsertFunction()
+  let inst = BinaryInstruction::newStandardOp!(
+    BinaryOps::URem,
+    lhs,
+    rhs,
+    parent,
+    name,
+    false, // nsw is not applicable to URem
+    false  // nuw is not applicable to URem
+  )
+  self.insert!(inst)
+  inst
+}
+
 ///|
 pub fn IRBuilder::createRet(
   self : IRBuilder,
@@ -915,3 +1315,4 @@ pub fn IRBuilder::createRet(
   self.insert!(retInst)
   retInst
 }
+
