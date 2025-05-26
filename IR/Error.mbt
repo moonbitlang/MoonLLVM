@@ -20,6 +20,7 @@ type! LLVMValueError {
   TypeMismatchForBinaryOp(&Type, &Type)
   TypeNotSupportForBinaryOp(&Type, BinaryOps)
   TypeMismatchForReturnInst(&Type, &Type)
+  DivisionByZeroError
 } derive(Show)
 
 ///|

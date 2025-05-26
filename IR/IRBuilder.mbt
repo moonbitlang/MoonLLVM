@@ -179,7 +179,6 @@ pub fn IRBuilder::createAdd(
 ) -> &Value!Error {
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
     (Some(ConstantInt(lhs)), Some(ConstantInt(rhs))) => return lhs.add!(rhs)
-    (Some(ConstantUInt(lhs)), Some(ConstantUInt(rhs))) => return lhs.add!(rhs)
     _ => ()
   }
   let parent = self.getInsertFunction()
@@ -453,7 +452,6 @@ pub fn IRBuilder::createSub(
 ) -> &Value!Error {
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
     (Some(ConstantInt(lhs)), Some(ConstantInt(rhs))) => return lhs.sub!(rhs)
-    (Some(ConstantUInt(lhs)), Some(ConstantUInt(rhs))) => return lhs.sub!(rhs)
     _ => ()
   }
   let parent = self.getInsertFunction()
@@ -725,7 +723,6 @@ pub fn IRBuilder::createMul(
 ) -> &Value!Error {
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
     (Some(ConstantInt(lhs)), Some(ConstantInt(rhs))) => return lhs.mul!(rhs)
-    (Some(ConstantUInt(lhs)), Some(ConstantUInt(rhs))) => return lhs.mul!(rhs)
     _ => ()
   }
   let parent = self.getInsertFunction()

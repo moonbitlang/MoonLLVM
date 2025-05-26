@@ -19,8 +19,6 @@ pub enum ValueEnum {
   /// These do not have use lists. It is illegal to inspect the uses. These behave
   /// as if they have no uses (i.e. use_empty() is always true).
   ConstantInt(ConstantInt)
-  ConstantBool(ConstantBool)
-  ConstantUInt(ConstantUInt)
   ConstantFP(ConstantFP)
   ConstantPointerNull(ConstantPointerNull)
   //ConstantAggregateZero(ConstantAggregateZero)
@@ -76,8 +74,6 @@ pub enum ValueEnum {
 pub fn ValueEnum::tryAsConstantEnum(self : ValueEnum) -> ConstantEnum? {
   match self {
     ConstantInt(c) => ConstantInt(c) |> Some
-    ConstantBool(c) => ConstantBool(c) |> Some
-    ConstantUInt(c) => ConstantUInt(c) |> Some
     ConstantFP(c) => ConstantFP(c) |> Some
     ConstantPointerNull(c) => ConstantPointerNull(c) |> Some
     ConstantArray(c) => ConstantArray(c) |> Some
@@ -199,8 +195,6 @@ impl Value with user_empty(self) {
 impl Value with tryAsConstant(self) {
   match self.asValueEnum() {
     ConstantInt(c) => Some((c : &Constant))
-    ConstantBool(c) => Some(c)
-    ConstantUInt(c) => Some(c)
     ConstantFP(c) => Some(c)
     ConstantPointerNull(c) => Some(c)
     ConstantArray(c) => Some(c)
@@ -213,8 +207,6 @@ impl Value with tryAsConstant(self) {
 impl Value with tryAsConstantEnum(self) {
   match self.asValueEnum() {
     ConstantInt(c) => Some(ConstantInt(c))
-    ConstantBool(c) => Some(ConstantBool(c))
-    ConstantUInt(c) => Some(ConstantUInt(c))
     ConstantFP(c) => Some(ConstantFP(c))
     ConstantPointerNull(c) => Some(ConstantPointerNull(c))
     ConstantArray(c) => Some(ConstantArray(c))
@@ -471,8 +463,6 @@ pub enum UnaryInstEnum {
 ///|
 pub enum ConstantEnum {
   ConstantInt(ConstantInt)
-  ConstantBool(ConstantBool)
-  ConstantUInt(ConstantUInt)
   ConstantFP(ConstantFP)
   ConstantPointerNull(ConstantPointerNull)
   ConstantArray(ConstantArray)

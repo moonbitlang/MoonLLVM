@@ -17,6 +17,15 @@ pub fn Int8::from(val : Int) -> Int8 {
 }
 
 ///|
+pub fn Int8::from_uint64(val : UInt64) -> Int8 {
+  Int8::from(val.to_int())
+}
+
+pub fn Int8::from_int64(val : Int64) -> Int8 {
+  Int8::from(val.to_int())
+}
+
+///|
 pub fn Int8::to_int(self : Int8) -> Int {
   let Int8(v) = self
   v

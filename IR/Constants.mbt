@@ -23,24 +23,27 @@
 /// ```
 pub struct ConstantInt {
   base : ValueBase
-  value : SignedEnum
+  value : Int64
 } derive(Eq)
 
 ///|
-fn[T : Signed] ConstantInt::new(vty : &Type, value : T) -> ConstantInt {
-  let value = match (vty.asTypeEnum(), value.asEnum()) {
-    (Int8Type(_), Int8(b)) => SignedEnum::Int8(b)
-    (Int16Type(_), Int16(s)) => Int16(s)
-    (Int32Type(_), Int32(i)) => Int32(i)
-    (Int64Type(_), Int64(l)) => Int64(l)
-    _ => unreachable("ConstantInt::new: Type MisMatch")
+/// TODO: solve int16 to uint16 problem when standard library is ready.
+fn[T : IntegerNumber] ConstantInt::new(vty : &Type, value : T) -> ConstantInt {
+  let value = value.convert_to_int64()
+  let value = match vty.asTypeEnum() {
+    Int1Type(_) => if value == 0 { 0L } else { 1L }
+    Int8Type(_) => Int8::from_int64(value).to_int64()
+    Int16Type(_) => value.to_int().to_int16().to_int().to_int64()
+    Int32Type(_) => value.to_int().to_int64()
+    Int64Type(_) => value
+    _ => unreachable("ConstantInt::new: Type MisMatch, should be IntegerType")
   }
   let base = ValueBase::new(vty)
   ConstantInt::{ base, value }
 }
 
 ///|
-fn ConstantInt::getValue(self : ConstantInt) -> SignedEnum {
+fn ConstantInt::getValue(self : ConstantInt) -> Int64 {
   self.value
 }
 
@@ -64,7 +67,7 @@ fn ConstantInt::getValue(self : ConstantInt) -> SignedEnum {
 /// }
 /// ```
 pub fn ConstantInt::getValueAsInt64(self : ConstantInt) -> Int64 {
-  self.value.to_int64()
+  self.value
 }
 
 ///| Get the type of constant int value.
@@ -86,7 +89,8 @@ pub fn ConstantInt::getValueAsInt64(self : ConstantInt) -> Int64 {
 /// ```
 pub fn ConstantInt::getIntegerType(self : ConstantInt) -> &IntegerType {
   match self.getType().asTypeEnum() {
-    Int8Type(i8ty) => (i8ty : &IntegerType)
+    Int1Type(i1ty) => (i1ty : &IntegerType)
+    Int8Type(i8ty) => i8ty
     Int16Type(i16ty) => i16ty
     Int32Type(i32ty) => i32ty
     Int64Type(i64ty) => i64ty
@@ -107,37 +111,36 @@ pub fn ConstantInt::getIntegerType(self : ConstantInt) -> &IntegerType {
 ///   assert_true!(ctx.getConstInt32(-128).equals(-128))
 /// }
 /// ```
-pub fn[T : Signed] ConstantInt::equals(self : ConstantInt, value : T) -> Bool {
-  self.value.to_int64() == value.convert_to_int64()
+pub fn[T : IntegerNumber] ConstantInt::equals(self : ConstantInt, value : T) -> Bool {
+  self.value == value.convert_to_int64()
 }
 
 ///|
 pub fn ConstantInt::isNegative(self : ConstantInt) -> Bool {
-  match self.value {
-    Int8(b) => b < 0
-    Int16(b) => b < 0
-    Int32(b) => b < 0
-    Int64(b) => b < 0
-  }
+  self.value < 0
 }
 
 ///|
 pub fn ConstantInt::isMaxValue(self : ConstantInt) -> Bool {
-  match self.value {
-    Int8(b) => b == @int8.max_value
-    Int16(b) => b == @int16.max_value
-    Int32(b) => b == @int.max_value
-    Int64(b) => b == @int64.max_value
+  guard self.getType().tryAsIntegerTypeEnum() is Some(ty)
+  match ty {
+    Int1Type(_) => self.value == 1
+    Int8Type(_)  => Int8::from_int64(self.value) == @int8.max_value
+    Int16Type(_) => self.value.to_int().to_int16() == @int16.max_value
+    Int32Type(_) => self.value.to_int() == @int.max_value
+    Int64Type(_) => self.value == @int64.max_value
   }
 }
 
 ///|
 pub fn ConstantInt::isMinValue(self : ConstantInt) -> Bool {
-  match self.value {
-    Int8(b) => b == @int8.min_value
-    Int16(b) => b == @int16.min_value
-    Int32(b) => b == @int.min_value
-    Int64(b) => b == @int64.min_value
+  guard self.getType().tryAsIntegerTypeEnum() is Some(ty)
+  match ty {
+    Int1Type(_) => self.value == 0
+    Int8Type(_)  => Int8::from_int64(self.value) == @int8.min_value
+    Int16Type(_) => self.value.to_int().to_int16() == @int16.min_value
+    Int32Type(_) => self.value.to_int() == @int.min_value
+    Int64Type(_) => self.value == @int64.min_value
   }
 }
 
@@ -174,12 +177,17 @@ pub fn ConstantInt::add(
   other : ConstantInt
 ) -> ConstantInt!LLVMValueError {
   let (lty, rty) = (self.getType(), other.getType())
-  let value = match (self.value, other.value) {
-    (Int8(l), Int8(r)) => Int8(l + r)
-    (Int16(l), Int16(r)) => Int16(l + r)
-    (Int32(l), Int32(r)) => Int32(l + r)
-    (Int64(l), Int64(r)) => Int64(l + r)
-    _ => raise TypeMismatchForBinaryOp(lty, rty)
+  guard lty == rty else {
+    raise TypeMismatchForBinaryOp(lty, rty)
+  }
+  guard lty.tryAsIntegerTypeEnum() is Some(ty)
+  let value = self.value + other.value
+  let value = match ty {
+    Int1Type(_) => value & 1L
+    Int8Type(_)  => Int8::from_int64(value).to_int64()
+    Int16Type(_) => value.to_int().to_int16().to_int64()
+    Int32Type(_) => value.to_int().to_int64()
+    Int64Type(_) => value
   }
   let base = self.base
   ConstantInt::{ base, value }
@@ -219,12 +227,17 @@ pub fn ConstantInt::sub(
   other : ConstantInt
 ) -> ConstantInt!LLVMValueError {
   let (lty, rty) = (self.getType(), other.getType())
-  let value = match (self.value, other.value) {
-    (Int8(l), Int8(r)) => Int8(l - r)
-    (Int16(l), Int16(r)) => Int16(l - r)
-    (Int32(l), Int32(r)) => Int32(l - r)
-    (Int64(l), Int64(r)) => Int64(l - r)
-    _ => raise TypeMismatchForBinaryOp(lty, rty)
+  guard lty == rty else {
+    raise TypeMismatchForBinaryOp(lty, rty)
+  }
+  guard lty.tryAsIntegerTypeEnum() is Some(ty)
+  let value = self.value - other.value
+  let value = match ty {
+    Int1Type(_) => value & 1L
+    Int8Type(_)  => Int8::from_int64(value).to_int64()
+    Int16Type(_) => value.to_int().to_int16().to_int64()
+    Int32Type(_) => value.to_int().to_int64()
+    Int64Type(_) => value
   }
   let base = self.base
   ConstantInt::{ base, value }
@@ -263,12 +276,17 @@ pub fn ConstantInt::mul(
   other : ConstantInt
 ) -> ConstantInt!LLVMValueError {
   let (lty, rty) = (self.getType(), other.getType())
-  let value = match (self.value, other.value) {
-    (Int8(l), Int8(r)) => Int8(l * r)
-    (Int16(l), Int16(r)) => Int16(l * r)
-    (Int32(l), Int32(r)) => Int32(l * r)
-    (Int64(l), Int64(r)) => Int64(l * r)
-    _ => raise TypeMismatchForBinaryOp(lty, rty)
+  guard lty == rty else {
+    raise TypeMismatchForBinaryOp(lty, rty)
+  }
+  guard lty.tryAsIntegerTypeEnum() is Some(ty)
+  let value = self.value * other.value
+  let value = match ty {
+    Int1Type(_) => value & 1L
+    Int8Type(_)  => Int8::from_int64(value).to_int64()
+    Int16Type(_) => value.to_int().to_int16().to_int64()
+    Int32Type(_) => value.to_int().to_int64()
+    Int64Type(_) => value
   }
   let base = self.base
   ConstantInt::{ base, value }
@@ -307,12 +325,20 @@ pub fn ConstantInt::div(
   other : ConstantInt
 ) -> ConstantInt!LLVMValueError {
   let (lty, rty) = (self.getType(), other.getType())
-  let value = match (self.value, other.value) {
-    (Int8(l), Int8(r)) => Int8(l / r)
-    (Int16(l), Int16(r)) => Int16(l / r)
-    (Int32(l), Int32(r)) => Int32(l / r)
-    (Int64(l), Int64(r)) => Int64(l / r)
-    _ => raise TypeMismatchForBinaryOp(lty, rty)
+  guard lty == rty else {
+    raise TypeMismatchForBinaryOp(lty, rty)
+  }
+  guard other.value != 0 else {
+    raise DivisionByZeroError
+  }
+  guard lty.tryAsIntegerTypeEnum() is Some(ty)
+  let value = self.value / other.value
+  let value = match ty {
+    Int1Type(_) => value & 1L
+    Int8Type(_)  => Int8::from_int64(value).to_int64()
+    Int16Type(_) => value.to_int().to_int16().to_int64()
+    Int32Type(_) => value.to_int().to_int64()
+    Int64Type(_) => value
   }
   let base = self.base
   ConstantInt::{ base, value }
@@ -335,472 +361,17 @@ pub impl Constant for ConstantInt with asConstantEnum(self) {
 
 ///|
 pub impl Constant for ConstantInt with valstr(self) {
-  let val_str = match self.value {
-    Int8(b) => b.to_string()
-    Int16(s) => s.to_string()
-    Int32(i) => i.to_string()
-    Int64(l) => l.to_string()
+  guard self.getType().tryAsIntegerTypeEnum() is Some(ty)
+  match ty {
+    Int1Type(_) => if self.value != 0 { "true" } else { "false" }
+    _ => self.value.to_string()
   }
-  val_str
 }
 
 ///|
 pub impl Show for ConstantInt with output(self, logger) {
   let val_str = self.valstr()
   logger.write_string("\{self.getIntegerType()} \{val_str}")
-}
-
-// ====================================================================
-// ConstantUInt
-// ====================================================================
-
-///| ConstantUInt.
-///
-/// Use `LLVMContext::getConstUInt8, getConstUInt16, getConstUInt32, getConstUInt64` 
-/// to create a new ConstantUInt.
-///
-/// ```moonbit
-/// test "Constant Unsigned Integer" {
-///   let ctx = LLVMContext::new()
-///
-///   let i8 = ctx.getConstUInt8(0)
-///   let i16 = ctx.getConstUInt16(1)
-///   let i32 = ctx.getConstUInt32(2)
-///   let i64 = ctx.getConstUInt64(16)
-///
-///   inspect!(i8, content="i8 0")
-///   inspect!(i16, content="i16 1")
-///   inspect!(i32, content="i32 2")
-///   inspect!(i64, content="i64 16")
-/// }
-/// ```
-pub struct ConstantUInt {
-  base : ValueBase
-  value : UnSignedEnum
-} derive(Eq)
-
-///|
-fn[T : UnSigned] ConstantUInt::new(vty : &Type, value : T) -> ConstantUInt {
-  //guard vty.asTypeEnum() is IntegerType(ity) else {
-  //  unreachable("ConstantUInt::new: vty is not IntegerType")
-  //}
-  let value = match (vty.asTypeEnum(), value.asEnum()) {
-    (Int8Type(_), UInt8(b)) => UnSignedEnum::UInt8(b)
-    (Int16Type(_), UInt16(s)) => UInt16(s)
-    (Int32Type(_), UInt32(i)) => UInt32(i)
-    (Int64Type(_), UInt64(l)) => UInt64(l)
-    _ => unreachable("ConstantUInt::new: Type MisMatch")
-  }
-  let base = ValueBase::new(vty)
-  ConstantUInt::{ base, value }
-}
-
-///|
-fn ConstantUInt::getValue(self : ConstantUInt) -> UnSignedEnum {
-  self.value
-}
-
-///| Get the value of this constant as a unsigned 64-bits integer.
-///
-/// ```moonbit
-/// test "ConstantUInt getValueAsUInt64" {
-///   let ctx = LLVMContext::new()
-///
-///   let i8_zero = ctx.getConstUInt8(0)
-///   let i16_one = ctx.getConstUInt16(1)
-///   let i32_two = ctx.getConstUInt32(2)
-///   let i64_four = ctx.getConstUInt64(4)
-///
-///   assert_eq!(i8_zero.getValueAsUInt64(), 0)
-///   assert_eq!(i16_one.getValueAsUInt64(), 1)
-///   assert_eq!(i32_two.getValueAsUInt64(), 2)
-///   assert_eq!(i64_four.getValueAsUInt64(), 4)
-/// }
-/// ```
-pub fn ConstantUInt::getValueAsUInt64(self : ConstantUInt) -> UInt64 {
-  self.value.to_uint64()
-}
-
-///| Get the type of constant int value.
-///
-/// - See LLVM: `ConstantInt::getIntegerType`
-///
-/// ```moonbit
-/// test "ConstantUInt getIntegerType" {
-///   let ctx = LLVMContext::new()
-///
-///   let i8_zero = ctx.getConstUInt8(0)
-///   let i16_one = ctx.getConstUInt16(1)
-///   let i32_two = ctx.getConstUInt32(2)
-///   let i64_four = ctx.getConstUInt64(4)
-///
-///   inspect!(i8_zero.getIntegerType(), content="i8")
-///   inspect!(i16_one.getIntegerType(), content="i16")
-///   inspect!(i32_two.getIntegerType(), content="i32")
-///   inspect!(i64_four.getIntegerType(), content="i64")
-/// }
-/// ```
-pub fn ConstantUInt::getIntegerType(self : ConstantUInt) -> &IntegerType {
-  match self.getType().asTypeEnum() {
-    Int8Type(i8ty) => (i8ty : &IntegerType)
-    Int16Type(i16ty) => i16ty
-    Int32Type(i32ty) => i32ty
-    Int64Type(i64ty) => i64ty
-    _ => unreachable("ConstantUInt::getIntegerType: Type MisMatch")
-  }
-}
-
-///| Compare the value of this constant int with a unsigned integer.
-///
-/// ```moonbit
-/// test "ConstantUInt equals" {
-///   let ctx = LLVMContext::new()
-///
-///   assert_true!(ctx.getConstUInt8(0).equals(0U))
-///   assert_true!(ctx.getConstUInt8(1).equals(1U))
-///   assert_true!(ctx.getConstUInt8(4).equals(4U))
-///   assert_true!(ctx.getConstUInt8(255).equals(255U))
-/// }
-/// ```
-pub fn[T : UnSigned] ConstantUInt::equals(
-  self : ConstantUInt,
-  value : T
-) -> Bool {
-  self.value.to_uint64() == value.convert_to_uint64()
-}
-
-///|
-pub fn ConstantUInt::isMaxValue(self : ConstantUInt) -> Bool {
-  match self.value {
-    UInt8(b) => b == 255
-    UInt16(b) => b == @uint16.max_value
-    UInt32(b) => b == @uint.max_value
-    UInt64(b) => b == @uint64.max_value
-  }
-}
-
-///| Add two ConstantUInt, useful in constant folding.
-///
-/// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
-/// ConstantUInt are not the same.
-///
-/// ```moonbit
-/// test "ConstantUInt::add" {
-///   let ctx = LLVMContext::new()
-///
-///   let u8_0 = ctx.getConstUInt8(0)
-///   let u8_31 = ctx.getConstUInt8(31)
-///   inspect!(u8_0.add(u8_31), content="i8 31")
-///
-///   let u16_5 = ctx.getConstUInt16(5)
-///   let u16_72 = ctx.getConstUInt16(72)
-///   inspect!(u16_5.add(u16_72), content="i16 77")
-///
-///   let u32_7 = ctx.getConstUInt32(7)
-///   let u32_81 = ctx.getConstUInt32(81)
-///   inspect!(u32_7.add(u32_81), content="i32 88")
-///
-///   let u64_16 = ctx.getConstUInt64(16)
-///   let u64_33 = ctx.getConstUInt64(33)
-///   inspect!(u64_16.add(u64_33), content="i64 49")
-///
-///   assert_true!(u8_31.add?(u16_5) is Err(_))
-/// }
-/// ```
-pub fn ConstantUInt::add(
-  self : ConstantUInt,
-  other : ConstantUInt
-) -> ConstantUInt!LLVMValueError {
-  let (lty, rty) = (self.getType(), other.getType())
-  let value = match (self.value, other.value) {
-    (UInt8(l), UInt8(r)) => UInt8(l + r)
-    (UInt16(l), UInt16(r)) => UInt16(l + r)
-    (UInt32(l), UInt32(r)) => UInt32(l + r)
-    (UInt64(l), UInt64(r)) => UInt64(l + r)
-    _ => raise TypeMismatchForBinaryOp(lty, rty)
-  }
-  let base = self.base
-  ConstantUInt::{ base, value }
-}
-
-///| Subtract two ConstantUInt, useful in constant folding.
-///
-/// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
-/// ConstantUInt are not the same.
-///
-/// ```moonbit
-/// test "ConstantUInt::sub" {
-///   let ctx = LLVMContext::new()
-///
-///   let u8_0 = ctx.getConstUInt8(0)
-///   let u8_31 = ctx.getConstUInt8(31)
-///   inspect!(u8_31.sub(u8_0), content="i8 31")
-///
-///   let u16_5 = ctx.getConstUInt16(5)
-///   let u16_72 = ctx.getConstUInt16(72)
-///   inspect!(u16_72.sub(u16_5), content="i16 67")
-///
-///   let u32_7 = ctx.getConstUInt32(7)
-///   let u32_81 = ctx.getConstUInt32(81)
-///   inspect!(u32_81.sub(u32_7), content="i32 74")
-///
-///   let u64_16 = ctx.getConstUInt64(16)
-///   let u64_33 = ctx.getConstUInt64(33)
-///   inspect!(u64_33.sub(u64_16), content="i64 17")
-///
-///   assert_true!(u8_31.sub?(u16_5) is Err(_))
-/// }
-/// ```
-pub fn ConstantUInt::sub(
-  self : ConstantUInt,
-  other : ConstantUInt
-) -> ConstantUInt!LLVMValueError {
-  let (lty, rty) = (self.getType(), other.getType())
-  let value = match (self.value, other.value) {
-    (UInt8(l), UInt8(r)) => UInt8(l - r)
-    (UInt16(l), UInt16(r)) => UInt16(l - r)
-    (UInt32(l), UInt32(r)) => UInt32(l - r)
-    (UInt64(l), UInt64(r)) => UInt64(l - r)
-    _ => raise TypeMismatchForBinaryOp(lty, rty)
-  }
-  let base = self.base
-  ConstantUInt::{ base, value }
-}
-
-///| Multiply two ConstantUInt, useful in constant folding.
-///
-/// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
-/// ConstantUInt are not the same.
-///
-/// ```moonbit
-/// test "ConstantUInt::mul" {
-///   let ctx = LLVMContext::new()
-///
-///   let u8_0 = ctx.getConstUInt8(0)
-///   let u8_31 = ctx.getConstUInt8(31)
-///   inspect!(u8_0.mul(u8_31), content="i8 0")
-///
-///   let u16_5 = ctx.getConstUInt16(5)
-///   let u16_72 = ctx.getConstUInt16(72)
-///   inspect!(u16_5.mul(u16_72), content="i16 360")
-///
-///   let u32_7 = ctx.getConstUInt32(7)
-///   let u32_81 = ctx.getConstUInt32(81)
-///   inspect!(u32_7.mul(u32_81), content="i32 567")
-///
-///   let u64_16 = ctx.getConstUInt64(16)
-///   let u64_33 = ctx.getConstUInt64(33)
-///   inspect!(u64_16.mul(u64_33), content="i64 528")
-///
-///   assert_true!(u8_31.mul?(u16_5) is Err(_))
-/// }
-/// ```
-pub fn ConstantUInt::mul(
-  self : ConstantUInt,
-  other : ConstantUInt
-) -> ConstantUInt!LLVMValueError {
-  let (lty, rty) = (self.getType(), other.getType())
-  let value = match (self.value, other.value) {
-    (UInt8(l), UInt8(r)) => UInt8(l * r)
-    (UInt16(l), UInt16(r)) => UInt16(l * r)
-    (UInt32(l), UInt32(r)) => UInt32(l * r)
-    (UInt64(l), UInt64(r)) => UInt64(l * r)
-    _ => raise TypeMismatchForBinaryOp(lty, rty)
-  }
-  let base = self.base
-  ConstantUInt::{ base, value }
-}
-
-///| Divide two ConstantUInt, useful in constant folding.
-///
-/// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
-/// ConstantUInt are not the same.
-///
-/// ```moonbit
-/// test "ConstantUInt::div" {
-///   let ctx = LLVMContext::new()
-///
-///   let u8_1 = ctx.getConstUInt8(1)
-///   let u8_31 = ctx.getConstUInt8(31)
-///   inspect!(u8_31.div(u8_1), content="i8 31")
-///
-///   let u16_5 = ctx.getConstUInt16(5)
-///   let u16_72 = ctx.getConstUInt16(72)
-///   inspect!(u16_72.div(u16_5), content="i16 14")
-///
-///   let u32_7 = ctx.getConstUInt32(7)
-///   let u32_81 = ctx.getConstUInt32(81)
-///   inspect!(u32_7.div(u32_81), content="i32 0")
-///
-///   let u64_16 = ctx.getConstUInt64(16)
-///   let u64_33 = ctx.getConstUInt64(33)
-///   inspect!(u64_16.div(u64_33), content="i64 0")
-///
-///   assert_true!(u8_31.div?(u16_5) is Err(_))
-/// }
-/// ```
-pub fn ConstantUInt::div(
-  self : ConstantUInt,
-  other : ConstantUInt
-) -> ConstantUInt!LLVMValueError {
-  let (lty, rty) = (self.getType(), other.getType())
-  let value = match (self.value, other.value) {
-    (UInt8(l), UInt8(r)) => UInt8(l / r)
-    (UInt16(l), UInt16(r)) => UInt16(l / r)
-    (UInt32(l), UInt32(r)) => UInt32(l / r)
-    (UInt64(l), UInt64(r)) => UInt64(l / r)
-    _ => raise TypeMismatchForBinaryOp(lty, rty)
-  }
-  let base = self.base
-  ConstantUInt::{ base, value }
-}
-
-///|
-pub impl Value for ConstantUInt with getValueBase(self) {
-  self.base
-}
-
-///|
-pub impl Value for ConstantUInt with asValueEnum(self) {
-  ConstantUInt(self)
-}
-
-///|
-pub impl Constant for ConstantUInt with asConstantEnum(self) {
-  ConstantUInt(self)
-}
-
-///|
-pub impl Constant for ConstantUInt with valstr(self) {
-  match self.value {
-    UInt8(b) => b.to_string()
-    UInt16(s) => s.to_string()
-    UInt32(i) => i.to_string()
-    UInt64(l) => l.to_string()
-  }
-}
-
-///|
-pub impl Show for ConstantUInt with output(self, logger) {
-  let val_str = self.valstr()
-  logger.write_string("\{self.getIntegerType()} \{val_str}")
-}
-
-// ====================================================================
-// ConstantBool
-// ====================================================================
-
-///| ConstantBool.
-///
-/// ```moonbit
-/// test "Constant Bool" {
-///   let ctx = LLVMContext::new()
-///
-///   let true_val = ctx.getConstTrue()
-///   let false_val = ctx.getConstFalse()
-///
-///   inspect!(true_val, content="i1 true")
-///   inspect!(false_val, content="i1 false")
-///
-///   let true_val = ctx.getConstBool(true)
-///   let false_val = ctx.getConstBool(false)
-///
-///   inspect!(true_val, content="i1 true")
-///   inspect!(false_val, content="i1 false")
-/// }
-/// ```
-pub struct ConstantBool {
-  base : ValueBase
-  value : Bool
-} derive(Eq)
-
-///|
-fn ConstantBool::new(ctx : LLVMContext, value : Bool) -> ConstantBool {
-  let vty = ctx.getInt1Ty()
-  let base = ValueBase::new(vty)
-  ConstantBool::{ base, value }
-}
-
-///|
-pub fn ConstantBool::getValue(self : ConstantBool) -> Bool {
-  self.value
-}
-
-///| Perform logical AND operation between two ConstantBool values.
-///
-/// ```moonbit
-/// test "ConstantBool::and" {
-///   let ctx = LLVMContext::new()
-///
-///   let true_val = ctx.getConstTrue()
-///   let false_val = ctx.getConstFalse()
-///
-///   inspect!(true_val.and(true_val), content="i1 true")
-///   inspect!(true_val.and(false_val), content="i1 false")
-///   inspect!(false_val.and(true_val), content="i1 false")
-///   inspect!(false_val.and(false_val), content="i1 false")
-/// }
-/// ```
-pub fn ConstantBool::and(
-  self : ConstantBool,
-  other : ConstantBool
-) -> ConstantBool {
-  let value = self.value && other.value
-  let base = self.base
-  ConstantBool::{ base, value }
-}
-
-///| Perform logical OR operation between two ConstantBool values.
-///
-/// ```moonbit
-/// test "ConstantBool::or" {
-///   let ctx = LLVMContext::new()
-///
-///   let true_val = ctx.getConstTrue()
-///   let false_val = ctx.getConstFalse()
-///
-///   inspect!(true_val.or(true_val), content="i1 true")
-///   inspect!(true_val.or(false_val), content="i1 true")
-///   inspect!(false_val.or(true_val), content="i1 true")
-///   inspect!(false_val.or(false_val), content="i1 false")
-/// }
-/// ```
-pub fn ConstantBool::or(
-  self : ConstantBool,
-  other : ConstantBool
-) -> ConstantBool {
-  let value = self.value || other.value
-  let base = self.base
-  ConstantBool::{ base, value }
-}
-
-///|
-pub impl Value for ConstantBool with getValueBase(self) {
-  self.base
-}
-
-///|
-pub impl Value for ConstantBool with asValueEnum(self) {
-  ConstantBool(self)
-}
-
-///|
-pub impl Constant for ConstantBool with asConstantEnum(self) {
-  ConstantBool(self)
-}
-
-///|
-pub impl Constant for ConstantBool with valstr(self) {
-  if self.value {
-    "true"
-  } else {
-    "false"
-  }
-}
-
-///|
-pub impl Show for ConstantBool with output(self, logger) {
-  logger.write_string("\{self.getType()} \{self.value}")
 }
 
 // ====================================================================

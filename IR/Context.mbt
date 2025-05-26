@@ -475,81 +475,6 @@ pub fn LLVMContext::getConstInt64(
   ConstantInt::new(self.getInt64Ty(), value)
 }
 
-///| Create a constant with uint8 type.
-///
-/// - See LLVM: `ConstantInt::get`.
-///
-/// ```moonbit
-/// test "Constant UInt8" {
-///   let ctx = LLVMContext::new()
-///   inspect!(ctx.getConstUInt8(0), content="i8 0")
-///   inspect!(ctx.getConstUInt8(1), content="i8 1")
-///   inspect!(ctx.getConstUInt8(255), content="i8 255")
-/// }
-/// ```
-pub fn LLVMContext::getConstUInt8(
-  self : LLVMContext,
-  value : Byte
-) -> ConstantUInt {
-  ConstantUInt::new(self.getInt8Ty(), UInt8::from(value))
-}
-
-///| Create a constant with uint16 type.
-///
-/// - See LLVM: `ConstantInt::get`.
-///
-/// ```moonbit
-/// test "Constant UInt16" {
-///   let ctx = LLVMContext::new()
-///   inspect!(ctx.getConstUInt16(0), content="i16 0")
-///   inspect!(ctx.getConstUInt16(1), content="i16 1")
-///   inspect!(ctx.getConstUInt16(65535), content="i16 65535")
-/// }
-/// ```
-pub fn LLVMContext::getConstUInt16(
-  self : LLVMContext,
-  value : UInt16
-) -> ConstantUInt {
-  ConstantUInt::new(self.getInt16Ty(), value)
-}
-
-///| Create a constant with uint32 type.
-///
-/// - See LLVM: `ConstantInt::get`.
-///
-/// ```moonbit
-/// test "Constant UInt32" {
-///   let ctx = LLVMContext::new()
-///   inspect!(ctx.getConstUInt32(0), content="i32 0")
-///   inspect!(ctx.getConstUInt32(1), content="i32 1")
-///   inspect!(ctx.getConstUInt32(12345), content="i32 12345")
-/// }
-/// ```
-pub fn LLVMContext::getConstUInt32(
-  self : LLVMContext,
-  value : UInt
-) -> ConstantUInt {
-  ConstantUInt::new(self.getInt32Ty(), value)
-}
-
-///| Create a constant with uint64 type.
-///
-/// - See LLVM: `ConstantInt::get`.
-///
-/// ```moonbit
-/// test "Constant UInt64" {
-///   let ctx = LLVMContext::new()
-///   inspect!(ctx.getConstUInt64(0), content="i64 0")
-///   inspect!(ctx.getConstUInt64(1), content="i64 1")
-///   inspect!(ctx.getConstUInt64(13579), content="i64 13579")
-/// }
-/// ```
-pub fn LLVMContext::getConstUInt64(
-  self : LLVMContext,
-  value : UInt64
-) -> ConstantUInt {
-  ConstantUInt::new(self.getInt64Ty(), value)
-}
 
 ///| Create a constant with bool type, true value.
 ///
@@ -561,8 +486,8 @@ pub fn LLVMContext::getConstUInt64(
 ///   inspect!(ctx.getConstTrue(), content="i1 true")
 /// }
 /// ```
-pub fn LLVMContext::getConstTrue(self : LLVMContext) -> ConstantBool {
-  ConstantBool::new(self, true)
+pub fn LLVMContext::getConstTrue(self : LLVMContext) -> ConstantInt {
+  ConstantInt::new(self.getInt1Ty(), 1)
 }
 
 ///| Create a constant with bool type, false value.
@@ -575,8 +500,8 @@ pub fn LLVMContext::getConstTrue(self : LLVMContext) -> ConstantBool {
 ///   inspect!(ctx.getConstFalse(), content="i1 false")
 /// }
 /// ```
-pub fn LLVMContext::getConstFalse(self : LLVMContext) -> ConstantBool {
-  ConstantBool::new(self, false)
+pub fn LLVMContext::getConstFalse(self : LLVMContext) -> ConstantInt {
+  ConstantInt::new(self.getInt1Ty(), 0)
 }
 
 ///| Create a constant with bool type.
@@ -591,8 +516,8 @@ pub fn LLVMContext::getConstFalse(self : LLVMContext) -> ConstantBool {
 ///   inspect!(ctx.getConstBool(false), content="i1 false")
 /// }
 /// ```
-pub fn LLVMContext::getConstBool(self : LLVMContext, b : Bool) -> ConstantBool {
-  ConstantBool::new(self, b)
+pub fn LLVMContext::getConstBool(self : LLVMContext, b : Bool) -> ConstantInt {
+  ConstantInt::new(self.getInt1Ty(), b.to_int())
 }
 
 ///| Create a constant with float type.
