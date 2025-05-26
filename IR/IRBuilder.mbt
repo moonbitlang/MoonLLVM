@@ -68,6 +68,17 @@ fn IRBuilder::getInsertFunction(self : IRBuilder) -> Function {
 }
 
 ///|
+pub fn IRBuilder::createRet(
+  self : IRBuilder,
+  retVal : &Value
+) -> &Instruction!Error {
+  let parent = self.getInsertFunction()
+  let retInst = ReturnInst::new(Some(retVal), parent)
+  self.insert!(retInst)
+  retInst
+}
+
+///|
 pub fn IRBuilder::createAlloca(
   self : IRBuilder,
   data_ty : &Type,
@@ -1296,15 +1307,3 @@ pub fn IRBuilder::createURem(
   self.insert!(inst)
   inst
 }
-
-///|
-pub fn IRBuilder::createRet(
-  self : IRBuilder,
-  retVal : &Value
-) -> &Instruction!Error {
-  let parent = self.getInsertFunction()
-  let retInst = ReturnInst::new(Some(retVal), parent)
-  self.insert!(retInst)
-  retInst
-}
-

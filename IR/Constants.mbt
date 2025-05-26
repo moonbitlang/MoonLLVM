@@ -111,7 +111,10 @@ pub fn ConstantInt::getIntegerType(self : ConstantInt) -> &IntegerType {
 ///   assert_true!(ctx.getConstInt32(-128).equals(-128))
 /// }
 /// ```
-pub fn[T : IntegerNumber] ConstantInt::equals(self : ConstantInt, value : T) -> Bool {
+pub fn[T : IntegerNumber] ConstantInt::equals(
+  self : ConstantInt,
+  value : T
+) -> Bool {
   self.value == value.convert_to_int64()
 }
 
@@ -125,7 +128,7 @@ pub fn ConstantInt::isMaxValue(self : ConstantInt) -> Bool {
   guard self.getType().tryAsIntegerTypeEnum() is Some(ty)
   match ty {
     Int1Type(_) => self.value == 1
-    Int8Type(_)  => Int8::from_int64(self.value) == @int8.max_value
+    Int8Type(_) => Int8::from_int64(self.value) == @int8.max_value
     Int16Type(_) => self.value.to_int().to_int16() == @int16.max_value
     Int32Type(_) => self.value.to_int() == @int.max_value
     Int64Type(_) => self.value == @int64.max_value
@@ -137,7 +140,7 @@ pub fn ConstantInt::isMinValue(self : ConstantInt) -> Bool {
   guard self.getType().tryAsIntegerTypeEnum() is Some(ty)
   match ty {
     Int1Type(_) => self.value == 0
-    Int8Type(_)  => Int8::from_int64(self.value) == @int8.min_value
+    Int8Type(_) => Int8::from_int64(self.value) == @int8.min_value
     Int16Type(_) => self.value.to_int().to_int16() == @int16.min_value
     Int32Type(_) => self.value.to_int() == @int.min_value
     Int64Type(_) => self.value == @int64.min_value
@@ -177,14 +180,12 @@ pub fn ConstantInt::add(
   other : ConstantInt
 ) -> ConstantInt!LLVMValueError {
   let (lty, rty) = (self.getType(), other.getType())
-  guard lty == rty else {
-    raise TypeMismatchForBinaryOp(lty, rty)
-  }
+  guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
   guard lty.tryAsIntegerTypeEnum() is Some(ty)
   let value = self.value + other.value
   let value = match ty {
     Int1Type(_) => value & 1L
-    Int8Type(_)  => Int8::from_int64(value).to_int64()
+    Int8Type(_) => Int8::from_int64(value).to_int64()
     Int16Type(_) => value.to_int().to_int16().to_int64()
     Int32Type(_) => value.to_int().to_int64()
     Int64Type(_) => value
@@ -227,14 +228,12 @@ pub fn ConstantInt::sub(
   other : ConstantInt
 ) -> ConstantInt!LLVMValueError {
   let (lty, rty) = (self.getType(), other.getType())
-  guard lty == rty else {
-    raise TypeMismatchForBinaryOp(lty, rty)
-  }
+  guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
   guard lty.tryAsIntegerTypeEnum() is Some(ty)
   let value = self.value - other.value
   let value = match ty {
     Int1Type(_) => value & 1L
-    Int8Type(_)  => Int8::from_int64(value).to_int64()
+    Int8Type(_) => Int8::from_int64(value).to_int64()
     Int16Type(_) => value.to_int().to_int16().to_int64()
     Int32Type(_) => value.to_int().to_int64()
     Int64Type(_) => value
@@ -276,14 +275,12 @@ pub fn ConstantInt::mul(
   other : ConstantInt
 ) -> ConstantInt!LLVMValueError {
   let (lty, rty) = (self.getType(), other.getType())
-  guard lty == rty else {
-    raise TypeMismatchForBinaryOp(lty, rty)
-  }
+  guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
   guard lty.tryAsIntegerTypeEnum() is Some(ty)
   let value = self.value * other.value
   let value = match ty {
     Int1Type(_) => value & 1L
-    Int8Type(_)  => Int8::from_int64(value).to_int64()
+    Int8Type(_) => Int8::from_int64(value).to_int64()
     Int16Type(_) => value.to_int().to_int16().to_int64()
     Int32Type(_) => value.to_int().to_int64()
     Int64Type(_) => value
@@ -325,17 +322,13 @@ pub fn ConstantInt::sdiv(
   other : ConstantInt
 ) -> ConstantInt!LLVMValueError {
   let (lty, rty) = (self.getType(), other.getType())
-  guard lty == rty else {
-    raise TypeMismatchForBinaryOp(lty, rty)
-  }
-  guard other.value != 0 else {
-    raise DivisionByZeroError
-  }
+  guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
+  guard other.value != 0 else { raise DivisionByZeroError }
   guard lty.tryAsIntegerTypeEnum() is Some(ty)
   let value = self.value / other.value
   let value = match ty {
     Int1Type(_) => value & 1L
-    Int8Type(_)  => Int8::from_int64(value).to_int64()
+    Int8Type(_) => Int8::from_int64(value).to_int64()
     Int16Type(_) => value.to_int().to_int16().to_int64()
     Int32Type(_) => value.to_int().to_int64()
     Int64Type(_) => value

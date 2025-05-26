@@ -227,7 +227,7 @@ fn BinaryInstruction::newStandardOp(
   rhs : &Value,
   parent : Function,
   name : String,
-  flags : Set[BinaryOpFlags],
+  flags : Set[BinaryOpFlags]
 ) -> BinaryInstruction!LLVMValueError {
   guard opcode is (Add | Sub | Mul | SDiv | UDiv | SRem | URem) else {
     unreachable(

@@ -72,7 +72,6 @@
 //  UInt16(self)
 //}
 
-
 // ====================================================
 // 32-bit integer
 // ====================================================
@@ -227,6 +226,7 @@ pub trait Signed: Show {
   convert_to_int64(Self) -> Int64 = _
 }
 
+///|
 impl Signed with convert_to_int64(self) {
   match self.asEnum() {
     SignedEnum::Int8(v) => v.to_int64()
@@ -285,6 +285,7 @@ pub trait UnSigned: Show {
   convert_to_int64(Self) -> Int64 = _
 }
 
+///|
 impl UnSigned with convert_to_uint64(self) {
   match self.asEnum() {
     UnSignedEnum::UInt8(v) => v.to_uint64()
@@ -294,6 +295,7 @@ impl UnSigned with convert_to_uint64(self) {
   }
 }
 
+///|
 impl UnSigned with convert_to_int64(self) {
   match self.asEnum() {
     UnSignedEnum::UInt8(v) => v.to_int64()
@@ -359,6 +361,7 @@ trait IntegerNumber: Show {
 //  }
 //}
 
+///|
 impl IntegerNumber with convert_to_int64(self) {
   match self.asIntegerNumberEnum() {
     IntegerNumberEnum::Int8(v) => v.to_int64()

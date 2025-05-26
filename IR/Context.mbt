@@ -475,7 +475,6 @@ pub fn LLVMContext::getConstInt64(
   ConstantInt::new(self.getInt64Ty(), value)
 }
 
-
 ///| Create a constant with bool type, true value.
 ///
 /// - See LLVM: `ConstantInt::getTrue`.

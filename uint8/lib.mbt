@@ -12,11 +12,13 @@ pub fn UInt8::from(val : Byte) -> UInt8 {
   UInt8(val)
 }
 
+///|
 pub fn UInt8::from_int64(val : Int64) -> UInt8 {
   UInt8::from(val.to_byte())
 }
 
-pub fn UInt8::from_uint64(val: UInt64) -> UInt8 {
+///|
+pub fn UInt8::from_uint64(val : UInt64) -> UInt8 {
   UInt8::from(val.to_byte())
 }
 
