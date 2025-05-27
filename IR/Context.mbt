@@ -32,6 +32,11 @@ struct LLVMContextImpl {
   namedStructTypes : Map[String, StructType]
   pointerTypes : Map[AddressSpace, PointerType]
   mut literalStructID : UInt64
+
+  // Metadata
+  mdstrings: Map[String, MDString]
+  valueMetadata: Map[&Value, Array[(String, MDNode)]]
+
 }
 
 ///|
@@ -61,6 +66,8 @@ pub fn LLVMContext::new() -> LLVMContext {
     namedStructTypes: Map::new(),
     literalStructID: 0,
     pointerTypes,
+    mdstrings: Map::new(),
+    valueMetadata: Map::new()
   }
   ctx.pimpl = Some(pimpl)
   ctx
@@ -1349,4 +1356,19 @@ pub fn LLVMContext::getConstDoubleVector(
     )
     .unwrap()
   ConstantVector::newDoubleVector(ty, data)
+}
+
+pub fn LLVMContext::getMDString(
+  self : LLVMContext,
+  str : String
+) -> MDString {
+  let mdstrings = self.pimpl.unwrap().mdstrings
+  match mdstrings.get(str) {
+    Some(s) => s
+    None => {
+      let mds = MDString::{ str }
+      mdstrings.set(str, mds)
+      mds
+    }
+  }
 }
