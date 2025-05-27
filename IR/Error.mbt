@@ -21,6 +21,7 @@ type! LLVMValueError {
   TypeNotSupportForBinaryOp(&Type, BinaryOps)
   TypeMismatchForReturnInst(&Type, &Type)
   DivisionByZeroError
+  TypeCouldNotBeCreatedZeroValue(&Type)
 } derive(Show)
 
 ///|

@@ -1230,7 +1230,7 @@ pub fn IRBuilder::createSRem(
   // }
 
   let parent = self.getInsertFunction()
-  let flags = Set::of([]) // nsw, nuw, exact are not applicable to SRem
+  let flags = Set::new() // nsw, nuw, exact are not applicable to SRem
   let inst = BinaryInstruction::newStandardOp!(
     BinaryOps::SRem,
     lhs,
@@ -1295,7 +1295,7 @@ pub fn IRBuilder::createURem(
   // }
 
   let parent = self.getInsertFunction()
-  let flags = Set::of([]) // nsw, nuw, exact are not applicable to URem
+  let flags = Set::new() // nsw, nuw, exact are not applicable to URem
   let inst = BinaryInstruction::newStandardOp!(
     BinaryOps::URem,
     lhs,
@@ -1303,6 +1303,451 @@ pub fn IRBuilder::createURem(
     parent,
     name,
     flags,
+  )
+  self.insert!(inst)
+  inst
+}
+
+///| Create FAdd (floating-point addition) Instruction.
+///
+/// ```moonbit
+/// test "IRBuilder::createFAdd" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let f32ty = ctx.getFloatTy()
+///   let fty = ctx.getFunctionType!(f32ty, [f32ty, f32ty])
+///   let fval = prog.addFunction!(fty, "fadd_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let arg1 = fval.getArg(1).unwrap()
+///
+///   let sum = builder.createFAdd!(arg0, arg1)
+///   let _ = builder.createRet!(sum)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define float @fadd_func(float %0, float %1) {
+///     #|entry:
+///     #|  %2 = fadd float %0, %1
+///     #|  ret float %2
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+///
+/// ## Fast Math Flags
+///
+/// This function supports fast math flags, which can be used to
+/// optimize floating-point operations.
+///
+/// ```moonbit
+/// test "IRBuilder::createFAdd" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let f32ty = ctx.getFloatTy()
+///   let fty = ctx.getFunctionType!(f32ty, [f32ty, f32ty])
+///   let fval = prog.addFunction!(fty, "fadd_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let arg1 = fval.getArg(1).unwrap()
+///
+///   let fast_math_flags = Set::of([FastMathFlag::NoNaNs])
+///   let sum = builder.createFAdd!(arg0, arg1, fast_math_flags~)
+///   let _ = builder.createRet!(sum)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define float @fadd_func(float %0, float %1) {
+///     #|entry:
+///     #|  %2 = fadd nnan float %0, %1
+///     #|  ret float %2
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+pub fn IRBuilder::createFAdd(
+  self : IRBuilder,
+  lhs : &Value,
+  rhs : &Value,
+  name~ : String = "",
+  fast_math_flags~: Set[FastMathFlag] = Set::new(),
+) -> &Value!Error {
+  let parent = self.getInsertFunction()
+  let inst = BinaryInstruction::newFPMathOp!(
+    BinaryOps::FAdd,
+    lhs,
+    rhs,
+    parent,
+    name,
+    fast_math_flags
+  )
+  self.insert!(inst)
+  inst
+}
+
+///| Create FSub (floating-point subtraction) Instruction.
+///
+/// ```moonbit
+/// test "IRBuilder::createFSub" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let f32ty = ctx.getFloatTy()
+///   let fty = ctx.getFunctionType!(f32ty, [f32ty, f32ty])
+///   let fval = prog.addFunction!(fty, "fsub_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let arg1 = fval.getArg(1).unwrap()
+///
+///   let diff = builder.createFSub!(arg0, arg1)
+///   let _ = builder.createRet!(diff)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define float @fsub_func(float %0, float %1) {
+///     #|entry:
+///     #|  %2 = fsub float %0, %1
+///     #|  ret float %2
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+///
+/// ## Fast Math Flags
+///
+/// This function supports fast math flags, which can be used to
+/// optimize floating-point operations.
+///
+/// ```moonbit
+/// test "IRBuilder::createFSub with fast math flags" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let f32ty = ctx.getFloatTy()
+///   let fty = ctx.getFunctionType!(f32ty, [f32ty, f32ty])
+///   let fval = prog.addFunction!(fty, "fsub_func_fast")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let arg1 = fval.getArg(1).unwrap()
+///
+///   let fast_math_flags = Set::of([FastMathFlag::NoInfs])
+///   let diff = builder.createFSub!(arg0, arg1, fast_math_flags~)
+///   let _ = builder.createRet!(diff)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define float @fsub_func_fast(float %0, float %1) {
+///     #|entry:
+///     #|  %2 = fsub ninf float %0, %1
+///     #|  ret float %2
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+pub fn IRBuilder::createFSub(
+  self : IRBuilder,
+  lhs : &Value,
+  rhs : &Value,
+  name~ : String = "",
+  fast_math_flags~: Set[FastMathFlag] = Set::new(),
+) -> &Value!Error {
+  let parent = self.getInsertFunction()
+  let inst = BinaryInstruction::newFPMathOp!(
+    BinaryOps::FSub,
+    lhs,
+    rhs,
+    parent,
+    name,
+    fast_math_flags
+  )
+  self.insert!(inst)
+  inst
+}
+
+///| Create FMul (floating-point multiplication) Instruction.
+///
+/// ```moonbit
+/// test "IRBuilder::createFMul" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let f32ty = ctx.getFloatTy()
+///   let fty = ctx.getFunctionType!(f32ty, [f32ty, f32ty])
+///   let fval = prog.addFunction!(fty, "fmul_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let arg1 = fval.getArg(1).unwrap()
+///
+///   let prod = builder.createFMul!(arg0, arg1)
+///   let _ = builder.createRet!(prod)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define float @fmul_func(float %0, float %1) {
+///     #|entry:
+///     #|  %2 = fmul float %0, %1
+///     #|  ret float %2
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+///
+/// ## Fast Math Flags
+///
+/// This function supports fast math flags, which can be used to
+/// optimize floating-point operations.
+///
+/// ```moonbit
+/// test "IRBuilder::createFMul with fast math flags" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let f32ty = ctx.getFloatTy()
+///   let fty = ctx.getFunctionType!(f32ty, [f32ty, f32ty])
+///   let fval = prog.addFunction!(fty, "fmul_func_fast")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let arg1 = fval.getArg(1).unwrap()
+///
+///   let fast_math_flags = Set::of([FastMathFlag::NoSignedZeros])
+///   let prod = builder.createFMul!(arg0, arg1, fast_math_flags~)
+///   let _ = builder.createRet!(prod)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define float @fmul_func_fast(float %0, float %1) {
+///     #|entry:
+///     #|  %2 = fmul nsz float %0, %1
+///     #|  ret float %2
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+pub fn IRBuilder::createFMul(
+  self : IRBuilder,
+  lhs : &Value,
+  rhs : &Value,
+  name~ : String = "",
+  fast_math_flags~: Set[FastMathFlag] = Set::new(),
+) -> &Value!Error {
+  let parent = self.getInsertFunction()
+  let inst = BinaryInstruction::newFPMathOp!(
+    BinaryOps::FMul,
+    lhs,
+    rhs,
+    parent,
+    name,
+    fast_math_flags
+  )
+  self.insert!(inst)
+  inst
+}
+
+///| Create FDiv (floating-point division) Instruction.
+///
+/// ```moonbit
+/// test "IRBuilder::createFDiv" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let f32ty = ctx.getFloatTy()
+///   let fty = ctx.getFunctionType!(f32ty, [f32ty, f32ty])
+///   let fval = prog.addFunction!(fty, "fdiv_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let arg1 = fval.getArg(1).unwrap()
+///
+///   let quot = builder.createFDiv!(arg0, arg1)
+///   let _ = builder.createRet!(quot)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define float @fdiv_func(float %0, float %1) {
+///     #|entry:
+///     #|  %2 = fdiv float %0, %1
+///     #|  ret float %2
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+///
+/// ## Fast Math Flags
+///
+/// This function supports fast math flags, which can be used to
+/// optimize floating-point operations.
+///
+/// ```moonbit
+/// test "IRBuilder::createFDiv with fast math flags" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let f32ty = ctx.getFloatTy()
+///   let fty = ctx.getFunctionType!(f32ty, [f32ty, f32ty])
+///   let fval = prog.addFunction!(fty, "fdiv_func_fast")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let arg1 = fval.getArg(1).unwrap()
+///
+///   let fast_math_flags = Set::of([FastMathFlag::AllowReciprocal])
+///   let quot = builder.createFDiv!(arg0, arg1, fast_math_flags~)
+///   let _ = builder.createRet!(quot)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define float @fdiv_func_fast(float %0, float %1) {
+///     #|entry:
+///     #|  %2 = fdiv arcp float %0, %1
+///     #|  ret float %2
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+pub fn IRBuilder::createFDiv(
+  self : IRBuilder,
+  lhs : &Value,
+  rhs : &Value,
+  name~ : String = "",
+  fast_math_flags~: Set[FastMathFlag] = Set::new(),
+) -> &Value!Error {
+  let parent = self.getInsertFunction()
+  let inst = BinaryInstruction::newFPMathOp!(
+    BinaryOps::FDiv,
+    lhs,
+    rhs,
+    parent,
+    name,
+    fast_math_flags
+  )
+  self.insert!(inst)
+  inst
+}
+
+///| Create FRem (floating-point remainder) Instruction.
+///
+/// ```moonbit
+/// test "IRBuilder::createFRem" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let f32ty = ctx.getFloatTy()
+///   let fty = ctx.getFunctionType!(f32ty, [f32ty, f32ty])
+///   let fval = prog.addFunction!(fty, "frem_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let arg1 = fval.getArg(1).unwrap()
+///
+///   let rem = builder.createFRem!(arg0, arg1)
+///   let _ = builder.createRet!(rem)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define float @frem_func(float %0, float %1) {
+///     #|entry:
+///     #|  %2 = frem float %0, %1
+///     #|  ret float %2
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+///
+/// ## Fast Math Flags
+///
+/// This function supports fast math flags, which can be used to
+/// optimize floating-point operations.
+///
+/// ```moonbit
+/// test "IRBuilder::createFRem with fast math flags" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let f32ty = ctx.getFloatTy()
+///   let fty = ctx.getFunctionType!(f32ty, [f32ty, f32ty])
+///   let fval = prog.addFunction!(fty, "frem_func_fast")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let arg1 = fval.getArg(1).unwrap()
+///
+///   let fast_math_flags = Set::of([FastMathFlag::AllowContract])
+///   let rem = builder.createFRem!(arg0, arg1, fast_math_flags~)
+///   let _ = builder.createRet!(rem)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define float @frem_func_fast(float %0, float %1) {
+///     #|entry:
+///     #|  %2 = frem contract float %0, %1
+///     #|  ret float %2
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+pub fn IRBuilder::createFRem(
+  self : IRBuilder,
+  lhs : &Value,
+  rhs : &Value,
+  name~ : String = "",
+  fast_math_flags~: Set[FastMathFlag] = Set::new(),
+) -> &Value!Error {
+  let parent = self.getInsertFunction()
+  let inst = BinaryInstruction::newFPMathOp!(
+    BinaryOps::FRem,
+    lhs,
+    rhs,
+    parent,
+    name,
+    fast_math_flags
   )
   self.insert!(inst)
   inst

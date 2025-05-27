@@ -578,7 +578,7 @@ pub fn LLVMContext::getConstDouble(
 ///  - `isNegative`: If true, create a negative zero constant.
 ///
 /// ```moonbit
-/// test "LLVMContext::getConstFloat" {
+/// test "LLVMContext::getConstZeroFloat" {
 ///   let ctx = LLVMContext::new()
 ///
 ///   let zero = ctx.getConstZeroFloat()
@@ -1356,6 +1356,58 @@ pub fn LLVMContext::getConstDoubleVector(
     )
     .unwrap()
   ConstantVector::newDoubleVector(ty, data)
+}
+
+///| Create a constant zero value (null value) of a given type.
+///
+/// TODO: wait compiler bug fixed.
+///
+/// ```moonbit-no-run
+/// test "LLVMContext::getConstZero" {
+///   let ctx = LLVMContext::new()
+///   let i32ty = ctx.getInt32Ty()
+///   let zero_i32 = ctx.getConstZero(i32ty)
+///   inspect!(zero_i32, content="i32 0")
+/// }
+/// ```
+pub fn LLVMContext::getConstZero(self : LLVMContext, ty : &Type) -> &Constant!LLVMValueError {
+  match ty.asTypeEnum() {
+    // Integer Types
+    Int1Type(_) => self.getConstFalse() as &Constant
+    Int8Type(_) => self.getConstInt8(0)
+    Int16Type(_) => self.getConstInt16(0)
+    Int32Type(_) => self.getConstInt32(0)
+    Int64Type(_) => self.getConstInt64(0L)
+
+    // Floating Point Types
+    HalfType(t) => ConstantFP::new(t, 0.0)
+    BFloatType(t) => ConstantFP::new(t, 0.0)
+    FloatType(_) => self.getConstZeroFloat()
+    DoubleType(_) => self.getConstZeroDouble()
+    FP128Type(t) => ConstantFP::new(t, 0.0)
+
+    // Pointer Type
+    PointerType(t) => ConstantPointerNull::new(t)
+
+    // Aggregate and Other Types where zero value is complex or not applicable
+    //ArrayType(t) => unreachable("getConstZero: Unimplemented for ArrayType \{t.to_string()}")
+    ArrayType({elementType: t, elementCount: cnt, ..}) => {
+      let cnt = cnt.reinterpret_as_int()
+      match t.asTypeEnum() {
+        Int8Type(_) => self.getConstInt8Array(Array::make(cnt, 0))
+        Int16Type(_) => self.getConstInt16Array(Array::make(cnt, 0))
+        Int32Type(_) => self.getConstInt32Array(Array::make(cnt, 0))
+        Int64Type(_) => self.getConstInt64Array(Array::make(cnt, 0L))
+        FloatType(_) => self.getConstFloatArray(Array::make(cnt, 0.0))
+        DoubleType(_) => self.getConstDoubleArray(Array::make(cnt, 0.0))
+        _ => unreachable("getConstZero: Unimplemented for ArrayType with element type \{t.to_string()}")
+      }
+    }
+    StructType(t) => unreachable("getConstZero: Unimplemented for StructType \{t.to_string()}")
+    FixedVectorType(t) => unreachable("getConstZero: Unimplemented for FixedVectorType \{t.to_string()}")
+    
+    _  => raise TypeCouldNotBeCreatedZeroValue(ty)
+  }
 }
 
 pub fn LLVMContext::getMDString(
