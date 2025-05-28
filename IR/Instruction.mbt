@@ -15,12 +15,12 @@ pub enum BinaryOps {
   FRem
 
   // Logical operators
-  //Shl
-  //LShr
-  //AShr
-  //And
-  //Or
-  //Xor
+  Shl
+  LShr
+  AShr
+  And
+  Or
+  Xor
 } derive(Hash, Eq)
 
 ///|
@@ -38,12 +38,12 @@ pub impl Show for BinaryOps with output(self, logger) {
     URem => "urem"
     SRem => "srem"
     FRem => "frem"
-    //Shl => "shl"
-    //LShr => "lshr"
-    //AShr => "ashr"
-    //And => "and"
-    //Or => "or"
-    //Xor => "xor"
+    Shl => "shl"
+    LShr => "lshr"
+    AShr => "ashr"
+    And => "and"
+    Or => "or"
+    Xor => "xor"
   }
   logger.write_string(str)
 }
@@ -61,7 +61,7 @@ pub enum BinaryOpFlags {
   Exact
 
   // Only Or could have Disjoint flag.
-  //Disjoint
+  Disjoint
 } derive(Hash, Eq)
 
 ///|
@@ -70,7 +70,7 @@ pub impl Show for BinaryOpFlags with output(self, logger) {
     NoUnsignedWrap => "nuw"
     NoSignedWrap => "nsw"
     Exact => "exact"
-    //Disjoint => "disjoint"
+    Disjoint => "disjoint"
   }
   logger.write_string(str)
 }
@@ -254,7 +254,7 @@ fn BinaryInstruction::newStandardOp(
   name : String,
   flags : Set[BinaryOpFlags]
 ) -> BinaryInstruction!LLVMValueError {
-  guard opcode is (Add | Sub | Mul | SDiv | UDiv | SRem | URem) else {
+  guard opcode is (Add | Sub | Mul | SDiv | UDiv | SRem | URem | And | Or | Xor | Shl | LShr | AShr) else {
     unreachable(
       "Should not call BinaryInstruction::newStandardOp with opcode \{opcode}",
     )

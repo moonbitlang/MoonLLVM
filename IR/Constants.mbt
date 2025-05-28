@@ -337,6 +337,239 @@ pub fn ConstantInt::sdiv(
   ConstantInt::{ base, value }
 }
 
+///| Unsigned divide two ConstantInt, useful in constant folding.
+///
+/// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
+/// ConstantInt are not the same. It will raise `DivisionByZeroError` if `other` is zero.
+///
+/// ```moonbit
+/// test "ConstantInt::udiv" {
+///   let ctx = LLVMContext::new()
+///
+///   // Test case 1: i8 unsigned division
+///   // 200u8 / 10u8 = 20u8. ConstantInt stores 20L.
+///   let i8_200 = ctx.getConstInt8(200) // Internally stored as -56L
+///   let i8_10 = ctx.getConstInt8(10)
+///   inspect!(i8_200.udiv(i8_10), content="i8 20")
+///
+///   // Test case 2: i8 unsigned division with -1 (255u8)
+///   // 255u8 / 2u8 = 127u8. ConstantInt stores 127L.
+///   let i8_m1 = ctx.getConstInt8(-1) // Internally stored as -1L, represents 255u8
+///   let i8_2 = ctx.getConstInt8(2)
+///   inspect!(i8_m1.udiv(i8_2), content="i8 127")
+///
+///   // Test case 3: i32 unsigned division
+///   // 2147483647u / 2u = 1073741823u.
+///   let i32_max_signed = ctx.getConstInt32(@int.max_value) // 2147483647
+///   let i32_2 = ctx.getConstInt32(2)
+///   inspect!(i32_max_signed.udiv(i32_2), content="i32 1073741823")
+///
+///   // Test case 4: i64 unsigned division (UInt64.max_value / 2)
+///   // (-1L as UInt64) / 2 = (2^64 - 1) / 2 = 2^63 - 1 (which is Int64.max_value)
+///   let i64_m1 = ctx.getConstInt64(-1L)
+///   let i64_2 = ctx.getConstInt64(2L)
+///   inspect!(i64_m1.udiv(i64_2), content="i64 9223372036854775807")
+///
+///   // Test case 5: Type mismatch
+///   let i8_5 = ctx.getConstInt8(5)
+///   let i16_2 = ctx.getConstInt16(2)
+///   assert_true!(i8_5.udiv?(i16_2) is Err(_))
+///
+///   // Test case 6: Division by zero
+///   let i8_0 = ctx.getConstInt8(0)
+///   assert_true!(i8_5.udiv?(i8_0) is Err(_))
+///
+///   // Test case 7: i1 unsigned division
+///   let i1_true = ctx.getConstTrue()
+///   let i1_false = ctx.getConstFalse()
+///   inspect!(i1_true.udiv(i1_true), content="i1 true") // 1u / 1u = 1u
+///   inspect!(i1_false.udiv(i1_true), content="i1 false") // 0u / 1u = 0u
+/// }
+/// ```
+pub fn ConstantInt::udiv(
+  self : ConstantInt,
+  other : ConstantInt
+) -> ConstantInt!LLVMValueError {
+  let (lty, rty) = (self.getType(), other.getType())
+  guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
+  guard other.value != 0L else { raise DivisionByZeroError }
+  guard lty.tryAsIntegerTypeEnum() is Some(ty)
+
+  let value = match ty {
+    Int1Type(_) => {
+      self.value / other.value
+    }
+    Int8Type(_) => {
+      let v1_u8 = self.value.to_byte() // e.g., -56L (representing 200i8) -> 200uy (0xC8)
+      let v2_u8 = other.value.to_byte() // e.g., 10L (representing 10i8) -> 10uy (0x0A)
+      let res_u8 = v1_u8 / v2_u8       // 200uy / 10uy = 20uy (0x14)
+      Int8::from_int64(res_u8.to_int64()).to_int64()
+    }
+    Int16Type(_) => {
+      let v1_u16 = self.value.to_int().to_uint16()
+      let v2_u16 = other.value.to_int().to_uint16()
+      let res_u16 = v1_u16 / v2_u16
+      res_u16.to_int().to_int16().to_int().to_int64()
+    }
+    Int32Type(_) => {
+      let v1_u32 = self.value.to_int().reinterpret_as_uint()
+      let v2_u32 = other.value.to_int().reinterpret_as_uint()
+      let res_u32 = v1_u32 / v2_u32
+      res_u32.reinterpret_as_int().to_int64()
+    }
+    Int64Type(_) => {
+      (self.value.reinterpret_as_uint64() / other.value.reinterpret_as_uint64()).reinterpret_as_int64()
+    }
+  }
+
+  let base = self.base
+  ConstantInt::{ base, value }
+}
+
+///| Bitwise AND two ConstantInt, useful in constant folding.
+///
+/// ```moonbit
+/// test "ConstantInt::and" {
+///   let ctx = LLVMContext::new()
+///
+///   let i8_6 = ctx.getConstInt8(6)     // 00000110
+///   let i8_3 = ctx.getConstInt8(3)     // 00000011
+///   inspect!(i8_6.and(i8_3), content="i8 2") // 00000010
+///
+///   let i16_m1 = ctx.getConstInt16(-1) // 1111111111111111
+///   let i16_all_set = ctx.getConstInt16(-1)
+///   inspect!(i16_m1.and(i16_all_set), content="i16 -1")
+///
+///   let i32_pattern = ctx.getConstInt32(0x0F0F0F0F)
+///   let i32_mask = ctx.getConstInt32(0xFF00FF00)
+///   inspect!(i32_pattern.and(i32_mask), content="i32 251662080") // 0x0F000F00
+///
+///   let i64_val = ctx.getConstInt64(0x123456789ABCDEF0L)
+///   let i64_low_clear = ctx.getConstInt64(-1L<<4) // ...FFFFFFFFFFFFFFF0
+///   inspect!(i64_val.and(i64_low_clear), content="i64 1311768467463790320") // 0x123456789ABCDEF0
+///
+///   assert_true!(i8_6.and?(i16_m1) is Err(_))
+/// }
+/// ```
+pub fn ConstantInt::and(
+  self : ConstantInt,
+  other : ConstantInt
+) -> ConstantInt!LLVMValueError {
+  let (lty, rty) = (self.getType(), other.getType())
+  guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
+  guard lty.tryAsIntegerTypeEnum() is Some(ty)
+
+  let result_i64 = self.value & other.value
+
+  let final_value = match ty {
+    Int1Type(_) => result_i64 & 1L
+    Int8Type(_) => Int8::from_int64(result_i64).to_int64()
+    Int16Type(_) => result_i64.to_int().to_int16().to_int64()
+    Int32Type(_) => result_i64.to_int().to_int64()
+    Int64Type(_) => result_i64
+  }
+  let base = self.base
+  ConstantInt::{ base, value: final_value }
+}
+
+///| Bitwise OR two ConstantInt, useful in constant folding.
+///
+/// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
+/// ConstantInt are not the same.
+///
+/// ```moonbit
+/// test "ConstantInt::or" {
+///   let ctx = LLVMContext::new()
+///
+///   let i8_6 = ctx.getConstInt8(6)     // 00000110
+///   let i8_3 = ctx.getConstInt8(3)     // 00000011
+///   inspect!(i8_6.or(i8_3), content="i8 7")  // 00000111
+///
+///   let i16_1 = ctx.getConstInt16(1)   // ...0001
+///   let i16_2 = ctx.getConstInt16(2)   // ...0010
+///   inspect!(i16_1.or(i16_2), content="i16 3") // ...0011
+///
+///   let i32_pattern = ctx.getConstInt32(0x0F0F0F0F)
+///   let i32_mask = ctx.getConstInt32(0xF0F0F0F0)
+///   inspect!(i32_pattern.or(i32_mask), content="i32 -1") // 0xFFFFFFFF
+///
+///   let i64_val = ctx.getConstInt64(0L)
+///   let i64_m1 = ctx.getConstInt64(-1L)
+///   inspect!(i64_val.or(i64_m1), content="i64 -1")
+///
+///   assert_true!(i8_6.or?(i16_1) is Err(_))
+/// }
+/// ```
+pub fn ConstantInt::or(
+  self : ConstantInt,
+  other : ConstantInt
+) -> ConstantInt!LLVMValueError {
+  let (lty, rty) = (self.getType(), other.getType())
+  guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
+  guard lty.tryAsIntegerTypeEnum() is Some(ty)
+
+  let result_i64 = self.value | other.value
+
+  let final_value = match ty {
+    Int1Type(_) => result_i64 & 1L
+    Int8Type(_) => Int8::from_int64(result_i64).to_int64()
+    Int16Type(_) => result_i64.to_int().to_int16().to_int64()
+    Int32Type(_) => result_i64.to_int().to_int64()
+    Int64Type(_) => result_i64
+  }
+  let base = self.base
+  ConstantInt::{ base, value: final_value }
+}
+
+///| Bitwise XOR two ConstantInt, useful in constant folding.
+///
+/// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
+/// ConstantInt are not the same.
+///
+/// ```moonbit
+/// test "ConstantInt::xor" {
+///   let ctx = LLVMContext::new()
+///
+///   let i8_6 = ctx.getConstInt8(6)     // 00000110
+///   let i8_3 = ctx.getConstInt8(3)     // 00000011
+///   inspect!(i8_6.xor(i8_3), content="i8 5")  // 00000101
+///
+///   let i16_val = ctx.getConstInt16(0xAA) // ...10101010
+///   let i16_m1 = ctx.getConstInt16(-1)   // ...11111111
+///   inspect!(i16_val.xor(i16_m1), content="i16 -171") // ...01010101 (which is -0xAB or -171 for i16)
+///
+///   let i32_pattern = ctx.getConstInt32(0x0F0F0F0F)
+///   let i32_self_xor = i32_pattern.xor(i32_pattern)
+///   inspect!(i32_self_xor, content="i32 0")
+///
+///   let i64_val = ctx.getConstInt64(12345L)
+///   let i64_0 = ctx.getConstInt64(0L)
+///   inspect!(i64_val.xor(i64_0), content="i64 12345")
+///
+///   assert_true!(i8_6.xor?(i16_val) is Err(_))
+/// }
+/// ```
+pub fn ConstantInt::xor(
+  self : ConstantInt,
+  other : ConstantInt
+) -> ConstantInt!LLVMValueError {
+  let (lty, rty) = (self.getType(), other.getType())
+  guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
+  guard lty.tryAsIntegerTypeEnum() is Some(ty)
+
+  let result_i64 = self.value ^ other.value
+
+  let final_value = match ty {
+    Int1Type(_) => result_i64 & 1L
+    Int8Type(_) => Int8::from_int64(result_i64).to_int64()
+    Int16Type(_) => result_i64.to_int().to_int16().to_int64()
+    Int32Type(_) => result_i64.to_int().to_int64()
+    Int64Type(_) => result_i64
+  }
+  let base = self.base
+  ConstantInt::{ base, value: final_value }
+}
+
 ///|
 pub impl Value for ConstantInt with getValueBase(self) {
   self.base
