@@ -2031,3 +2031,427 @@ pub fn IRBuilder::createXor(
   self.insert!(inst)
   inst
 }
+
+///| Create Shl (Shift Left) Instruction.
+///
+/// **Note:**
+///
+/// - (Constant folding) If both operands are constant integers, the bitwise SHL is
+/// evaluated at compile time and the result is returned as a constant value.
+/// - `nsw` stands for "no signed wrap". If an overflow occurs, the behavior is undefined.
+/// - `nuw` stands for "no unsigned wrap". If an overflow occurs, the behavior is undefined.
+///
+/// ```moonbit
+/// test "IRBuilder::createShl" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
+///   let fval = prog.addFunction!(fty, "shl_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let arg1 = fval.getArg(1).unwrap() // Shift amount
+///
+///   let shl_val = builder.createShl!(arg0, arg1)
+///   let _ = builder.createRet!(shl_val)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define i32 @shl_func(i32 %0, i32 %1) {
+///     #|entry:
+///     #|  %2 = shl i32 %0, %1
+///     #|  ret i32 %2
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+///
+/// ## With `nsw` and `nuw` flags
+///
+/// ```moonbit
+/// test "IRBuilder::createShl with flags" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
+///   let fval = prog.addFunction!(fty, "shl_flags_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let arg1 = fval.getArg(1).unwrap()
+///
+///   let shl_nsw = builder.createShl!(arg0, arg1, has_nsw=true)
+///   let shl_nuw = builder.createShl!(arg0, arg1, has_nuw=true)
+///   let shl_nsw_nuw = builder.createShl!(shl_nsw, shl_nuw, has_nsw=true, has_nuw=true)
+///   let _ = builder.createRet!(shl_nsw_nuw)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define i32 @shl_flags_func(i32 %0, i32 %1) {
+///     #|entry:
+///     #|  %2 = shl nsw i32 %0, %1
+///     #|  %3 = shl nuw i32 %0, %1
+///     #|  %4 = shl nuw nsw i32 %2, %3
+///     #|  ret i32 %4
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+///
+/// ## Constant Folding
+///
+/// ```moonbit
+/// test "IRBuilder::createShl with constant folding" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType!(i32ty, [])
+///   let fval = prog.addFunction!(fty, "shl_const_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let const_val = ctx.getConstInt32(5) // 0b0101
+///   let const_shift = ctx.getConstInt32(2) // shift by 2
+///
+///   let shl_result = builder.createShl!(const_val, const_shift) // Expected: 20 (0b010100)
+///   let _ = builder.createRet!(shl_result)
+///
+///   inspect(shl_result, content = "i32 20")
+///   inspect(
+///     fval,
+///     content =
+///     #|define i32 @shl_const_func() {
+///     #|entry:
+///     #|  ret i32 20
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+pub fn IRBuilder::createShl(
+  self : IRBuilder,
+  lhs : &Value,
+  rhs : &Value,
+  name~ : String = "",
+  has_nsw~ : Bool = false,
+  has_nuw~ : Bool = false
+) -> &Value!Error {
+  match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
+    (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) => return lhs_ci.shl!(rhs_ci)
+    _ => ()
+  }
+  let parent = self.getInsertFunction()
+  let flags = Set::new()
+  if has_nuw {
+    flags.add(BinaryOpFlags::NoUnsignedWrap)
+  }
+  if has_nsw {
+    flags.add(BinaryOpFlags::NoSignedWrap)
+  }
+  let inst = BinaryInstruction::newStandardOp!(
+    BinaryOps::Shl,
+    lhs,
+    rhs,
+    parent,
+    name,
+    flags,
+  )
+  self.insert!(inst)
+  inst
+}
+
+///| Create LShr (Logical Shift Right) Instruction.
+///
+/// **Note:**
+///
+/// - (Constant folding) If both operands are constant integers, the logical shift right is
+/// evaluated at compile time and the result is returned as a constant value.
+/// - The `exact` keyword means that the operation is known to have no ones shifted out.
+/// If any ones are shifted out, the behavior is undefined.
+///
+/// ```moonbit
+/// test "IRBuilder::createLShr" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
+///   let fval = prog.addFunction!(fty, "lshr_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let arg1 = fval.getArg(1).unwrap() // Shift amount
+///
+///   let lshr_val = builder.createLShr!(arg0, arg1)
+///   let _ = builder.createRet!(lshr_val)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define i32 @lshr_func(i32 %0, i32 %1) {
+///     #|entry:
+///     #|  %2 = lshr i32 %0, %1
+///     #|  ret i32 %2
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+///
+/// ## With `exact` flag
+///
+/// ```moonbit
+/// test "IRBuilder::createLShr with exact flag" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
+///   let fval = prog.addFunction!(fty, "lshr_exact_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let arg1 = fval.getArg(1).unwrap()
+///
+///   let lshr_exact_val = builder.createLShr!(arg0, arg1, is_exact=true)
+///   let _ = builder.createRet!(lshr_exact_val)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define i32 @lshr_exact_func(i32 %0, i32 %1) {
+///     #|entry:
+///     #|  %2 = lshr exact i32 %0, %1
+///     #|  ret i32 %2
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+///
+/// ## Constant Folding
+///
+/// ```moonbit
+/// test "IRBuilder::createLShr with constant folding" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType!(i32ty, [])
+///   let fval = prog.addFunction!(fty, "lshr_const_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let const_val = ctx.getConstInt32(20) // 0b10100
+///   let const_shift = ctx.getConstInt32(2) // shift by 2
+///
+///   let lshr_result = builder.createLShr!(const_val, const_shift) // Expected: 5 (0b00101)
+///   let _ = builder.createRet!(lshr_result)
+///
+///   inspect(lshr_result, content = "i32 5")
+///   inspect(
+///     fval,
+///     content =
+///     #|define i32 @lshr_const_func() {
+///     #|entry:
+///     #|  ret i32 5
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+pub fn IRBuilder::createLShr(
+  self : IRBuilder,
+  lhs : &Value,
+  rhs : &Value,
+  name~ : String = "",
+  is_exact~ : Bool = false
+) -> &Value!Error {
+  match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
+    (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) => return lhs_ci.lshr!(rhs_ci)
+    _ => ()
+  }
+  let parent = self.getInsertFunction()
+  let flags = Set::new()
+  if is_exact {
+    flags.add(BinaryOpFlags::Exact)
+  }
+  let inst = BinaryInstruction::newStandardOp!(
+    BinaryOps::LShr,
+    lhs,
+    rhs,
+    parent,
+    name,
+    flags,
+  )
+  self.insert!(inst)
+  inst
+}
+
+///| Create AShr (Arithmetic Shift Right) Instruction.
+///
+/// **Note:**
+///
+/// - (Constant folding) If both operands are constant integers, the arithmetic shift right is
+/// evaluated at compile time and the result is returned as a constant value.
+/// - The `exact` keyword means that the operation is known to have no ones shifted out from a different sign bit.
+/// If any ones are shifted out that differ from the original sign bit, the behavior is undefined.
+///
+/// ```moonbit
+/// test "IRBuilder::createAShr" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
+///   let fval = prog.addFunction!(fty, "ashr_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let arg1 = fval.getArg(1).unwrap() // Shift amount
+///
+///   let ashr_val = builder.createAShr!(arg0, arg1)
+///   let _ = builder.createRet!(ashr_val)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define i32 @ashr_func(i32 %0, i32 %1) {
+///     #|entry:
+///     #|  %2 = ashr i32 %0, %1
+///     #|  ret i32 %2
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+///
+/// ## With `exact` flag
+///
+/// ```moonbit
+/// test "IRBuilder::createAShr with exact flag" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
+///   let fval = prog.addFunction!(fty, "ashr_exact_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let arg1 = fval.getArg(1).unwrap()
+///
+///   let ashr_exact_val = builder.createAShr!(arg0, arg1, is_exact=true)
+///   let _ = builder.createRet!(ashr_exact_val)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define i32 @ashr_exact_func(i32 %0, i32 %1) {
+///     #|entry:
+///     #|  %2 = ashr exact i32 %0, %1
+///     #|  ret i32 %2
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+///
+/// ## Constant Folding
+///
+/// ```moonbit
+/// test "IRBuilder::createAShr with constant folding" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType!(i32ty, [])
+///
+///   // Test with negative number
+///   let fval_neg = prog.addFunction!(fty, "ashr_const_neg_func")
+///   let entryBB_neg = fval_neg.addBasicBlock(name="entry_neg")
+///   builder.setInsertPoint(entryBB_neg)
+///   let const_val_neg = ctx.getConstInt32(-20) // 0xFFFFFFEC (i32) -> ...11101100
+///   let const_shift = ctx.getConstInt32(2)    // shift by 2
+///   let ashr_result_neg = builder.createAShr!(const_val_neg, const_shift) // Expected: -5 (0xFFFFFFFB) -> ...11111011
+///   let _ = builder.createRet!(ashr_result_neg)
+///   inspect(ashr_result_neg, content = "i32 -5")
+///   inspect(
+///     fval_neg,
+///     content =
+///     #|define i32 @ashr_const_neg_func() {
+///     #|entry_neg:
+///     #|  ret i32 -5
+///     #|}
+///     ,
+///   )
+///
+///   // Test with positive number
+///   let fval_pos = prog.addFunction!(fty, "ashr_const_pos_func")
+///   let entryBB_pos = fval_pos.addBasicBlock(name="entry_pos")
+///   builder.setInsertPoint(entryBB_pos)
+///   let const_val_pos = ctx.getConstInt32(20) // 0x00000014 -> 0b00010100
+///   let ashr_result_pos = builder.createAShr!(const_val_pos, const_shift) // Expected: 5 (0x00000005) -> 0b00000101
+///   let _ = builder.createRet!(ashr_result_pos)
+///   inspect(ashr_result_pos, content = "i32 5")
+///   inspect(
+///     fval_pos,
+///     content =
+///     #|define i32 @ashr_const_pos_func() {
+///     #|entry_pos:
+///     #|  ret i32 5
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+pub fn IRBuilder::createAShr(
+  self : IRBuilder,
+  lhs : &Value,
+  rhs : &Value,
+  name~ : String = "",
+  is_exact~ : Bool = false
+) -> &Value!Error {
+  match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
+    (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) => return lhs_ci.ashr!(rhs_ci)
+    _ => ()
+  }
+  let parent = self.getInsertFunction()
+  let flags = Set::new()
+  if is_exact {
+    flags.add(BinaryOpFlags::Exact)
+  }
+  let inst = BinaryInstruction::newStandardOp!(
+    BinaryOps::AShr,
+    lhs,
+    rhs,
+    parent,
+    name,
+    flags,
+  )
+  self.insert!(inst)
+  inst
+}
