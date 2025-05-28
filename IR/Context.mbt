@@ -34,9 +34,8 @@ struct LLVMContextImpl {
   mut literalStructID : UInt64
 
   // Metadata
-  mdstrings: Map[String, MDString]
-  valueMetadata: Map[&Value, Array[(String, MDNode)]]
-
+  mdstrings : Map[String, MDString]
+  valueMetadata : Map[&Value, Array[(String, MDNode)]]
 }
 
 ///|
@@ -67,7 +66,7 @@ pub fn LLVMContext::new() -> LLVMContext {
     literalStructID: 0,
     pointerTypes,
     mdstrings: Map::new(),
-    valueMetadata: Map::new()
+    valueMetadata: Map::new(),
   }
   ctx.pimpl = Some(pimpl)
   ctx
@@ -1370,10 +1369,15 @@ pub fn LLVMContext::getConstDoubleVector(
 ///   inspect!(zero_i32, content="i32 0")
 /// }
 /// ```
-pub fn LLVMContext::getConstZero(self : LLVMContext, ty : &Type) -> &Constant!LLVMValueError {
+pub fn LLVMContext::getConstZero(
+  self : LLVMContext,
+  ty : &Type
+) -> &Constant!LLVMValueError {
   match ty.asTypeEnum() {
     // Integer Types
-    Int1Type(_) => self.getConstFalse() as &Constant
+    Int1Type(_) => {
+      self.getConstFalse() as &Constant
+    }
     Int8Type(_) => self.getConstInt8(0)
     Int16Type(_) => self.getConstInt16(0)
     Int32Type(_) => self.getConstInt32(0)
@@ -1391,7 +1395,7 @@ pub fn LLVMContext::getConstZero(self : LLVMContext, ty : &Type) -> &Constant!LL
 
     // Aggregate and Other Types where zero value is complex or not applicable
     //ArrayType(t) => unreachable("getConstZero: Unimplemented for ArrayType \{t.to_string()}")
-    ArrayType({elementType: t, elementCount: cnt, ..}) => {
+    ArrayType({ elementType: t, elementCount: cnt, .. }) => {
       let cnt = cnt.reinterpret_as_int()
       match t.asTypeEnum() {
         Int8Type(_) => self.getConstInt8Array(Array::make(cnt, 0))
@@ -1400,25 +1404,29 @@ pub fn LLVMContext::getConstZero(self : LLVMContext, ty : &Type) -> &Constant!LL
         Int64Type(_) => self.getConstInt64Array(Array::make(cnt, 0L))
         FloatType(_) => self.getConstFloatArray(Array::make(cnt, 0.0))
         DoubleType(_) => self.getConstDoubleArray(Array::make(cnt, 0.0))
-        _ => unreachable("getConstZero: Unimplemented for ArrayType with element type \{t.to_string()}")
+        _ =>
+          unreachable(
+            "getConstZero: Unimplemented for ArrayType with element type \{t.to_string()}",
+          )
       }
     }
-    StructType(t) => unreachable("getConstZero: Unimplemented for StructType \{t.to_string()}")
-    FixedVectorType(t) => unreachable("getConstZero: Unimplemented for FixedVectorType \{t.to_string()}")
-    
-    _  => raise TypeCouldNotBeCreatedZeroValue(ty)
+    StructType(t) =>
+      unreachable("getConstZero: Unimplemented for StructType \{t.to_string()}")
+    FixedVectorType(t) =>
+      unreachable(
+        "getConstZero: Unimplemented for FixedVectorType \{t.to_string()}",
+      )
+    _ => raise TypeCouldNotBeCreatedZeroValue(ty)
   }
 }
 
-pub fn LLVMContext::getMDString(
-  self : LLVMContext,
-  str : String
-) -> MDString {
+///|
+pub fn LLVMContext::getMDString(self : LLVMContext, str : String) -> MDString {
   let mdstrings = self.pimpl.unwrap().mdstrings
   match mdstrings.get(str) {
     Some(s) => s
     None => {
-      let mds = MDString::{ str }
+      let mds = MDString::{ str, }
       mdstrings.set(str, mds)
       mds
     }

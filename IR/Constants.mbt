@@ -394,15 +394,12 @@ pub fn ConstantInt::udiv(
   guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
   guard other.value != 0L else { raise DivisionByZeroError }
   guard lty.tryAsIntegerTypeEnum() is Some(ty)
-
   let value = match ty {
-    Int1Type(_) => {
-      self.value / other.value
-    }
+    Int1Type(_) => self.value / other.value
     Int8Type(_) => {
       let v1_u8 = self.value.to_byte() // e.g., -56L (representing 200i8) -> 200uy (0xC8)
       let v2_u8 = other.value.to_byte() // e.g., 10L (representing 10i8) -> 10uy (0x0A)
-      let res_u8 = v1_u8 / v2_u8       // 200uy / 10uy = 20uy (0x14)
+      let res_u8 = v1_u8 / v2_u8 // 200uy / 10uy = 20uy (0x14)
       Int8::from_int64(res_u8.to_int64()).to_int64()
     }
     Int16Type(_) => {
@@ -417,11 +414,9 @@ pub fn ConstantInt::udiv(
       let res_u32 = v1_u32 / v2_u32
       res_u32.reinterpret_as_int().to_int64()
     }
-    Int64Type(_) => {
+    Int64Type(_) =>
       (self.value.reinterpret_as_uint64() / other.value.reinterpret_as_uint64()).reinterpret_as_int64()
-    }
   }
-
   let base = self.base
   ConstantInt::{ base, value }
 }
@@ -458,9 +453,7 @@ pub fn ConstantInt::and(
   let (lty, rty) = (self.getType(), other.getType())
   guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
   guard lty.tryAsIntegerTypeEnum() is Some(ty)
-
   let result_i64 = self.value & other.value
-
   let final_value = match ty {
     Int1Type(_) => result_i64 & 1L
     Int8Type(_) => Int8::from_int64(result_i64).to_int64()
@@ -507,9 +500,7 @@ pub fn ConstantInt::or(
   let (lty, rty) = (self.getType(), other.getType())
   guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
   guard lty.tryAsIntegerTypeEnum() is Some(ty)
-
   let result_i64 = self.value | other.value
-
   let final_value = match ty {
     Int1Type(_) => result_i64 & 1L
     Int8Type(_) => Int8::from_int64(result_i64).to_int64()
@@ -556,9 +547,7 @@ pub fn ConstantInt::xor(
   let (lty, rty) = (self.getType(), other.getType())
   guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
   guard lty.tryAsIntegerTypeEnum() is Some(ty)
-
   let result_i64 = self.value ^ other.value
-
   let final_value = match ty {
     Int1Type(_) => result_i64 & 1L
     Int8Type(_) => Int8::from_int64(result_i64).to_int64()
@@ -605,9 +594,7 @@ pub fn ConstantInt::shl(
   let (lty, rty) = (self.getType(), other.getType())
   guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
   guard lty.tryAsIntegerTypeEnum() is Some(ty)
-
   let result_i64 = self.value << other.value.to_int()
-
   let final_value = match ty {
     Int1Type(_) => result_i64 & 1L
     Int8Type(_) => Int8::from_int64(result_i64).to_int64()
@@ -654,11 +641,8 @@ pub fn ConstantInt::lshr(
   let (lty, rty) = (self.getType(), other.getType())
   guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
   guard lty.tryAsIntegerTypeEnum() is Some(ty)
-
   let value = match ty {
-    Int1Type(_) => {
-      self.value >> other.value.to_int() & 1L
-    }
+    Int1Type(_) => (self.value >> other.value.to_int()) & 1L
     Int8Type(_) => {
       let v_u8 = self.value.to_byte()
       let shift_amount = other.value.to_int()
@@ -683,7 +667,6 @@ pub fn ConstantInt::lshr(
       (v_u64 >> shift_amount).reinterpret_as_int64()
     }
   }
-
   let base = self.base
   ConstantInt::{ base, value }
 }
@@ -728,9 +711,7 @@ pub fn ConstantInt::ashr(
   let (lty, rty) = (self.getType(), other.getType())
   guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
   guard lty.tryAsIntegerTypeEnum() is Some(ty)
-
   let result_i64 = self.value >> other.value.to_int()
-
   let final_value = match ty {
     Int1Type(_) => result_i64 & 1L
     Int8Type(_) => Int8::from_int64(result_i64).to_int64()
@@ -741,6 +722,7 @@ pub fn ConstantInt::ashr(
   let base = self.base
   ConstantInt::{ base, value: final_value }
 }
+
 ///|
 pub impl Value for ConstantInt with getValueBase(self) {
   self.base

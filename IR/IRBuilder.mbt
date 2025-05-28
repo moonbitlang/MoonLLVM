@@ -1382,7 +1382,7 @@ pub fn IRBuilder::createFAdd(
   lhs : &Value,
   rhs : &Value,
   name~ : String = "",
-  fast_math_flags~: Set[FastMathFlag] = Set::new(),
+  fast_math_flags~ : Set[FastMathFlag] = Set::new()
 ) -> &Value!Error {
   let parent = self.getInsertFunction()
   let inst = BinaryInstruction::newFPMathOp!(
@@ -1391,7 +1391,7 @@ pub fn IRBuilder::createFAdd(
     rhs,
     parent,
     name,
-    fast_math_flags
+    fast_math_flags,
   )
   self.insert!(inst)
   inst
@@ -1471,7 +1471,7 @@ pub fn IRBuilder::createFSub(
   lhs : &Value,
   rhs : &Value,
   name~ : String = "",
-  fast_math_flags~: Set[FastMathFlag] = Set::new(),
+  fast_math_flags~ : Set[FastMathFlag] = Set::new()
 ) -> &Value!Error {
   let parent = self.getInsertFunction()
   let inst = BinaryInstruction::newFPMathOp!(
@@ -1480,7 +1480,7 @@ pub fn IRBuilder::createFSub(
     rhs,
     parent,
     name,
-    fast_math_flags
+    fast_math_flags,
   )
   self.insert!(inst)
   inst
@@ -1560,7 +1560,7 @@ pub fn IRBuilder::createFMul(
   lhs : &Value,
   rhs : &Value,
   name~ : String = "",
-  fast_math_flags~: Set[FastMathFlag] = Set::new(),
+  fast_math_flags~ : Set[FastMathFlag] = Set::new()
 ) -> &Value!Error {
   let parent = self.getInsertFunction()
   let inst = BinaryInstruction::newFPMathOp!(
@@ -1569,7 +1569,7 @@ pub fn IRBuilder::createFMul(
     rhs,
     parent,
     name,
-    fast_math_flags
+    fast_math_flags,
   )
   self.insert!(inst)
   inst
@@ -1649,7 +1649,7 @@ pub fn IRBuilder::createFDiv(
   lhs : &Value,
   rhs : &Value,
   name~ : String = "",
-  fast_math_flags~: Set[FastMathFlag] = Set::new(),
+  fast_math_flags~ : Set[FastMathFlag] = Set::new()
 ) -> &Value!Error {
   let parent = self.getInsertFunction()
   let inst = BinaryInstruction::newFPMathOp!(
@@ -1658,7 +1658,7 @@ pub fn IRBuilder::createFDiv(
     rhs,
     parent,
     name,
-    fast_math_flags
+    fast_math_flags,
   )
   self.insert!(inst)
   inst
@@ -1738,7 +1738,7 @@ pub fn IRBuilder::createFRem(
   lhs : &Value,
   rhs : &Value,
   name~ : String = "",
-  fast_math_flags~: Set[FastMathFlag] = Set::new(),
+  fast_math_flags~ : Set[FastMathFlag] = Set::new()
 ) -> &Value!Error {
   let parent = self.getInsertFunction()
   let inst = BinaryInstruction::newFPMathOp!(
@@ -1747,7 +1747,7 @@ pub fn IRBuilder::createFRem(
     rhs,
     parent,
     name,
-    fast_math_flags
+    fast_math_flags,
   )
   self.insert!(inst)
   inst
@@ -1830,7 +1830,8 @@ pub fn IRBuilder::createAnd(
   name~ : String = ""
 ) -> &Value!Error {
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
-    (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) => return lhs_ci.and!(rhs_ci)
+    (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) =>
+      return lhs_ci.and!(rhs_ci)
     _ => ()
   }
   let parent = self.getInsertFunction()
@@ -1923,7 +1924,8 @@ pub fn IRBuilder::createOr(
   name~ : String = ""
 ) -> &Value!Error {
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
-    (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) => return lhs_ci.or!(rhs_ci)
+    (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) =>
+      return lhs_ci.or!(rhs_ci)
     _ => ()
   }
   let parent = self.getInsertFunction()
@@ -2016,7 +2018,8 @@ pub fn IRBuilder::createXor(
   name~ : String = ""
 ) -> &Value!Error {
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
-    (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) => return lhs_ci.xor!(rhs_ci)
+    (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) =>
+      return lhs_ci.xor!(rhs_ci)
     _ => ()
   }
   let parent = self.getInsertFunction()
@@ -2150,7 +2153,8 @@ pub fn IRBuilder::createShl(
   has_nuw~ : Bool = false
 ) -> &Value!Error {
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
-    (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) => return lhs_ci.shl!(rhs_ci)
+    (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) =>
+      return lhs_ci.shl!(rhs_ci)
     _ => ()
   }
   let parent = self.getInsertFunction()
@@ -2286,7 +2290,8 @@ pub fn IRBuilder::createLShr(
   is_exact~ : Bool = false
 ) -> &Value!Error {
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
-    (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) => return lhs_ci.lshr!(rhs_ci)
+    (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) =>
+      return lhs_ci.lshr!(rhs_ci)
     _ => ()
   }
   let parent = self.getInsertFunction()
@@ -2436,7 +2441,8 @@ pub fn IRBuilder::createAShr(
   is_exact~ : Bool = false
 ) -> &Value!Error {
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
-    (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) => return lhs_ci.ashr!(rhs_ci)
+    (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) =>
+      return lhs_ci.ashr!(rhs_ci)
     _ => ()
   }
   let parent = self.getInsertFunction()

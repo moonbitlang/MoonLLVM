@@ -75,7 +75,7 @@ pub impl Show for BinaryOpFlags with output(self, logger) {
   logger.write_string(str)
 }
 
-
+///|
 pub(all) enum FastMathFlag {
   AllowReassoc
   NoNaNs
@@ -86,6 +86,7 @@ pub(all) enum FastMathFlag {
   ApproxFunc
 } derive(Hash, Eq)
 
+///|
 pub impl Show for FastMathFlag with output(self, logger) {
   let str = match self {
     AllowReassoc => "reassoc"
@@ -254,7 +255,20 @@ fn BinaryInstruction::newStandardOp(
   name : String,
   flags : Set[BinaryOpFlags]
 ) -> BinaryInstruction!LLVMValueError {
-  guard opcode is (Add | Sub | Mul | SDiv | UDiv | SRem | URem | And | Or | Xor | Shl | LShr | AShr) else {
+  guard opcode
+    is (Add
+    | Sub
+    | Mul
+    | SDiv
+    | UDiv
+    | SRem
+    | URem
+    | And
+    | Or
+    | Xor
+    | Shl
+    | LShr
+    | AShr) else {
     unreachable(
       "Should not call BinaryInstruction::newStandardOp with opcode \{opcode}",
     )
@@ -270,17 +284,24 @@ fn BinaryInstruction::newStandardOp(
   let inst_base = InstBase::new(parent)
   user_base.operands.push(lhs)
   user_base.operands.push(rhs)
-  BinaryInstruction::{ base, user_base, inst_base, opcode, flags, fast_math_flags: Set::new() }
+  BinaryInstruction::{
+    base,
+    user_base,
+    inst_base,
+    opcode,
+    flags,
+    fast_math_flags: Set::new(),
+  }
 }
 
 ///|
 fn BinaryInstruction::newFPMathOp(
-  opcode: BinaryOps,
-  lhs: &Value,
-  rhs: &Value,
-  parent: Function,
-  name: String,
-  fast_math_flags: Set[FastMathFlag]
+  opcode : BinaryOps,
+  lhs : &Value,
+  rhs : &Value,
+  parent : Function,
+  name : String,
+  fast_math_flags : Set[FastMathFlag]
 ) -> BinaryInstruction!LLVMValueError {
   guard opcode is (FAdd | FSub | FMul | FDiv | FRem) else {
     unreachable(
@@ -304,7 +325,7 @@ fn BinaryInstruction::newFPMathOp(
     inst_base,
     opcode,
     flags: Set::new(),
-    fast_math_flags
+    fast_math_flags,
   }
 }
 
@@ -369,7 +390,10 @@ pub impl Show for BinaryInstruction with output(self, logger) {
   }
   let flags_str = self.flags.iter().map(fn { f => "\{f}" }).join(" ")
   let flags_str = if flags_str.is_empty() { "" } else { " " + flags_str }
-  let fast_math_flags_str = self.fast_math_flags.iter().map(fn { f => "\{f}" }).join(" ")
+  let fast_math_flags_str = self.fast_math_flags
+    .iter()
+    .map(fn { f => "\{f}" })
+    .join(" ")
   let fast_math_flags_str = if fast_math_flags_str.is_empty() {
     ""
   } else {
