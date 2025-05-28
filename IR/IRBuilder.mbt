@@ -2462,7 +2462,150 @@ pub fn IRBuilder::createAShr(
   inst
 }
 
-///|
+///| Create Comparison Instruction (ICmp or FCmp).
+///
+/// **Note:**
+///
+/// - (Constant folding) If both operands are constant integers or floating-point values, 
+/// the comparison is evaluated at compile time and the result is returned as a constant i1 value.
+/// - For integer comparisons, use ICMP_xxx predicates (EQ, NE, SGT, SGE, SLT, SLE, UGT, UGE, ULT, ULE).
+/// - For floating-point comparisons, use FCMP_xxx predicates (OEQ, OGT, OGE, OLT, OLE, ONE, ORD, UNO, UEQ, UGT, UGE, ULT, ULE, UNE, TRUE, FALSE).
+///
+/// ```moonbit
+/// test "IRBuilder::createCmp with integers" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let i1ty = ctx.getInt1Ty()
+///   let fty = ctx.getFunctionType!(i1ty, [i32ty, i32ty])
+///   let fval = prog.addFunction!(fty, "cmp_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let arg1 = fval.getArg(1).unwrap()
+///
+///   // Test signed greater than
+///   let cmp_sgt = builder.createCmp!(ICMP_SGT, arg0, arg1)
+///   let _ = builder.createRet!(cmp_sgt)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define i1 @cmp_func(i32 %0, i32 %1) {
+///     #|entry:
+///     #|  %2 = icmp sgt i32 %0, %1
+///     #|  ret i1 %2
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+///
+/// ```moonbit
+/// test "IRBuilder::createCmp with floating-point" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let floatty = ctx.getFloatTy()
+///   let i1ty = ctx.getInt1Ty()
+///   let fty = ctx.getFunctionType!(i1ty, [floatty, floatty])
+///   let fval = prog.addFunction!(fty, "fcmp_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let arg1 = fval.getArg(1).unwrap()
+///
+///   // Test ordered equal
+///   let fcmp_oeq = builder.createCmp!(FCMP_OEQ, arg0, arg1)
+///   let _ = builder.createRet!(fcmp_oeq)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define i1 @fcmp_func(float %0, float %1) {
+///     #|entry:
+///     #|  %2 = fcmp oeq float %0, %1
+///     #|  ret i1 %2
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+///
+/// ## Constant Folding
+///
+/// ```moonbit
+/// test "IRBuilder::createCmp with constant folding - integers" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i1ty = ctx.getInt1Ty()
+///   let fty = ctx.getFunctionType!(i1ty, [])
+///
+///   // Test integer constant comparison
+///   let fval_int = prog.addFunction!(fty, "icmp_const_func")
+///   let entryBB_int = fval_int.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB_int)
+///   
+///   let const_5 = ctx.getConstInt32(5)
+///   let const_10 = ctx.getConstInt32(10)
+///   
+///   // 5 < 10 should be true
+///   let cmp_result = builder.createCmp!(ICMP_SLT, const_5, const_10)
+///   let _ = builder.createRet!(cmp_result)
+///   
+///   inspect(cmp_result, content="i1 true")
+///   inspect(
+///     fval_int,
+///     content =
+///     #|define i1 @icmp_const_func() {
+///     #|entry:
+///     #|  ret i1 true
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+///
+/// ```moonbit
+/// test "IRBuilder::createCmp with constant folding - floating-point" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i1ty = ctx.getInt1Ty()
+///   let fty = ctx.getFunctionType!(i1ty, [])
+///
+///   // Test floating-point constant comparison
+///   let fval_fp = prog.addFunction!(fty, "fcmp_const_func")
+///   let entryBB_fp = fval_fp.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB_fp)
+///   
+///   let const_1_5 = ctx.getConstFloat(1.5)
+///   let const_2_5 = ctx.getConstFloat(2.5)
+///   
+///   // 1.5 < 2.5 should be true (ordered less than)
+///   let fcmp_result = builder.createCmp!(FCMP_OLT, const_1_5, const_2_5)
+///   let _ = builder.createRet!(fcmp_result)
+///   
+///   inspect(fcmp_result, content="i1 true")
+///   inspect(
+///     fval_fp,
+///     content =
+///     #|define i1 @fcmp_const_func() {
+///     #|entry:
+///     #|  ret i1 true
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
 pub fn IRBuilder::createCmp(
   self : IRBuilder,
   pred : Predicate,
@@ -2476,7 +2619,7 @@ pub fn IRBuilder::createCmp(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CmpInst::new(pred, lhs, rhs, parent, name)
+  let inst = CmpInst::new!(pred, lhs, rhs, parent, name)
   self.insert!(inst)
   inst
 }

@@ -558,7 +558,9 @@ impl Instruction for CmpInst with asInstEnum(self) {
 ///|
 impl Show for CmpInst with output(self, logger) {
   let parent = self.getParent()
-  let ty = self.getType()
+  let lhs = self.getOperand(0).unwrap()
+  let rhs = self.getOperand(1).unwrap()
+  let lhs_ty = lhs.getType()
   let prefix = match self.getName() {
     Some(name) => "\{name}"
     None if parent.getSlot(self) is Some(s) => "\{s}"
@@ -570,8 +572,6 @@ impl Show for CmpInst with output(self, logger) {
       }
     }
   }
-  let lhs = self.getOperand(0).unwrap()
-  let rhs = self.getOperand(1).unwrap()
   let lhs_str = match lhs.getValueName() {
     Some(lhs) => "%\{lhs}"
     None if parent.getSlot(lhs) is Some(lhs_slot) => "%\{lhs_slot}"
@@ -584,8 +584,9 @@ impl Show for CmpInst with output(self, logger) {
     None if rhs.tryAsConstant() is Some(c) => c.valstr()
     _ => "<badref>"
   }
+  
   logger.write_string(
-    "  %\{prefix} = icmp \{self.predicate} \{ty} \{lhs_str}, \{rhs_str}",
+    "  %\{prefix} = \{self.predicate} \{lhs_ty} \{lhs_str}, \{rhs_str}",
   )
 }
 
