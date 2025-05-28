@@ -723,6 +723,126 @@ pub fn ConstantInt::ashr(
   ConstantInt::{ base, value: final_value }
 }
 
+///| Compare two ConstantInt using the given predicate, useful in constant folding.
+///
+/// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
+/// ConstantInt are not the same. Only ICMP_xxx predicates are supported.
+///
+/// ```moonbit
+/// test "ConstantInt::compare" {
+///   let ctx = LLVMContext::new()
+///
+///   let i8_5 = ctx.getConstInt8(5)
+///   let i8_10 = ctx.getConstInt8(10)
+///   let i8_m5 = ctx.getConstInt8(-5)
+///
+///   // Test ICMP_EQ
+///   inspect!(i8_5.compare(ICMP_EQ, i8_5), content="i1 true")
+///   inspect!(i8_5.compare(ICMP_EQ, i8_10), content="i1 false")
+///
+///   // Test ICMP_NE
+///   inspect!(i8_5.compare(ICMP_NE, i8_10), content="i1 true")
+///   inspect!(i8_5.compare(ICMP_NE, i8_5), content="i1 false")
+///
+///   // Test ICMP_SGT (signed greater than)
+///   inspect!(i8_10.compare(ICMP_SGT, i8_5), content="i1 true")
+///   inspect!(i8_5.compare(ICMP_SGT, i8_10), content="i1 false")
+///   inspect!(i8_5.compare(ICMP_SGT, i8_m5), content="i1 true")
+///
+///   // Test ICMP_UGT (unsigned greater than)
+///   let i8_200 = ctx.getConstInt8(200) // -56 as signed, 200 as unsigned
+///   inspect!(i8_200.compare(ICMP_UGT, i8_10), content="i1 true")
+///   inspect!(i8_10.compare(ICMP_UGT, i8_200), content="i1 false")
+///
+///   // Test ICMP_SLT (signed less than)
+///   inspect!(i8_5.compare(ICMP_SLT, i8_10), content="i1 true")
+///   inspect!(i8_m5.compare(ICMP_SLT, i8_5), content="i1 true")
+///
+///   // Test ICMP_ULE (unsigned less or equal)
+///   inspect!(i8_5.compare(ICMP_ULE, i8_10), content="i1 true")
+///   inspect!(i8_5.compare(ICMP_ULE, i8_5), content="i1 true")
+///
+///   // Test type mismatch
+///   let i16_5 = ctx.getConstInt16(5)
+///   assert_true!(i8_5.compare?(ICMP_EQ, i16_5) is Err(_))
+/// }
+/// ```
+pub fn ConstantInt::compare(
+  self : ConstantInt,
+  predicate : Predicate,
+  other : ConstantInt
+) -> ConstantInt!LLVMValueError {
+  let (lty, rty) = (self.getType(), other.getType())
+  guard lty == rty else { raise TypeMismatchForCmpInst(lty, rty) }
+  guard lty.tryAsIntegerTypeEnum() is Some(ty)
+  let ctx = self.getType().getContext()
+  let result = match predicate {
+    ICMP_EQ => self.value == other.value
+    ICMP_NE => self.value != other.value
+    ICMP_SGT => self.value > other.value
+    ICMP_SGE => self.value >= other.value
+    ICMP_SLT => self.value < other.value
+    ICMP_SLE => self.value <= other.value
+    ICMP_UGT =>
+      match ty {
+        Int1Type(_) => self.value > other.value
+        Int8Type(_) => self.value.to_byte() > other.value.to_byte()
+        Int16Type(_) =>
+          self.value.to_int().to_uint16() > other.value.to_int().to_uint16()
+        Int32Type(_) =>
+          self.value.to_int().reinterpret_as_uint() >
+          other.value.to_int().reinterpret_as_uint()
+        Int64Type(_) =>
+          self.value.reinterpret_as_uint64() >
+          other.value.reinterpret_as_uint64()
+      }
+    ICMP_UGE =>
+      match ty {
+        Int1Type(_) => self.value >= other.value
+        Int8Type(_) => self.value.to_byte() >= other.value.to_byte()
+        Int16Type(_) =>
+          self.value.to_int().to_uint16() >= other.value.to_int().to_uint16()
+        Int32Type(_) =>
+          self.value.to_int().reinterpret_as_uint() >=
+          other.value.to_int().reinterpret_as_uint()
+        Int64Type(_) =>
+          self.value.reinterpret_as_uint64() >=
+          other.value.reinterpret_as_uint64()
+      }
+    ICMP_ULT =>
+      match ty {
+        Int1Type(_) => self.value < other.value
+        Int8Type(_) => self.value.to_byte() < other.value.to_byte()
+        Int16Type(_) =>
+          self.value.to_int().to_uint16() < other.value.to_int().to_uint16()
+        Int32Type(_) =>
+          self.value.to_int().reinterpret_as_uint() <
+          other.value.to_int().reinterpret_as_uint()
+        Int64Type(_) =>
+          self.value.reinterpret_as_uint64() <
+          other.value.reinterpret_as_uint64()
+      }
+    ICMP_ULE =>
+      match ty {
+        Int1Type(_) => self.value <= other.value
+        Int8Type(_) => self.value.to_byte() <= other.value.to_byte()
+        Int16Type(_) =>
+          self.value.to_int().to_uint16() <= other.value.to_int().to_uint16()
+        Int32Type(_) =>
+          self.value.to_int().reinterpret_as_uint() <=
+          other.value.to_int().reinterpret_as_uint()
+        Int64Type(_) =>
+          self.value.reinterpret_as_uint64() <=
+          other.value.reinterpret_as_uint64()
+      }
+    _ => raise InValidPredicateForCmpInst(predicate, lty)
+  }
+  match result {
+    true => ctx.getConstTrue()
+    false => ctx.getConstFalse()
+  }
+}
+
 ///|
 pub impl Value for ConstantInt with getValueBase(self) {
   self.base
@@ -919,6 +1039,96 @@ pub fn ConstantFP::div(
   let value = self.value / other.value
   let base = self.base
   ConstantFP::{ base, value }
+}
+
+///| Compare two ConstantFP using the given predicate, useful in constant folding.
+///
+/// **Note**: It will raise `TypeMismatchForCmpInst` if the types of two
+/// ConstantFP are not the same. Only FCMP_xxx predicates are supported.
+///
+/// ```moonbit
+/// test "ConstantFP::compare" {
+///   let ctx = LLVMContext::new()
+///
+///   let f32_1_5 = ctx.getConstFloat(1.5)
+///   let f32_2_5 = ctx.getConstFloat(2.5)
+///   let f32_nan = ctx.getConstFloat(0.0 / 0.0)
+///
+///   // Test FCMP_OEQ (ordered equal)
+///   inspect!(f32_1_5.compare(FCMP_OEQ, f32_1_5), content="i1 true")
+///   inspect!(f32_1_5.compare(FCMP_OEQ, f32_2_5), content="i1 false")
+///   inspect!(f32_nan.compare(FCMP_OEQ, f32_nan), content="i1 false") // NaN != NaN
+///
+///   // Test FCMP_UEQ (unordered equal)
+///   inspect!(f32_1_5.compare(FCMP_UEQ, f32_1_5), content="i1 true")
+///   inspect!(f32_nan.compare(FCMP_UEQ, f32_nan), content="i1 true") // NaN == NaN in unordered
+///
+///   // Test FCMP_OGT (ordered greater than)
+///   inspect!(f32_2_5.compare(FCMP_OGT, f32_1_5), content="i1 true")
+///   inspect!(f32_1_5.compare(FCMP_OGT, f32_2_5), content="i1 false")
+///   inspect!(f32_nan.compare(FCMP_OGT, f32_1_5), content="i1 false") // NaN comparisons are false
+///
+///   // Test FCMP_UGT (unordered greater than)
+///   inspect!(f32_2_5.compare(FCMP_UGT, f32_1_5), content="i1 true")
+///   inspect!(f32_nan.compare(FCMP_UGT, f32_1_5), content="i1 true") // NaN makes it unordered
+///
+///   // Test FCMP_OLT (ordered less than)
+///   inspect!(f32_1_5.compare(FCMP_OLT, f32_2_5), content="i1 true")
+///   inspect!(f32_2_5.compare(FCMP_OLT, f32_1_5), content="i1 false")
+///
+///   // Test FCMP_ORD (ordered - no NaNs)
+///   inspect!(f32_1_5.compare(FCMP_ORD, f32_2_5), content="i1 true")
+///   inspect!(f32_nan.compare(FCMP_ORD, f32_1_5), content="i1 false")
+///
+///   // Test FCMP_UNO (unordered - has NaNs)
+///   inspect!(f32_1_5.compare(FCMP_UNO, f32_2_5), content="i1 false")
+///   inspect!(f32_nan.compare(FCMP_UNO, f32_1_5), content="i1 true")
+///
+///   // Test FCMP_TRUE and FCMP_FALSE
+///   inspect!(f32_1_5.compare(FCMP_TRUE, f32_2_5), content="i1 true")
+///   inspect!(f32_1_5.compare(FCMP_FALSE, f32_2_5), content="i1 false")
+///
+///   // Test type mismatch
+///   let f64_1_5 = ctx.getConstDouble(1.5)
+///   assert_true!(f32_1_5.compare?(FCMP_OEQ, f64_1_5) is Err(_))
+/// }
+/// ```
+pub fn ConstantFP::compare(
+  self : ConstantFP,
+  predicate : Predicate,
+  other : ConstantFP
+) -> ConstantInt!LLVMValueError {
+  let (lty, rty) = (self.getType(), other.getType())
+  guard lty == rty else { raise TypeMismatchForCmpInst(lty, rty) }
+  let self_val = self.value
+  let other_val = other.value
+  let self_is_nan = self_val.is_nan()
+  let other_is_nan = other_val.is_nan()
+  let is_unordered = self_is_nan || other_is_nan
+  let ctx = self.getType().getContext()
+  let result = match predicate {
+    FCMP_FALSE => false
+    FCMP_TRUE => true
+    FCMP_OEQ => not(is_unordered) && self_val == other_val
+    FCMP_OGT => not(is_unordered) && self_val > other_val
+    FCMP_OGE => not(is_unordered) && self_val >= other_val
+    FCMP_OLT => not(is_unordered) && self_val < other_val
+    FCMP_OLE => not(is_unordered) && self_val <= other_val
+    FCMP_ONE => not(is_unordered) && self_val != other_val
+    FCMP_ORD => not(is_unordered)
+    FCMP_UNO => is_unordered
+    FCMP_UEQ => is_unordered || self_val == other_val
+    FCMP_UGT => is_unordered || self_val > other_val
+    FCMP_UGE => is_unordered || self_val >= other_val
+    FCMP_ULT => is_unordered || self_val < other_val
+    FCMP_ULE => is_unordered || self_val <= other_val
+    FCMP_UNE => is_unordered || self_val != other_val
+    _ => raise InValidPredicateForCmpInst(predicate, lty)
+  }
+  match result {
+    true => ctx.getConstTrue()
+    false => ctx.getConstFalse()
+  }
 }
 
 ///|

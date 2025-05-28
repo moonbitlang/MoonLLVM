@@ -410,6 +410,190 @@ pub impl Show for BinaryInstruction with output(self, logger) {
 // =======================================================
 
 ///|
+pub(all) enum Predicate {
+  /// Always false (always folded)
+  FCMP_FALSE
+  /// True if ordered and equal
+  FCMP_OEQ
+  /// True if ordered and greater than
+  FCMP_OGT
+  /// True if ordered and greater than or equal
+  FCMP_OGE
+  /// True if ordered and less than
+  FCMP_OLT
+  /// True if ordered and less than or equal
+  FCMP_OLE
+  /// True if ordered and operands are unequal
+  FCMP_ONE
+  /// True if ordered (no nans)
+  FCMP_ORD
+  /// True if unordered: isnan(X) | isnan(Y)
+  FCMP_UNO
+  /// True if unordered or equal
+  FCMP_UEQ
+  /// True if unordered or greater than
+  FCMP_UGT
+  /// True if unordered, greater than, or equal
+  FCMP_UGE
+  /// True if unordered or less than
+  FCMP_ULT
+  /// True if unordered, less than, or equal
+  FCMP_ULE
+  /// True if unordered or not equal
+  FCMP_UNE
+  /// Always true (always folded)
+  FCMP_TRUE
+  /// equal
+  ICMP_EQ
+  /// not equal
+  ICMP_NE
+  /// unsigned greater than
+  ICMP_UGT
+  /// unsigned greater or equal
+  ICMP_UGE
+  /// unsigned less than
+  ICMP_ULT
+  /// unsigned less or equal
+  ICMP_ULE
+  /// signed greater than
+  ICMP_SGT
+  /// signed greater or equal
+  ICMP_SGE
+  /// signed less than
+  ICMP_SLT
+  /// signed less or equal
+  ICMP_SLE
+}
+
+///|
+pub impl Show for Predicate with output(self, logger) {
+  let str = match self {
+    FCMP_FALSE => "fcmp false"
+    FCMP_OEQ => "fcmp oeq"
+    FCMP_OGT => "fcmp ogt"
+    FCMP_OGE => "fcmp oge"
+    FCMP_OLT => "fcmp olt"
+    FCMP_OLE => "fcmp ole"
+    FCMP_ONE => "fcmp one"
+    FCMP_ORD => "fcmp ord"
+    FCMP_UNO => "fcmp uno"
+    FCMP_UEQ => "fcmp ueq"
+    FCMP_UGT => "fcmp ugt"
+    FCMP_UGE => "fcmp uge"
+    FCMP_ULT => "fcmp ult"
+    FCMP_ULE => "fcmp ule"
+    FCMP_UNE => "fcmp une"
+    FCMP_TRUE => "fcmp true"
+    ICMP_EQ => "icmp eq"
+    ICMP_NE => "icmp ne"
+    ICMP_UGT => "icmp ugt"
+    ICMP_UGE => "icmp uge"
+    ICMP_ULT => "icmp ult"
+    ICMP_ULE => "icmp ule"
+    ICMP_SGT => "icmp sgt"
+    ICMP_SGE => "icmp sge"
+    ICMP_SLT => "icmp slt"
+    ICMP_SLE => "icmp sle"
+  }
+  logger.write_string(str)
+}
+
+///|
+pub struct CmpInst {
+  base : ValueBase
+  user_base : UserBase
+  inst_base : InstBase
+  predicate : Predicate
+}
+
+///|
+fn CmpInst::new(
+  predicate : Predicate,
+  lhs : &Value,
+  rhs : &Value,
+  parent : Function,
+  name : String
+) -> CmpInst!LLVMValueError {
+  let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
+  guard lhsTy == rhsTy else { raise TypeMismatchForCmpInst(lhsTy, rhsTy) }
+  let vty = parent.getContext().getInt1Ty()
+  let base = ValueBase::new(vty)
+  let user_base = UserBase::new(name)
+  let inst_base = InstBase::new(parent)
+  user_base.operands.push(lhs)
+  user_base.operands.push(rhs)
+  CmpInst::{ base, user_base, inst_base, predicate }
+}
+
+///|
+impl Value for CmpInst with getValueBase(self) {
+  self.base
+}
+
+///|
+impl Value for CmpInst with asValueEnum(self) {
+  CmpInst(self)
+}
+
+///|
+impl User for CmpInst with asUserEnum(self) {
+  CmpInst(self)
+}
+
+///|
+impl User for CmpInst with getUserBase(self) {
+  self.user_base
+}
+
+///|
+impl Instruction for CmpInst with getInstBase(self) {
+  self.inst_base
+}
+
+///|
+impl Instruction for CmpInst with asInstEnum(self) {
+  InstEnum::CmpInst(self)
+}
+
+///|
+impl Show for CmpInst with output(self, logger) {
+  let parent = self.getParent()
+  let ty = self.getType()
+  let prefix = match self.getName() {
+    Some(name) => "\{name}"
+    None if parent.getSlot(self) is Some(s) => "\{s}"
+    None => {
+      parent.precessSlot()
+      match parent.getSlot(self) {
+        Some(s) => "\{s}"
+        None => "<badref>"
+      }
+    }
+  }
+  let lhs = self.getOperand(0).unwrap()
+  let rhs = self.getOperand(1).unwrap()
+  let lhs_str = match lhs.getValueName() {
+    Some(lhs) => "%\{lhs}"
+    None if parent.getSlot(lhs) is Some(lhs_slot) => "%\{lhs_slot}"
+    None if lhs.tryAsConstant() is Some(c) => c.valstr()
+    _ => "<badref>"
+  }
+  let rhs_str = match rhs.getValueName() {
+    Some(rhs) => "%\{rhs}"
+    None if parent.getSlot(rhs) is Some(rhs_slot) => "%\{rhs_slot}"
+    None if rhs.tryAsConstant() is Some(c) => c.valstr()
+    _ => "<badref>"
+  }
+  logger.write_string(
+    "  %\{prefix} = icmp \{self.predicate} \{ty} \{lhs_str}, \{rhs_str}",
+  )
+}
+
+// =======================================================
+// ReturnInst
+// =======================================================
+
+///|
 pub struct ReturnInst {
   base : ValueBase
   user_base : UserBase

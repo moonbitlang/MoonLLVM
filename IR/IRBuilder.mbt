@@ -2461,3 +2461,22 @@ pub fn IRBuilder::createAShr(
   self.insert!(inst)
   inst
 }
+
+///|
+pub fn IRBuilder::createCmp(
+  self : IRBuilder,
+  pred : Predicate,
+  lhs : &Value,
+  rhs : &Value,
+  name~ : String = ""
+) -> &Value!Error {
+  match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
+    (Some(ConstantInt(lhs)), Some(ConstantInt(rhs))) => return lhs.compare!(pred, rhs)
+    (Some(ConstantFP(lhs)), Some(ConstantFP(rhs))) => return lhs.compare!(pred, rhs)
+    _ => ()
+  }
+  let parent = self.getInsertFunction()
+  let inst = CmpInst::new(pred, lhs, rhs, parent, name)
+  self.insert!(inst)
+  inst
+}

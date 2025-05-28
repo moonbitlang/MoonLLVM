@@ -19,7 +19,9 @@ type! LLVMValueError {
   InValidFunctionName(String)
   TypeMismatchForBinaryOp(&Type, &Type)
   TypeNotSupportForBinaryOp(&Type, BinaryOps)
+  TypeMismatchForCmpInst(&Type, &Type)
   TypeMismatchForReturnInst(&Type, &Type)
+  InValidPredicateForCmpInst(Predicate, &Type)
   DivisionByZeroError
   TypeCouldNotBeCreatedZeroValue(&Type)
 } derive(Show)

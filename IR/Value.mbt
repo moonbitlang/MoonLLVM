@@ -41,7 +41,7 @@ pub enum ValueEnum {
   // FreezeInst(FreezeInst)
   //CastInst(CastInst)
   BinaryInstruction(BinaryInstruction)
-  //CmpInst(CompareInst)
+  CmpInst(CmpInst)
   //StoreInst(StoreInst)
   //GetElementPtrInst(GetElementPtrInst)
   //SelectInst(SelectInst)
@@ -305,6 +305,7 @@ pub enum UserEnum {
   //FreezeInst(FreezeInst)
   //CastInst(CastInst)
   BinaryInstruction(BinaryInstruction)
+  CmpInst(CmpInst)
   ReturnInst(ReturnInst)
 }
 
@@ -314,6 +315,7 @@ pub fn UserEnum::getUserName(self : UserEnum) -> String? {
     AllocaInst(c) => c.getUserName()
     LoadInst(l) => l.getUserName()
     BinaryInstruction(b) => b.getUserName()
+    CmpInst(c) => c.getUserName()
     ReturnInst(_) => None
   }
 }
@@ -434,6 +436,7 @@ pub enum InstEnum {
   //FreezeInst(FreezeInst)
   //CastInst(CastInst)
   BinaryInstruction(BinaryInstruction)
+  CmpInst(CmpInst)
   ReturnInst(ReturnInst)
 }
 
