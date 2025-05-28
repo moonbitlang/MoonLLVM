@@ -1752,3 +1752,282 @@ pub fn IRBuilder::createFRem(
   self.insert!(inst)
   inst
 }
+
+///| Create And Instruction.
+///
+/// **Note:**
+///
+/// - (Constant folding) If both operands are constant integers, the bitwise AND is
+/// evaluated at compile time and the result is returned as a constant value.
+///
+/// ```moonbit
+/// test "IRBuilder::createAnd" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
+///   let fval = prog.addFunction!(fty, "and_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let arg1 = fval.getArg(1).unwrap()
+///
+///   let and_val = builder.createAnd!(arg0, arg1)
+///   let _ = builder.createRet!(and_val)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define i32 @and_func(i32 %0, i32 %1) {
+///     #|entry:
+///     #|  %2 = and i32 %0, %1
+///     #|  ret i32 %2
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+///
+/// ## Constant Folding
+///
+/// ```moonbit
+/// test "IRBuilder::createAnd with constant folding" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType!(i32ty, [])
+///   let fval = prog.addFunction!(fty, "and_const_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let const6 = ctx.getConstInt32(6) // 0b0110
+///   let const3 = ctx.getConstInt32(3) // 0b0011
+///
+///   let and_result = builder.createAnd!(const6, const3) // Expected: 2 (0b0010)
+///   let _ = builder.createRet!(and_result)
+///
+///   inspect(and_result, content = "i32 2")
+///   inspect(
+///     fval,
+///     content =
+///     #|define i32 @and_const_func() {
+///     #|entry:
+///     #|  ret i32 2
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+pub fn IRBuilder::createAnd(
+  self : IRBuilder,
+  lhs : &Value,
+  rhs : &Value,
+  name~ : String = ""
+) -> &Value!Error {
+  match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
+    (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) => return lhs_ci.and!(rhs_ci)
+    _ => ()
+  }
+  let parent = self.getInsertFunction()
+  let inst = BinaryInstruction::newStandardOp!(
+    BinaryOps::And,
+    lhs,
+    rhs,
+    parent,
+    name,
+    Set::new(),
+  )
+  self.insert!(inst)
+  inst
+}
+
+///| Create Or Instruction.
+///
+/// **Note:**
+///
+/// - (Constant folding) If both operands are constant integers, the bitwise OR is
+/// evaluated at compile time and the result is returned as a constant value.
+///
+/// ```moonbit
+/// test "IRBuilder::createOr" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
+///   let fval = prog.addFunction!(fty, "or_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let arg1 = fval.getArg(1).unwrap()
+///
+///   let or_val = builder.createOr!(arg0, arg1)
+///   let _ = builder.createRet!(or_val)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define i32 @or_func(i32 %0, i32 %1) {
+///     #|entry:
+///     #|  %2 = or i32 %0, %1
+///     #|  ret i32 %2
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+///
+/// ## Constant Folding
+///
+/// ```moonbit
+/// test "IRBuilder::createOr with constant folding" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType!(i32ty, [])
+///   let fval = prog.addFunction!(fty, "or_const_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let const6 = ctx.getConstInt32(6) // 0b0110
+///   let const3 = ctx.getConstInt32(3) // 0b0011
+///
+///   let or_result = builder.createOr!(const6, const3) // Expected: 7 (0b0111)
+///   let _ = builder.createRet!(or_result)
+///
+///   inspect(or_result, content = "i32 7")
+///   inspect(
+///     fval,
+///     content =
+///     #|define i32 @or_const_func() {
+///     #|entry:
+///     #|  ret i32 7
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+pub fn IRBuilder::createOr(
+  self : IRBuilder,
+  lhs : &Value,
+  rhs : &Value,
+  name~ : String = ""
+) -> &Value!Error {
+  match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
+    (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) => return lhs_ci.or!(rhs_ci)
+    _ => ()
+  }
+  let parent = self.getInsertFunction()
+  let inst = BinaryInstruction::newStandardOp!(
+    BinaryOps::Or,
+    lhs,
+    rhs,
+    parent,
+    name,
+    Set::new(),
+  )
+  self.insert!(inst)
+  inst
+}
+
+///| Create Xor Instruction.
+///
+/// **Note:**
+///
+/// - (Constant folding) If both operands are constant integers, the bitwise XOR is
+/// evaluated at compile time and the result is returned as a constant value.
+///
+/// ```moonbit
+/// test "IRBuilder::createXor" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
+///   let fval = prog.addFunction!(fty, "xor_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let arg1 = fval.getArg(1).unwrap()
+///
+///   let xor_val = builder.createXor!(arg0, arg1)
+///   let _ = builder.createRet!(xor_val)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define i32 @xor_func(i32 %0, i32 %1) {
+///     #|entry:
+///     #|  %2 = xor i32 %0, %1
+///     #|  ret i32 %2
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+///
+/// ## Constant Folding
+///
+/// ```moonbit
+/// test "IRBuilder::createXor with constant folding" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType!(i32ty, [])
+///   let fval = prog.addFunction!(fty, "xor_const_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let const6 = ctx.getConstInt32(6) // 0b0110
+///   let const3 = ctx.getConstInt32(3) // 0b0011
+///
+///   let xor_result = builder.createXor!(const6, const3) // Expected: 5 (0b0101)
+///   let _ = builder.createRet!(xor_result)
+///
+///   inspect(xor_result, content = "i32 5")
+///   inspect(
+///     fval,
+///     content =
+///     #|define i32 @xor_const_func() {
+///     #|entry:
+///     #|  ret i32 5
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+pub fn IRBuilder::createXor(
+  self : IRBuilder,
+  lhs : &Value,
+  rhs : &Value,
+  name~ : String = ""
+) -> &Value!Error {
+  match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
+    (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) => return lhs_ci.xor!(rhs_ci)
+    _ => ()
+  }
+  let parent = self.getInsertFunction()
+  let inst = BinaryInstruction::newStandardOp!(
+    BinaryOps::Xor,
+    lhs,
+    rhs,
+    parent,
+    name,
+    Set::new(),
+  )
+  self.insert!(inst)
+  inst
+}
