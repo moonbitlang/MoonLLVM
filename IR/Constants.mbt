@@ -570,6 +570,177 @@ pub fn ConstantInt::xor(
   ConstantInt::{ base, value: final_value }
 }
 
+///| Left shift (shl) two ConstantInt, useful in constant folding.
+///
+/// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
+/// ConstantInt are not the same.
+///
+/// ```moonbit
+/// test "ConstantInt::shl" {
+///   let ctx = LLVMContext::new()
+///
+///   let i8_1 = ctx.getConstInt8(1)     // 00000001
+///   let i8_3 = ctx.getConstInt8(3)     // shift by 3
+///   inspect!(i8_1.shl(i8_3), content="i8 8")  // 00001000
+///
+///   let i16_5 = ctx.getConstInt16(5)   // ...00000101
+///   let i16_2 = ctx.getConstInt16(2)   // shift by 2
+///   inspect!(i16_5.shl(i16_2), content="i16 20") // ...00010100
+///
+///   let i32_7 = ctx.getConstInt32(7)
+///   let i32_4 = ctx.getConstInt32(4)
+///   inspect!(i32_7.shl(i32_4), content="i32 112") // 7 << 4 = 112
+///
+///   let i64_val = ctx.getConstInt64(0x123L)
+///   let i64_8 = ctx.getConstInt64(8L)
+///   inspect!(i64_val.shl(i64_8), content="i64 74496") // 0x123 << 8 = 0x12300
+///
+///   assert_true!(i8_1.shl?(i16_2) is Err(_))
+/// }
+/// ```
+pub fn ConstantInt::shl(
+  self : ConstantInt,
+  other : ConstantInt
+) -> ConstantInt!LLVMValueError {
+  let (lty, rty) = (self.getType(), other.getType())
+  guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
+  guard lty.tryAsIntegerTypeEnum() is Some(ty)
+
+  let result_i64 = self.value << other.value.to_int()
+
+  let final_value = match ty {
+    Int1Type(_) => result_i64 & 1L
+    Int8Type(_) => Int8::from_int64(result_i64).to_int64()
+    Int16Type(_) => result_i64.to_int().to_int16().to_int64()
+    Int32Type(_) => result_i64.to_int().to_int64()
+    Int64Type(_) => result_i64
+  }
+  let base = self.base
+  ConstantInt::{ base, value: final_value }
+}
+
+///| Logical right shift (lshr) two ConstantInt, useful in constant folding.
+///
+/// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
+/// ConstantInt are not the same.
+///
+/// ```moonbit
+/// test "ConstantInt::lshr" {
+///   let ctx = LLVMContext::new()
+///
+///   let i8_200 = ctx.getConstInt8(200)  // 11001000 (as unsigned)
+///   let i8_2 = ctx.getConstInt8(2)      // shift by 2
+///   inspect!(i8_200.lshr(i8_2), content="i8 50")  // 00110010 (50)
+///
+///   let i16_val = ctx.getConstInt16(-32768) // 1000000000000000
+///   let i16_1 = ctx.getConstInt16(1)         // shift by 1
+///   inspect!(i16_val.lshr(i16_1), content="i16 16384") // 0100000000000000 (16384)
+///
+///   let i32_m1 = ctx.getConstInt32(-1)  // 0xFFFFFFFF
+///   let i32_4 = ctx.getConstInt32(4)    // shift by 4
+///   inspect!(i32_m1.lshr(i32_4), content="i32 268435455") // 0x0FFFFFFF
+///
+///   let i64_val = ctx.getConstInt64(0x8000000000000000L) // MSB set
+///   let i64_1 = ctx.getConstInt64(1L)
+///   inspect!(i64_val.lshr(i64_1), content="i64 4611686018427387904") // logical shift
+///
+///   assert_true!(i8_200.lshr?(i16_1) is Err(_))
+/// }
+/// ```
+pub fn ConstantInt::lshr(
+  self : ConstantInt,
+  other : ConstantInt
+) -> ConstantInt!LLVMValueError {
+  let (lty, rty) = (self.getType(), other.getType())
+  guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
+  guard lty.tryAsIntegerTypeEnum() is Some(ty)
+
+  let value = match ty {
+    Int1Type(_) => {
+      self.value >> other.value.to_int() & 1L
+    }
+    Int8Type(_) => {
+      let v_u8 = self.value.to_byte()
+      let shift_amount = other.value.to_int()
+      let res_u8 = v_u8 >> shift_amount
+      Int8::from_int64(res_u8.to_int64()).to_int64()
+    }
+    Int16Type(_) => {
+      let v_u16 = self.value.to_int().to_uint16()
+      let shift_amount = other.value.to_int()
+      let res_u16 = v_u16 >> shift_amount
+      res_u16.to_int().to_int16().to_int().to_int64()
+    }
+    Int32Type(_) => {
+      let v_u32 = self.value.to_int().reinterpret_as_uint()
+      let shift_amount = other.value.to_int()
+      let res_u32 = v_u32 >> shift_amount
+      res_u32.reinterpret_as_int().to_int64()
+    }
+    Int64Type(_) => {
+      let v_u64 = self.value.reinterpret_as_uint64()
+      let shift_amount = other.value.to_int()
+      (v_u64 >> shift_amount).reinterpret_as_int64()
+    }
+  }
+
+  let base = self.base
+  ConstantInt::{ base, value }
+}
+
+///| Arithmetic right shift (ashr) two ConstantInt, useful in constant folding.
+///
+/// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
+/// ConstantInt are not the same.
+///
+/// ```moonbit
+/// test "ConstantInt::ashr" {
+///   let ctx = LLVMContext::new()
+///
+///   let i8_m1 = ctx.getConstInt8(-1)   // 11111111
+///   let i8_2 = ctx.getConstInt8(2)     // shift by 2
+///   inspect!(i8_m1.ashr(i8_2), content="i8 -1")  // 11111111 (sign extended)
+///
+///   let i16_m16 = ctx.getConstInt16(-16) // ...1111111111110000
+///   let i16_2 = ctx.getConstInt16(2)      // shift by 2
+///   inspect!(i16_m16.ashr(i16_2), content="i16 -4") // ...1111111111111100
+///
+///   let i32_m8 = ctx.getConstInt32(-8)
+///   let i32_1 = ctx.getConstInt32(1)
+///   inspect!(i32_m8.ashr(i32_1), content="i32 -4") // -8 >> 1 = -4 (arithmetic)
+///
+///   let i64_m128 = ctx.getConstInt64(-128L)
+///   let i64_3 = ctx.getConstInt64(3L)
+///   inspect!(i64_m128.ashr(i64_3), content="i64 -16") // -128 >> 3 = -16
+///
+///   // Positive numbers should behave like logical shift
+///   let i32_64 = ctx.getConstInt32(64)
+///   let i32_2 = ctx.getConstInt32(2)
+///   inspect!(i32_64.ashr(i32_2), content="i32 16") // 64 >> 2 = 16
+///
+///   assert_true!(i8_m1.ashr?(i16_2) is Err(_))
+/// }
+/// ```
+pub fn ConstantInt::ashr(
+  self : ConstantInt,
+  other : ConstantInt
+) -> ConstantInt!LLVMValueError {
+  let (lty, rty) = (self.getType(), other.getType())
+  guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
+  guard lty.tryAsIntegerTypeEnum() is Some(ty)
+
+  let result_i64 = self.value >> other.value.to_int()
+
+  let final_value = match ty {
+    Int1Type(_) => result_i64 & 1L
+    Int8Type(_) => Int8::from_int64(result_i64).to_int64()
+    Int16Type(_) => result_i64.to_int().to_int16().to_int64()
+    Int32Type(_) => result_i64.to_int().to_int64()
+    Int64Type(_) => result_i64
+  }
+  let base = self.base
+  ConstantInt::{ base, value: final_value }
+}
 ///|
 pub impl Value for ConstantInt with getValueBase(self) {
   self.base
