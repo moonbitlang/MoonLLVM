@@ -2625,3 +2625,971 @@ pub fn IRBuilder::createCmp(
   self.insert!(inst)
   inst
 }
+
+///| Create Trunc (truncate) Instruction.
+///
+/// **Note:**
+///
+/// - (Constant folding) If the operand is a constant integer, the truncation is
+/// evaluated at compile time and the result is returned as a constant value.
+/// - Truncates an integer value to a smaller integer type.
+/// - The source type bit width must be greater than the destination type bit width.
+///
+/// ```moonbit
+/// test "IRBuilder::createTrunc" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let i16ty = ctx.getInt16Ty()
+///   let fty = ctx.getFunctionType!(i16ty, [i32ty])
+///   let fval = prog.addFunction!(fty, "trunc_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let trunc_val = builder.createTrunc!(arg0, i16ty)
+///   let _ = builder.createRet!(trunc_val)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define i16 @trunc_func(i32 %0) {
+///     #|entry:
+///     #|  %1 = trunc i32 %0
+///     #|  ret i16 %1
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+///
+/// ## Constant Folding
+///
+/// ```moonbit
+/// test "IRBuilder::createTrunc with constant folding" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i16ty = ctx.getInt16Ty()
+///   let fty = ctx.getFunctionType!(i16ty, [])
+///   let fval = prog.addFunction!(fty, "trunc_const_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let const_val = ctx.getConstInt32(0x12345) // 74565
+///   let trunc_result = builder.createTrunc!(const_val, i16ty) // Should be 0x2345 = 9029
+///   let _ = builder.createRet!(trunc_result)
+///
+///   inspect(trunc_result, content="i16 9029")
+///   inspect(
+///     fval,
+///     content =
+///     #|define i16 @trunc_const_func() {
+///     #|entry:
+///     #|  ret i16 9029
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+pub fn IRBuilder::createTrunc(
+  self : IRBuilder,
+  src_val : &Value,
+  dst_ty : &IntegerType,
+  name~ : String = ""
+) -> &Value!Error {
+  match src_val.tryAsConstantEnum() {
+    Some(ConstantInt(ci)) => return ci.trunc!(dst_ty)
+    _ => ()
+  }
+  let parent = self.getInsertFunction()
+  let inst = CastInst::newTrunc!(src_val, dst_ty, parent, name)
+  self.insert!(inst)
+  inst
+}
+
+///| Create ZExt (zero extend) Instruction.
+///
+/// **Note:**
+///
+/// - (Constant folding) If the operand is a constant integer, the zero extension is
+/// evaluated at compile time and the result is returned as a constant value.
+/// - Zero extends an integer value to a larger integer type by filling with zeros.
+/// - The source type bit width must be less than the destination type bit width.
+///
+/// ```moonbit
+/// test "IRBuilder::createZExt" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i16ty = ctx.getInt16Ty()
+///   let i32ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType!(i32ty, [i16ty])
+///   let fval = prog.addFunction!(fty, "zext_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let zext_val = builder.createZExt!(arg0, i32ty)
+///   let _ = builder.createRet!(zext_val)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define i32 @zext_func(i16 %0) {
+///     #|entry:
+///     #|  %1 = zext i16 %0
+///     #|  ret i32 %1
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+///
+/// ## Constant Folding
+///
+/// ```moonbit
+/// test "IRBuilder::createZExt with constant folding" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType!(i32ty, [])
+///   let fval = prog.addFunction!(fty, "zext_const_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let const_val = ctx.getConstInt16(-1) // 0xFFFF as i16
+///   let zext_result = builder.createZExt!(const_val, i32ty) // Should be 0x0000FFFF = 65535
+///   let _ = builder.createRet!(zext_result)
+///
+///   inspect(zext_result, content="i32 65535")
+///   inspect(
+///     fval,
+///     content =
+///     #|define i32 @zext_const_func() {
+///     #|entry:
+///     #|  ret i32 65535
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+pub fn IRBuilder::createZExt(
+  self : IRBuilder,
+  src_val : &Value,
+  dst_ty : &IntegerType,
+  name~ : String = ""
+) -> &Value!Error {
+  match src_val.tryAsConstantEnum() {
+    Some(ConstantInt(ci)) => return ci.zext!(dst_ty)
+    _ => ()
+  }
+  let parent = self.getInsertFunction()
+  let inst = CastInst::newZExt!(src_val, dst_ty, parent, name)
+  self.insert!(inst)
+  inst
+}
+
+///| Create SExt (sign extend) Instruction.
+///
+/// **Note:**
+///
+/// - (Constant folding) If the operand is a constant integer, the sign extension is
+/// evaluated at compile time and the result is returned as a constant value.
+/// - Sign extends an integer value to a larger integer type by filling with the sign bit.
+/// - The source type bit width must be less than the destination type bit width.
+///
+/// ```moonbit
+/// test "IRBuilder::createSExt" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i16ty = ctx.getInt16Ty()
+///   let i32ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType!(i32ty, [i16ty])
+///   let fval = prog.addFunction!(fty, "sext_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let sext_val = builder.createSExt!(arg0, i32ty)
+///   let _ = builder.createRet!(sext_val)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define i32 @sext_func(i16 %0) {
+///     #|entry:
+///     #|  %1 = sext i16 %0
+///     #|  ret i32 %1
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+///
+/// ## Constant Folding
+///
+/// ```moonbit
+/// test "IRBuilder::createSExt with constant folding" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType!(i32ty, [])
+///   let fval = prog.addFunction!(fty, "sext_const_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let const_val = ctx.getConstInt16(-1) // 0xFFFF as i16
+///   let sext_result = builder.createSExt!(const_val, i32ty) // Should be 0xFFFFFFFF = -1
+///   let _ = builder.createRet!(sext_result)
+///
+///   inspect(sext_result, content="i32 -1")
+///   inspect(
+///     fval,
+///     content =
+///     #|define i32 @sext_const_func() {
+///     #|entry:
+///     #|  ret i32 -1
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+pub fn IRBuilder::createSExt(
+  self : IRBuilder,
+  src_val : &Value,
+  dst_ty : &IntegerType,
+  name~ : String = ""
+) -> &Value!Error {
+  match src_val.tryAsConstantEnum() {
+    Some(ConstantInt(ci)) => return ci.sext!(dst_ty)
+    _ => ()
+  }
+  let parent = self.getInsertFunction()
+  let inst = CastInst::newSExt!(src_val, dst_ty, parent, name)
+  self.insert!(inst)
+  inst
+}
+
+///| Create FPTrunc (floating-point truncate) Instruction.
+///
+/// **Note:**
+///
+/// - (Constant folding) If the operand is a constant floating-point value, the truncation is
+/// evaluated at compile time and the result is returned as a constant value.
+/// - Truncates a floating-point value to a smaller floating-point type.
+/// - The source type bit width must be greater than the destination type bit width.
+///
+/// ```moonbit
+/// test "IRBuilder::createFPTrunc" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let f64ty = ctx.getDoubleTy()
+///   let f32ty = ctx.getFloatTy()
+///   let fty = ctx.getFunctionType!(f32ty, [f64ty])
+///   let fval = prog.addFunction!(fty, "fptrunc_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let fptrunc_val = builder.createFPTrunc!(arg0, f32ty)
+///   let _ = builder.createRet!(fptrunc_val)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define float @fptrunc_func(double %0) {
+///     #|entry:
+///     #|  %1 = fptrunc double %0
+///     #|  ret float %1
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+///
+/// ## Constant Folding
+///
+/// ```moonbit
+/// test "IRBuilder::createFPTrunc with constant folding" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let f32ty = ctx.getFloatTy()
+///   let fty = ctx.getFunctionType!(f32ty, [])
+///   let fval = prog.addFunction!(fty, "fptrunc_const_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let const_val = ctx.getConstDouble(3.14159)
+///   let fptrunc_result = builder.createFPTrunc!(const_val, f32ty)
+///   let _ = builder.createRet!(fptrunc_result)
+///
+///   // Test that constant folding worked - result should be a constant
+///   assert_true!(fptrunc_result.tryAsConstant() is Some(_))
+/// }
+/// ```
+pub fn IRBuilder::createFPTrunc(
+  self : IRBuilder,
+  src_val : &Value,
+  dst_ty : &FPType,
+  name~ : String = ""
+) -> &Value!Error {
+  match src_val.tryAsConstantEnum() {
+    Some(ConstantFP(cf)) => return cf.fptrunc!(dst_ty)
+    _ => ()
+  }
+  let parent = self.getInsertFunction()
+  let inst = CastInst::newFPTrunc!(src_val, dst_ty, parent, name)
+  self.insert!(inst)
+  inst
+}
+
+///| Create FPExt (floating-point extend) Instruction.
+///
+/// **Note:**
+///
+/// - (Constant folding) If the operand is a constant floating-point value, the extension is
+/// evaluated at compile time and the result is returned as a constant value.
+/// - Extends a floating-point value to a larger floating-point type.
+/// - The source type bit width must be less than the destination type bit width.
+///
+/// ```moonbit
+/// test "IRBuilder::createFPExt" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let f32ty = ctx.getFloatTy()
+///   let f64ty = ctx.getDoubleTy()
+///   let fty = ctx.getFunctionType!(f64ty, [f32ty])
+///   let fval = prog.addFunction!(fty, "fpext_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let fpext_val = builder.createFPExt!(arg0, f64ty)
+///   let _ = builder.createRet!(fpext_val)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define double @fpext_func(float %0) {
+///     #|entry:
+///     #|  %1 = fpext float %0
+///     #|  ret double %1
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+///
+/// ## Constant Folding
+///
+/// ```moonbit
+/// test "IRBuilder::createFPExt with constant folding" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let f64ty = ctx.getDoubleTy()
+///   let fty = ctx.getFunctionType!(f64ty, [])
+///   let fval = prog.addFunction!(fty, "fpext_const_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let const_val = ctx.getConstFloat(3.14159)
+///   let fpext_result = builder.createFPExt!(const_val, f64ty)
+///   let _ = builder.createRet!(fpext_result)
+///
+///   // Test that constant folding worked - result should be a constant
+///   assert_true!(fpext_result.tryAsConstant() is Some(_))
+/// }
+/// ```
+pub fn IRBuilder::createFPExt(
+  self : IRBuilder,
+  src_val : &Value,
+  dst_ty : &FPType,
+  name~ : String = ""
+) -> &Value!Error {
+  match src_val.tryAsConstantEnum() {
+    Some(ConstantFP(cf)) => return cf.fpext!(dst_ty)
+    _ => ()
+  }
+  let parent = self.getInsertFunction()
+  let inst = CastInst::newFPExt!(src_val, dst_ty, parent, name)
+  self.insert!(inst)
+  inst
+}
+
+///| Create UIToFP (unsigned integer to floating-point) Instruction.
+///
+/// **Note:**
+///
+/// - (Constant folding) If the operand is a constant integer, the conversion is
+/// evaluated at compile time and the result is returned as a constant value.
+/// - Converts an unsigned integer value to a floating-point type.
+/// - The integer value is interpreted as unsigned regardless of its sign bit.
+///
+/// ```moonbit
+/// test "IRBuilder::createUIToFP" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let f32ty = ctx.getFloatTy()
+///   let fty = ctx.getFunctionType!(f32ty, [i32ty])
+///   let fval = prog.addFunction!(fty, "uitofp_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let uitofp_val = builder.createUIToFP!(arg0, f32ty)
+///   let _ = builder.createRet!(uitofp_val)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define float @uitofp_func(i32 %0) {
+///     #|entry:
+///     #|  %1 = uitofp i32 %0
+///     #|  ret float %1
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+///
+/// ## Constant Folding
+///
+/// ```moonbit
+/// test "IRBuilder::createUIToFP with constant folding" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let f32ty = ctx.getFloatTy()
+///   let fty = ctx.getFunctionType!(f32ty, [])
+///   let fval = prog.addFunction!(fty, "uitofp_const_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let const_val = ctx.getConstInt32(42)
+///   let uitofp_result = builder.createUIToFP!(const_val, f32ty)
+///   let _ = builder.createRet!(uitofp_result)
+///
+///   // Test that constant folding worked - result should be a constant
+///   assert_true!(uitofp_result.tryAsConstant() is Some(_))
+/// }
+/// ```
+pub fn IRBuilder::createUIToFP(
+  self : IRBuilder,
+  src_val : &Value,
+  dst_ty : &FPType,
+  name~ : String = ""
+) -> &Value!Error {
+  match src_val.tryAsConstantEnum() {
+    Some(ConstantInt(ci)) => return ci.uitofp!(dst_ty)
+    _ => ()
+  }
+  let parent = self.getInsertFunction()
+  let inst = CastInst::newUIToFP!(src_val, dst_ty, parent, name)
+  self.insert!(inst)
+  inst
+}
+
+///| Create FPToUI (floating-point to unsigned integer) Instruction.
+///
+/// **Note:**
+///
+/// - (Constant folding) If the operand is a constant floating-point value, the conversion is
+/// evaluated at compile time and the result is returned as a constant value.
+/// - Converts a floating-point value to an unsigned integer type.
+/// - The floating-point value is truncated towards zero and interpreted as unsigned.
+///
+/// ```moonbit
+/// test "IRBuilder::createFPToUI" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let f32ty = ctx.getFloatTy()
+///   let i32ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType!(i32ty, [f32ty])
+///   let fval = prog.addFunction!(fty, "fptoui_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let fptoui_val = builder.createFPToUI!(arg0, i32ty)
+///   let _ = builder.createRet!(fptoui_val)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define i32 @fptoui_func(float %0) {
+///     #|entry:
+///     #|  %1 = fptoui float %0
+///     #|  ret i32 %1
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+///
+/// ## Constant Folding
+///
+/// ```moonbit
+/// test "IRBuilder::createFPToUI with constant folding" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType!(i32ty, [])
+///   let fval = prog.addFunction!(fty, "fptoui_const_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let const_val = ctx.getConstFloat(42.7)
+///   let fptoui_result = builder.createFPToUI!(const_val, i32ty)
+///   let _ = builder.createRet!(fptoui_result)
+///
+///   inspect(fptoui_result, content="i32 42")
+///   inspect(
+///     fval,
+///     content =
+///     #|define i32 @fptoui_const_func() {
+///     #|entry:
+///     #|  ret i32 42
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+pub fn IRBuilder::createFPToUI(
+  self : IRBuilder,
+  src_val : &Value,
+  dst_ty : &IntegerType,
+  name~ : String = ""
+) -> &Value!Error {
+  match src_val.tryAsConstantEnum() {
+    Some(ConstantFP(cf)) => return cf.fptoui!(dst_ty)
+    _ => ()
+  }
+  let parent = self.getInsertFunction()
+  let inst = CastInst::newFPToUI!(src_val, dst_ty, parent, name)
+  self.insert!(inst)
+  inst
+}
+
+///| Create SIToFP (signed integer to floating-point) Instruction.
+///
+/// **Note:**
+///
+/// - (Constant folding) If the operand is a constant integer, the conversion is
+/// evaluated at compile time and the result is returned as a constant value.
+/// - Converts a signed integer value to a floating-point type.
+/// - The integer value is interpreted as signed.
+///
+/// ```moonbit
+/// test "IRBuilder::createSIToFP" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let f32ty = ctx.getFloatTy()
+///   let fty = ctx.getFunctionType!(f32ty, [i32ty])
+///   let fval = prog.addFunction!(fty, "sitofp_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let sitofp_val = builder.createSIToFP!(arg0, f32ty)
+///   let _ = builder.createRet!(sitofp_val)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define float @sitofp_func(i32 %0) {
+///     #|entry:
+///     #|  %1 = sitofp i32 %0
+///     #|  ret float %1
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+///
+/// ## Constant Folding
+///
+/// ```moonbit
+/// test "IRBuilder::createSIToFP with constant folding" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let f32ty = ctx.getFloatTy()
+///   let fty = ctx.getFunctionType!(f32ty, [])
+///   let fval = prog.addFunction!(fty, "sitofp_const_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let const_val = ctx.getConstInt32(-42)
+///   let sitofp_result = builder.createSIToFP!(const_val, f32ty)
+///   let _ = builder.createRet!(sitofp_result)
+///
+///   // Test that constant folding worked - result should be a constant
+///   assert_true!(sitofp_result.tryAsConstant() is Some(_))
+/// }
+/// ```
+pub fn IRBuilder::createSIToFP(
+  self : IRBuilder,
+  src_val : &Value,
+  dst_ty : &FPType,
+  name~ : String = ""
+) -> &Value!Error {
+  match src_val.tryAsConstantEnum() {
+    Some(ConstantInt(ci)) => return ci.sitofp!(dst_ty)
+    _ => ()
+  }
+  let parent = self.getInsertFunction()
+  let inst = CastInst::newSIToFP!(src_val, dst_ty, parent, name)
+  self.insert!(inst)
+  inst
+}
+
+///| Create FPToSI (floating-point to signed integer) Instruction.
+///
+/// **Note:**
+///
+/// - (Constant folding) If the operand is a constant floating-point value, the conversion is
+/// evaluated at compile time and the result is returned as a constant value.
+/// - Converts a floating-point value to a signed integer type.
+/// - The floating-point value is truncated towards zero and interpreted as signed.
+///
+/// ```moonbit
+/// test "IRBuilder::createFPToSI" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let f32ty = ctx.getFloatTy()
+///   let i32ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType!(i32ty, [f32ty])
+///   let fval = prog.addFunction!(fty, "fptosi_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let fptosi_val = builder.createFPToSI!(arg0, i32ty)
+///   let _ = builder.createRet!(fptosi_val)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define i32 @fptosi_func(float %0) {
+///     #|entry:
+///     #|  %1 = fptosi float %0
+///     #|  ret i32 %1
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+///
+/// ## Constant Folding
+///
+/// ```moonbit
+/// test "IRBuilder::createFPToSI with constant folding" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType!(i32ty, [])
+///   let fval = prog.addFunction!(fty, "fptosi_const_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let const_val = ctx.getConstFloat(-42.7)
+///   let fptosi_result = builder.createFPToSI!(const_val, i32ty)
+///   let _ = builder.createRet!(fptosi_result)
+///
+///   inspect(fptosi_result, content="i32 -42")
+///   inspect(
+///     fval,
+///     content =
+///     #|define i32 @fptosi_const_func() {
+///     #|entry:
+///     #|  ret i32 -42
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+pub fn IRBuilder::createFPToSI(
+  self : IRBuilder,
+  src_val : &Value,
+  dst_ty : &IntegerType,
+  name~ : String = ""
+) -> &Value!Error {
+  match src_val.tryAsConstantEnum() {
+    Some(ConstantFP(cf)) => return cf.fptosi!(dst_ty)
+    _ => ()
+  }
+  let parent = self.getInsertFunction()
+  let inst = CastInst::newFPToSI!(src_val, dst_ty, parent, name)
+  self.insert!(inst)
+  inst
+}
+
+///| Create IntToPtr (integer to pointer) Instruction.
+///
+/// **Note:**
+///
+/// - (Constant folding) If the operand is a constant integer, the conversion is
+/// evaluated at compile time and the result is returned as a constant null pointer.
+/// - Converts an integer value to a pointer type.
+/// - For constant folding, this always returns a null pointer since we cannot create
+///   meaningful pointer constants from integer values at compile time.
+///
+/// ```moonbit
+/// test "IRBuilder::createIntToPtr" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i64ty = ctx.getInt64Ty()
+///   let ptrty = ctx.getPtrTy()
+///   let fty = ctx.getFunctionType!(ptrty, [i64ty])
+///   let fval = prog.addFunction!(fty, "inttoptr_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let inttoptr_val = builder.createIntToPtr!(arg0)
+///   let _ = builder.createRet!(inttoptr_val)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define ptr @inttoptr_func(i64 %0) {
+///     #|entry:
+///     #|  %1 = inttoptr i64 %0
+///     #|  ret ptr %1
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+///
+/// ## Constant Folding
+///
+/// ```moonbit
+/// test "IRBuilder::createIntToPtr with constant folding" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let ptrty = ctx.getPtrTy()
+///   let fty = ctx.getFunctionType!(ptrty, [])
+///   let fval = prog.addFunction!(fty, "inttoptr_const_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let const_val = ctx.getConstInt64(0x12345678)
+///   let inttoptr_result = builder.createIntToPtr!(const_val)
+///   let _ = builder.createRet!(inttoptr_result)
+///
+///   inspect(inttoptr_result, content="ptr null")
+///   inspect(
+///     fval,
+///     content =
+///     #|define ptr @inttoptr_const_func() {
+///     #|entry:
+///     #|  ret ptr null
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+pub fn IRBuilder::createIntToPtr(
+  self : IRBuilder,
+  src_val : &Value,
+  name~ : String = ""
+) -> &Value!Error {
+  match src_val.tryAsConstantEnum() {
+    Some(ConstantInt(ci)) => return ci.inttoptr!()
+    _ => ()
+  }
+  let parent = self.getInsertFunction()
+  let inst = CastInst::newIntToPtr!(src_val, parent, name)
+  self.insert!(inst)
+  inst
+}
+
+///| Create PtrToInt (pointer to integer) Instruction.
+///
+/// **Note:**
+///
+/// - Converts a pointer value to an integer type.
+/// - The source must be a pointer type.
+/// - No constant folding is performed for this instruction.
+///
+/// ```moonbit
+/// test "IRBuilder::createPtrToInt" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let ptrty = ctx.getPtrTy()
+///   let i64ty = ctx.getInt64Ty()
+///   let fty = ctx.getFunctionType!(i64ty, [ptrty])
+///   let fval = prog.addFunction!(fty, "ptrtoint_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let ptrtoint_val = builder.createPtrToInt!(arg0, i64ty)
+///   let _ = builder.createRet!(ptrtoint_val)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define i64 @ptrtoint_func(ptr %0) {
+///     #|entry:
+///     #|  %1 = ptrtoint ptr %0
+///     #|  ret i64 %1
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+pub fn IRBuilder::createPtrToInt(
+  self : IRBuilder,
+  src_val : &Value,
+  dst_ty : &IntegerType,
+  name~ : String = ""
+) -> &Value!Error {
+  // No constant folding for PtrToInt as pointer constants are complex
+  let parent = self.getInsertFunction()
+  let inst = CastInst::newPtrToInt!(src_val, dst_ty, parent, name)
+  self.insert!(inst)
+  inst
+}
+
+///| Create BitCast Instruction.
+///
+/// **Note:**
+///
+/// - (Constant folding) If the operand is a constant value, the bitcast is
+/// evaluated at compile time and the result is returned as a constant value.
+/// - Reinterprets the bit pattern of a value as a different type.
+/// - The source and destination types must have the same bit width.
+/// - Currently only supports primitive types.
+///
+/// ```moonbit
+/// test "IRBuilder::createBitCast" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let f32ty = ctx.getFloatTy()
+///   let fty = ctx.getFunctionType!(f32ty, [i32ty])
+///   let fval = prog.addFunction!(fty, "bitcast_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap()
+///   let bitcast_val = builder.createBitCast!(arg0, f32ty)
+///   let _ = builder.createRet!(bitcast_val)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define float @bitcast_func(i32 %0) {
+///     #|entry:
+///     #|  %1 = bitcast i32 %0
+///     #|  ret float %1
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+///
+/// ## Constant Folding
+///
+/// ```moonbit
+/// test "IRBuilder::createBitCast with constant folding - int to float" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let f32ty = ctx.getFloatTy()
+///   let fty = ctx.getFunctionType!(f32ty, [])
+///   let fval = prog.addFunction!(fty, "bitcast_const_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let const_val = ctx.getConstInt32(0x40000000) // 2.0f bit pattern
+///   let bitcast_result = builder.createBitCast!(const_val, f32ty)
+///   let _ = builder.createRet!(bitcast_result)
+///
+///   // Test that constant folding worked - result should be a constant
+///   assert_true!(bitcast_result.tryAsConstant() is Some(_))
+/// }
+/// ```
+///
+/// ```moonbit
+/// test "IRBuilder::createBitCast with constant folding - float to int" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType!(i32ty, [])
+///   let fval = prog.addFunction!(fty, "bitcast_fp_const_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let const_val = ctx.getConstFloat(2.0)
+///   let bitcast_result = builder.createBitCast!(const_val, i32ty)
+///   let _ = builder.createRet!(bitcast_result)
+///
+///   // Test that constant folding worked - result should be a constant
+///   assert_true!(bitcast_result.tryAsConstant() is Some(_))
+/// }
+/// ```
+pub fn IRBuilder::createBitCast(
+  self : IRBuilder,
+  src_val : &Value,
+  dst_ty : &PrimitiveType,
+  name~ : String = ""
+) -> &Value!Error {
+  match src_val.tryAsConstantEnum() {
+    Some(ConstantInt(ci)) => return ci.bitcast!(dst_ty)
+    Some(ConstantFP(cf)) => return cf.bitcast!(dst_ty)
+    _ => ()
+  }
+  let parent = self.getInsertFunction()
+  let inst = CastInst::newBitCast!(src_val, dst_ty, parent, name)
+  self.insert!(inst)
+  inst
+}
