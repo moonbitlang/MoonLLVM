@@ -402,7 +402,7 @@ impl Type with tryAsAbstractTypeEnum(self) -> AbstractTypeEnum? {
 ///   let ctx = LLVMContext::new()
 ///
 ///   let i8ty :&IntegerType = ctx.getInt8Ty()
-///   assert_eq!(i8ty.getNumBits(), 8)
+///   assert_eq!(i8ty.getBitWidth(), 8)
 ///   inspect!(i8ty.getExtendedType().unwrap(), content="i16")
 ///   assert_eq!(i8ty.getBitMask(), 0xFF)
 ///   assert_eq!(i8ty.getExtendedType().unwrap().getSignBit(), 0x8000)

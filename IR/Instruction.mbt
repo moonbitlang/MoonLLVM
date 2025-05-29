@@ -61,7 +61,7 @@ pub enum BinaryOpFlags {
   Exact
 
   // Only Or could have Disjoint flag.
-  Disjoint
+  //Disjoint
 } derive(Hash, Eq)
 
 ///|
@@ -70,7 +70,7 @@ pub impl Show for BinaryOpFlags with output(self, logger) {
     NoUnsignedWrap => "nuw"
     NoSignedWrap => "nsw"
     Exact => "exact"
-    Disjoint => "disjoint"
+    //Disjoint => "disjoint"
   }
   logger.write_string(str)
 }
@@ -886,6 +886,10 @@ pub impl User for CastInst with getUserBase(self) {
   self.user_base
 }
 
+pub impl UnaryInst for CastInst with asUnaryInstEnum(self) {
+  CastInst(self)
+}
+
 ///|
 pub impl Instruction for CastInst with getInstBase(self) {
   self.inst_base
@@ -893,7 +897,7 @@ pub impl Instruction for CastInst with getInstBase(self) {
 
 ///|
 pub impl Instruction for CastInst with asInstEnum(self) {
-  InstEnum::CastInst(self)
+  CastInst(self)
 }
 
 ///|

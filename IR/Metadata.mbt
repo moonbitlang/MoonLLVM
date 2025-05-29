@@ -54,11 +54,20 @@ pub impl Show for MDNode with output(self, logger) {
   logger.write_string("!{\{metadata_joined}}")
 }
 
+
 // =================================================
 // MDAttachments
 // =================================================
 
 ///|
-struct MDAttachments {
+priv struct MDAttachments {
   attachments : Array[(String, MDNode)]
+}
+
+/// FIXME: eliminate this function.
+/// This is only for eliminate warning.
+pub fn warning_elimination() -> Unit {
+  MDNode::{metadata: Array::new()} |> ignore()
+  let mda = MDAttachments::{attachments: Array::new()}
+  mda.attachments.length() |> ignore()
 }

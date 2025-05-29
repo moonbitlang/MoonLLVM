@@ -35,7 +35,7 @@ struct LLVMContextImpl {
 
   // Metadata
   mdstrings : Map[String, MDString]
-  valueMetadata : Map[&Value, Array[(String, MDNode)]]
+  //valueMetadata : Map[&Value, Array[(String, MDNode)]]
 }
 
 ///|
@@ -66,7 +66,7 @@ pub fn LLVMContext::new() -> LLVMContext {
     literalStructID: 0,
     pointerTypes,
     mdstrings: Map::new(),
-    valueMetadata: Map::new(),
+    //valueMetadata: Map::new(),
   }
   ctx.pimpl = Some(pimpl)
   ctx
