@@ -39,7 +39,7 @@ pub enum ValueEnum {
   // VAArgInst(VAArgInst)
   // ExtractValueInst(ExtractValueInst)
   // FreezeInst(FreezeInst)
-  //CastInst(CastInst)
+  CastInst(CastInst)
   BinaryInstruction(BinaryInstruction)
   CmpInst(CmpInst)
   //StoreInst(StoreInst)
@@ -303,7 +303,7 @@ pub enum UserEnum {
   //VAArgInst(VAArgInst)
   //ExtractValueInst(ExtractValueInst)
   //FreezeInst(FreezeInst)
-  //CastInst(CastInst)
+  CastInst(CastInst)
   BinaryInstruction(BinaryInstruction)
   CmpInst(CmpInst)
   ReturnInst(ReturnInst)
@@ -316,6 +316,7 @@ pub fn UserEnum::getUserName(self : UserEnum) -> String? {
     LoadInst(l) => l.getUserName()
     BinaryInstruction(b) => b.getUserName()
     CmpInst(c) => c.getUserName()
+    CastInst(c) => c.getUserName()
     ReturnInst(_) => None
   }
 }
@@ -434,7 +435,7 @@ pub enum InstEnum {
   //VAArgInst(VAArgInst)
   //ExtractValueInst(ExtractValueInst)
   //FreezeInst(FreezeInst)
-  //CastInst(CastInst)
+  CastInst(CastInst)
   BinaryInstruction(BinaryInstruction)
   CmpInst(CmpInst)
   ReturnInst(ReturnInst)
@@ -456,7 +457,7 @@ pub enum UnaryInstEnum {
   //VAArgInst(VAArgInst)
   //ExtractValueInst(ExtractValueInst)
   //FreezeInst(FreezeInst)
-  //CastInst(CastInst)
+  CastInst(CastInst)
 }
 
 // =======================================================

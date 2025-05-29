@@ -584,9 +584,280 @@ impl Show for CmpInst with output(self, logger) {
     None if rhs.tryAsConstant() is Some(c) => c.valstr()
     _ => "<badref>"
   }
-  
   logger.write_string(
     "  %\{prefix} = \{self.predicate} \{lhs_ty} \{lhs_str}, \{rhs_str}",
+  )
+}
+
+// =======================================================
+// CastInst
+// =======================================================
+
+///|
+pub(all) enum CastOps {
+  Trunc
+  ZExt
+  SExt
+  FPTrunc
+  FPExt
+  UIToFP
+  SIToFP
+  FPToUI
+  FPToSI
+  PtrToInt
+  IntToPtr
+  BitCast
+  //AddrSpaceCast
+} derive(Hash, Eq)
+
+///|
+pub impl Show for CastOps with output(self, logger) {
+  let str = match self {
+    Trunc => "trunc"
+    ZExt => "zext"
+    SExt => "sext"
+    FPTrunc => "fptrunc"
+    FPExt => "fpext"
+    UIToFP => "uitofp"
+    SIToFP => "sitofp"
+    FPToUI => "fptoui"
+    FPToSI => "fptosi"
+    PtrToInt => "ptrtoint"
+    IntToPtr => "inttoptr"
+    BitCast => "bitcast"
+    //AddrSpaceCast => "addrspacecast"
+  }
+  logger.write_string(str)
+}
+
+///|
+pub struct CastInst {
+  base : ValueBase
+  user_base : UserBase
+  inst_base : InstBase
+  opcode : CastOps
+}
+
+///|
+fn CastInst::new(
+  opcode : CastOps,
+  src_val : &Value,
+  dst_ty : &Type,
+  parent : Function,
+  name : String
+) -> CastInst {
+  let src_ty = src_val.getType()
+
+  // 类型检查：确保opcode与源类型和目标类型兼容
+  match opcode {
+    // 整数截断：大整数 -> 小整数
+    Trunc => {
+      guard src_ty.tryAsIntegerTypeEnum() is Some(src_int) &&
+        dst_ty.tryAsIntegerTypeEnum() is Some(dst_int) else {
+        unreachable(
+          "Trunc requires both source and destination to be integer types",
+        )
+      }
+      guard src_int.getBitWidth() > dst_int.getBitWidth() else {
+        unreachable(
+          "Trunc requires source bit width to be larger than destination bit width",
+        )
+      }
+
+    }
+
+    // 零扩展：小整数 -> 大整数
+    ZExt => {
+      guard src_ty.tryAsIntegerTypeEnum() is Some(src_int) &&
+        dst_ty.tryAsIntegerTypeEnum() is Some(dst_int) else {
+        unreachable(
+          "ZExt requires both source and destination to be integer types",
+        )
+      }
+      guard src_int.getBitWidth() < dst_int.getBitWidth() else {
+        unreachable(
+          "ZExt requires source bit width to be smaller than destination bit width",
+        )
+      }
+
+    }
+
+    // 符号扩展：小整数 -> 大整数
+    SExt => {
+      guard src_ty.tryAsIntegerTypeEnum() is Some(src_int) &&
+        dst_ty.tryAsIntegerTypeEnum() is Some(dst_int) else {
+        unreachable(
+          "SExt requires both source and destination to be integer types",
+        )
+      }
+      guard src_int.getBitWidth() < dst_int.getBitWidth() else {
+        unreachable(
+          "SExt requires source bit width to be smaller than destination bit width",
+        )
+      }
+
+    }
+
+    // 浮点截断：大浮点 -> 小浮点
+    FPTrunc => {
+      guard src_ty.tryAsFPTypeEnum() is Some(_) &&
+        dst_ty.tryAsFPTypeEnum() is Some(_) else {
+        unreachable(
+          "FPTrunc requires both source and destination to be floating point types",
+        )
+      }
+      // 注意：这里假设浮点类型有类似的比较方法，如果没有则需要添加
+    }
+
+    // 浮点扩展：小浮点 -> 大浮点
+    FPExt => {
+      guard src_ty.tryAsFPTypeEnum() is Some(_) &&
+        dst_ty.tryAsFPTypeEnum() is Some(_) else {
+        unreachable(
+          "FPExt requires both source and destination to be floating point types",
+        )
+      }
+
+    }
+
+    // 无符号整数转浮点
+    UIToFP => {
+      guard src_ty.tryAsIntegerTypeEnum() is Some(_) &&
+        dst_ty.tryAsFPTypeEnum() is Some(_) else {
+        unreachable(
+          "UIToFP requires source to be integer type and destination to be floating point type",
+        )
+      }
+
+    }
+
+    // 有符号整数转浮点
+    SIToFP => {
+      guard src_ty.tryAsIntegerTypeEnum() is Some(_) &&
+        dst_ty.tryAsFPTypeEnum() is Some(_) else {
+        unreachable(
+          "SIToFP requires source to be integer type and destination to be floating point type",
+        )
+      }
+
+    }
+
+    // 浮点转无符号整数
+    FPToUI => {
+      guard src_ty.tryAsFPTypeEnum() is Some(_) &&
+        dst_ty.tryAsIntegerTypeEnum() is Some(_) else {
+        unreachable(
+          "FPToUI requires source to be floating point type and destination to be integer type",
+        )
+      }
+
+    }
+
+    // 浮点转有符号整数
+    FPToSI => {
+      guard src_ty.tryAsFPTypeEnum() is Some(_) &&
+        dst_ty.tryAsIntegerTypeEnum() is Some(_) else {
+        unreachable(
+          "FPToSI requires source to be floating point type and destination to be integer type",
+        )
+      }
+
+    }
+
+    // 指针转整数
+    PtrToInt => {
+      guard src_ty.asTypeEnum() is PointerType(_) &&
+        dst_ty.tryAsIntegerTypeEnum() is Some(_) else {
+        unreachable(
+          "PtrToInt requires source to be pointer type and destination to be integer type",
+        )
+      }
+
+    }
+
+    // 整数转指针
+    IntToPtr => {
+      guard src_ty.tryAsIntegerTypeEnum() is Some(_) &&
+        dst_ty.asTypeEnum() is PointerType(_) else {
+        unreachable(
+          "IntToPtr requires source to be integer type and destination to be pointer type",
+        )
+      }
+
+    }
+
+    // 位转换：要求位宽相同
+    BitCast => {
+      // BitCast要求源类型和目标类型的位宽相同，但类型不同
+      guard src_ty != dst_ty else {
+        unreachable(
+          "BitCast requires source and destination types to be different",
+        )
+      }
+      // 这里可能需要添加更多的位宽检查，取决于Type接口是否提供相关方法
+    }
+  }
+  let vty = dst_ty
+  let base = ValueBase::new(vty)
+  let user_base = UserBase::new(name)
+  let inst_base = InstBase::new(parent)
+  user_base.operands.push(src_val)
+  CastInst::{ base, user_base, inst_base, opcode }
+}
+
+///|
+pub impl Value for CastInst with getValueBase(self) {
+  self.base
+}
+
+///|
+pub impl Value for CastInst with asValueEnum(self) {
+  CastInst(self)
+}
+
+///|
+pub impl User for CastInst with asUserEnum(self) {
+  CastInst(self)
+}
+
+///|
+pub impl User for CastInst with getUserBase(self) {
+  self.user_base
+}
+
+///|
+pub impl Instruction for CastInst with getInstBase(self) {
+  self.inst_base
+}
+
+///|
+pub impl Instruction for CastInst with asInstEnum(self) {
+  InstEnum::CastInst(self)
+}
+
+///|
+pub impl Show for CastInst with output(self, logger) {
+  let parent = self.getParent()
+  let prefix = match self.getName() {
+    Some(name) => "\{name}"
+    None if parent.getSlot(self) is Some(s) => "\{s}"
+    None => {
+      parent.precessSlot()
+      match parent.getSlot(self) {
+        Some(s) => "\{s}"
+        None => "<badref>"
+      }
+    }
+  }
+  let src = self.getOperand(0).unwrap()
+  let src_str = match src.getValueName() {
+    Some(name) => "%\{name}"
+    None if parent.getSlot(src) is Some(s) => "%\{s}"
+    None if src.tryAsConstant() is Some(c) => c.valstr()
+    _ => "<badref>"
+  }
+  logger.write_string(
+    "  %\{prefix} = \{self.opcode} \{src.getType()} \{src_str}",
   )
 }
 

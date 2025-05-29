@@ -312,7 +312,7 @@ impl Type with getPrimitiveSizeInBits(self) -> TypeSize {
 
 ///|
 impl Type with getScalarSizeInBits(self) -> UInt {
-  self.getScalarType().getPrimitiveSizeInBits().getFixedValue().to_uint()
+  self.getScalarType().getPrimitiveSizeInBits().getKnownMinValue().to_uint()
 }
 
 ///|
@@ -350,225 +350,6 @@ impl Type with tryAsIntegerTypeEnum(self) -> IntegerTypeEnum? {
 
 // pub Type with print(self, logger: &Logger, isForDebug~ = false, noDetails~ = false)
 // pub Type with dump(self)
-
-// ====================================================================
-// FPTypeEnum
-// ====================================================================
-
-///|
-pub trait FPType: Type {
-  asFPTypeEnum(Self) -> FPTypeEnum
-
-  /// Return the width of the mantissa of this type. 
-  getFPMantissaWidth(Self) -> UInt = _
-}
-
-///|
-pub enum FPTypeEnum {
-  HalfType(HalfType)
-  BFloatType(BFloatType)
-  FloatType(FloatType)
-  DoubleType(DoubleType)
-  FP128Type(FP128Type)
-}
-
-///|
-impl FPType with getFPMantissaWidth(self) {
-  match self.asFPTypeEnum() {
-    HalfType(_) => 11
-    BFloatType(_) => 8
-    FloatType(_) => 24
-    DoubleType(_) => 53
-    FP128Type(_) => 113
-  }
-}
-
-// ====================================================================
-// TypeBase
-// ====================================================================
-
-///|
-struct TypeBase {
-  context : LLVMContext
-} derive(Eq, Hash)
-
-///|
-fn TypeBase::new(context : LLVMContext) -> TypeBase {
-  TypeBase::{ context, }
-}
-
-// ====================================================================
-// HalfType
-// ====================================================================
-
-///|
-pub struct HalfType {
-  priv base : TypeBase
-} derive(Eq, Hash)
-
-///| Create a HalfType.
-fn HalfType::new(context : LLVMContext) -> HalfType {
-  HalfType::{ base: TypeBase::new(context) }
-}
-
-///|
-pub impl Show for HalfType with output(_, logger : &Logger) {
-  logger.write_string("half")
-}
-
-///|
-pub impl Type for HalfType with asTypeEnum(self) -> TypeEnum {
-  TypeEnum::HalfType(self)
-}
-
-///|
-pub impl Type for HalfType with getTypeBase(self) -> TypeBase {
-  self.base
-}
-
-///|
-pub impl FPType for HalfType with asFPTypeEnum(self) -> FPTypeEnum {
-  FPTypeEnum::HalfType(self)
-}
-
-// ====================================================================
-// BFloatType
-// ====================================================================
-
-///| BFloatType
-pub struct BFloatType {
-  priv base : TypeBase
-} derive(Eq, Hash)
-
-///|
-fn BFloatType::new(context : LLVMContext) -> BFloatType {
-  BFloatType::{ base: TypeBase::new(context) }
-}
-
-///|
-pub impl Show for BFloatType with output(_, logger : &Logger) {
-  logger.write_string("bfloat")
-}
-
-///|
-pub impl Type for BFloatType with asTypeEnum(self) -> TypeEnum {
-  TypeEnum::BFloatType(self)
-}
-
-///|
-pub impl Type for BFloatType with getTypeBase(self) -> TypeBase {
-  self.base
-}
-
-///|
-pub impl FPType for BFloatType with asFPTypeEnum(self) -> FPTypeEnum {
-  FPTypeEnum::BFloatType(self)
-}
-
-// ====================================================================
-// FloatType
-// ====================================================================
-
-///| FloatType
-pub struct FloatType {
-  priv base : TypeBase
-} derive(Eq, Hash)
-
-///|
-fn FloatType::new(context : LLVMContext) -> FloatType {
-  let base = TypeBase::new(context)
-  FloatType::{ base, }
-}
-
-///|
-pub impl Show for FloatType with output(_, logger : &Logger) {
-  logger.write_string("float")
-}
-
-///|
-pub impl Type for FloatType with asTypeEnum(self) -> TypeEnum {
-  TypeEnum::FloatType(self)
-}
-
-///|
-pub impl Type for FloatType with getTypeBase(self) -> TypeBase {
-  self.base
-}
-
-///|
-pub impl FPType for FloatType with asFPTypeEnum(self) -> FPTypeEnum {
-  FPTypeEnum::FloatType(self)
-}
-
-// ====================================================================
-// DoubleType
-// ====================================================================
-
-///| DoubleType
-pub struct DoubleType {
-  priv base : TypeBase
-} derive(Eq, Hash)
-
-///| Create a DoubleType
-fn DoubleType::new(context : LLVMContext) -> DoubleType {
-  let base = TypeBase::new(context)
-  DoubleType::{ base, }
-}
-
-///|
-pub impl Show for DoubleType with output(_, logger : &Logger) {
-  logger.write_string("double")
-}
-
-///|
-pub impl Type for DoubleType with asTypeEnum(self) -> TypeEnum {
-  TypeEnum::DoubleType(self)
-}
-
-///|
-pub impl Type for DoubleType with getTypeBase(self) -> TypeBase {
-  self.base
-}
-
-///|
-pub impl FPType for DoubleType with asFPTypeEnum(self) -> FPTypeEnum {
-  FPTypeEnum::DoubleType(self)
-}
-
-// ====================================================================
-// FP128Type
-// ====================================================================
-
-///| FP128Ty
-pub struct FP128Type {
-  priv base : TypeBase
-} derive(Eq, Hash)
-
-///| Create a FP128Ty.
-fn FP128Type::new(context : LLVMContext) -> FP128Type {
-  let base = TypeBase::new(context)
-  FP128Type::{ base, }
-}
-
-///|
-pub impl Show for FP128Type with output(_, logger : &Logger) {
-  logger.write_string("fp128")
-}
-
-///|
-pub impl Type for FP128Type with asTypeEnum(self) -> TypeEnum {
-  TypeEnum::FP128Type(self)
-}
-
-///|
-pub impl Type for FP128Type with getTypeBase(self) -> TypeBase {
-  self.base
-}
-
-///|
-pub impl FPType for FP128Type with asFPTypeEnum(self) -> FPTypeEnum {
-  FPTypeEnum::FP128Type(self)
-}
 
 // ====================================================================
 // IntegerType & IntegerTypeEnum
@@ -654,7 +435,342 @@ pub enum IntegerTypeEnum {
   Int16Type(Int16Type)
   Int32Type(Int32Type)
   Int64Type(Int64Type)
+} derive(Eq, Show)
+
+///|
+pub fn IntegerTypeEnum::getBitWidth(self : IntegerTypeEnum) -> UInt {
+  match self {
+    Int1Type(_) => 1
+    Int8Type(_) => 8
+    Int16Type(_) => 16
+    Int32Type(_) => 32
+    Int64Type(_) => 64
+  }
+}
+
+// ====================================================================
+// FPType && FPTypeEnum
+// ====================================================================
+
+///|
+pub trait FPType: Type {
+  asFPTypeEnum(Self) -> FPTypeEnum
+
+  /// Return the width of the mantissa of this type. 
+  getFPMantissaWidth(Self) -> UInt = _
+}
+
+///|
+pub enum FPTypeEnum {
+  HalfType(HalfType)
+  BFloatType(BFloatType)
+  FloatType(FloatType)
+  DoubleType(DoubleType)
+  FP128Type(FP128Type)
+} derive(Eq, Show)
+
+///|
+impl FPType with getFPMantissaWidth(self) {
+  match self.asFPTypeEnum() {
+    HalfType(_) => 11
+    BFloatType(_) => 8
+    FloatType(_) => 24
+    DoubleType(_) => 53
+    FP128Type(_) => 113
+  }
+}
+
+// ====================================================================
+// Primitive Types, PrimitiveType && PrimitiveTypeEnum
+// ====================================================================
+
+///|
+pub trait PrimitiveType: Type {
+  asPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum
+  getBitWidth(Self) -> UInt = _
+}
+
+///|
+impl PrimitiveType with getBitWidth(self) -> UInt {
+  self.asPrimitiveTypeEnum().getBitWidth()
+}
+
+///|
+pub enum PrimitiveTypeEnum {
+  HalfType(HalfType)
+  BFloatType(BFloatType)
+  FloatType(FloatType)
+  DoubleType(DoubleType)
+  FP128Type(FP128Type)
+  Int1Type(Int1Type)
+  Int8Type(Int8Type)
+  Int16Type(Int16Type)
+  Int32Type(Int32Type)
+  Int64Type(Int64Type)
+} derive(Eq, Show)
+
+///|
+pub fn PrimitiveTypeEnum::getBitWidth(self : PrimitiveTypeEnum) -> UInt {
+  match self {
+    HalfType(_) => 16
+    BFloatType(_) => 16
+    FloatType(_) => 32
+    DoubleType(_) => 64
+    FP128Type(_) => 128
+    Int1Type(_) => 1
+    Int8Type(_) => 8
+    Int16Type(_) => 16
+    Int32Type(_) => 32
+    Int64Type(_) => 64
+  }
+}
+
+// ====================================================================
+// Aggregate Types, AggregateType && AggregateTypeEnum
+// ====================================================================
+
+///|
+pub trait AggregateType: Type {
+  asAggregateTypeEnum(Self) -> AggregateTypeEnum
+}
+
+///|
+pub enum AggregateTypeEnum {
+  StructType(StructType)
+  ArrayType(ArrayType)
+  FixedVectorType(FixedVectorType)
+  ScalableVectorType(ScalableVectorType)
+} derive(Eq, Show)
+
+// ====================================================================
+// Abstract Types, AbstractType && AbstractTypeEnum
+// ====================================================================
+
+///|
+pub trait AbstractType: Type {
+  asAbstractTypeEnum(Self) -> AbstractTypeEnum
+}
+
+///|
+pub enum AbstractTypeEnum {
+  VoidType(VoidType)
+  LabelType(LabelType)
+  MetadataType(MetadataType)
+  TokenType(TokenType)
+  FunctionType(FunctionType)
 } derive(Show)
+
+// ====================================================================
+// TypeBase
+// ====================================================================
+
+///|
+struct TypeBase {
+  context : LLVMContext
+} derive(Eq, Hash)
+
+///|
+fn TypeBase::new(context : LLVMContext) -> TypeBase {
+  TypeBase::{ context, }
+}
+
+// ====================================================================
+// HalfType
+// ====================================================================
+
+///|
+pub struct HalfType {
+  priv base : TypeBase
+} derive(Eq, Hash)
+
+///| Create a HalfType.
+fn HalfType::new(context : LLVMContext) -> HalfType {
+  HalfType::{ base: TypeBase::new(context) }
+}
+
+///|
+pub impl Show for HalfType with output(_, logger : &Logger) {
+  logger.write_string("half")
+}
+
+///|
+pub impl Type for HalfType with asTypeEnum(self) -> TypeEnum {
+  TypeEnum::HalfType(self)
+}
+
+///|
+pub impl Type for HalfType with getTypeBase(self) -> TypeBase {
+  self.base
+}
+
+///|
+pub impl FPType for HalfType with asFPTypeEnum(self) -> FPTypeEnum {
+  FPTypeEnum::HalfType(self)
+}
+
+///|
+pub impl PrimitiveType for HalfType with asPrimitiveTypeEnum(self) -> PrimitiveTypeEnum {
+  PrimitiveTypeEnum::HalfType(self)
+}
+
+// ====================================================================
+// BFloatType
+// ====================================================================
+
+///| BFloatType
+pub struct BFloatType {
+  priv base : TypeBase
+} derive(Eq, Hash)
+
+///|
+fn BFloatType::new(context : LLVMContext) -> BFloatType {
+  BFloatType::{ base: TypeBase::new(context) }
+}
+
+///|
+pub impl Show for BFloatType with output(_, logger : &Logger) {
+  logger.write_string("bfloat")
+}
+
+///|
+pub impl Type for BFloatType with asTypeEnum(self) -> TypeEnum {
+  BFloatType(self)
+}
+
+///|
+pub impl Type for BFloatType with getTypeBase(self) -> TypeBase {
+  self.base
+}
+
+///|
+pub impl FPType for BFloatType with asFPTypeEnum(self) -> FPTypeEnum {
+  BFloatType(self)
+}
+
+///|
+pub impl PrimitiveType for BFloatType with asPrimitiveTypeEnum(self) -> PrimitiveTypeEnum {
+  BFloatType(self)
+}
+
+// ====================================================================
+// FloatType
+// ====================================================================
+
+///| FloatType
+pub struct FloatType {
+  priv base : TypeBase
+} derive(Eq, Hash)
+
+///|
+fn FloatType::new(context : LLVMContext) -> FloatType {
+  let base = TypeBase::new(context)
+  FloatType::{ base, }
+}
+
+///|
+pub impl Show for FloatType with output(_, logger : &Logger) {
+  logger.write_string("float")
+}
+
+///|
+pub impl Type for FloatType with asTypeEnum(self) -> TypeEnum {
+  TypeEnum::FloatType(self)
+}
+
+///|
+pub impl Type for FloatType with getTypeBase(self) -> TypeBase {
+  self.base
+}
+
+///|
+pub impl FPType for FloatType with asFPTypeEnum(self) -> FPTypeEnum {
+  FloatType(self)
+}
+
+///|
+pub impl PrimitiveType for FloatType with asPrimitiveTypeEnum(self) -> PrimitiveTypeEnum {
+  FloatType(self)
+}
+
+// ====================================================================
+// DoubleType
+// ====================================================================
+
+///| DoubleType
+pub struct DoubleType {
+  priv base : TypeBase
+} derive(Eq, Hash)
+
+///| Create a DoubleType
+fn DoubleType::new(context : LLVMContext) -> DoubleType {
+  let base = TypeBase::new(context)
+  DoubleType::{ base, }
+}
+
+///|
+pub impl Show for DoubleType with output(_, logger : &Logger) {
+  logger.write_string("double")
+}
+
+///|
+pub impl Type for DoubleType with asTypeEnum(self) -> TypeEnum {
+  DoubleType(self)
+}
+
+///|
+pub impl Type for DoubleType with getTypeBase(self) -> TypeBase {
+  self.base
+}
+
+///|
+pub impl FPType for DoubleType with asFPTypeEnum(self) -> FPTypeEnum {
+  DoubleType(self)
+}
+
+///|
+pub impl PrimitiveType for DoubleType with asPrimitiveTypeEnum(self) -> PrimitiveTypeEnum {
+  DoubleType(self)
+}
+
+// ====================================================================
+// FP128Type
+// ====================================================================
+
+///| FP128Ty
+pub struct FP128Type {
+  priv base : TypeBase
+} derive(Eq, Hash)
+
+///| Create a FP128Ty.
+fn FP128Type::new(context : LLVMContext) -> FP128Type {
+  let base = TypeBase::new(context)
+  FP128Type::{ base, }
+}
+
+///|
+pub impl Show for FP128Type with output(_, logger : &Logger) {
+  logger.write_string("fp128")
+}
+
+///|
+pub impl Type for FP128Type with asTypeEnum(self) -> TypeEnum {
+  FP128Type(self)
+}
+
+///|
+pub impl Type for FP128Type with getTypeBase(self) -> TypeBase {
+  self.base
+}
+
+///|
+pub impl FPType for FP128Type with asFPTypeEnum(self) -> FPTypeEnum {
+  FP128Type(self)
+}
+
+///|
+pub impl PrimitiveType for FP128Type with asPrimitiveTypeEnum(self) -> PrimitiveTypeEnum {
+  PrimitiveTypeEnum::FP128Type(self)
+}
 
 // ====================================================================
 // Int1Type
@@ -699,6 +815,11 @@ pub impl Type for Int1Type with getTypeBase(self) -> TypeBase {
 ///|
 pub impl IntegerType for Int1Type with asIntegerTypeEnum(self) -> IntegerTypeEnum {
   IntegerTypeEnum::Int1Type(self)
+}
+
+///|
+pub impl PrimitiveType for Int1Type with asPrimitiveTypeEnum(self) -> PrimitiveTypeEnum {
+  PrimitiveTypeEnum::Int1Type(self)
 }
 
 // ====================================================================
@@ -751,6 +872,11 @@ pub impl IntegerType for Int8Type with asIntegerTypeEnum(self) -> IntegerTypeEnu
   IntegerTypeEnum::Int8Type(self)
 }
 
+///|
+pub impl PrimitiveType for Int8Type with asPrimitiveTypeEnum(self) -> PrimitiveTypeEnum {
+  PrimitiveTypeEnum::Int8Type(self)
+}
+
 // ====================================================================
 // Int16Type
 // ====================================================================
@@ -799,6 +925,11 @@ pub impl Type for Int16Type with getTypeBase(self) -> TypeBase {
 ///|
 pub impl IntegerType for Int16Type with asIntegerTypeEnum(self) -> IntegerTypeEnum {
   IntegerTypeEnum::Int16Type(self)
+}
+
+///|
+pub impl PrimitiveType for Int16Type with asPrimitiveTypeEnum(self) -> PrimitiveTypeEnum {
+  PrimitiveTypeEnum::Int16Type(self)
 }
 
 // ====================================================================
@@ -851,6 +982,11 @@ pub impl IntegerType for Int32Type with asIntegerTypeEnum(self) -> IntegerTypeEn
   IntegerTypeEnum::Int32Type(self)
 }
 
+///|
+pub impl PrimitiveType for Int32Type with asPrimitiveTypeEnum(self) -> PrimitiveTypeEnum {
+  PrimitiveTypeEnum::Int32Type(self)
+}
+
 // ====================================================================
 // Int64Type
 // ====================================================================
@@ -896,6 +1032,11 @@ pub impl IntegerType for Int64Type with asIntegerTypeEnum(self) -> IntegerTypeEn
   IntegerTypeEnum::Int64Type(self)
 }
 
+///|
+pub impl PrimitiveType for Int64Type with asPrimitiveTypeEnum(self) -> PrimitiveTypeEnum {
+  PrimitiveTypeEnum::Int64Type(self)
+}
+
 // ====================================================================
 // VoidType
 // ====================================================================
@@ -935,6 +1076,11 @@ pub impl Type for VoidType with asTypeEnum(self) -> TypeEnum {
   TypeEnum::VoidType(self)
 }
 
+///|
+pub impl AbstractType for VoidType with asAbstractTypeEnum(self) -> AbstractTypeEnum {
+  VoidType(self)
+}
+
 // ====================================================================
 // LabelType
 // ====================================================================
@@ -972,6 +1118,11 @@ pub impl Type for LabelType with asTypeEnum(self) -> TypeEnum {
 ///|
 pub impl Type for LabelType with getTypeBase(self) -> TypeBase {
   self.base
+}
+
+///|
+pub impl AbstractType for LabelType with asAbstractTypeEnum(self) -> AbstractTypeEnum {
+  AbstractTypeEnum::LabelType(self)
 }
 
 // ====================================================================
@@ -1014,6 +1165,11 @@ pub impl Type for MetadataType with getTypeBase(self) -> TypeBase {
   self.base
 }
 
+///|
+pub impl AbstractType for MetadataType with asAbstractTypeEnum(self) -> AbstractTypeEnum {
+  AbstractTypeEnum::MetadataType(self)
+}
+
 // ====================================================================
 // TokenTy
 // ====================================================================
@@ -1045,12 +1201,17 @@ pub impl Show for TokenType with output(_, logger : &Logger) {
 
 ///|
 pub impl Type for TokenType with asTypeEnum(self) -> TypeEnum {
-  TypeEnum::TokenType(self)
+  TokenType(self)
 }
 
 ///|
 pub impl Type for TokenType with getTypeBase(self) -> TypeBase {
   self.base
+}
+
+///|
+pub impl AbstractType for TokenType with asAbstractTypeEnum(self) -> AbstractTypeEnum {
+  TokenType(self)
 }
 
 // ====================================================================
@@ -1159,13 +1320,18 @@ fn FunctionType::isValidArgumentType(argTy : &Type) -> Bool {
 }
 
 ///|
-impl Type for FunctionType with asTypeEnum(self) -> TypeEnum {
+pub impl Type for FunctionType with asTypeEnum(self) -> TypeEnum {
   TypeEnum::FunctionType(self)
 }
 
 ///|
-impl Type for FunctionType with getTypeBase(self) -> TypeBase {
+pub impl Type for FunctionType with getTypeBase(self) -> TypeBase {
   self.base
+}
+
+///|
+pub impl AbstractType for FunctionType with asAbstractTypeEnum(self) -> AbstractTypeEnum {
+  AbstractTypeEnum::FunctionType(self)
 }
 
 // ====================================================================
@@ -1433,12 +1599,17 @@ pub impl Eq for StructType with op_equal(self, other) {
 
 ///|
 pub impl Type for StructType with asTypeEnum(self) -> TypeEnum {
-  TypeEnum::StructType(self)
+  StructType(self)
 }
 
 ///|
 pub impl Type for StructType with getTypeBase(self) -> TypeBase {
   self.base
+}
+
+///|
+pub impl AggregateType for StructType with asAggregateTypeEnum(self) -> AggregateTypeEnum {
+  StructType(self)
 }
 
 // ====================================================================
@@ -1507,12 +1678,17 @@ pub impl Show for ArrayType with output(self, logger : &Logger) {
 
 ///|
 impl Type for ArrayType with asTypeEnum(self) -> TypeEnum {
-  TypeEnum::ArrayType(self)
+  ArrayType(self)
 }
 
 ///|
 impl Type for ArrayType with getTypeBase(self) -> TypeBase {
   self.base
+}
+
+///|
+impl AggregateType for ArrayType with asAggregateTypeEnum(self) -> AggregateTypeEnum {
+  ArrayType(self)
 }
 
 // ====================================================================
@@ -1589,6 +1765,11 @@ pub impl Type for FixedVectorType with getTypeBase(self) -> TypeBase {
   self.base
 }
 
+///|
+pub impl AggregateType for FixedVectorType with asAggregateTypeEnum(self) -> AggregateTypeEnum {
+  FixedVectorType(self)
+}
+
 // ====================================================================
 // ScalableVectorType
 // ====================================================================
@@ -1663,6 +1844,11 @@ pub impl Type for ScalableVectorType with asTypeEnum(self) -> TypeEnum {
 ///|
 pub impl Type for ScalableVectorType with getTypeBase(self) -> TypeBase {
   self.base
+}
+
+///|
+pub impl AggregateType for ScalableVectorType with asAggregateTypeEnum(self) -> AggregateTypeEnum {
+  ScalableVectorType(self)
 }
 
 // ====================================================================

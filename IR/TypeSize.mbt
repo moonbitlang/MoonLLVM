@@ -40,9 +40,6 @@ pub fn TypeSize::getKnownMinValue(self : TypeSize) -> UInt64 {
 }
 
 ///|
-pub fn TypeSize::getFixedValue(self : TypeSize) -> UInt64 {
-  guard not(self.scalable) else {
-    unreachable("TypeSize::getFixedValue: not a fixed type size")
-  }
-  self.getKnownMinValue()
+pub fn TypeSize::getFixedValue(self : TypeSize) -> UInt64? {
+  @option.when(not(self.scalable), fn() { self.getKnownMinValue() })
 }
