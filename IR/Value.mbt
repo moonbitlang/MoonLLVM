@@ -474,7 +474,7 @@ pub enum ConstantEnum {
 } derive(Eq)
 
 ///|
-trait Constant: Value {
+pub trait Constant: Value {
   asConstantEnum(Self) -> ConstantEnum
   valstr(Self) -> String
 }

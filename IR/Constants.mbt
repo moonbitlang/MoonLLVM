@@ -843,6 +843,307 @@ pub fn ConstantInt::compare(
   }
 }
 
+///| Truncate this ConstantInt to a smaller integer type, useful in constant folding.
+///
+/// **Note**: It will raise `TruncCastInstTypeMismatch` if the source type bit width
+/// is not greater than the destination type bit width.
+///
+/// ```moonbit
+/// test "ConstantInt::trunc" {
+///   let ctx = LLVMContext::new()
+///
+///   let i32_255 = ctx.getConstInt32(255)
+///   let i8_255 = i32_255.trunc(ctx.getInt8Ty())
+///   inspect!(i8_255, content="i8 -1")
+///
+///   let i64_0xFFFF = ctx.getConstInt64(0xFFFF)
+///   let i16_0xFFFF = i64_0xFFFF.trunc(ctx.getInt16Ty())
+///   inspect!(i16_0xFFFF, content="i16 -1")
+///
+///   let i32_12345 = ctx.getConstInt32(12345)
+///   let i16_12345 = i32_12345.trunc(ctx.getInt16Ty())
+///   inspect!(i16_12345, content="i16 12345")
+///
+///   // Test error case: cannot truncate to larger type
+///   let i8_val = ctx.getConstInt8(42)
+///   assert_true!(i8_val.trunc?(ctx.getInt32Ty()) is Err(_))
+/// }
+/// ```
+pub fn ConstantInt::trunc(
+  self : ConstantInt,
+  dst_ty : &IntegerType
+) -> ConstantInt!LLVMValueError {
+  guard self.getType().tryAsIntegerTypeEnum() is Some(src_ty) else {
+    raise TruncCastInstTypeMismatch(self.getType(), dst_ty)
+  }
+  guard src_ty.getBitWidth() > dst_ty.getBitWidth() else {
+    raise TruncCastInstTypeMismatch(src_ty.asTypeClass(), dst_ty)
+  }
+  ConstantInt::new(dst_ty, self.value)
+}
+
+///| Zero extend this ConstantInt to a larger integer type, useful in constant folding.
+///
+/// **Note**: It will raise `ZExtCastInstTypeMismatch` if the source type bit width
+/// is not less than the destination type bit width.
+///
+/// ```moonbit
+/// test "ConstantInt::zext" {
+///   let ctx = LLVMContext::new()
+///
+///   let i8_255 = ctx.getConstInt8(255) // -1 as signed, 255 as unsigned
+///   let i32_255 = i8_255.zext(ctx.getInt32Ty())
+///   inspect!(i32_255, content="i32 255")
+///
+///   let i1_true = ctx.getConstTrue()
+///   let i8_true = i1_true.zext(ctx.getInt8Ty())
+///   inspect!(i8_true, content="i8 1")
+///
+///   let i16_42 = ctx.getConstInt16(42)
+///   let i64_42 = i16_42.zext(ctx.getInt64Ty())
+///   inspect!(i64_42, content="i64 42")
+///
+///   // Test error case: cannot zext to smaller type
+///   let i32_val = ctx.getConstInt32(42)
+///   assert_true!(i32_val.zext?(ctx.getInt8Ty()) is Err(_))
+/// }
+/// ```
+pub fn ConstantInt::zext(
+  self : ConstantInt,
+  dst_ty : &IntegerType
+) -> ConstantInt!LLVMValueError {
+  guard self.getType().tryAsIntegerTypeEnum() is Some(src_ty) else {
+    raise ZExtCastInstTypeMismatch(self.getType(), dst_ty)
+  }
+  guard src_ty.getBitWidth() < dst_ty.getBitWidth() else {
+    raise ZExtCastInstTypeMismatch(src_ty.asTypeClass(), dst_ty)
+  }
+  // Zero extension: treat the value as unsigned
+  let unsigned_value = match src_ty {
+    Int1Type(_) => self.value.reinterpret_as_uint64()
+    Int8Type(_) => self.value.to_byte().to_uint64()
+    Int16Type(_) => self.value.to_int().to_uint16().to_int().to_uint64()
+    Int32Type(_) => self.value.to_int().reinterpret_as_uint().to_uint64()
+    Int64Type(_) => self.value.reinterpret_as_uint64()
+  }
+  ConstantInt::new(dst_ty, unsigned_value.reinterpret_as_int64())
+}
+
+///| Sign extend this ConstantInt to a larger integer type, useful in constant folding.
+///
+/// **Note**: It will raise `SExtCastInstTypeMismatch` if the source type bit width
+/// is not less than the destination type bit width.
+///
+/// ```moonbit
+/// test "ConstantInt::sext" {
+///   let ctx = LLVMContext::new()
+///
+///   let i8_m1 = ctx.getConstInt8(-1)
+///   let i32_m1 = i8_m1.sext(ctx.getInt32Ty())
+///   inspect!(i32_m1, content="i32 -1")
+///
+///   let i1_true = ctx.getConstTrue()
+///   let i8_true = i1_true.sext(ctx.getInt8Ty())
+///   inspect!(i8_true, content="i8 -1")
+///
+///   let i16_42 = ctx.getConstInt16(42)
+///   let i64_42 = i16_42.sext(ctx.getInt64Ty())
+///   inspect!(i64_42, content="i64 42")
+///
+///   // Test error case: cannot sext to smaller type
+///   let i32_val = ctx.getConstInt32(42)
+///   assert_true!(i32_val.sext?(ctx.getInt8Ty()) is Err(_))
+/// }
+/// ```
+pub fn ConstantInt::sext(
+  self : ConstantInt,
+  dst_ty : &IntegerType
+) -> ConstantInt!LLVMValueError {
+  guard self.getType().tryAsIntegerTypeEnum() is Some(src_ty) else {
+    raise SExtCastInstTypeMismatch(self.getType(), dst_ty)
+  }
+  guard src_ty.getBitWidth() < dst_ty.getBitWidth() else {
+    raise SExtCastInstTypeMismatch(src_ty.asTypeClass(), dst_ty)
+  }
+  // Sign extension: need special handling for i1
+  let extended_value = match src_ty {
+    Int1Type(_) => if self.value != 0 { -1L } else { 0L }
+    _ => self.value  // Other types are already properly sign-extended in Int64
+  }
+  ConstantInt::new(dst_ty, extended_value)
+}
+
+///| Convert this ConstantInt to a floating-point type (unsigned interpretation), useful in constant folding.
+///
+/// **Note**: It will raise `UIToFPInstTypeMismatch` if the source is not an integer type.
+///
+/// ```moonbit
+/// test "ConstantInt::uitofp" {
+///   let ctx = LLVMContext::new()
+///
+///   let i32_255 = ctx.getConstInt32(255)
+///   let f32_255 = i32_255.uitofp(ctx.getFloatTy())
+///   assert_eq!(f32_255.getValue(), 255.0)
+///
+///   let i8_m1 = ctx.getConstInt8(-1) // 255 as unsigned
+///   let f64_255 = i8_m1.uitofp(ctx.getDoubleTy())
+///   assert_eq!(f64_255.getValue(), 255.0)
+///
+///   let i64_0 = ctx.getConstInt64(0)
+///   let f32_0 = i64_0.uitofp(ctx.getFloatTy())
+///   assert_eq!(f32_0.getValue(), 0.0)
+/// }
+/// ```
+pub fn ConstantInt::uitofp(
+  self : ConstantInt,
+  dst_ty : &FPType
+) -> ConstantFP!LLVMValueError {
+  guard self.getType().tryAsIntegerTypeEnum() is Some(src_ty) else {
+    raise UIToFPInstTypeMismatch(self.getType(), dst_ty)
+  }
+  // Convert unsigned integer to floating point
+  let unsigned_value = match src_ty {
+    Int1Type(_) => self.value.reinterpret_as_uint64()
+    Int8Type(_) => self.value.to_byte().to_uint64()
+    Int16Type(_) => self.value.to_int().to_uint16().to_int().to_uint64()
+    Int32Type(_) => self.value.to_int().reinterpret_as_uint().to_uint64()
+    Int64Type(_) => self.value.reinterpret_as_uint64()
+  }
+  let fp_value = unsigned_value.to_double()
+  ConstantFP::new(dst_ty, fp_value)
+}
+
+///| Convert this ConstantInt to a floating-point type (signed interpretation), useful in constant folding.
+///
+/// **Note**: It will raise `SIToFPInstTypeMismatch` if the source is not an integer type.
+///
+/// ```moonbit
+/// test "ConstantInt::sitofp" {
+///   let ctx = LLVMContext::new()
+///
+///   let i32_m42 = ctx.getConstInt32(-42)
+///   let f32_m42 = i32_m42.sitofp(ctx.getFloatTy())
+///   assert_eq!(f32_m42.getValue(), -42.0)
+///
+///   let i8_127 = ctx.getConstInt8(127)
+///   let f64_127 = i8_127.sitofp(ctx.getDoubleTy())
+///   assert_eq!(f64_127.getValue(), 127.0)
+///
+///   let i64_0 = ctx.getConstInt64(0)
+///   let f32_0 = i64_0.sitofp(ctx.getFloatTy())
+///   assert_eq!(f32_0.getValue(), 0.0)
+/// }
+/// ```
+pub fn ConstantInt::sitofp(
+  self : ConstantInt,
+  dst_ty : &FPType
+) -> ConstantFP!LLVMValueError {
+  guard self.getType().tryAsIntegerTypeEnum() is Some(_) else {
+    raise SIToFPInstTypeMismatch(self.getType(), dst_ty)
+  }
+  // Convert signed integer to floating point
+  let fp_value = self.value.to_double()
+  ConstantFP::new(dst_ty, fp_value)
+}
+
+///| Convert this ConstantInt to a pointer type, useful in constant folding.
+///
+/// **Note**: It will raise `IntToPtrCastInstTypeMismatch` if the source is not an integer type.
+/// For constant folding, this always returns a null pointer since we cannot create
+/// meaningful pointer constants from integer values at compile time.
+///
+/// ```moonbit
+/// test "ConstantInt::inttoptr" {
+///   let ctx = LLVMContext::new()
+///
+///   let i64_0 = ctx.getConstInt64(0)
+///   let null_ptr = i64_0.inttoptr()
+///   inspect!(null_ptr, content="ptr null")
+///
+///   let i32_42 = ctx.getConstInt32(42)
+///   let ptr_42 = i32_42.inttoptr()
+///   inspect!(ptr_42, content="ptr null") // Still null in constant folding
+/// }
+/// ```
+pub fn ConstantInt::inttoptr(
+  self : ConstantInt
+) -> ConstantPointerNull!LLVMValueError {
+  guard self.getType().tryAsIntegerTypeEnum() is Some(_) else {
+    raise IntToPtrCastInstTypeMismatch(self.getType())
+  }
+  let ctx = self.getType().getContext()
+  let ptr_ty = ctx.getPtrTy()
+  ConstantPointerNull::new(ptr_ty)
+}
+
+///| Bitcast this ConstantInt to another primitive type of the same bit width, useful in constant folding.
+///
+/// **Note**: It will raise `BitCastInstTypeMismatch` if the types have different bit widths
+/// or if the cast is invalid. It will raise `BitCastOnlyAcceptPrimitiveTypes` if the source
+/// is not a primitive type.
+///
+/// ```moonbit
+/// test "ConstantInt::bitcast" {
+///   let ctx = LLVMContext::new()
+///
+///   // Test i32 to f32 bitcast
+///   let i32_val = ctx.getConstInt32(0x40000000) // 2.0 in float
+///   let f32_val = i32_val.bitcast(ctx.getFloatTy())
+///   guard f32_val.asConstantEnum() is ConstantFP(f32_val)
+///   assert_eq!(f32_val.getValue(), 2.0)
+///
+///   // Test i64 to f64 bitcast
+///   let i64_val = ctx.getConstInt64(0x4000000000000000L) // 2.0 in double
+///   let f64_val = i64_val.bitcast(ctx.getDoubleTy())
+///   guard f64_val.asConstantEnum() is ConstantFP(f64_val)
+///   assert_eq!(f64_val.getValue(), 2.0)
+///
+///   // Test error case: different bit widths
+///   let i8_val = ctx.getConstInt8(42)
+///   assert_true!(i8_val.bitcast?(ctx.getFloatTy()) is Err(_))
+/// }
+/// ```
+pub fn ConstantInt::bitcast(
+  self : ConstantInt,
+  dst_ty : &PrimitiveType
+) -> &Constant!LLVMValueError {
+  let src_ty = self.getType()
+  guard src_ty != dst_ty else {
+    raise BitCastInstTypeMismatch(src_ty, dst_ty)
+  }
+  guard src_ty.tryAsPrimitiveTypeEnum() is Some(src_ty_prim) else {
+    raise BitCastOnlyAcceptPrimitiveTypes(src_ty)
+  }
+  guard src_ty_prim.getBitWidth() == dst_ty.getBitWidth() else {
+    raise BitCastInstTypeMismatch(src_ty, dst_ty)
+  }
+  
+  match dst_ty.asPrimitiveTypeEnum() {
+    // Integer to integer
+    Int1Type(_) | Int8Type(_) | Int16Type(_) | Int32Type(_) | Int64Type(_) => {
+      ConstantInt::new(dst_ty, self.value) as &Constant
+    }
+    // Integer to floating point
+    FloatType(_) => {
+      // For i32 to f32, we need to treat the 32-bit value as float bits
+      let i32_bits = self.value.to_int().reinterpret_as_uint()
+      let f32_value = i32_bits.reinterpret_as_float().to_double()
+      ConstantFP::new(dst_ty, f32_value)
+    }
+    DoubleType(_) => {
+      let fp_bits = self.value.reinterpret_as_uint64()
+      let fp_value = fp_bits.reinterpret_as_double()
+      ConstantFP::new(dst_ty, fp_value)
+    }
+    HalfType(_) | BFloatType(_) | FP128Type(_) => {
+      // For other FP types, we also interpret as double for now
+      let fp_bits = self.value.reinterpret_as_uint64()
+      let fp_value = fp_bits.reinterpret_as_double()
+      ConstantFP::new(dst_ty, fp_value)
+    }
+  }
+}
+
 ///|
 pub impl Value for ConstantInt with getValueBase(self) {
   self.base
@@ -1235,7 +1536,7 @@ pub impl Constant for ConstantPointerNull with valstr(_) {
 }
 
 ///|
-impl Show for ConstantPointerNull with output(self, logger) {
+pub impl Show for ConstantPointerNull with output(self, logger) {
   logger.write_string("\{self.getType()} null")
 }
 
