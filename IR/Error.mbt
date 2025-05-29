@@ -24,6 +24,19 @@ type! LLVMValueError {
   InValidPredicateForCmpInst(Predicate, &Type)
   DivisionByZeroError
   TypeCouldNotBeCreatedZeroValue(&Type)
+  TruncCastInstTypeMismatch(&Type, &Type)
+  ZExtCastInstTypeMismatch(&Type, &Type)
+  SExtCastInstTypeMismatch(&Type, &Type)
+  FPTruncCastInstTypeMismatch(&Type, &Type)
+  FPExtCastInstTypeMismatch(&Type, &Type)
+  UIToFPInstTypeMismatch(&Type, &Type)
+  FPToUIInstTypeMismatch(&Type, &Type)
+  SIToFPInstTypeMismatch(&Type, &Type)
+  FPToSIInstTypeMismatch(&Type, &Type)
+  PtrToIntCastInstTypeMismatch(&Type)
+  IntToPtrCastInstTypeMismatch(&Type)
+  BitCastInstTypeMismatch(&Type, &Type)
+  BitCastOnlyAcceptPrimitiveTypes(&Type)
 } derive(Show)
 
 ///|

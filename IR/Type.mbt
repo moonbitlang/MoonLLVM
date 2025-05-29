@@ -147,6 +147,9 @@ pub trait Type: Show + Hash {
   getScalarType(Self) -> &Type = _
   tryAsFPTypeEnum(Self) -> FPTypeEnum? = _
   tryAsIntegerTypeEnum(Self) -> IntegerTypeEnum? = _
+  tryAsPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum? = _
+  tryAsAggregateTypeEnum(Self) -> AggregateTypeEnum? = _
+  tryAsAbstractTypeEnum(Self) -> AbstractTypeEnum? = _
 }
 
 ///|
@@ -348,6 +351,43 @@ impl Type with tryAsIntegerTypeEnum(self) -> IntegerTypeEnum? {
   }
 }
 
+impl Type with tryAsPrimitiveTypeEnum(self) -> PrimitiveTypeEnum? {
+  match self.asTypeEnum() {
+    HalfType(half) => Some(HalfType(half))
+    BFloatType(bfloat) => Some(BFloatType(bfloat))
+    FloatType(float) => Some(FloatType(float))
+    DoubleType(double) => Some(DoubleType(double))
+    FP128Type(fp128) => Some(FP128Type(fp128))
+    Int1Type(int1) => Some(Int1Type(int1))
+    Int8Type(int8) => Some(Int8Type(int8))
+    Int16Type(int16) => Some(Int16Type(int16))
+    Int32Type(int32) => Some(Int32Type(int32))
+    Int64Type(int64) => Some(Int64Type(int64))
+    _ => None
+  }
+}
+
+impl Type with tryAsAggregateTypeEnum(self) -> AggregateTypeEnum? {
+  match self.asTypeEnum() {
+    StructType(sty) => Some(StructType(sty))
+    ArrayType(arr) => Some(ArrayType(arr))
+    FixedVectorType(vec) => Some(FixedVectorType(vec))
+    ScalableVectorType(vec) => Some(ScalableVectorType(vec))
+    _ => None
+  }
+}
+
+impl Type with tryAsAbstractTypeEnum(self) -> AbstractTypeEnum? {
+  match self.asTypeEnum() {
+    VoidType(void) => Some(VoidType(void))
+    LabelType(label) => Some(LabelType(label))
+    MetadataType(metadata) => Some(MetadataType(metadata))
+    TokenType(token) => Some(TokenType(token))
+    FunctionType(func) => Some(FunctionType(func))
+    _ => None
+  }
+}
+
 // pub Type with print(self, logger: &Logger, isForDebug~ = false, noDetails~ = false)
 // pub Type with dump(self)
 
@@ -377,14 +417,14 @@ impl Type with tryAsIntegerTypeEnum(self) -> IntegerTypeEnum? {
 /// ```
 pub trait IntegerType: Type {
   asIntegerTypeEnum(Self) -> IntegerTypeEnum
-  getNumBits(Self) -> UInt = _
+  getBitWidth(Self) -> UInt = _
   getBitMask(Self) -> UInt64 = _
   getSignBit(Self) -> UInt64 = _
   getExtendedType(Self) -> &IntegerType? = _
 }
 
 ///|
-impl IntegerType with getNumBits(self) -> UInt {
+impl IntegerType with getBitWidth(self) -> UInt {
   match self.asIntegerTypeEnum() {
     Int1Type(_) => 1
     Int8Type(_) => 8
@@ -435,7 +475,17 @@ pub enum IntegerTypeEnum {
   Int16Type(Int16Type)
   Int32Type(Int32Type)
   Int64Type(Int64Type)
-} derive(Eq, Show)
+} derive(Eq, Hash, Show)
+
+pub fn IntegerTypeEnum::asTypeClass(self : IntegerTypeEnum) -> &Type {
+  match self {
+    Int1Type(t) => (t : &Type)
+    Int8Type(t) => t
+    Int16Type(t) => t
+    Int32Type(t) => t
+    Int64Type(t) => t
+  }
+}
 
 ///|
 pub fn IntegerTypeEnum::getBitWidth(self : IntegerTypeEnum) -> UInt {
@@ -458,6 +508,8 @@ pub trait FPType: Type {
 
   /// Return the width of the mantissa of this type. 
   getFPMantissaWidth(Self) -> UInt = _
+
+  getBitWidth(Self) -> UInt = _
 }
 
 ///|
@@ -469,15 +521,43 @@ pub enum FPTypeEnum {
   FP128Type(FP128Type)
 } derive(Eq, Show)
 
-///|
-impl FPType with getFPMantissaWidth(self) {
-  match self.asFPTypeEnum() {
+pub fn FPTypeEnum::asTypeClass(self : FPTypeEnum) -> &Type {
+  match self {
+    HalfType(t) => (t : &Type)
+    BFloatType(t) => t
+    FloatType(t) => t
+    DoubleType(t) => t
+    FP128Type(t) => t
+  }
+}
+
+pub fn FPTypeEnum::getBitWidth(self: FPTypeEnum) -> UInt {
+  match self {
+    HalfType(_) => 16
+    BFloatType(_) => 16
+    FloatType(_) => 32
+    DoubleType(_) => 64
+    FP128Type(_) => 128
+  }
+}
+
+pub fn FPTypeEnum::getFPMantissaWidth(self: FPTypeEnum) -> UInt {
+  match self {
     HalfType(_) => 11
     BFloatType(_) => 8
     FloatType(_) => 24
     DoubleType(_) => 53
     FP128Type(_) => 113
   }
+}
+
+///|
+impl FPType with getFPMantissaWidth(self) {
+  self.asFPTypeEnum().getFPMantissaWidth()
+}
+
+impl FPType with getBitWidth(self) -> UInt {
+  self.asFPTypeEnum().getBitWidth()
 }
 
 // ====================================================================
@@ -769,7 +849,7 @@ pub impl FPType for FP128Type with asFPTypeEnum(self) -> FPTypeEnum {
 
 ///|
 pub impl PrimitiveType for FP128Type with asPrimitiveTypeEnum(self) -> PrimitiveTypeEnum {
-  PrimitiveTypeEnum::FP128Type(self)
+  FP128Type(self)
 }
 
 // ====================================================================
@@ -814,12 +894,12 @@ pub impl Type for Int1Type with getTypeBase(self) -> TypeBase {
 
 ///|
 pub impl IntegerType for Int1Type with asIntegerTypeEnum(self) -> IntegerTypeEnum {
-  IntegerTypeEnum::Int1Type(self)
+  Int1Type(self)
 }
 
 ///|
 pub impl PrimitiveType for Int1Type with asPrimitiveTypeEnum(self) -> PrimitiveTypeEnum {
-  PrimitiveTypeEnum::Int1Type(self)
+  Int1Type(self)
 }
 
 // ====================================================================
@@ -869,12 +949,12 @@ pub impl Type for Int8Type with getTypeBase(self) -> TypeBase {
 
 ///|
 pub impl IntegerType for Int8Type with asIntegerTypeEnum(self) -> IntegerTypeEnum {
-  IntegerTypeEnum::Int8Type(self)
+  Int8Type(self)
 }
 
 ///|
 pub impl PrimitiveType for Int8Type with asPrimitiveTypeEnum(self) -> PrimitiveTypeEnum {
-  PrimitiveTypeEnum::Int8Type(self)
+  Int8Type(self)
 }
 
 // ====================================================================
@@ -924,12 +1004,12 @@ pub impl Type for Int16Type with getTypeBase(self) -> TypeBase {
 
 ///|
 pub impl IntegerType for Int16Type with asIntegerTypeEnum(self) -> IntegerTypeEnum {
-  IntegerTypeEnum::Int16Type(self)
+  Int16Type(self)
 }
 
 ///|
 pub impl PrimitiveType for Int16Type with asPrimitiveTypeEnum(self) -> PrimitiveTypeEnum {
-  PrimitiveTypeEnum::Int16Type(self)
+  Int16Type(self)
 }
 
 // ====================================================================
@@ -979,12 +1059,12 @@ pub impl Type for Int32Type with getTypeBase(self) -> TypeBase {
 
 ///|
 pub impl IntegerType for Int32Type with asIntegerTypeEnum(self) -> IntegerTypeEnum {
-  IntegerTypeEnum::Int32Type(self)
+  Int32Type(self)
 }
 
 ///|
 pub impl PrimitiveType for Int32Type with asPrimitiveTypeEnum(self) -> PrimitiveTypeEnum {
-  PrimitiveTypeEnum::Int32Type(self)
+  Int32Type(self)
 }
 
 // ====================================================================
@@ -1029,12 +1109,12 @@ pub impl Type for Int64Type with getTypeBase(self) -> TypeBase {
 
 ///|
 pub impl IntegerType for Int64Type with asIntegerTypeEnum(self) -> IntegerTypeEnum {
-  IntegerTypeEnum::Int64Type(self)
+  Int64Type(self)
 }
 
 ///|
 pub impl PrimitiveType for Int64Type with asPrimitiveTypeEnum(self) -> PrimitiveTypeEnum {
-  PrimitiveTypeEnum::Int64Type(self)
+  Int64Type(self)
 }
 
 // ====================================================================
@@ -1073,7 +1153,7 @@ pub impl Type for VoidType with getTypeBase(self) -> TypeBase {
 
 ///|
 pub impl Type for VoidType with asTypeEnum(self) -> TypeEnum {
-  TypeEnum::VoidType(self)
+  VoidType(self)
 }
 
 ///|
@@ -1122,7 +1202,7 @@ pub impl Type for LabelType with getTypeBase(self) -> TypeBase {
 
 ///|
 pub impl AbstractType for LabelType with asAbstractTypeEnum(self) -> AbstractTypeEnum {
-  AbstractTypeEnum::LabelType(self)
+  LabelType(self)
 }
 
 // ====================================================================
@@ -1167,7 +1247,7 @@ pub impl Type for MetadataType with getTypeBase(self) -> TypeBase {
 
 ///|
 pub impl AbstractType for MetadataType with asAbstractTypeEnum(self) -> AbstractTypeEnum {
-  AbstractTypeEnum::MetadataType(self)
+  MetadataType(self)
 }
 
 // ====================================================================

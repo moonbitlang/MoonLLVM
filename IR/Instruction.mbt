@@ -638,171 +638,232 @@ pub struct CastInst {
   opcode : CastOps
 }
 
-///|
-fn CastInst::new(
-  opcode : CastOps,
+fn CastInst::newTrunc(
   src_val : &Value,
-  dst_ty : &Type,
+  dst_ty : &IntegerType,
   parent : Function,
   name : String
-) -> CastInst {
-  let src_ty = src_val.getType()
-
-  // 类型检查：确保opcode与源类型和目标类型兼容
-  match opcode {
-    // 整数截断：大整数 -> 小整数
-    Trunc => {
-      guard src_ty.tryAsIntegerTypeEnum() is Some(src_int) &&
-        dst_ty.tryAsIntegerTypeEnum() is Some(dst_int) else {
-        unreachable(
-          "Trunc requires both source and destination to be integer types",
-        )
-      }
-      guard src_int.getBitWidth() > dst_int.getBitWidth() else {
-        unreachable(
-          "Trunc requires source bit width to be larger than destination bit width",
-        )
-      }
-
-    }
-
-    // 零扩展：小整数 -> 大整数
-    ZExt => {
-      guard src_ty.tryAsIntegerTypeEnum() is Some(src_int) &&
-        dst_ty.tryAsIntegerTypeEnum() is Some(dst_int) else {
-        unreachable(
-          "ZExt requires both source and destination to be integer types",
-        )
-      }
-      guard src_int.getBitWidth() < dst_int.getBitWidth() else {
-        unreachable(
-          "ZExt requires source bit width to be smaller than destination bit width",
-        )
-      }
-
-    }
-
-    // 符号扩展：小整数 -> 大整数
-    SExt => {
-      guard src_ty.tryAsIntegerTypeEnum() is Some(src_int) &&
-        dst_ty.tryAsIntegerTypeEnum() is Some(dst_int) else {
-        unreachable(
-          "SExt requires both source and destination to be integer types",
-        )
-      }
-      guard src_int.getBitWidth() < dst_int.getBitWidth() else {
-        unreachable(
-          "SExt requires source bit width to be smaller than destination bit width",
-        )
-      }
-
-    }
-
-    // 浮点截断：大浮点 -> 小浮点
-    FPTrunc => {
-      guard src_ty.tryAsFPTypeEnum() is Some(_) &&
-        dst_ty.tryAsFPTypeEnum() is Some(_) else {
-        unreachable(
-          "FPTrunc requires both source and destination to be floating point types",
-        )
-      }
-      // 注意：这里假设浮点类型有类似的比较方法，如果没有则需要添加
-    }
-
-    // 浮点扩展：小浮点 -> 大浮点
-    FPExt => {
-      guard src_ty.tryAsFPTypeEnum() is Some(_) &&
-        dst_ty.tryAsFPTypeEnum() is Some(_) else {
-        unreachable(
-          "FPExt requires both source and destination to be floating point types",
-        )
-      }
-
-    }
-
-    // 无符号整数转浮点
-    UIToFP => {
-      guard src_ty.tryAsIntegerTypeEnum() is Some(_) &&
-        dst_ty.tryAsFPTypeEnum() is Some(_) else {
-        unreachable(
-          "UIToFP requires source to be integer type and destination to be floating point type",
-        )
-      }
-
-    }
-
-    // 有符号整数转浮点
-    SIToFP => {
-      guard src_ty.tryAsIntegerTypeEnum() is Some(_) &&
-        dst_ty.tryAsFPTypeEnum() is Some(_) else {
-        unreachable(
-          "SIToFP requires source to be integer type and destination to be floating point type",
-        )
-      }
-
-    }
-
-    // 浮点转无符号整数
-    FPToUI => {
-      guard src_ty.tryAsFPTypeEnum() is Some(_) &&
-        dst_ty.tryAsIntegerTypeEnum() is Some(_) else {
-        unreachable(
-          "FPToUI requires source to be floating point type and destination to be integer type",
-        )
-      }
-
-    }
-
-    // 浮点转有符号整数
-    FPToSI => {
-      guard src_ty.tryAsFPTypeEnum() is Some(_) &&
-        dst_ty.tryAsIntegerTypeEnum() is Some(_) else {
-        unreachable(
-          "FPToSI requires source to be floating point type and destination to be integer type",
-        )
-      }
-
-    }
-
-    // 指针转整数
-    PtrToInt => {
-      guard src_ty.asTypeEnum() is PointerType(_) &&
-        dst_ty.tryAsIntegerTypeEnum() is Some(_) else {
-        unreachable(
-          "PtrToInt requires source to be pointer type and destination to be integer type",
-        )
-      }
-
-    }
-
-    // 整数转指针
-    IntToPtr => {
-      guard src_ty.tryAsIntegerTypeEnum() is Some(_) &&
-        dst_ty.asTypeEnum() is PointerType(_) else {
-        unreachable(
-          "IntToPtr requires source to be integer type and destination to be pointer type",
-        )
-      }
-
-    }
-
-    // 位转换：要求位宽相同
-    BitCast => {
-      // BitCast要求源类型和目标类型的位宽相同，但类型不同
-      guard src_ty != dst_ty else {
-        unreachable(
-          "BitCast requires source and destination types to be different",
-        )
-      }
-      // 这里可能需要添加更多的位宽检查，取决于Type接口是否提供相关方法
-    }
+) -> CastInst!LLVMValueError {
+  guard src_val.getType().tryAsIntegerTypeEnum() is Some(src_ty) else {
+    raise TruncCastInstTypeMismatch(src_val.getType(), dst_ty)
+  }
+  guard src_ty.getBitWidth() > dst_ty.getBitWidth() else {
+    raise TruncCastInstTypeMismatch(src_ty.asTypeClass(), dst_ty)
   }
   let vty = dst_ty
   let base = ValueBase::new(vty)
   let user_base = UserBase::new(name)
   let inst_base = InstBase::new(parent)
   user_base.operands.push(src_val)
-  CastInst::{ base, user_base, inst_base, opcode }
+  CastInst::{ base, user_base, inst_base, opcode: Trunc }
+}
+
+fn CastInst::newZExt(
+  src_val : &Value,
+  dst_ty : &IntegerType,
+  parent : Function,
+  name : String
+) -> CastInst!LLVMValueError {
+  guard src_val.getType().tryAsIntegerTypeEnum() is Some(src_ty) else {
+    raise ZExtCastInstTypeMismatch(src_val.getType(), dst_ty)
+  }
+  guard src_ty.getBitWidth() < dst_ty.getBitWidth() else {
+    raise ZExtCastInstTypeMismatch(src_ty.asTypeClass(), dst_ty)
+  }
+  let vty = dst_ty
+  let base = ValueBase::new(vty)
+  let user_base = UserBase::new(name)
+  let inst_base = InstBase::new(parent)
+  user_base.operands.push(src_val)
+  CastInst::{ base, user_base, inst_base, opcode: ZExt }
+}
+
+fn CastInst::newSExt(
+  src_val : &Value,
+  dst_ty : &IntegerType,
+  parent : Function,
+  name : String
+) -> CastInst!LLVMValueError {
+  guard src_val.getType().tryAsIntegerTypeEnum() is Some(src_ty) else {
+    raise SExtCastInstTypeMismatch(src_val.getType(), dst_ty)
+  }
+  guard src_ty.getBitWidth() < dst_ty.getBitWidth() else {
+    raise SExtCastInstTypeMismatch(src_ty.asTypeClass(), dst_ty)
+  }
+  let vty = dst_ty
+  let base = ValueBase::new(vty)
+  let user_base = UserBase::new(name)
+  let inst_base = InstBase::new(parent)
+  user_base.operands.push(src_val)
+  CastInst::{ base, user_base, inst_base, opcode: SExt }
+}
+
+fn CastInst::newFPTrunc(
+  src_val : &Value,
+  dst_ty : &FPType,
+  parent : Function,
+  name : String
+) -> CastInst!LLVMValueError {
+  guard src_val.getType().tryAsFPTypeEnum() is Some(src_ty) else {
+    raise FPTruncCastInstTypeMismatch(src_val.getType(), dst_ty)
+  }
+  guard src_ty.getBitWidth() > dst_ty.getBitWidth() else {
+    raise FPTruncCastInstTypeMismatch(src_ty.asTypeClass(), dst_ty)
+  }
+  let vty = dst_ty
+  let base = ValueBase::new(vty)
+  let user_base = UserBase::new(name)
+  let inst_base = InstBase::new(parent)
+  user_base.operands.push(src_val)
+  CastInst::{ base, user_base, inst_base, opcode: FPTrunc }
+}
+
+fn CastInst::newFPExt(
+  src_val : &Value,
+  dst_ty : &FPType,
+  parent : Function,
+  name : String
+) -> CastInst!LLVMValueError {
+  guard src_val.getType().tryAsFPTypeEnum() is Some(src_ty) else {
+    raise FPExtCastInstTypeMismatch(src_val.getType(), dst_ty)
+  }
+  guard src_ty.getBitWidth() < dst_ty.getBitWidth() else {
+    raise FPExtCastInstTypeMismatch(src_ty.asTypeClass(), dst_ty)
+  }
+  let vty = dst_ty
+  let base = ValueBase::new(vty)
+  let user_base = UserBase::new(name)
+  let inst_base = InstBase::new(parent)
+  user_base.operands.push(src_val)
+  CastInst::{ base, user_base, inst_base, opcode: FPExt }
+}
+
+fn CastInst::newUIToFP(
+  src_val : &Value,
+  dst_ty : &FPType,
+  parent : Function,
+  name : String
+) -> CastInst!LLVMValueError {
+  guard src_val.getType().tryAsIntegerTypeEnum() is Some(_) else {
+    raise UIToFPInstTypeMismatch(src_val.getType(), dst_ty)
+  }
+  let vty = dst_ty
+  let base = ValueBase::new(vty)
+  let user_base = UserBase::new(name)
+  let inst_base = InstBase::new(parent)
+  user_base.operands.push(src_val)
+  CastInst::{ base, user_base, inst_base, opcode: UIToFP }
+}
+
+fn CastInst::newFPToUI(
+  src_val : &Value,
+  dst_ty : &IntegerType,
+  parent : Function,
+  name : String
+) -> CastInst!LLVMValueError {
+  guard src_val.getType().tryAsFPTypeEnum() is Some(_) else {
+    raise FPToUIInstTypeMismatch(src_val.getType(), dst_ty)
+  }
+  let vty = dst_ty
+  let base = ValueBase::new(vty)
+  let user_base = UserBase::new(name)
+  let inst_base = InstBase::new(parent)
+  user_base.operands.push(src_val)
+  CastInst::{ base, user_base, inst_base, opcode: FPToUI }
+}
+
+fn CastInst::newSIToFP(
+  src_val : &Value,
+  dst_ty : &FPType,
+  parent : Function,
+  name : String
+) -> CastInst!LLVMValueError {
+  guard src_val.getType().tryAsIntegerTypeEnum() is Some(_) else {
+    raise SIToFPInstTypeMismatch(src_val.getType(), dst_ty)
+  }
+  let vty = dst_ty
+  let base = ValueBase::new(vty)
+  let user_base = UserBase::new(name)
+  let inst_base = InstBase::new(parent)
+  user_base.operands.push(src_val)
+  CastInst::{ base, user_base, inst_base, opcode: SIToFP }
+}
+
+fn CastInst::newFPToSI(
+  src_val : &Value,
+  dst_ty : &IntegerType,
+  parent : Function,
+  name : String
+) -> CastInst!LLVMValueError {
+  guard src_val.getType().tryAsFPTypeEnum() is Some(_) else {
+    raise FPToSIInstTypeMismatch(src_val.getType(), dst_ty)
+  }
+  let vty = dst_ty
+  let base = ValueBase::new(vty)
+  let user_base = UserBase::new(name)
+  let inst_base = InstBase::new(parent)
+  user_base.operands.push(src_val)
+  CastInst::{ base, user_base, inst_base, opcode: FPToSI }
+}
+
+fn CastInst::newPtrToInt(
+  src_val : &Value,
+  dst_ty : &IntegerType,
+  parent : Function,
+  name : String
+) -> CastInst!LLVMValueError {
+  guard src_val.getType().asTypeEnum() is PointerType(_) else {
+    raise PtrToIntCastInstTypeMismatch(src_val.getType())
+  }
+  let vty = dst_ty
+  let base = ValueBase::new(vty)
+  let user_base = UserBase::new(name)
+  let inst_base = InstBase::new(parent)
+  user_base.operands.push(src_val)
+  CastInst::{ base, user_base, inst_base, opcode: PtrToInt }
+}
+
+fn CastInst::newIntToPtr(
+  src_val : &Value,
+  parent : Function,
+  name : String
+) -> CastInst!LLVMValueError {
+  guard src_val.getType().tryAsIntegerTypeEnum() is Some(_) else {
+    raise IntToPtrCastInstTypeMismatch(src_val.getType())
+  }
+  let vty = src_val.getContext().getPtrTy()
+  let base = ValueBase::new(vty)
+  let user_base = UserBase::new(name)
+  let inst_base = InstBase::new(parent)
+  user_base.operands.push(src_val)
+  CastInst::{ base, user_base, inst_base, opcode: IntToPtr }
+}
+
+///|
+/// REVIEW: Currently bitcast is only allowed between primitive types.
+/// while in real cpp llvm, bitcast can be used to cast between aggregate types.
+fn CastInst::newBitCast(
+  src_val : &Value,
+  dst_ty : &PrimitiveType,
+  parent : Function,
+  name : String
+) -> CastInst!LLVMValueError {
+  let src_ty = src_val.getType()
+  guard src_ty != dst_ty else {
+    raise BitCastInstTypeMismatch(src_ty, dst_ty)
+  }
+  guard src_ty.tryAsPrimitiveTypeEnum() is Some(src_ty_prim) else {
+    raise BitCastOnlyAcceptPrimitiveTypes(src_ty)
+  }
+  guard src_ty_prim.getBitWidth() == dst_ty.getBitWidth() else {
+    raise BitCastInstTypeMismatch(src_ty, dst_ty)
+  }
+  let vty = dst_ty
+  let base = ValueBase::new(vty)
+  let user_base = UserBase::new(name)
+  let inst_base = InstBase::new(parent)
+  user_base.operands.push(src_val)
+  CastInst::{ base, user_base, inst_base, opcode: BitCast }
 }
 
 ///|
