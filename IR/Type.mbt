@@ -351,6 +351,7 @@ impl Type with tryAsIntegerTypeEnum(self) -> IntegerTypeEnum? {
   }
 }
 
+///|
 impl Type with tryAsPrimitiveTypeEnum(self) -> PrimitiveTypeEnum? {
   match self.asTypeEnum() {
     HalfType(half) => Some(HalfType(half))
@@ -367,6 +368,7 @@ impl Type with tryAsPrimitiveTypeEnum(self) -> PrimitiveTypeEnum? {
   }
 }
 
+///|
 impl Type with tryAsAggregateTypeEnum(self) -> AggregateTypeEnum? {
   match self.asTypeEnum() {
     StructType(sty) => Some(StructType(sty))
@@ -377,6 +379,7 @@ impl Type with tryAsAggregateTypeEnum(self) -> AggregateTypeEnum? {
   }
 }
 
+///|
 impl Type with tryAsAbstractTypeEnum(self) -> AbstractTypeEnum? {
   match self.asTypeEnum() {
     VoidType(void) => Some(VoidType(void))
@@ -477,6 +480,7 @@ pub enum IntegerTypeEnum {
   Int64Type(Int64Type)
 } derive(Eq, Hash, Show)
 
+///|
 pub fn IntegerTypeEnum::asTypeClass(self : IntegerTypeEnum) -> &Type {
   match self {
     Int1Type(t) => (t : &Type)
@@ -508,7 +512,6 @@ pub trait FPType: Type {
 
   /// Return the width of the mantissa of this type. 
   getFPMantissaWidth(Self) -> UInt = _
-
   getBitWidth(Self) -> UInt = _
 }
 
@@ -521,6 +524,7 @@ pub enum FPTypeEnum {
   FP128Type(FP128Type)
 } derive(Eq, Show)
 
+///|
 pub fn FPTypeEnum::asTypeClass(self : FPTypeEnum) -> &Type {
   match self {
     HalfType(t) => (t : &Type)
@@ -531,7 +535,8 @@ pub fn FPTypeEnum::asTypeClass(self : FPTypeEnum) -> &Type {
   }
 }
 
-pub fn FPTypeEnum::getBitWidth(self: FPTypeEnum) -> UInt {
+///|
+pub fn FPTypeEnum::getBitWidth(self : FPTypeEnum) -> UInt {
   match self {
     HalfType(_) => 16
     BFloatType(_) => 16
@@ -541,7 +546,8 @@ pub fn FPTypeEnum::getBitWidth(self: FPTypeEnum) -> UInt {
   }
 }
 
-pub fn FPTypeEnum::getFPMantissaWidth(self: FPTypeEnum) -> UInt {
+///|
+pub fn FPTypeEnum::getFPMantissaWidth(self : FPTypeEnum) -> UInt {
   match self {
     HalfType(_) => 11
     BFloatType(_) => 8
@@ -556,6 +562,7 @@ impl FPType with getFPMantissaWidth(self) {
   self.asFPTypeEnum().getFPMantissaWidth()
 }
 
+///|
 impl FPType with getBitWidth(self) -> UInt {
   self.asFPTypeEnum().getBitWidth()
 }

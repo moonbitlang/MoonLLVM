@@ -638,6 +638,7 @@ pub struct CastInst {
   opcode : CastOps
 }
 
+///|
 fn CastInst::newTrunc(
   src_val : &Value,
   dst_ty : &IntegerType,
@@ -658,6 +659,7 @@ fn CastInst::newTrunc(
   CastInst::{ base, user_base, inst_base, opcode: Trunc }
 }
 
+///|
 fn CastInst::newZExt(
   src_val : &Value,
   dst_ty : &IntegerType,
@@ -678,6 +680,7 @@ fn CastInst::newZExt(
   CastInst::{ base, user_base, inst_base, opcode: ZExt }
 }
 
+///|
 fn CastInst::newSExt(
   src_val : &Value,
   dst_ty : &IntegerType,
@@ -698,6 +701,7 @@ fn CastInst::newSExt(
   CastInst::{ base, user_base, inst_base, opcode: SExt }
 }
 
+///|
 fn CastInst::newFPTrunc(
   src_val : &Value,
   dst_ty : &FPType,
@@ -718,6 +722,7 @@ fn CastInst::newFPTrunc(
   CastInst::{ base, user_base, inst_base, opcode: FPTrunc }
 }
 
+///|
 fn CastInst::newFPExt(
   src_val : &Value,
   dst_ty : &FPType,
@@ -738,6 +743,7 @@ fn CastInst::newFPExt(
   CastInst::{ base, user_base, inst_base, opcode: FPExt }
 }
 
+///|
 fn CastInst::newUIToFP(
   src_val : &Value,
   dst_ty : &FPType,
@@ -755,6 +761,7 @@ fn CastInst::newUIToFP(
   CastInst::{ base, user_base, inst_base, opcode: UIToFP }
 }
 
+///|
 fn CastInst::newFPToUI(
   src_val : &Value,
   dst_ty : &IntegerType,
@@ -772,6 +779,7 @@ fn CastInst::newFPToUI(
   CastInst::{ base, user_base, inst_base, opcode: FPToUI }
 }
 
+///|
 fn CastInst::newSIToFP(
   src_val : &Value,
   dst_ty : &FPType,
@@ -789,6 +797,7 @@ fn CastInst::newSIToFP(
   CastInst::{ base, user_base, inst_base, opcode: SIToFP }
 }
 
+///|
 fn CastInst::newFPToSI(
   src_val : &Value,
   dst_ty : &IntegerType,
@@ -806,6 +815,7 @@ fn CastInst::newFPToSI(
   CastInst::{ base, user_base, inst_base, opcode: FPToSI }
 }
 
+///|
 fn CastInst::newPtrToInt(
   src_val : &Value,
   dst_ty : &IntegerType,
@@ -823,6 +833,7 @@ fn CastInst::newPtrToInt(
   CastInst::{ base, user_base, inst_base, opcode: PtrToInt }
 }
 
+///|
 fn CastInst::newIntToPtr(
   src_val : &Value,
   parent : Function,
@@ -849,9 +860,7 @@ fn CastInst::newBitCast(
   name : String
 ) -> CastInst!LLVMValueError {
   let src_ty = src_val.getType()
-  guard src_ty != dst_ty else {
-    raise BitCastInstTypeMismatch(src_ty, dst_ty)
-  }
+  guard src_ty != dst_ty else { raise BitCastInstTypeMismatch(src_ty, dst_ty) }
   guard src_ty.tryAsPrimitiveTypeEnum() is Some(src_ty_prim) else {
     raise BitCastOnlyAcceptPrimitiveTypes(src_ty)
   }
@@ -886,6 +895,7 @@ pub impl User for CastInst with getUserBase(self) {
   self.user_base
 }
 
+///|
 pub impl UnaryInst for CastInst with asUnaryInstEnum(self) {
   CastInst(self)
 }
