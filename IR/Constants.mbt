@@ -894,18 +894,13 @@ fn ConstantFP::new(vty : &Type, value : Double) -> ConstantFP {
 }
 
 ///|
-fn ConstantFP::getValue(self : ConstantFP) -> Double {
+pub fn ConstantFP::getValue(self : ConstantFP) -> Double {
   self.value
 }
 
 ///|
-pub fn ConstantFP::getValueAsDouble(self : ConstantFP) -> Double {
-  self.value.to_float64()
-}
-
-///|
 pub fn[T : Floating] ConstantFP::equals(self : ConstantFP, value : T) -> Bool {
-  self.value.to_float64() == value.to_float64()
+  self.value == value.to_float64()
 }
 
 ///|
@@ -928,11 +923,13 @@ pub fn[T : Floating] ConstantFP::exactlyEquals(
 ///
 ///   let f32_0 = ctx.getConstFloat(0.0)
 ///   let f32_1_5 = ctx.getConstFloat(1.5)
-///   inspect!(f32_0.add(f32_1_5), content="float 0x3FF8000000000000")
+///   let result1 = f32_0.add(f32_1_5)
+///   assert_eq!(result1.getValue(), 1.5)
 ///
 ///   let f64_2_5 = ctx.getConstDouble(2.5)
 ///   let f64_m1_5 = ctx.getConstDouble(-1.5)
-///   inspect!(f64_2_5.add(f64_m1_5), content="double 0x3FF0000000000000")
+///   let result2 = f64_2_5.add(f64_m1_5)
+///   assert_eq!(result2.getValue(), 1.0)
 ///
 ///   assert_true!(f32_0.add?(f64_2_5) is Err(_))
 /// }
@@ -959,11 +956,13 @@ pub fn ConstantFP::add(
 ///
 ///   let f32_0 = ctx.getConstFloat(0.0)
 ///   let f32_1_5 = ctx.getConstFloat(1.5)
-///   inspect!(f32_0.sub(f32_1_5), content="float 0xBFF8000000000000")
+///   let result1 = f32_0.sub(f32_1_5)
+///   assert_eq!(result1.getValue(), -1.5)
 ///
 ///   let f64_2_5 = ctx.getConstDouble(2.5)
 ///   let f64_m1_5 = ctx.getConstDouble(-1.5)
-///   inspect!(f64_2_5.sub(f64_m1_5), content="double 0x4010000000000000")
+///   let result2 = f64_2_5.sub(f64_m1_5)
+///   assert_eq!(result2.getValue(), 4.0)
 ///
 ///   assert_true!(f32_0.sub?(f64_2_5) is Err(_))
 /// }
@@ -990,11 +989,13 @@ pub fn ConstantFP::sub(
 ///
 ///   let f32_0 = ctx.getConstFloat(0.0)
 ///   let f32_1_5 = ctx.getConstFloat(1.5)
-///   inspect!(f32_0.mul(f32_1_5), content="float 0x0")
+///   let result1 = f32_0.mul(f32_1_5)
+///   assert_eq!(result1.getValue(), 0.0)
 ///
 ///   let f64_2_5 = ctx.getConstDouble(2.5)
 ///   let f64_m1_5 = ctx.getConstDouble(-1.5)
-///   inspect!(f64_2_5.mul(f64_m1_5), content="double 0xC00E000000000000")
+///   let result2 = f64_2_5.mul(f64_m1_5)
+///   assert_eq!(result2.getValue(), -3.75)
 ///
 ///   assert_true!(f32_0.mul?(f64_2_5) is Err(_))
 /// }
@@ -1021,11 +1022,13 @@ pub fn ConstantFP::mul(
 ///
 ///   let f32_0 = ctx.getConstFloat(0.0)
 ///   let f32_1_5 = ctx.getConstFloat(1.5)
-///   inspect!(f32_0.div(f32_1_5), content="float 0x0")
+///   let result1 = f32_0.div(f32_1_5)
+///   assert_eq!(result1.getValue(), 0.0)
 ///
 ///   let f64_2_5 = ctx.getConstDouble(2.5)
 ///   let f64_m1_5 = ctx.getConstDouble(-1.5)
-///   inspect!(f64_2_5.div(f64_m1_5), content="double 0xBFFAAAAAAAAAAAAB") 
+///   let result2 = f64_2_5.div(f64_m1_5)
+///   assert_eq!(result2.getValue(), -5.0/3.0)
 ///
 ///   assert_true!(f32_0.div?(f64_2_5) is Err(_))
 /// }
