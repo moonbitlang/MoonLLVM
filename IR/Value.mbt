@@ -43,7 +43,7 @@ pub enum ValueEnum {
   BinaryInstruction(BinaryInstruction)
   CmpInst(CmpInst)
   //StoreInst(StoreInst)
-  //GetElementPtrInst(GetElementPtrInst)
+  GetElementPtrInst(GetElementPtrInst)
   //SelectInst(SelectInst)
   //ExtractElementInst(ExtractElementInst)
   //InsertElementInst(InsertElementInst)
@@ -306,6 +306,7 @@ pub enum UserEnum {
   CastInst(CastInst)
   BinaryInstruction(BinaryInstruction)
   CmpInst(CmpInst)
+  GetElementPtrInst(GetElementPtrInst)
   ReturnInst(ReturnInst)
 }
 
@@ -317,6 +318,7 @@ pub fn UserEnum::getUserName(self : UserEnum) -> String? {
     BinaryInstruction(b) => b.getUserName()
     CmpInst(c) => c.getUserName()
     CastInst(c) => c.getUserName()
+    GetElementPtrInst(g) => g.getUserName()
     ReturnInst(_) => None
   }
 }
@@ -438,6 +440,7 @@ pub enum InstEnum {
   CastInst(CastInst)
   BinaryInstruction(BinaryInstruction)
   CmpInst(CmpInst)
+  GetElementPtrInst(GetElementPtrInst)
   ReturnInst(ReturnInst)
 }
 

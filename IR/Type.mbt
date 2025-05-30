@@ -125,6 +125,9 @@ pub trait Type: Show + Hash {
   /// DataLayout subsystem to do this.
   isSized(Self) -> Bool = _
 
+  /// Return true if this type is a valid type for a GEP instruction.
+  isValidGEPType(Self) -> Bool = _
+
   /// Return the basic size of this type if it is a primitive type. These are
   /// fixed by LLVM and are not target-dependent.
   /// This will return zero if the type does not have a size or is not a
@@ -291,6 +294,15 @@ impl Type with isSized(self) -> Bool {
       // in cpp, there is `isSizedDerivedType` function
       //println("\{self.getTypeID()} is sized or not has not been implemented yet")
       panic()
+  }
+}
+
+impl Type with isValidGEPType(self) -> Bool {
+  match self.asTypeEnum() {
+    PointerType(_) => true
+    ArrayType(_) => true
+    StructType(_) => true
+    _ => false
   }
 }
 

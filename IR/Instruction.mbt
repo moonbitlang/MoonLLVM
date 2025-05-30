@@ -913,6 +913,89 @@ pub impl Show for CastInst with output(self, logger) {
 }
 
 // =======================================================
+// GetElementPtrInst
+// =======================================================
+
+pub struct GetElementPtrInst {
+  base : ValueBase
+  user_base : UserBase
+  inst_base : InstBase
+  isInbounds : Bool
+}
+
+fn GetElementPtrInst::new(
+  ptr: &Value,
+  pointeeType: &Type,
+  indices: Array[&Value],
+  isInbounds: Bool,
+  parent: Function,
+  name: String
+) -> GetElementPtrInst!LLVMValueError {
+  guard ptr.getType().asTypeEnum() is PointerType(_) else {
+    raise GetElementPtrInstValueTypeNotPtr(ptr.getType())
+  }
+  guard pointeeType.isValidGEPType() else {
+    raise GetElementPtrInstNotValidPointeeType(pointeeType)
+  }
+  for idx in indices {
+    guard idx.getType().tryAsIntegerTypeEnum() is Some(_) else {
+      raise GetElementPtrInstIndexNotInteger(idx.getType())
+    }
+  }
+  let vty = pointeeType.getContext().getPtrTy()
+  let base = ValueBase::new(vty)
+  let user_base = UserBase::new(name)
+  let inst_base = InstBase::new(parent)
+  user_base.operands.push(ptr)
+  for idx in indices {
+    user_base.operands.push(idx)
+  }
+  GetElementPtrInst::{ base, user_base, inst_base, isInbounds }
+}
+
+fn GetElementPtrInst::isValidGEPType(ty: &Type) -> Bool {
+  // Check if the type is a valid GEP type.
+  // This is a placeholder implementation; actual logic may vary.
+  match ty.asTypeEnum() {
+    PointerType(_) => true
+    ArrayType(_) => true
+    StructType(_) => true
+    FixedVectorType(_) => true
+    _ => false
+  }
+}
+
+impl Value for GetElementPtrInst with getValueBase(self) {
+  self.base
+}
+
+impl Value for GetElementPtrInst with asValueEnum(self) {
+  GetElementPtrInst(self)
+}
+
+impl User for GetElementPtrInst with asUserEnum(self) {
+  GetElementPtrInst(self)
+}
+
+impl User for GetElementPtrInst with getUserBase(self) {
+  self.user_base
+}
+
+impl Instruction for GetElementPtrInst with getInstBase(self) {
+  self.inst_base
+}
+
+impl Instruction for GetElementPtrInst with asInstEnum(self) {
+  InstEnum::GetElementPtrInst(self)
+}
+
+impl Show for GetElementPtrInst with output(self, logger) {
+  ignore(self)
+  logger.write_string("getelementptr")
+}
+
+
+// =======================================================
 // ReturnInst
 // =======================================================
 

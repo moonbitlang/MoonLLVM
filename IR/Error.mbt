@@ -37,6 +37,9 @@ type! LLVMValueError {
   IntToPtrCastInstTypeMismatch(&Type)
   BitCastInstTypeMismatch(&Type, &Type)
   BitCastOnlyAcceptPrimitiveTypes(&Type)
+  GetElementPtrInstValueTypeNotPtr(&Type)
+  GetElementPtrInstNotValidPointeeType(&Type)
+  GetElementPtrInstIndexNotInteger(&Type)
 } derive(Show)
 
 ///|
