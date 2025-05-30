@@ -130,14 +130,8 @@ pub impl Value for Argument with asValueEnum(self) {
 fn Argument::getNameOrSlot(self : Argument) -> String {
   match self.name {
     Some(name) => name
-    None => {
-      self.parent.precessSlot()
-      if self.parent.getSlot(self) is Some(s) {
-        s.to_string()
-      } else {
-        "<badref>"
-      }
-    }
+    None if self.parent.getSlot(self) is Some(s) => s.to_string() 
+    None => "<badref>"
   }
 }
 
@@ -307,7 +301,7 @@ pub fn[V : Value] Function::getSlot(self : Function, val : V) -> UInt64? {
 }
 
 ///|
-pub fn Function::precessSlot(self : Function) -> Unit {
+pub fn Function::processSlot(self : Function) -> Unit {
   self.slotTracker.unwrap().process()
 }
 

@@ -60,17 +60,10 @@ pub impl Eq for BasicBlock with op_equal(self, other) {
 
 ///|
 pub impl Show for BasicBlock with output(self, logger) {
-  //logger.write_string("BasicBlock")
   let label = match self.getName() {
     Some(name) => name
     None if self.parent.getSlot(self) is Some(s) => "%\{s}"
-    None => {
-      self.parent.precessSlot()
-      match self.parent.getSlot(self) {
-        Some(s) => "%\{s}"
-        None => "<badlabel>"
-      }
-    }
+    None => "<badlabel>"
   }
   logger.write_string("\{label}:\n")
   loop self.head {

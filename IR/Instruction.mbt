@@ -168,13 +168,7 @@ pub impl Show for AllocaInst with output(self, logger) {
   let prefix = match self.getName() {
     Some(name) => "\{name}"
     None if self.getParent().getSlot(self) is Some(s) => "\{s}"
-    None => {
-      self.getParent().precessSlot()
-      match self.getParent().getSlot(self) {
-        Some(s) => "\{s}"
-        None => "<badref>"
-      }
-    }
+    None => "<badref>"
   }
   logger.write_string("  %\{prefix} = alloca \{self.data_ty}, \{self.align}")
 }
@@ -366,13 +360,7 @@ pub impl Show for BinaryInstruction with output(self, logger) {
   let prefix = match self.getName() {
     Some(name) => "\{name}"
     None if parent.getSlot(self) is Some(s) => "\{s}"
-    None => {
-      parent.precessSlot()
-      match parent.getSlot(self) {
-        Some(s) => "\{s}"
-        None => "<badref>"
-      }
-    }
+    None => "<badref>"
   }
   let lhs = self.getOperand(0).unwrap()
   let rhs = self.getOperand(1).unwrap()
@@ -564,13 +552,7 @@ impl Show for CmpInst with output(self, logger) {
   let prefix = match self.getName() {
     Some(name) => "\{name}"
     None if parent.getSlot(self) is Some(s) => "\{s}"
-    None => {
-      parent.precessSlot()
-      match parent.getSlot(self) {
-        Some(s) => "\{s}"
-        None => "<badref>"
-      }
-    }
+    None => "<badref>"
   }
   let lhs_str = match lhs.getValueName() {
     Some(lhs) => "%\{lhs}"
@@ -916,13 +898,7 @@ pub impl Show for CastInst with output(self, logger) {
   let prefix = match self.getName() {
     Some(name) => "\{name}"
     None if parent.getSlot(self) is Some(s) => "\{s}"
-    None => {
-      parent.precessSlot()
-      match parent.getSlot(self) {
-        Some(s) => "\{s}"
-        None => "<badref>"
-      }
-    }
+    None => "<badref>"
   }
   let src = self.getOperand(0).unwrap()
   let src_str = match src.getValueName() {
@@ -1007,13 +983,7 @@ pub impl Show for ReturnInst with output(self, logger) {
         Some(name) => "%\{name}"
         None if val.tryAsConstant() is Some(c) => c.valstr()
         None if self.getParent().getSlot(val) is Some(s) => "%\{s}"
-        None => {
-          self.getParent().precessSlot()
-          match self.getParent().getSlot(val) {
-            Some(s) => "%\{s}"
-            None => "<badref>"
-          }
-        }
+        None => "<badref>"
       })
     None => "void"
   }

@@ -48,5 +48,14 @@ fn SlotTracker::clear(self : SlotTracker) -> Unit {
 
 ///|
 fn SlotTracker::getSlot(self : SlotTracker, value : &Value) -> UInt64? {
-  self.valueMap.get(value)
+  match self.valueMap.get(value) {
+    Some(slot) => Some(slot)
+    None => {
+      self.process()
+      match self.valueMap.get(value) {
+        Some(slot) => Some(slot)
+        None => None
+      }
+    }
+  }
 }
