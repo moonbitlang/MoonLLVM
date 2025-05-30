@@ -921,6 +921,7 @@ pub struct GetElementPtrInst {
   user_base : UserBase
   inst_base : InstBase
   isInbounds : Bool
+  pointeeType : &Type
 }
 
 fn GetElementPtrInst::new(
@@ -950,19 +951,7 @@ fn GetElementPtrInst::new(
   for idx in indices {
     user_base.operands.push(idx)
   }
-  GetElementPtrInst::{ base, user_base, inst_base, isInbounds }
-}
-
-fn GetElementPtrInst::isValidGEPType(ty: &Type) -> Bool {
-  // Check if the type is a valid GEP type.
-  // This is a placeholder implementation; actual logic may vary.
-  match ty.asTypeEnum() {
-    PointerType(_) => true
-    ArrayType(_) => true
-    StructType(_) => true
-    FixedVectorType(_) => true
-    _ => false
-  }
+  GetElementPtrInst::{ base, user_base, inst_base, isInbounds, pointeeType }
 }
 
 impl Value for GetElementPtrInst with getValueBase(self) {
@@ -990,8 +979,47 @@ impl Instruction for GetElementPtrInst with asInstEnum(self) {
 }
 
 impl Show for GetElementPtrInst with output(self, logger) {
-  ignore(self)
-  logger.write_string("getelementptr")
+  let parent = self.getParent()
+  let prefix = match self.getName() {
+    Some(name) => "\{name}"
+    None if parent.getSlot(self) is Some(s) => "\{s}"
+    None => "<badref>"
+  }
+  
+  // Format the pointer operand
+  let ptr = self.getOperand(0).unwrap()
+  let ptr_str = match ptr.getValueName() {
+    Some(name) => "%\{name}"
+    None if parent.getSlot(ptr) is Some(slot) => "%\{slot}"
+    None if ptr.tryAsConstant() is Some(c) => c.valstr()
+    _ => "<badref>"
+  }
+  
+  // Format the indices
+  let indices_strs = Array::new()
+  let operand_count = self.getOperands().length()
+  for i = 1; i < operand_count; i = i + 1 {
+    let idx = self.getOperand(i).unwrap()
+    let idx_str = match idx.getValueName() {
+      Some(name) => "%\{name}"
+      None if parent.getSlot(idx) is Some(slot) => "%\{slot}"
+      None if idx.tryAsConstant() is Some(c) => c.valstr()
+      _ => "<badref>"
+    }
+    indices_strs.push("\{idx.getType()} \{idx_str}")
+  }
+  
+  let indices_str = if indices_strs.length() > 0 {
+    ", " + indices_strs.join(", ")
+  } else {
+    ""
+  }
+  
+  let inbounds_str = if self.isInbounds { " inbounds" } else { "" }
+  
+  logger.write_string(
+    "  %\{prefix} = getelementptr\{inbounds_str} \{self.pointeeType}, ptr \{ptr_str}\{indices_str}"
+  )
 }
 
 
@@ -1072,3 +1100,4 @@ pub impl Show for ReturnInst with output(self, logger) {
   }
   logger.write_string("  ret \{retStr}")
 }
+

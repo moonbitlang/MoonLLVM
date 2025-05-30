@@ -298,12 +298,7 @@ impl Type with isSized(self) -> Bool {
 }
 
 impl Type with isValidGEPType(self) -> Bool {
-  match self.asTypeEnum() {
-    PointerType(_) => true
-    ArrayType(_) => true
-    StructType(_) => true
-    _ => false
-  }
+  self.tryAsAbstractTypeEnum() is None
 }
 
 ///|

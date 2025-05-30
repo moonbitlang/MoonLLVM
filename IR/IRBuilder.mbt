@@ -3593,3 +3593,69 @@ pub fn IRBuilder::createBitCast(
   self.insert!(inst)
   inst
 }
+
+///| Create GetElementPtr Instruction.
+///
+/// **Note:**
+///
+/// - Creates a getelementptr instruction for pointer arithmetic
+/// - The `ptr` operand must be a pointer type
+/// - The `pointeeType` specifies the type being pointed to
+/// - `indices` is an array of integer values for indexing
+/// - `inbounds` flag indicates that all computed addresses are within bounds
+/// - No constant folding is performed for this instruction
+///
+/// ```moonbit
+/// test "IRBuilder::createGEP" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let ptrty = ctx.getPtrTy()
+///   let fty = ctx.getFunctionType!(ptrty, [ptrty, i32ty, i32ty])
+///   let fval = prog.addFunction!(fty, "gep_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = fval.getArg(0).unwrap() // ptr
+///   let arg1 = fval.getArg(1).unwrap() // index1
+///   let arg2 = fval.getArg(2).unwrap() // index2
+///   let const0 = ctx.getConstInt32(0)
+///   let const5 = ctx.getConstInt32(5)
+///
+///   // Basic GEP with single index
+///   let gep1 = builder.createGEP!(arg0, i32ty, [arg1])
+///   // GEP with inbounds flag and multiple indices
+///   let gep2 = builder.createGEP!(gep1, i32ty, [arg1, arg2], inbounds=true)
+///   // GEP with constant indices
+///   let gep3 = builder.createGEP!(gep2, i32ty, [const0, const5])
+///   let _ = builder.createRet!(gep3)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define ptr @gep_func(ptr %0, i32 %1, i32 %2) {
+///     #|entry:
+///     #|  %3 = getelementptr i32, ptr %0, i32 %1
+///     #|  %4 = getelementptr inbounds i32, ptr %3, i32 %1, i32 %2
+///     #|  %5 = getelementptr i32, ptr %4, i32 0, i32 5
+///     #|  ret ptr %5
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+pub fn IRBuilder::createGEP(
+  self : IRBuilder,
+  ptr : &Value,
+  pointeeType : &Type,
+  indices : Array[&Value],
+  name~ : String = "",
+  inbounds~ : Bool = false
+) -> &Value!Error {
+  let parent = self.getInsertFunction()
+  let inst = GetElementPtrInst::new!(ptr, pointeeType, indices, inbounds, parent, name)
+  self.insert!(inst)
+  inst
+}
