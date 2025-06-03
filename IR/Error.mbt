@@ -40,6 +40,9 @@ type! LLVMValueError {
   LoadInstShouldLoadFromAPointer(&Type)
   LoadInstCannotLoadToAnAbstractType(&Type)
   LoadInstCannotBeVolatileAndAtomic
+  StoreInstShouldStoreToAPointer(&Type)
+  StoreInstCannotStoreAnAbstractType(&Type)
+  StoreInstCannotBeVolatileAndAtomic
   GetElementPtrInstValueTypeNotPtr(&Type)
   GetElementPtrInstNotValidPointeeType(&Type)
   GetElementPtrInstIndexNotInteger(&Type)

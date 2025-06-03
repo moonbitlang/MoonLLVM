@@ -42,7 +42,7 @@ pub enum ValueEnum {
   CastInst(CastInst)
   BinaryInstruction(BinaryInstruction)
   CmpInst(CmpInst)
-  //StoreInst(StoreInst)
+  StoreInst(StoreInst)
   GetElementPtrInst(GetElementPtrInst)
   //SelectInst(SelectInst)
   //ExtractElementInst(ExtractElementInst)
@@ -93,6 +93,7 @@ pub fn ValueEnum::tryAsUserEnum(self : ValueEnum) -> UserEnum? {
     CastInst(c) => CastInst(c) |> Some
     BinaryInstruction(b) => BinaryInstruction(b) |> Some
     CmpInst(c) => CmpInst(c) |> Some
+    StoreInst(s) => StoreInst(s) |> Some
     GetElementPtrInst(g) => GetElementPtrInst(g) |> Some
     ReturnInst(r) => ReturnInst(r) |> Some
     _ => None
@@ -110,6 +111,7 @@ pub fn ValueEnum::tryAsInstEnum(self : ValueEnum) -> InstEnum? {
     CastInst(c) => CastInst(c) |> Some
     BinaryInstruction(b) => BinaryInstruction(b) |> Some
     CmpInst(c) => CmpInst(c) |> Some
+    StoreInst(s) => StoreInst(s) |> Some
     GetElementPtrInst(g) => GetElementPtrInst(g) |> Some
     ReturnInst(r) => ReturnInst(r) |> Some
     _ => None
@@ -234,6 +236,7 @@ impl Value with tryAsUserEnum(self) {
     CastInst(c) => Some(CastInst(c))
     BinaryInstruction(b) => Some(BinaryInstruction(b))
     CmpInst(c) => Some(CmpInst(c))
+    StoreInst(s) => Some(StoreInst(s))
     GetElementPtrInst(g) => Some(GetElementPtrInst(g))
     ReturnInst(r) => Some(ReturnInst(r))
     _ => None
@@ -331,6 +334,7 @@ pub enum UserEnum {
   CastInst(CastInst)
   BinaryInstruction(BinaryInstruction)
   CmpInst(CmpInst)
+  StoreInst(StoreInst)
   GetElementPtrInst(GetElementPtrInst)
   ReturnInst(ReturnInst)
 }
@@ -342,6 +346,7 @@ pub fn UserEnum::getUserName(self : UserEnum) -> String? {
     LoadInst(l) => l.getUserName()
     BinaryInstruction(b) => b.getUserName()
     CmpInst(c) => c.getUserName()
+    StoreInst(s) => s.getUserName()
     CastInst(c) => c.getUserName()
     GetElementPtrInst(g) => g.getUserName()
     ReturnInst(_) => None
@@ -465,6 +470,7 @@ pub enum InstEnum {
   CastInst(CastInst)
   BinaryInstruction(BinaryInstruction)
   CmpInst(CmpInst)
+  StoreInst(StoreInst)
   GetElementPtrInst(GetElementPtrInst)
   ReturnInst(ReturnInst)
 }

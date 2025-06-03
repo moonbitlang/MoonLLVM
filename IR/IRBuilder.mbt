@@ -78,6 +78,15 @@ pub fn IRBuilder::createRet(
   retInst
 }
 
+pub fn IRBuilder::createRetVoid(
+  self : IRBuilder
+) -> &Instruction!Error {
+  let parent = self.getInsertFunction()
+  let retInst = ReturnInst::new(None, parent)
+  self.insert!(retInst)
+  retInst
+}
+
 ///|
 pub fn IRBuilder::createAlloca(
   self : IRBuilder,
@@ -3259,6 +3268,82 @@ pub fn IRBuilder::createLoad(
 ) -> &Value!Error {
   let parent = self.getInsertFunction()
   let inst = LoadInst::new!(load_ty, ptr, isVolatile, atomicOrdering, parent, name)
+  self.insert!(inst)
+  inst
+}
+
+///| Create Store Instruction.
+///
+/// Stores a value to memory at the specified pointer address.
+///
+/// **Note:**
+///
+/// - `isVolatile` indicates that the store may have side effects and should
+///   not be optimized away.
+///
+/// - `atomicOrdering` specifies the memory ordering constraints for atomic
+///   stores (NotAtomic for non-atomic).
+///
+/// - `isVolatile` and `atomicOrdering` are mutually exclusive; you cannot
+///   have both volatile and atomic on the same store.
+///
+/// ```moonbit
+/// test "IRBuilder::createStore" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let voidty = ctx.getVoidTy()
+///   let fty = ctx.getFunctionType!(voidty, [i32ty])
+///   let fval = prog.addFunction!(fty, "store_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let val_arg = fval.getArg(0).unwrap()
+///   
+///   // Create multiple allocations
+///   let ptr1 = builder.createAlloca!(i32ty, name="ptr1")
+///   let ptr2 = builder.createAlloca!(i32ty, name="ptr2") 
+///   let ptr3 = builder.createAlloca!(i32ty, name="ptr3")
+///   
+///   // Test regular store
+///   let _ = builder.createStore!(val_arg, ptr1)
+///   
+///   // Test volatile store
+///   let _ = builder.createStore!(val_arg, ptr2, isVolatile=true)
+///   
+///   // Test atomic store
+///   let _ = builder.createStore!(val_arg, ptr3, atomicOrdering=Release)
+///   
+///   let _ = builder.createRetVoid!()
+///
+///   inspect(
+///     fval,
+///     content = 
+///     #|define void @store_func(i32 %0) {
+///     #|entry:
+///     #|  %ptr1 = alloca i32, align 4
+///     #|  %ptr2 = alloca i32, align 4
+///     #|  %ptr3 = alloca i32, align 4
+///     #|  store i32 %0, ptr %ptr1, align 4
+///     #|  store volatile i32 %0, ptr %ptr2, align 4
+///     #|  store atomic i32 %0, ptr %ptr3 release, align 4
+///     #|  ret void
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+pub fn IRBuilder::createStore(
+  self : IRBuilder,
+  value : &Value,
+  ptr : &Value,
+  isVolatile~: Bool = false,
+  atomicOrdering~: AtomicOrdering = NotAtomic,
+) -> &Instruction!Error {
+  let parent = self.getInsertFunction()
+  let inst = StoreInst::new!(value, ptr, isVolatile, atomicOrdering, parent)
   self.insert!(inst)
   inst
 }

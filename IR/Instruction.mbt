@@ -311,6 +311,120 @@ pub impl Show for LoadInst with output(self, logger) {
 }
 
 // =======================================================
+// StoreInst
+// =======================================================
+
+pub struct StoreInst {
+  base : ValueBase
+  inst_base : InstBase
+  user_base : UserBase
+  isVolatile : Bool
+  atomicOrdering : AtomicOrdering
+  align : Align
+}
+
+fn StoreInst::new(
+  value: &Value,
+  ptr: &Value,
+  isVolatile: Bool,
+  atomicOrdering: AtomicOrdering,
+  parent: Function,
+) -> StoreInst!LLVMValueError {
+  guard ptr.getType().asTypeEnum() is PointerType(_) else {
+    raise StoreInstShouldStoreToAPointer(ptr.getType())
+  }
+  guard value.getType().tryAsAbstractTypeEnum() is None else {
+    raise StoreInstCannotStoreAnAbstractType(value.getType())
+  }
+  guard not(isVolatile && not(atomicOrdering is NotAtomic)) else {
+    raise StoreInstCannotBeVolatileAndAtomic
+  }
+  let vty = value.getType()
+  let base = ValueBase::new(vty.getContext().getVoidTy())
+  let user_base = UserBase::new("")
+  let inst_base = InstBase::new(parent)
+  user_base.operands.push(value)
+  user_base.operands.push(ptr)
+  let align = parent.getDataLayout().getAlignment(vty)
+  StoreInst::{
+    base,
+    inst_base,
+    user_base,
+    isVolatile,
+    atomicOrdering,
+    align
+  }
+}
+
+pub fn StoreInst::getValueOperand(self: StoreInst) -> &Value {
+  self.getOperand(0).unwrap()
+}
+
+pub fn StoreInst::getPointerOperand(self: StoreInst) -> &Value {
+  self.getOperand(1).unwrap()
+}
+
+pub impl Value for StoreInst with asValueEnum(self) {
+  StoreInst(self)
+}
+
+pub impl Value for StoreInst with getValueBase(self) {
+  self.base
+}
+
+pub impl User for StoreInst with asUserEnum(self) {
+  StoreInst(self)
+}
+
+pub impl User for StoreInst with getUserBase(self) {
+  self.user_base
+}
+
+pub impl Instruction for StoreInst with getInstBase(self) {
+  self.inst_base
+}
+
+pub impl Instruction for StoreInst with asInstEnum(self) {
+  InstEnum::StoreInst(self)
+}
+
+pub impl Show for StoreInst with output(self, logger) {
+  let parent = self.getParent()
+  let align = self.align
+  
+  let value = self.getValueOperand()
+  let ptr = self.getPointerOperand()
+
+  let value_ty = value.getType()
+  
+  let value_str = match value.getValueName() {
+    Some(name) => "%\{name}"
+    None if parent.getSlot(value) is Some(slot) => "%\{slot}"
+    None if value.tryAsConstant() is Some(c) => c.valstr()
+    _ => "<badref>"
+  }
+  
+  let ptr_str = match ptr.getValueName() {
+    Some(name) => "%\{name}"
+    None if parent.getSlot(ptr) is Some(slot) => "%\{slot}"
+    None if ptr.tryAsConstant() is Some(c) => c.valstr()
+    _ => "<badref>"
+  }
+  
+  let str = match (self.isVolatile, self.atomicOrdering) {
+    (true, _) =>
+      "  store volatile \{value_ty} \{value_str}, ptr \{ptr_str}, \{align}"
+    (false, NotAtomic) =>
+      "  store \{value_ty} \{value_str}, ptr \{ptr_str}, \{align}"
+    (false, _) =>
+      "  store atomic \{value_ty} \{value_str}, ptr \{ptr_str} \{self.atomicOrdering}, \{align}"
+  }
+  
+  logger.write_string(str)
+
+}
+
+// =======================================================
 // BinaryInstructions
 // =======================================================
 
