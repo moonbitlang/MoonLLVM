@@ -1612,49 +1612,31 @@ pub fn IRBuilder::createFRem(
 ///   let arg0 = fval.getArg(0).unwrap()
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
-///   let and_val = builder.createAnd!(arg0, arg1)
-///   let _ = builder.createRet!(and_val)
+///   // Test regular and with variables
+///   let and_vars = builder.createAnd!(arg0, arg1)
+///   
+///   // Test constant folding with two constants
+///   let const6 = ctx.getConstInt32(6) // 0b0110
+///   let const3 = ctx.getConstInt32(3) // 0b0011
+///   let and_consts = builder.createAnd!(const6, const3) // Should fold to 2 (0b0010)
+///   
+///   // Test mixed: one constant, one variable
+///   let const_mask = ctx.getConstInt32(15) // 0b1111
+///   let and_mixed = builder.createAnd!(arg0, const_mask)
+///   
+///   let _ = builder.createRet!(and_vars)
 ///
+///   // Verify constant folding worked
+///   inspect(and_consts, content = "i32 2")
+///   
 ///   inspect(
 ///     fval,
 ///     content =
 ///     #|define i32 @and_func(i32 %0, i32 %1) {
 ///     #|entry:
 ///     #|  %2 = and i32 %0, %1
+///     #|  %3 = and i32 %0, 15
 ///     #|  ret i32 %2
-///     #|}
-///     ,
-///   )
-/// }
-/// ```
-///
-/// ## Constant Folding
-///
-/// ```moonbit
-/// test "IRBuilder::createAnd with constant folding" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
-///
-///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [])
-///   let fval = prog.addFunction!(fty, "and_const_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
-///
-///   let const6 = ctx.getConstInt32(6) // 0b0110
-///   let const3 = ctx.getConstInt32(3) // 0b0011
-///
-///   let and_result = builder.createAnd!(const6, const3) // Expected: 2 (0b0010)
-///   let _ = builder.createRet!(and_result)
-///
-///   inspect(and_result, content = "i32 2")
-///   inspect(
-///     fval,
-///     content =
-///     #|define i32 @and_const_func() {
-///     #|entry:
-///     #|  ret i32 2
 ///     #|}
 ///     ,
 ///   )
@@ -1706,49 +1688,31 @@ pub fn IRBuilder::createAnd(
 ///   let arg0 = fval.getArg(0).unwrap()
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
-///   let or_val = builder.createOr!(arg0, arg1)
-///   let _ = builder.createRet!(or_val)
+///   // Test regular or with variables
+///   let or_vars = builder.createOr!(arg0, arg1)
+///   
+///   // Test constant folding with two constants
+///   let const6 = ctx.getConstInt32(6) // 0b0110
+///   let const3 = ctx.getConstInt32(3) // 0b0011
+///   let or_consts = builder.createOr!(const6, const3) // Should fold to 7 (0b0111)
+///   
+///   // Test mixed: one constant, one variable
+///   let const_mask = ctx.getConstInt32(1) // 0b0001
+///   let or_mixed = builder.createOr!(arg0, const_mask)
+///   
+///   let _ = builder.createRet!(or_vars)
 ///
+///   // Verify constant folding worked
+///   inspect(or_consts, content = "i32 7")
+///   
 ///   inspect(
 ///     fval,
 ///     content =
 ///     #|define i32 @or_func(i32 %0, i32 %1) {
 ///     #|entry:
 ///     #|  %2 = or i32 %0, %1
+///     #|  %3 = or i32 %0, 1
 ///     #|  ret i32 %2
-///     #|}
-///     ,
-///   )
-/// }
-/// ```
-///
-/// ## Constant Folding
-///
-/// ```moonbit
-/// test "IRBuilder::createOr with constant folding" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
-///
-///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [])
-///   let fval = prog.addFunction!(fty, "or_const_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
-///
-///   let const6 = ctx.getConstInt32(6) // 0b0110
-///   let const3 = ctx.getConstInt32(3) // 0b0011
-///
-///   let or_result = builder.createOr!(const6, const3) // Expected: 7 (0b0111)
-///   let _ = builder.createRet!(or_result)
-///
-///   inspect(or_result, content = "i32 7")
-///   inspect(
-///     fval,
-///     content =
-///     #|define i32 @or_const_func() {
-///     #|entry:
-///     #|  ret i32 7
 ///     #|}
 ///     ,
 ///   )
@@ -1800,49 +1764,31 @@ pub fn IRBuilder::createOr(
 ///   let arg0 = fval.getArg(0).unwrap()
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
-///   let xor_val = builder.createXor!(arg0, arg1)
-///   let _ = builder.createRet!(xor_val)
+///   // Test regular xor with variables
+///   let xor_vars = builder.createXor!(arg0, arg1)
+///   
+///   // Test constant folding with two constants
+///   let const6 = ctx.getConstInt32(6) // 0b0110
+///   let const3 = ctx.getConstInt32(3) // 0b0011
+///   let xor_consts = builder.createXor!(const6, const3) // Should fold to 5 (0b0101)
+///   
+///   // Test mixed: one constant, one variable
+///   let const_mask = ctx.getConstInt32(7) // 0b0111
+///   let xor_mixed = builder.createXor!(arg0, const_mask)
+///   
+///   let _ = builder.createRet!(xor_vars)
 ///
+///   // Verify constant folding worked
+///   inspect(xor_consts, content = "i32 5")
+///   
 ///   inspect(
 ///     fval,
 ///     content =
 ///     #|define i32 @xor_func(i32 %0, i32 %1) {
 ///     #|entry:
 ///     #|  %2 = xor i32 %0, %1
+///     #|  %3 = xor i32 %0, 7
 ///     #|  ret i32 %2
-///     #|}
-///     ,
-///   )
-/// }
-/// ```
-///
-/// ## Constant Folding
-///
-/// ```moonbit
-/// test "IRBuilder::createXor with constant folding" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
-///
-///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [])
-///   let fval = prog.addFunction!(fty, "xor_const_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
-///
-///   let const6 = ctx.getConstInt32(6) // 0b0110
-///   let const3 = ctx.getConstInt32(3) // 0b0011
-///
-///   let xor_result = builder.createXor!(const6, const3) // Expected: 5 (0b0101)
-///   let _ = builder.createRet!(xor_result)
-///
-///   inspect(xor_result, content = "i32 5")
-///   inspect(
-///     fval,
-///     content =
-///     #|define i32 @xor_const_func() {
-///     #|entry:
-///     #|  ret i32 5
 ///     #|}
 ///     ,
 ///   )
@@ -1896,86 +1842,32 @@ pub fn IRBuilder::createXor(
 ///   let arg0 = fval.getArg(0).unwrap()
 ///   let arg1 = fval.getArg(1).unwrap() // Shift amount
 ///
-///   let shl_val = builder.createShl!(arg0, arg1)
-///   let _ = builder.createRet!(shl_val)
+///   // Test regular shl with variables
+///   let shl_vars = builder.createShl!(arg0, arg1)
+///   
+///   // Test constant folding
+///   let const_val = ctx.getConstInt32(5) // 0b0101
+///   let const_shift = ctx.getConstInt32(2) // shift by 2
+///   let shl_consts = builder.createShl!(const_val, const_shift) // Should fold to 20 (0b010100)
+///   
+///   // Test with flags
+///   let shl_nsw = builder.createShl!(arg0, const_shift, has_nsw=true)
+///   let shl_nuw = builder.createShl!(arg0, const_shift, has_nuw=true)
+///   
+///   let _ = builder.createRet!(shl_vars)
 ///
+///   // Verify constant folding worked
+///   inspect(shl_consts, content = "i32 20")
+///   
 ///   inspect(
 ///     fval,
 ///     content =
 ///     #|define i32 @shl_func(i32 %0, i32 %1) {
 ///     #|entry:
 ///     #|  %2 = shl i32 %0, %1
+///     #|  %3 = shl nsw i32 %0, 2
+///     #|  %4 = shl nuw i32 %0, 2
 ///     #|  ret i32 %2
-///     #|}
-///     ,
-///   )
-/// }
-/// ```
-///
-/// ## With `nsw` and `nuw` flags
-///
-/// ```moonbit
-/// test "IRBuilder::createShl with flags" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
-///
-///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
-///   let fval = prog.addFunction!(fty, "shl_flags_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
-///
-///   let arg0 = fval.getArg(0).unwrap()
-///   let arg1 = fval.getArg(1).unwrap()
-///
-///   let shl_nsw = builder.createShl!(arg0, arg1, has_nsw=true)
-///   let shl_nuw = builder.createShl!(arg0, arg1, has_nuw=true)
-///   let shl_nsw_nuw = builder.createShl!(shl_nsw, shl_nuw, has_nsw=true, has_nuw=true)
-///   let _ = builder.createRet!(shl_nsw_nuw)
-///
-///   inspect(
-///     fval,
-///     content =
-///     #|define i32 @shl_flags_func(i32 %0, i32 %1) {
-///     #|entry:
-///     #|  %2 = shl nsw i32 %0, %1
-///     #|  %3 = shl nuw i32 %0, %1
-///     #|  %4 = shl nuw nsw i32 %2, %3
-///     #|  ret i32 %4
-///     #|}
-///     ,
-///   )
-/// }
-/// ```
-///
-/// ## Constant Folding
-///
-/// ```moonbit
-/// test "IRBuilder::createShl with constant folding" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
-///
-///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [])
-///   let fval = prog.addFunction!(fty, "shl_const_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
-///
-///   let const_val = ctx.getConstInt32(5) // 0b0101
-///   let const_shift = ctx.getConstInt32(2) // shift by 2
-///
-///   let shl_result = builder.createShl!(const_val, const_shift) // Expected: 20 (0b010100)
-///   let _ = builder.createRet!(shl_result)
-///
-///   inspect(shl_result, content = "i32 20")
-///   inspect(
-///     fval,
-///     content =
-///     #|define i32 @shl_const_func() {
-///     #|entry:
-///     #|  ret i32 20
 ///     #|}
 ///     ,
 ///   )
@@ -2038,82 +1930,30 @@ pub fn IRBuilder::createShl(
 ///   let arg0 = fval.getArg(0).unwrap()
 ///   let arg1 = fval.getArg(1).unwrap() // Shift amount
 ///
-///   let lshr_val = builder.createLShr!(arg0, arg1)
-///   let _ = builder.createRet!(lshr_val)
+///   // Test regular lshr with variables
+///   let lshr_vars = builder.createLShr!(arg0, arg1)
+///   
+///   // Test constant folding
+///   let const_val = ctx.getConstInt32(20) // 0b10100
+///   let const_shift = ctx.getConstInt32(2) // shift by 2
+///   let lshr_consts = builder.createLShr!(const_val, const_shift) // Should fold to 5 (0b00101)
+///   
+///   // Test with exact flag
+///   let lshr_exact = builder.createLShr!(arg0, const_shift, is_exact=true)
+///   
+///   let _ = builder.createRet!(lshr_vars)
 ///
+///   // Verify constant folding worked
+///   inspect(lshr_consts, content = "i32 5")
+///   
 ///   inspect(
 ///     fval,
 ///     content =
 ///     #|define i32 @lshr_func(i32 %0, i32 %1) {
 ///     #|entry:
 ///     #|  %2 = lshr i32 %0, %1
+///     #|  %3 = lshr exact i32 %0, 2
 ///     #|  ret i32 %2
-///     #|}
-///     ,
-///   )
-/// }
-/// ```
-///
-/// ## With `exact` flag
-///
-/// ```moonbit
-/// test "IRBuilder::createLShr with exact flag" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
-///
-///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
-///   let fval = prog.addFunction!(fty, "lshr_exact_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
-///
-///   let arg0 = fval.getArg(0).unwrap()
-///   let arg1 = fval.getArg(1).unwrap()
-///
-///   let lshr_exact_val = builder.createLShr!(arg0, arg1, is_exact=true)
-///   let _ = builder.createRet!(lshr_exact_val)
-///
-///   inspect(
-///     fval,
-///     content =
-///     #|define i32 @lshr_exact_func(i32 %0, i32 %1) {
-///     #|entry:
-///     #|  %2 = lshr exact i32 %0, %1
-///     #|  ret i32 %2
-///     #|}
-///     ,
-///   )
-/// }
-/// ```
-///
-/// ## Constant Folding
-///
-/// ```moonbit
-/// test "IRBuilder::createLShr with constant folding" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
-///
-///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [])
-///   let fval = prog.addFunction!(fty, "lshr_const_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
-///
-///   let const_val = ctx.getConstInt32(20) // 0b10100
-///   let const_shift = ctx.getConstInt32(2) // shift by 2
-///
-///   let lshr_result = builder.createLShr!(const_val, const_shift) // Expected: 5 (0b00101)
-///   let _ = builder.createRet!(lshr_result)
-///
-///   inspect(lshr_result, content = "i32 5")
-///   inspect(
-///     fval,
-///     content =
-///     #|define i32 @lshr_const_func() {
-///     #|entry:
-///     #|  ret i32 5
 ///     #|}
 ///     ,
 ///   )
@@ -2172,99 +2012,30 @@ pub fn IRBuilder::createLShr(
 ///   let arg0 = fval.getArg(0).unwrap()
 ///   let arg1 = fval.getArg(1).unwrap() // Shift amount
 ///
-///   let ashr_val = builder.createAShr!(arg0, arg1)
-///   let _ = builder.createRet!(ashr_val)
+///   // Test regular ashr with variables
+///   let ashr_vars = builder.createAShr!(arg0, arg1)
+///   
+///   // Test constant folding with negative number
+///   let const_val_neg = ctx.getConstInt32(-20) // 0xFFFFFFEC (i32)
+///   let const_shift = ctx.getConstInt32(2) // shift by 2
+///   let ashr_consts = builder.createAShr!(const_val_neg, const_shift) // Should fold to -5
+///   
+///   // Test with exact flag
+///   let ashr_exact = builder.createAShr!(arg0, const_shift, is_exact=true)
+///   
+///   let _ = builder.createRet!(ashr_vars)
 ///
+///   // Verify constant folding worked
+///   inspect(ashr_consts, content = "i32 -5")
+///   
 ///   inspect(
 ///     fval,
 ///     content =
 ///     #|define i32 @ashr_func(i32 %0, i32 %1) {
 ///     #|entry:
 ///     #|  %2 = ashr i32 %0, %1
+///     #|  %3 = ashr exact i32 %0, 2
 ///     #|  ret i32 %2
-///     #|}
-///     ,
-///   )
-/// }
-/// ```
-///
-/// ## With `exact` flag
-///
-/// ```moonbit
-/// test "IRBuilder::createAShr with exact flag" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
-///
-///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
-///   let fval = prog.addFunction!(fty, "ashr_exact_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
-///
-///   let arg0 = fval.getArg(0).unwrap()
-///   let arg1 = fval.getArg(1).unwrap()
-///
-///   let ashr_exact_val = builder.createAShr!(arg0, arg1, is_exact=true)
-///   let _ = builder.createRet!(ashr_exact_val)
-///
-///   inspect(
-///     fval,
-///     content =
-///     #|define i32 @ashr_exact_func(i32 %0, i32 %1) {
-///     #|entry:
-///     #|  %2 = ashr exact i32 %0, %1
-///     #|  ret i32 %2
-///     #|}
-///     ,
-///   )
-/// }
-/// ```
-///
-/// ## Constant Folding
-///
-/// ```moonbit
-/// test "IRBuilder::createAShr with constant folding" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
-///
-///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [])
-///
-///   // Test with negative number
-///   let fval_neg = prog.addFunction!(fty, "ashr_const_neg_func")
-///   let entryBB_neg = fval_neg.addBasicBlock(name="entry_neg")
-///   builder.setInsertPoint(entryBB_neg)
-///   let const_val_neg = ctx.getConstInt32(-20) // 0xFFFFFFEC (i32) -> ...11101100
-///   let const_shift = ctx.getConstInt32(2)    // shift by 2
-///   let ashr_result_neg = builder.createAShr!(const_val_neg, const_shift) // Expected: -5 (0xFFFFFFFB) -> ...11111011
-///   let _ = builder.createRet!(ashr_result_neg)
-///   inspect(ashr_result_neg, content = "i32 -5")
-///   inspect(
-///     fval_neg,
-///     content =
-///     #|define i32 @ashr_const_neg_func() {
-///     #|entry_neg:
-///     #|  ret i32 -5
-///     #|}
-///     ,
-///   )
-///
-///   // Test with positive number
-///   let fval_pos = prog.addFunction!(fty, "ashr_const_pos_func")
-///   let entryBB_pos = fval_pos.addBasicBlock(name="entry_pos")
-///   builder.setInsertPoint(entryBB_pos)
-///   let const_val_pos = ctx.getConstInt32(20) // 0x00000014 -> 0b00010100
-///   let ashr_result_pos = builder.createAShr!(const_val_pos, const_shift) // Expected: 5 (0x00000005) -> 0b00000101
-///   let _ = builder.createRet!(ashr_result_pos)
-///   inspect(ashr_result_pos, content = "i32 5")
-///   inspect(
-///     fval_pos,
-///     content =
-///     #|define i32 @ashr_const_pos_func() {
-///     #|entry_pos:
-///     #|  ret i32 5
 ///     #|}
 ///     ,
 ///   )
