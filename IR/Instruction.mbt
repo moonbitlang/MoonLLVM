@@ -177,13 +177,70 @@ pub impl Show for AllocaInst with output(self, logger) {
 // LoadInst
 // =======================================================
 
+pub(all) enum AtomicOrdering {
+  NotAtomic
+  Unordered
+  Monotonic
+  Acquire
+  Release
+  AcquireRelease
+  SequentiallyConsistent
+} derive(Hash, Eq)
+
+pub impl Show for AtomicOrdering with output(self, logger) {
+  let str = match self {
+    NotAtomic => ""
+    Unordered => "unordered"
+    Monotonic => "monotonic"
+    Acquire => "acquire"
+    Release => "release"
+    AcquireRelease => "acquire_release"
+    SequentiallyConsistent => "sequentially_consistent"
+  }
+  logger.write_string(str)
+}
+
 ///| TODO: Not full implemented, remember erase `all`.
 pub(all) struct LoadInst {
   base : ValueBase
   inst_base : InstBase
   user_base : UserBase
-  data_ty : &Type
-  align : Int
+  isVolatile : Bool
+  atomicOrdering : AtomicOrdering
+  align : Align
+}
+
+fn LoadInst::new(
+  load_ty: &Type,
+  ptr: &Value,
+  isVolatile: Bool,
+  atomicOrdering: AtomicOrdering,
+  parent: Function,
+  name: String
+) -> LoadInst!LLVMValueError {
+  guard ptr.getType().asTypeEnum() is PointerType(_) else {
+    raise LoadInstShouldLoadFromAPointer(ptr.getType())
+  }
+  guard load_ty.tryAsAbstractTypeEnum() is None else {
+    raise LoadInstCannotLoadToAnAbstractType(load_ty)
+  }
+  guard not(isVolatile && not(atomicOrdering is NotAtomic)) else {
+    raise LoadInstCannotBeVolatileAndAtomic
+  }
+  let vty = load_ty
+  let base = ValueBase::new(vty)
+  let user_base = UserBase::new(name)
+  let inst_base = InstBase::new(parent)
+  user_base.operands.push(ptr)
+  let align = parent.getDataLayout().getAlignment(load_ty)
+  LoadInst::{
+    base,
+    inst_base,
+    user_base,
+    isVolatile,
+    atomicOrdering,
+    align
+  }
 }
 
 ///|
@@ -222,8 +279,35 @@ pub impl UnaryInst for LoadInst with asUnaryInstEnum(self) {
 }
 
 ///|
-pub impl Show for LoadInst with output(_, logger) {
-  logger.write_string("load")
+pub impl Show for LoadInst with output(self, logger) {
+  let parent = self.getParent()
+  let align = self.align
+  let prefix = match self.getName() {
+    Some(name) => "\{name}"
+    None if parent.getSlot(self) is Some(s) => "\{s}"
+    None => "<badref>"
+  }
+  
+  // 获取指针操作数
+  let ptr = self.getOperand(0).unwrap()
+  let ptr_str = match ptr.getValueName() {
+    Some(name) => "%\{name}"
+    None if parent.getSlot(ptr) is Some(slot) => "%\{slot}"
+    None if ptr.tryAsConstant() is Some(c) => c.valstr()
+    _ => "<badref>"
+  }
+  
+  let load_ty = self.getType()
+  
+  let str = match (self.isVolatile, self.atomicOrdering) {
+    (true, _) => 
+      "  %\{prefix} = load volatile \{load_ty}, ptr \{ptr_str}, \{align}"
+    (false, NotAtomic) => 
+      "  %\{prefix} = load \{load_ty}, ptr \{ptr_str}, \{align}" 
+    (false, _) => 
+      "  %\{prefix} = load atomic \{load_ty}, ptr \{ptr_str} \{self.atomicOrdering}, \{align}"
+  }
+  logger.write_string(str)
 }
 
 // =======================================================

@@ -75,7 +75,19 @@ fn DataLayout::getAlignment(self : DataLayout, ty : &Type) -> Align {
     Int16Type(_) => Align(2)
     Int32Type(_) => Align(4)
     Int64Type(_) => Align(8)
-    StructType(_) => unreachable("StructType alignment not implemented")
+    StructType(sty) => {
+      if sty.isPacked() || sty.isOpaque() {
+        Align(1)
+      } else {
+        let maxAlign = sty
+        .elements()
+        .map(fn (e) {let Align(a) = DataLayout::getAlignment(self, e); a})
+        .iter()
+        .maximum()
+        .or(1)
+        Align(maxAlign)
+      }
+    }
     ArrayType(arr) => DataLayout::getAlignment(self, arr.getElementType())
     // TODO: Actually it's not enough, the alignment of ptr is different in different
     // Architectures, AddressSpace and other factors.

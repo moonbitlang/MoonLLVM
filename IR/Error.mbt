@@ -37,6 +37,9 @@ type! LLVMValueError {
   IntToPtrCastInstTypeMismatch(&Type)
   BitCastInstTypeMismatch(&Type, &Type)
   BitCastOnlyAcceptPrimitiveTypes(&Type)
+  LoadInstShouldLoadFromAPointer(&Type)
+  LoadInstCannotLoadToAnAbstractType(&Type)
+  LoadInstCannotBeVolatileAndAtomic
   GetElementPtrInstValueTypeNotPtr(&Type)
   GetElementPtrInstNotValidPointeeType(&Type)
   GetElementPtrInstIndexNotInteger(&Type)

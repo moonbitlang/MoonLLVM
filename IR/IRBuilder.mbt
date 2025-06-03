@@ -3189,3 +3189,76 @@ pub fn IRBuilder::createGEP(
   self.insert!(inst)
   inst
 }
+
+///| Create Load Instruction.
+///
+/// Loads a value from memory at the specified pointer address.
+///
+/// **Note:**
+///
+/// - `isVolatile` indicates that the load may have side effects and should
+///   not be optimized away.
+///
+/// - `atomicOrdering` specifies the memory ordering constraints for atomic
+///   loads (None for non-atomic).
+///
+/// - `isVolatile` and `atomicOrdering` are mutually exclusive; you cannot
+///   have both volatile and atomic on the same load.
+///
+/// ```moonbit
+/// test "IRBuilder::createLoad" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let ptrty = ctx.getPtrTy()
+///   let fty = ctx.getFunctionType!(i32ty, [ptrty])
+///   let fval = prog.addFunction!(fty, "load_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let ptr_arg = fval.getArg(0).unwrap()
+///   
+///   // Test regular load
+///   let loaded_val = builder.createLoad!(i32ty, ptr_arg)
+///   
+///   // Test volatile load  
+///   let volatile_load = builder.createLoad!(i32ty, ptr_arg, isVolatile=true)
+///   
+///   // Test atomic load with name
+///   let atomic_load = builder.createLoad!(i32ty, ptr_arg, atomicOrdering=Acquire)
+///   
+///   let add1 = builder.createAdd!(loaded_val, volatile_load)
+///   let add2 = builder.createAdd!(add1, atomic_load)
+///   let _ = builder.createRet!(add2)
+///
+///   inspect(
+///     fval,
+///     content = 
+///     #|define i32 @load_func(ptr %0) {
+///     #|entry:
+///     #|  %1 = load i32, ptr %0, align 4
+///     #|  %2 = load volatile i32, ptr %0, align 4
+///     #|  %3 = load atomic i32, ptr %0 acquire, align 4
+///     #|  %4 = add i32 %1, %2
+///     #|  %5 = add i32 %4, %3
+///     #|  ret i32 %5
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+pub fn IRBuilder::createLoad(
+  self : IRBuilder,
+  load_ty: &Type,
+  ptr: &Value,
+  isVolatile~: Bool = false,
+  atomicOrdering~: AtomicOrdering = NotAtomic,
+  name~: String = ""
+) -> &Value!Error {
+  let parent = self.getInsertFunction()
+  let inst = LoadInst::new!(load_ty, ptr, isVolatile, atomicOrdering, parent, name)
+  self.insert!(inst)
+  inst
+}
