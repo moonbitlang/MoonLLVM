@@ -581,13 +581,25 @@ pub fn IRBuilder::createNUWSub(
 ///   let arg0 = fval.getArg(0).unwrap()
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
+///   // Test regular multiplication with nsw and nuw flags
 ///   let nsw_mul = builder.createMul!(arg0, arg1, has_nsw=true)
 ///   let nuw_mul = builder.createMul!(arg0, arg1, has_nuw=true)
-///   let nsw_nuw_mul = builder.createMul!(
+///   
+///   // Test constant folding
+///   let const_42 = ctx.getConstInt32(42)
+///   let const_33 = ctx.getConstInt32(33)
+///   let const_prod = builder.createMul!(const_42, const_33) // Should fold to 1386
+///   
+///   // Combine results with both nsw and nuw flags
+///   let final_mul = builder.createMul!(
 ///     nsw_mul, nuw_mul, has_nsw=true, has_nuw=true
 ///   )
-///   let _ = builder.createRet!(nsw_nuw_mul)
+///   let result = builder.createAdd!(final_mul, const_prod)
+///   let _ = builder.createRet!(result)
 ///
+///   // Verify constant folding worked
+///   inspect(const_prod, content = "i32 1386")
+///   
 ///   inspect(
 ///     fval,
 ///     content = 
@@ -596,40 +608,8 @@ pub fn IRBuilder::createNUWSub(
 ///     #|  %2 = mul nsw i32 %0, %1
 ///     #|  %3 = mul nuw i32 %0, %1
 ///     #|  %4 = mul nuw nsw i32 %2, %3
-///     #|  ret i32 %4
-///     #|}
-///     ,
-///   )
-/// }
-/// ```
-///
-/// ## Constant Folding
-///
-/// ```moonbit
-/// test "IRBuilder::createMul with constant folding" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
-///
-///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [])
-///   let fval = prog.addFunction!(fty, "mul")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
-///
-///   let forty_two = ctx.getConstInt32(42)
-///   let thirty_three = ctx.getConstInt32(33)
-///
-///   let prod = builder.createMul!(forty_two, thirty_three)
-///   let _ = builder.createRet!(prod)
-///
-///   inspect(prod, content = "i32 1386")
-///   inspect(
-///     fval,
-///     content = 
-///     #|define i32 @mul() {
-///     #|entry:
-///     #|  ret i32 1386
+///     #|  %5 = add i32 %4, 1386
+///     #|  ret i32 %5
 ///     #|}
 ///     ,
 ///   )
@@ -693,49 +673,28 @@ pub fn IRBuilder::createMul(
 ///   let arg0 = fval.getArg(0).unwrap()
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
+///   // Test regular multiplication with nsw flag
 ///   let prod = builder.createNSWMul!(arg0, arg1)
-///   let _ = builder.createRet!(prod)
+///   
+///   // Test constant folding
+///   let const_42 = ctx.getConstInt32(42)
+///   let const_33 = ctx.getConstInt32(33)
+///   let const_prod = builder.createNSWMul!(const_42, const_33) // Should fold to 1386
+///   
+///   let result = builder.createAdd!(prod, const_prod)
+///   let _ = builder.createRet!(result)
 ///
+///   // Verify constant folding worked
+///   inspect(const_prod, content = "i32 1386")
+///   
 ///   inspect(
 ///     fval,
 ///     content = 
 ///     #|define i32 @mul(i32 %0, i32 %1) {
 ///     #|entry:
 ///     #|  %2 = mul nsw i32 %0, %1
-///     #|  ret i32 %2
-///     #|}
-///     ,
-///   )
-/// }
-/// ```
-///
-/// ## Constant Folding
-///
-/// ```moonbit
-/// test "IRBuilder::createNSWMul with constant folding" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
-///
-///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [])
-///   let fval = prog.addFunction!(fty, "mul")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
-///
-///   let forty_two = ctx.getConstInt32(42)
-///   let thirty_three = ctx.getConstInt32(33)
-///
-///   let prod = builder.createNSWMul!(forty_two, thirty_three)
-///   let _ = builder.createRet!(prod)
-///
-///   inspect(prod, content = "i32 1386")
-///   inspect(
-///     fval,
-///     content = 
-///     #|define i32 @mul() {
-///     #|entry:
-///     #|  ret i32 1386
+///     #|  %3 = add i32 %2, 1386
+///     #|  ret i32 %3
 ///     #|}
 ///     ,
 ///   )
@@ -776,49 +735,28 @@ pub fn IRBuilder::createNSWMul(
 ///   let arg0 = fval.getArg(0).unwrap()
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
+///   // Test regular multiplication with nuw flag
 ///   let prod = builder.createNUWMul!(arg0, arg1)
-///   let _ = builder.createRet!(prod)
+///   
+///   // Test constant folding
+///   let const_42 = ctx.getConstInt32(42)
+///   let const_33 = ctx.getConstInt32(33)
+///   let const_prod = builder.createNUWMul!(const_42, const_33) // Should fold to 1386
+///   
+///   let result = builder.createAdd!(prod, const_prod)
+///   let _ = builder.createRet!(result)
 ///
+///   // Verify constant folding worked
+///   inspect(const_prod, content = "i32 1386")
+///   
 ///   inspect(
 ///     fval,
 ///     content = 
 ///     #|define i32 @mul(i32 %0, i32 %1) {
 ///     #|entry:
 ///     #|  %2 = mul nuw i32 %0, %1
-///     #|  ret i32 %2
-///     #|}
-///     ,
-///   )
-/// }
-/// ```
-///
-/// ## Constant Folding
-///
-/// ```moonbit
-/// test "IRBuilder::createNUWMul with constant folding" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
-///
-///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [])
-///   let fval = prog.addFunction!(fty, "mul")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
-///
-///   let forty_two = ctx.getConstInt32(42)
-///   let thirty_three = ctx.getConstInt32(33)
-///
-///   let prod = builder.createNUWMul!(forty_two, thirty_three)
-///   let _ = builder.createRet!(prod)
-///
-///   inspect(prod, content = "i32 1386")
-///   inspect(
-///     fval,
-///     content = 
-///     #|define i32 @mul() {
-///     #|entry:
-///     #|  ret i32 1386
+///     #|  %3 = add i32 %2, 1386
+///     #|  ret i32 %3
 ///     #|}
 ///     ,
 ///   )
