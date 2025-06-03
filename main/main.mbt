@@ -11,9 +11,7 @@ fn main_err() -> Unit!Error {
   let arg0 = fval.getArg(0).unwrap()
   arg0.setName?("first").unwrap()
   let arg1 = fval.getArg(1).unwrap()
-  //let _ = builder.createAlloca!(i32ty)
-  //println(fval)
-  let r = builder.createNSWSub!(arg0, arg1)
+  let r = builder.createNSWSub!(arg0, arg1, name="res")
   let _ = builder.createRet!(r)
   println(fval)
 }

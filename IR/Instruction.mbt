@@ -394,7 +394,7 @@ pub impl Show for BinaryInstruction with output(self, logger) {
 }
 
 // =======================================================
-// ReturnInst
+// CmpInst
 // =======================================================
 
 ///|

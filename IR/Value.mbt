@@ -90,7 +90,11 @@ pub fn ValueEnum::tryAsUserEnum(self : ValueEnum) -> UserEnum? {
     //VAArgInst(c) => VAArgInst(c) |> Some
     //ExtractValueInst(c) => ExtractValueInst(c) |> Some
     //FreezeInst(c) => FreezeInst(c) |> Some
-    //CastInst(c) => CastInst(c) |> Some
+    CastInst(c) => CastInst(c) |> Some
+    BinaryInstruction(b) => BinaryInstruction(b) |> Some
+    CmpInst(c) => CmpInst(c) |> Some
+    GetElementPtrInst(g) => GetElementPtrInst(g) |> Some
+    ReturnInst(r) => ReturnInst(r) |> Some
     _ => None
   }
 }
@@ -103,7 +107,11 @@ pub fn ValueEnum::tryAsInstEnum(self : ValueEnum) -> InstEnum? {
     //VAArgInst(c) => VAArgInst(c) |> Some
     //ExtractValueInst(c) => ExtractValueInst(c) |> Some
     //FreezeInst(c) => FreezeInst(c) |> Some
-    //CastInst(c) => CastInst(c) |> Some
+    CastInst(c) => CastInst(c) |> Some
+    BinaryInstruction(b) => BinaryInstruction(b) |> Some
+    CmpInst(c) => CmpInst(c) |> Some
+    GetElementPtrInst(g) => GetElementPtrInst(g) |> Some
+    ReturnInst(r) => ReturnInst(r) |> Some
     _ => None
   }
 }
@@ -148,6 +156,7 @@ pub trait Value: Show {
   user_empty(Self) -> Bool = _
   tryAsConstant(Self) -> &Constant? = _
   tryAsConstantEnum(Self) -> ConstantEnum? = _
+  tryAsUserEnum(Self) -> UserEnum? = _
 }
 
 ///|
@@ -174,8 +183,8 @@ impl Value with getValueName(self) {
     v if v.tryAsConstantEnum() is Some(_) => None
     u if u.tryAsUserEnum() is Some(u) =>
       match u.getUserName() {
-        None => None
         Some(name) => Some(name)
+        None => None
       }
     _ => None
   }
@@ -211,6 +220,22 @@ impl Value with tryAsConstantEnum(self) {
     ConstantPointerNull(c) => Some(ConstantPointerNull(c))
     ConstantArray(c) => Some(ConstantArray(c))
     ConstantVector(c) => Some(ConstantVector(c))
+    _ => None
+  }
+}
+
+impl Value with tryAsUserEnum(self) {
+  match self.asValueEnum() {
+    AllocaInst(c) => Some(AllocaInst(c))
+    LoadInst(c) => Some(LoadInst(c))
+    //VAArgInst(c) => Some(VAArgInst(c))
+    //ExtractValueInst(c) => Some(ExtractValueInst(c))
+    //FreezeInst(c) => Some(FreezeInst(c))
+    CastInst(c) => Some(CastInst(c))
+    BinaryInstruction(b) => Some(BinaryInstruction(b))
+    CmpInst(c) => Some(CmpInst(c))
+    GetElementPtrInst(g) => Some(GetElementPtrInst(g))
+    ReturnInst(r) => Some(ReturnInst(r))
     _ => None
   }
 }
