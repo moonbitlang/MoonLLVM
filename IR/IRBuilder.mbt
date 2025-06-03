@@ -125,13 +125,25 @@ pub fn IRBuilder::createAlloca(
 ///   let arg0 = fval.getArg(0).unwrap()
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
+///   // Test regular addition with nsw and nuw flags
 ///   let nsw_add = builder.createAdd!(arg0, arg1, has_nsw=true)
 ///   let nuw_add = builder.createAdd!(arg0, arg1, has_nuw=true)
-///   let nsw_nuw_add = builder.createAdd!(
+///   
+///   // Test constant folding
+///   let const_42 = ctx.getConstInt32(42)
+///   let const_33 = ctx.getConstInt32(33)
+///   let const_sum = builder.createAdd!(const_42, const_33) // Should fold to 75
+///   
+///   // Combine results with both nsw and nuw flags
+///   let final_add = builder.createAdd!(
 ///     nsw_add, nuw_add, has_nsw=true, has_nuw=true
 ///   )
-///   let _ = builder.createRet!(nsw_nuw_add)
+///   let result = builder.createAdd!(final_add, const_sum)
+///   let _ = builder.createRet!(result)
 ///
+///   // Verify constant folding worked
+///   inspect(const_sum, content = "i32 75")
+///   
 ///   inspect(
 ///     fval,
 ///     content = 
@@ -140,45 +152,12 @@ pub fn IRBuilder::createAlloca(
 ///     #|  %2 = add nsw i32 %0, %1
 ///     #|  %3 = add nuw i32 %0, %1
 ///     #|  %4 = add nuw nsw i32 %2, %3
-///     #|  ret i32 %4
+///     #|  %5 = add i32 %4, 75
+///     #|  ret i32 %5
 ///     #|}
 ///     ,
 ///   )
 /// }
-/// ```
-///
-/// ## Constant Folding
-///
-/// ```moonbit
-/// test "IRBuilder::createAdd with constant folding" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
-///
-///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [])
-///   let fval = prog.addFunction!(fty, "add")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
-///
-///   let forty_two = ctx.getConstInt32(42)
-///   let thirty_three = ctx.getConstInt32(33)
-///
-///   let sum = builder.createAdd!(forty_two, thirty_three)
-///   let _ = builder.createRet!(sum)
-///
-///   inspect(sum, content = "i32 75")
-///   inspect(
-///     fval,
-///     content = 
-///     #|define i32 @add() {
-///     #|entry:
-///     #|  ret i32 75
-///     #|}
-///     ,
-///   )
-/// }
-///
 /// ```
 pub fn IRBuilder::createAdd(
   self : IRBuilder,
@@ -218,6 +197,7 @@ pub fn IRBuilder::createAdd(
 ///
 /// - (Constant folding) If both operands are constant integers, the addition is
 /// evaluated at compile time and the result is returned as a constant value.
+///
 /// - `nsw` stands for "no signed wrap", which means that the addition
 /// operation is guaranteed not to overflow for signed integers.
 /// If an overflow occurs, the behavior is undefined.
