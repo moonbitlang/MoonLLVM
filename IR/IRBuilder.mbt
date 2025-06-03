@@ -217,49 +217,28 @@ pub fn IRBuilder::createAdd(
 ///   let arg0 = fval.getArg(0).unwrap()
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
+///   // Test regular addition with nsw flag
 ///   let sum = builder.createNSWAdd!(arg0, arg1)
-///   let _ = builder.createRet!(sum)
+///   
+///   // Test constant folding
+///   let const_42 = ctx.getConstInt32(42)
+///   let const_33 = ctx.getConstInt32(33)
+///   let const_sum = builder.createNSWAdd!(const_42, const_33) // Should fold to 75
+///   
+///   let result = builder.createAdd!(sum, const_sum)
+///   let _ = builder.createRet!(result)
 ///
+///   // Verify constant folding worked
+///   inspect(const_sum, content = "i32 75")
+///   
 ///   inspect(
 ///     fval,
 ///     content = 
 ///     #|define i32 @add(i32 %0, i32 %1) {
 ///     #|entry:
 ///     #|  %2 = add nsw i32 %0, %1
-///     #|  ret i32 %2
-///     #|}
-///     ,
-///   )
-/// }
-/// ```
-///
-/// ## Constant Folding
-///
-/// ```moonbit
-/// test "IRBuilder::createNSWAdd with constant folding" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
-///
-///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [])
-///   let fval = prog.addFunction!(fty, "add")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
-///
-///   let forty_two = ctx.getConstInt32(42)
-///   let thirty_three = ctx.getConstInt32(33)
-///
-///   let sum = builder.createNSWAdd!(forty_two, thirty_three)
-///   let _ = builder.createRet!(sum)
-///
-///   inspect(sum, content = "i32 75")
-///   inspect(
-///     fval,
-///     content = 
-///     #|define i32 @add() {
-///     #|entry:
-///     #|  ret i32 75
+///     #|  %3 = add i32 %2, 75
+///     #|  ret i32 %3
 ///     #|}
 ///     ,
 ///   )
@@ -280,6 +259,7 @@ pub fn IRBuilder::createNSWAdd(
 ///
 /// - (Constant folding) If both operands are constant integers, the addition is
 /// evaluated at compile time and the result is returned as a constant value.
+///
 /// - `nuw` stands for "no unsigned wrap", which means that the addition
 /// operation is guaranteed not to overflow for unsigned integers.
 /// If an overflow occurs, the behavior is undefined.
@@ -299,49 +279,28 @@ pub fn IRBuilder::createNSWAdd(
 ///   let arg0 = fval.getArg(0).unwrap()
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
+///   // Test regular addition with nuw flag
 ///   let sum = builder.createNUWAdd!(arg0, arg1)
-///   let _ = builder.createRet!(sum)
+///   
+///   // Test constant folding
+///   let const_42 = ctx.getConstInt32(42)
+///   let const_33 = ctx.getConstInt32(33)
+///   let const_sum = builder.createNUWAdd!(const_42, const_33) // Should fold to 75
+///   
+///   let result = builder.createAdd!(sum, const_sum)
+///   let _ = builder.createRet!(result)
 ///
+///   // Verify constant folding worked
+///   inspect(const_sum, content = "i32 75")
+///   
 ///   inspect(
 ///     fval,
 ///     content = 
 ///     #|define i32 @add(i32 %0, i32 %1) {
 ///     #|entry:
 ///     #|  %2 = add nuw i32 %0, %1
-///     #|  ret i32 %2
-///     #|}
-///     ,
-///   )
-/// }
-/// ```
-///
-/// ## Constant Folding
-///
-/// ```moonbit
-/// test "IRBuilder::createNUWAdd with constant folding" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
-///
-///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [])
-///   let fval = prog.addFunction!(fty, "add")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
-///
-///   let forty_two = ctx.getConstInt32(42)
-///   let thirty_three = ctx.getConstInt32(33)
-///
-///   let sum = builder.createNUWAdd!(forty_two, thirty_three)
-///   let _ = builder.createRet!(sum)
-///
-///   inspect(sum, content = "i32 75")
-///   inspect(
-///     fval,
-///     content = 
-///     #|define i32 @add() {
-///     #|entry:
-///     #|  ret i32 75
+///     #|  %3 = add i32 %2, 75
+///     #|  ret i32 %3
 ///     #|}
 ///     ,
 ///   )
@@ -362,6 +321,7 @@ pub fn IRBuilder::createNUWAdd(
 ///
 /// - (Constant folding) If both operands are constant integers, the subtraction is
 /// evaluated at compile time and the result is returned as a constant value.
+///
 /// - `nsw` stands for "no signed wrap", which means that the subtraction
 /// operation is guaranteed not to overflow for signed integers.
 /// If an overflow occurs, the behavior is undefined.
@@ -385,13 +345,25 @@ pub fn IRBuilder::createNUWAdd(
 ///   let arg0 = fval.getArg(0).unwrap()
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
+///   // Test regular subtraction with nsw and nuw flags
 ///   let nsw_sub = builder.createSub!(arg0, arg1, has_nsw=true)
 ///   let nuw_sub = builder.createSub!(arg0, arg1, has_nuw=true)
-///   let nsw_nuw_sub = builder.createSub!(
+///   
+///   // Test constant folding
+///   let const_42 = ctx.getConstInt32(42)
+///   let const_33 = ctx.getConstInt32(33)
+///   let const_diff = builder.createSub!(const_42, const_33) // Should fold to 9
+///   
+///   // Combine results with both nsw and nuw flags
+///   let final_sub = builder.createSub!(
 ///     nsw_sub, nuw_sub, has_nsw=true, has_nuw=true
 ///   )
-///   let _ = builder.createRet!(nsw_nuw_sub)
+///   let result = builder.createAdd!(final_sub, const_diff)
+///   let _ = builder.createRet!(result)
 ///
+///   // Verify constant folding worked
+///   inspect(const_diff, content = "i32 9")
+///   
 ///   inspect(
 ///     fval,
 ///     content = 
@@ -400,40 +372,8 @@ pub fn IRBuilder::createNUWAdd(
 ///     #|  %2 = sub nsw i32 %0, %1
 ///     #|  %3 = sub nuw i32 %0, %1
 ///     #|  %4 = sub nuw nsw i32 %2, %3
-///     #|  ret i32 %4
-///     #|}
-///     ,
-///   )
-/// }
-/// ```
-///
-/// ## Constant Folding
-///
-/// ```moonbit
-/// test "IRBuilder::createSub with constant folding" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
-///
-///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [])
-///   let fval = prog.addFunction!(fty, "sub")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
-///
-///   let forty_two = ctx.getConstInt32(42)
-///   let thirty_three = ctx.getConstInt32(33)
-///
-///   let diff = builder.createSub!(forty_two, thirty_three)
-///   let _ = builder.createRet!(diff)
-///
-///   inspect(diff, content = "i32 9")
-///   inspect(
-///     fval,
-///     content = 
-///     #|define i32 @sub() {
-///     #|entry:
-///     #|  ret i32 9
+///     #|  %5 = add i32 %4, 9
+///     #|  ret i32 %5
 ///     #|}
 ///     ,
 ///   )
@@ -497,49 +437,28 @@ pub fn IRBuilder::createSub(
 ///   let arg0 = fval.getArg(0).unwrap()
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
+///   // Test regular subtraction with nsw flag
 ///   let diff = builder.createNSWSub!(arg0, arg1)
-///   let _ = builder.createRet!(diff)
+///   
+///   // Test constant folding
+///   let const_42 = ctx.getConstInt32(42)
+///   let const_33 = ctx.getConstInt32(33)
+///   let const_diff = builder.createNSWSub!(const_42, const_33) // Should fold to 9
+///   
+///   let result = builder.createAdd!(diff, const_diff)
+///   let _ = builder.createRet!(result)
 ///
+///   // Verify constant folding worked
+///   inspect(const_diff, content = "i32 9")
+///   
 ///   inspect(
 ///     fval,
 ///     content = 
 ///     #|define i32 @sub(i32 %0, i32 %1) {
 ///     #|entry:
 ///     #|  %2 = sub nsw i32 %0, %1
-///     #|  ret i32 %2
-///     #|}
-///     ,
-///   )
-/// }
-/// ```
-///
-/// ## Constant Folding
-///
-/// ```moonbit
-/// test "IRBuilder::createNSWSub with constant folding" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
-///
-///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [])
-///   let fval = prog.addFunction!(fty, "sub")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
-///
-///   let forty_two = ctx.getConstInt32(42)
-///   let thirty_three = ctx.getConstInt32(33)
-///
-///   let diff = builder.createNSWSub!(forty_two, thirty_three)
-///   let _ = builder.createRet!(diff)
-///
-///   inspect(diff, content = "i32 9")
-///   inspect(
-///     fval,
-///     content = 
-///     #|define i32 @sub() {
-///     #|entry:
-///     #|  ret i32 9
+///     #|  %3 = add i32 %2, 9
+///     #|  ret i32 %3
 ///     #|}
 ///     ,
 ///   )
