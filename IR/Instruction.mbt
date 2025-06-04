@@ -1299,8 +1299,39 @@ pub impl Instruction for SelectInst with asInstEnum(self) {
 }
 
 ///|
-pub impl Show for SelectInst with output(_, logger) {
-  logger.write_string("select inst")
+pub impl Show for SelectInst with output(self, logger) {
+  let parent = self.getParent()
+  let prefix = match self.getName() {
+    Some(name) => "\{name}"
+    None if parent.getSlot(self) is Some(s) => "\{s}"
+    None => "<badref>"
+  }
+  let condition = self.getCondition()
+  let trueValue = self.getTrueValue()
+  let falseValue = self.getFalseValue()
+  let condition_str = match condition.getValueName() {
+    Some(name) => "%\{name}"
+    None if parent.getSlot(condition) is Some(slot) => "%\{slot}"
+    None if condition.tryAsConstant() is Some(c) => c.valstr()
+    _ => "<badref>"
+  }
+  let trueValue_str = match trueValue.getValueName() {
+    Some(name) => "%\{name}"
+    None if parent.getSlot(trueValue) is Some(slot) => "%\{slot}"
+    None if trueValue.tryAsConstant() is Some(c) => c.valstr()
+    _ => "<badref>"
+  }
+  let falseValue_str = match falseValue.getValueName() {
+    Some(name) => "%\{name}"
+    None if parent.getSlot(falseValue) is Some(slot) => "%\{slot}"
+    None if falseValue.tryAsConstant() is Some(c) => c.valstr()
+    _ => "<badref>"
+  }
+  let condition_ty = condition.getType()
+  let value_ty = trueValue.getType()
+  logger.write_string(
+    "  %\{prefix} = select \{condition_ty} \{condition_str}, \{value_ty} \{trueValue_str}, \{value_ty} \{falseValue_str}",
+  )
 }
 
 // =======================================================

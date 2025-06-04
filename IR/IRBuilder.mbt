@@ -3485,3 +3485,76 @@ pub fn IRBuilder::createCondBr(
   self.insert(inst)
   inst
 }
+
+///| Create Select Instruction.
+///
+/// Creates a select instruction that chooses between two values based on a condition.
+/// The select instruction is similar to the ternary operator in many programming languages.
+///
+/// **Note:**
+///
+/// - The condition must be of i1 type (boolean)
+///
+/// - The true and false values must have the same type
+///
+/// - The result type is the same as the operand types
+///
+/// - (Constant folding) If the condition is a constant, the appropriate operand is returned directly
+///
+/// ```moonbit
+/// test "IRBuilder::createSelect" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i1ty = ctx.getInt1Ty()
+///   let i32ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType!(i32ty, [i1ty, i32ty])
+///   let fval = prog.addFunction!(fty, "select_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let cond = fval.getArg(0).unwrap()
+///   let true_val = fval.getArg(1).unwrap()
+///   
+///   let forty_two = ctx.getConstInt32(42)
+///   let thirty_three = ctx.getConstInt32(33)
+///   let always_true = ctx.getConstTrue()
+///   let false_val = builder.createSelect!(always_true, forty_two, thirty_three)
+///
+///   let select_result = builder.createSelect!(cond, true_val, false_val)
+///   let _ = builder.createRet!(select_result)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define i32 @select_func(i1 %0, i32 %1) {
+///     #|entry:
+///     #|  %2 = select i1 %0, i32 %1, i32 42
+///     #|  ret i32 %2
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+pub fn IRBuilder::createSelect(
+  self : IRBuilder,
+  condition : &Value,
+  trueValue : &Value,
+  falseValue : &Value,
+  name~ : String = ""
+) -> &Value!Error {
+  match condition.tryAsConstantEnum() {
+    Some(ConstantInt(ci)) =>
+      if ci.getValue() != 0L {
+        return trueValue
+      } else {
+        return falseValue
+      }
+    _ => ()
+  }
+  let parent = self.getInsertFunction()
+  let inst = SelectInst::new!(condition, trueValue, falseValue, parent, name)
+  self.insert!(inst)
+  inst
+}
