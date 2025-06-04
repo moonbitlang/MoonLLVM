@@ -1294,3 +1294,146 @@ pub impl Show for ReturnInst with output(self, logger) {
   }
   logger.write_string("  ret \{retStr}")
 }
+
+// =======================================================
+// BranchInst
+// =======================================================
+
+///|
+pub struct BranchInst {
+  base : ValueBase
+  user_base : UserBase
+  inst_base : InstBase
+}
+
+///|
+fn BranchInst::newConditional(
+  condition : &Value,
+  trueBlock : BasicBlock,
+  falseBlock : BasicBlock,
+  parent : Function
+) -> BranchInst!LLVMValueError {
+  guard condition.getType().tryAsIntegerTypeEnum() is Some(intTy) else {
+    raise BranchInstConditionNotBoolean(condition.getType())
+  }
+  guard intTy.getBitWidth() == 1 else {
+    raise BranchInstConditionNotBoolean(condition.getType())
+  }
+  let base = ValueBase::new(parent.getContext().getVoidTy())
+  let user_base = UserBase::new("")
+  let inst_base = InstBase::new(parent)
+  user_base.operands.push(condition)
+  user_base.operands.push(trueBlock)
+  user_base.operands.push(falseBlock)
+  BranchInst::{ base, user_base, inst_base }
+}
+
+///|
+fn BranchInst::newUnconditional(
+  targetBlock : BasicBlock,
+  parent : Function
+) -> BranchInst {
+  let base = ValueBase::new(parent.getContext().getVoidTy())
+  let user_base = UserBase::new("")
+  let inst_base = InstBase::new(parent)
+  user_base.operands.push(targetBlock)
+  BranchInst::{ base, user_base, inst_base }
+}
+
+///|
+pub fn BranchInst::getCondition(self : Self) -> &Value? {
+  if self.isConditional() {
+    self.getOperand(0)
+  } else {
+    None
+  }
+}
+
+///|
+pub fn BranchInst::getNumSuccessors(self : Self) -> Int {
+  1 + self.isConditional().to_int()
+}
+
+///|
+pub fn BranchInst::getSuccessor(self : BranchInst, idx : Int) -> BasicBlock? {
+  guard idx >= 0 && idx < self.getNumSuccessors() else { return None }
+  guard self.getOperand(idx + 1).unwrap().asValueEnum() is BasicBlock(bb)
+  Some(bb)
+}
+
+///|
+pub fn BranchInst::isConditional(self : BranchInst) -> Bool {
+  self.getNumOperands() == 3
+}
+
+///|
+pub fn BranchInst::isUnconditional(self : BranchInst) -> Bool {
+  self.getNumOperands() == 1
+}
+
+///|
+pub impl Value for BranchInst with getValueBase(self) {
+  self.base
+}
+
+///|
+pub impl Value for BranchInst with asValueEnum(self) {
+  BranchInst(self)
+}
+
+///|
+pub impl User for BranchInst with asUserEnum(self) {
+  BranchInst(self)
+}
+
+///|
+pub impl User for BranchInst with getUserBase(self) {
+  self.user_base
+}
+
+///|
+pub impl Instruction for BranchInst with getInstBase(self) {
+  self.inst_base
+}
+
+///|
+pub impl Instruction for BranchInst with asInstEnum(self) {
+  InstEnum::BranchInst(self)
+}
+
+///|
+pub impl Show for BranchInst with output(self, logger) {
+  if self.getCondition() is Some(condition) {
+    let parent = self.getParent()
+    let condition_str = match condition.getValueName() {
+      Some(name) => "%\{name}"
+      None if parent.getSlot(condition) is Some(slot) => "%\{slot}"
+      None if condition.tryAsConstant() is Some(c) => c.valstr()
+      _ => "<badref>"
+    }
+    let true_block = self.getSuccessor(0).unwrap()
+    let false_block = self.getSuccessor(1).unwrap()
+    let true_block_str = match true_block.getValueName() {
+      Some(name) => "%\{name}"
+      None if parent.getSlot(true_block) is Some(slot) => "%\{slot}"
+      _ => "<badref>"
+    }
+    let false_block_str = match false_block.getValueName() {
+      Some(name) => "%\{name}"
+      None if parent.getSlot(false_block) is Some(slot) => "%\{slot}"
+      _ => "<badref>"
+    }
+    logger.write_string(
+      "  br \{condition.getType()} \{condition_str}, label \{true_block_str}, label \{false_block_str}",
+    )
+  } else {
+    let target_block = self.getSuccessor(0).unwrap()
+    let parent = self.getParent()
+    let target_block_str = match target_block.getValueName() {
+      Some(name) => "%\{name}"
+      None if parent.getSlot(target_block) is Some(slot) => "%\{slot}"
+      _ => "<badref>"
+    }
+    logger.write_string("  br label \{target_block_str}")
+  }
+}

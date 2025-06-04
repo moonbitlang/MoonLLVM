@@ -50,7 +50,7 @@ pub enum ValueEnum {
   //ShuffleVectorInst(ShuffleVectorInst)
   //PHINode(PHINodeInst)
   ReturnInst(ReturnInst)
-  //BranchInst(BranchInst)
+  BranchInst(BranchInst)
   //SwitchInst(SwitchInst)
   //IndirectBrInst(IndirectBrInst)
   //ResumeInst(ResumeInst)
@@ -96,6 +96,7 @@ pub fn ValueEnum::tryAsUserEnum(self : ValueEnum) -> UserEnum? {
     StoreInst(s) => StoreInst(s) |> Some
     GetElementPtrInst(g) => GetElementPtrInst(g) |> Some
     ReturnInst(r) => ReturnInst(r) |> Some
+    BranchInst(b) => BranchInst(b) |> Some
     _ => None
   }
 }
@@ -114,6 +115,7 @@ pub fn ValueEnum::tryAsInstEnum(self : ValueEnum) -> InstEnum? {
     StoreInst(s) => StoreInst(s) |> Some
     GetElementPtrInst(g) => GetElementPtrInst(g) |> Some
     ReturnInst(r) => ReturnInst(r) |> Some
+    BranchInst(b) => BranchInst(b) |> Some
     _ => None
   }
 }
@@ -240,6 +242,7 @@ impl Value with tryAsUserEnum(self) {
     StoreInst(s) => Some(StoreInst(s))
     GetElementPtrInst(g) => Some(GetElementPtrInst(g))
     ReturnInst(r) => Some(ReturnInst(r))
+    BranchInst(b) => Some(BranchInst(b))
     _ => None
   }
 }
@@ -305,6 +308,7 @@ pub trait User: Value {
   getUserName(Self) -> String? = _
   getOperands(Self) -> Array[&Value] = _
   getOperand(Self, index : Int) -> &Value? = _
+  getNumOperands(Self) -> Int = _
 }
 
 ///|
@@ -325,6 +329,11 @@ impl User with getOperand(self, index : Int) {
 }
 
 ///|
+impl User with getNumOperands(self) {
+  self.getOperands().length()
+}
+
+///|
 pub enum UserEnum {
   //Instruction(Instruction)
   AllocaInst(AllocaInst)
@@ -338,6 +347,7 @@ pub enum UserEnum {
   StoreInst(StoreInst)
   GetElementPtrInst(GetElementPtrInst)
   ReturnInst(ReturnInst)
+  BranchInst(BranchInst)
 }
 
 ///|
@@ -351,6 +361,7 @@ pub fn UserEnum::getUserName(self : UserEnum) -> String? {
     CastInst(c) => c.getUserName()
     GetElementPtrInst(g) => g.getUserName()
     ReturnInst(_) => None
+    BranchInst(_) => None
   }
 }
 
@@ -474,6 +485,7 @@ pub enum InstEnum {
   StoreInst(StoreInst)
   GetElementPtrInst(GetElementPtrInst)
   ReturnInst(ReturnInst)
+  BranchInst(BranchInst)
 }
 
 // =======================================================
