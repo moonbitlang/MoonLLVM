@@ -381,9 +381,8 @@ pub impl Show for Function with output(self, logger) {
     (if hasBody { " {\n" } else { "" })
   logger.write_string(func_info)
   if hasBody {
-    for bb in self.basicBlocks {
-      logger.write_string(bb.to_string())
-    }
+    let body_str = self.basicBlocks.map(fn { bb => bb.to_string() }).join("\n")
+    logger.write_string(body_str)
     logger.write_string("}")
   }
 }

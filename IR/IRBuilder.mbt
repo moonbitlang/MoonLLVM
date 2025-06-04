@@ -3350,3 +3350,138 @@ pub fn IRBuilder::createStore(
   self.insert!(inst)
   inst
 }
+
+///| Create unconditional branch Instruction.
+///
+/// Creates an unconditional branch that jumps to the specified destination basic block.
+///
+/// **Note:**
+///
+/// - The branch instruction does not return a value (void type)
+/// - This terminates the current basic block
+/// - Control flow will continue at the destination basic block
+///
+/// ```moonbit
+/// test "IRBuilder::createBr" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType!(i32ty, [])
+///   let fval = prog.addFunction!(fty, "br_test")
+///   
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   let targetBB = fval.addBasicBlock(name="target")
+///   
+///   // Setup entry block
+///   builder.setInsertPoint(entryBB)
+///   let _ = builder.createBr!(targetBB)
+///   
+///   // Setup target block
+///   builder.setInsertPoint(targetBB)
+///   let const_val = ctx.getConstInt32(42)
+///   let _ = builder.createRet!(const_val)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define i32 @br_test() {
+///     #|entry:
+///     #|  br label %target
+///     #|
+///     #|target:
+///     #|  ret i32 42
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+pub fn IRBuilder::createBr(self : Self, dst : BasicBlock) -> &Instruction!Error {
+  let parent = self.getInsertFunction()
+  let inst = BranchInst::newUnconditional(dst, parent)
+  self.insert(inst)
+  inst
+}
+
+///| Create conditional branch Instruction.
+///
+/// Creates a conditional branch that jumps to one of two destination basic blocks
+/// based on the condition value.
+///
+/// **Note:**
+///
+/// - The condition must be of i1 type (boolean)
+///
+/// ```moonbit
+/// test "IRBuilder::createCondBr" {
+///  let ctx = @IR.LLVMContext::new()
+///  let prog = ctx.addProgram("demo")
+///  let builder = @IR.IRBuilder::new()
+///
+///  let i32ty = ctx.getInt32Ty()
+///  let forty_two = ctx.getConstInt32(42)
+///  let thirty_three = ctx.getConstInt32(33)
+///
+///  let fty = ctx.getFunctionType!(i32ty, [i32ty])
+///  let fval = prog.addFunction!(fty, "foo")
+///
+///  let entryBB = fval.addBasicBlock(name="entry")
+///  builder.setInsertPoint(entryBB)
+///  let alloc = builder.createAlloca!(i32ty)
+///
+///  let arg0 = fval.getArg(0).unwrap()
+///  let cond = builder.createCmp!(ICMP_SGT, arg0, ctx.getConstInt32(0))
+///  let thenBB = fval.addBasicBlock()
+///  let elseBB = fval.addBasicBlock()
+///  let mergeBB = fval.addBasicBlock()
+///
+///  let _ = builder.createCondBr!(cond, thenBB, elseBB)
+///  builder.setInsertPoint(thenBB)
+///  let _ = builder.createStore!(thirty_three, alloc)
+///  let _ = builder.createBr!(mergeBB)
+///
+///  builder.setInsertPoint(elseBB)
+///  let _ = builder.createStore!(forty_two, alloc)
+///  let _ = builder.createBr!(mergeBB)
+///
+///  builder.setInsertPoint(mergeBB)
+///  let loaded = builder.createLoad!(i32ty, alloc)
+///  let _ = builder.createRet!(loaded)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define i32 @foo(i32 %0) {
+///     #|entry:
+///     #|  %1 = alloca i32, align 4
+///     #|  %2 = icmp sgt i32 %0, 0
+///     #|  br i1 %2, label %3, label %4
+///     #|
+///     #|3:
+///     #|  store i32 33, ptr %1, align 4
+///     #|  br label %5
+///     #|
+///     #|4:
+///     #|  store i32 42, ptr %1, align 4
+///     #|  br label %5
+///     #|
+///     #|5:
+///     #|  %6 = load i32, ptr %1, align 4
+///     #|  ret i32 %6
+//      #|}
+///|     ,
+///   )
+/// }
+/// ```
+pub fn IRBuilder::createCondBr(
+  self : Self,
+  cond : &Value,
+  true_dst : BasicBlock,
+  false_dst : BasicBlock
+) -> &Instruction!Error {
+  let parent = self.getInsertFunction()
+  let inst = BranchInst::newConditional(cond, true_dst, false_dst, parent)
+  self.insert(inst)
+  inst
+}

@@ -1357,7 +1357,11 @@ pub fn BranchInst::getNumSuccessors(self : Self) -> Int {
 ///|
 pub fn BranchInst::getSuccessor(self : BranchInst, idx : Int) -> BasicBlock? {
   guard idx >= 0 && idx < self.getNumSuccessors() else { return None }
-  guard self.getOperand(idx + 1).unwrap().asValueEnum() is BasicBlock(bb)
+  let val = match self.isConditional() {
+    true => self.getOperand(idx + 1).unwrap()
+    false => self.getOperand(idx).unwrap()
+  }
+  guard val.asValueEnum() is BasicBlock(bb)
   Some(bb)
 }
 
