@@ -78,9 +78,8 @@ pub fn IRBuilder::createRet(
   retInst
 }
 
-pub fn IRBuilder::createRetVoid(
-  self : IRBuilder
-) -> &Instruction!Error {
+///|
+pub fn IRBuilder::createRetVoid(self : IRBuilder) -> &Instruction!Error {
   let parent = self.getInsertFunction()
   let retInst = ReturnInst::new(None, parent)
   self.insert!(retInst)
@@ -3194,7 +3193,9 @@ pub fn IRBuilder::createGEP(
   inbounds~ : Bool = false
 ) -> &Value!Error {
   let parent = self.getInsertFunction()
-  let inst = GetElementPtrInst::new!(ptr, pointeeType, indices, inbounds, parent, name)
+  let inst = GetElementPtrInst::new!(
+    ptr, pointeeType, indices, inbounds, parent, name,
+  )
   self.insert!(inst)
   inst
 }
@@ -3260,14 +3261,16 @@ pub fn IRBuilder::createGEP(
 /// ```
 pub fn IRBuilder::createLoad(
   self : IRBuilder,
-  load_ty: &Type,
-  ptr: &Value,
-  isVolatile~: Bool = false,
-  atomicOrdering~: AtomicOrdering = NotAtomic,
-  name~: String = ""
+  load_ty : &Type,
+  ptr : &Value,
+  isVolatile~ : Bool = false,
+  atomicOrdering~ : AtomicOrdering = NotAtomic,
+  name~ : String = ""
 ) -> &Value!Error {
   let parent = self.getInsertFunction()
-  let inst = LoadInst::new!(load_ty, ptr, isVolatile, atomicOrdering, parent, name)
+  let inst = LoadInst::new!(
+    load_ty, ptr, isVolatile, atomicOrdering, parent, name,
+  )
   self.insert!(inst)
   inst
 }
@@ -3339,8 +3342,8 @@ pub fn IRBuilder::createStore(
   self : IRBuilder,
   value : &Value,
   ptr : &Value,
-  isVolatile~: Bool = false,
-  atomicOrdering~: AtomicOrdering = NotAtomic,
+  isVolatile~ : Bool = false,
+  atomicOrdering~ : AtomicOrdering = NotAtomic
 ) -> &Instruction!Error {
   let parent = self.getInsertFunction()
   let inst = StoreInst::new!(value, ptr, isVolatile, atomicOrdering, parent)

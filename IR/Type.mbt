@@ -297,6 +297,7 @@ impl Type with isSized(self) -> Bool {
   }
 }
 
+///|
 impl Type with isValidGEPType(self) -> Bool {
   self.tryAsAbstractTypeEnum() is None
 }

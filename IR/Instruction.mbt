@@ -177,6 +177,7 @@ pub impl Show for AllocaInst with output(self, logger) {
 // LoadInst
 // =======================================================
 
+///|
 pub(all) enum AtomicOrdering {
   NotAtomic
   Unordered
@@ -187,6 +188,7 @@ pub(all) enum AtomicOrdering {
   SequentiallyConsistent
 } derive(Hash, Eq)
 
+///|
 pub impl Show for AtomicOrdering with output(self, logger) {
   let str = match self {
     NotAtomic => ""
@@ -210,13 +212,14 @@ pub(all) struct LoadInst {
   align : Align
 }
 
+///|
 fn LoadInst::new(
-  load_ty: &Type,
-  ptr: &Value,
-  isVolatile: Bool,
-  atomicOrdering: AtomicOrdering,
-  parent: Function,
-  name: String
+  load_ty : &Type,
+  ptr : &Value,
+  isVolatile : Bool,
+  atomicOrdering : AtomicOrdering,
+  parent : Function,
+  name : String
 ) -> LoadInst!LLVMValueError {
   guard ptr.getType().asTypeEnum() is PointerType(_) else {
     raise LoadInstShouldLoadFromAPointer(ptr.getType())
@@ -233,14 +236,7 @@ fn LoadInst::new(
   let inst_base = InstBase::new(parent)
   user_base.operands.push(ptr)
   let align = parent.getDataLayout().getAlignment(load_ty)
-  LoadInst::{
-    base,
-    inst_base,
-    user_base,
-    isVolatile,
-    atomicOrdering,
-    align
-  }
+  LoadInst::{ base, inst_base, user_base, isVolatile, atomicOrdering, align }
 }
 
 ///|
@@ -287,7 +283,7 @@ pub impl Show for LoadInst with output(self, logger) {
     None if parent.getSlot(self) is Some(s) => "\{s}"
     None => "<badref>"
   }
-  
+
   // 获取指针操作数
   let ptr = self.getOperand(0).unwrap()
   let ptr_str = match ptr.getValueName() {
@@ -296,15 +292,13 @@ pub impl Show for LoadInst with output(self, logger) {
     None if ptr.tryAsConstant() is Some(c) => c.valstr()
     _ => "<badref>"
   }
-  
   let load_ty = self.getType()
-  
   let str = match (self.isVolatile, self.atomicOrdering) {
-    (true, _) => 
+    (true, _) =>
       "  %\{prefix} = load volatile \{load_ty}, ptr \{ptr_str}, \{align}"
-    (false, NotAtomic) => 
-      "  %\{prefix} = load \{load_ty}, ptr \{ptr_str}, \{align}" 
-    (false, _) => 
+    (false, NotAtomic) =>
+      "  %\{prefix} = load \{load_ty}, ptr \{ptr_str}, \{align}"
+    (false, _) =>
       "  %\{prefix} = load atomic \{load_ty}, ptr \{ptr_str} \{self.atomicOrdering}, \{align}"
   }
   logger.write_string(str)
@@ -314,6 +308,7 @@ pub impl Show for LoadInst with output(self, logger) {
 // StoreInst
 // =======================================================
 
+///|
 pub struct StoreInst {
   base : ValueBase
   inst_base : InstBase
@@ -323,12 +318,13 @@ pub struct StoreInst {
   align : Align
 }
 
+///|
 fn StoreInst::new(
-  value: &Value,
-  ptr: &Value,
-  isVolatile: Bool,
-  atomicOrdering: AtomicOrdering,
-  parent: Function,
+  value : &Value,
+  ptr : &Value,
+  isVolatile : Bool,
+  atomicOrdering : AtomicOrdering,
+  parent : Function
 ) -> StoreInst!LLVMValueError {
   guard ptr.getType().asTypeEnum() is PointerType(_) else {
     raise StoreInstShouldStoreToAPointer(ptr.getType())
@@ -346,71 +342,68 @@ fn StoreInst::new(
   user_base.operands.push(value)
   user_base.operands.push(ptr)
   let align = parent.getDataLayout().getAlignment(vty)
-  StoreInst::{
-    base,
-    inst_base,
-    user_base,
-    isVolatile,
-    atomicOrdering,
-    align
-  }
+  StoreInst::{ base, inst_base, user_base, isVolatile, atomicOrdering, align }
 }
 
-pub fn StoreInst::getValueOperand(self: StoreInst) -> &Value {
+///|
+pub fn StoreInst::getValueOperand(self : StoreInst) -> &Value {
   self.getOperand(0).unwrap()
 }
 
-pub fn StoreInst::getPointerOperand(self: StoreInst) -> &Value {
+///|
+pub fn StoreInst::getPointerOperand(self : StoreInst) -> &Value {
   self.getOperand(1).unwrap()
 }
 
+///|
 pub impl Value for StoreInst with asValueEnum(self) {
   StoreInst(self)
 }
 
+///|
 pub impl Value for StoreInst with getValueBase(self) {
   self.base
 }
 
+///|
 pub impl User for StoreInst with asUserEnum(self) {
   StoreInst(self)
 }
 
+///|
 pub impl User for StoreInst with getUserBase(self) {
   self.user_base
 }
 
+///|
 pub impl Instruction for StoreInst with getInstBase(self) {
   self.inst_base
 }
 
+///|
 pub impl Instruction for StoreInst with asInstEnum(self) {
   InstEnum::StoreInst(self)
 }
 
+///|
 pub impl Show for StoreInst with output(self, logger) {
   let parent = self.getParent()
   let align = self.align
-  
   let value = self.getValueOperand()
   let ptr = self.getPointerOperand()
-
   let value_ty = value.getType()
-  
   let value_str = match value.getValueName() {
     Some(name) => "%\{name}"
     None if parent.getSlot(value) is Some(slot) => "%\{slot}"
     None if value.tryAsConstant() is Some(c) => c.valstr()
     _ => "<badref>"
   }
-  
   let ptr_str = match ptr.getValueName() {
     Some(name) => "%\{name}"
     None if parent.getSlot(ptr) is Some(slot) => "%\{slot}"
     None if ptr.tryAsConstant() is Some(c) => c.valstr()
     _ => "<badref>"
   }
-  
   let str = match (self.isVolatile, self.atomicOrdering) {
     (true, _) =>
       "  store volatile \{value_ty} \{value_str}, ptr \{ptr_str}, \{align}"
@@ -419,9 +412,7 @@ pub impl Show for StoreInst with output(self, logger) {
     (false, _) =>
       "  store atomic \{value_ty} \{value_str}, ptr \{ptr_str} \{self.atomicOrdering}, \{align}"
   }
-  
   logger.write_string(str)
-
 }
 
 // =======================================================
@@ -1114,6 +1105,7 @@ pub impl Show for CastInst with output(self, logger) {
 // GetElementPtrInst
 // =======================================================
 
+///|
 pub struct GetElementPtrInst {
   base : ValueBase
   user_base : UserBase
@@ -1122,13 +1114,14 @@ pub struct GetElementPtrInst {
   pointeeType : &Type
 }
 
+///|
 fn GetElementPtrInst::new(
-  ptr: &Value,
-  pointeeType: &Type,
-  indices: Array[&Value],
-  isInbounds: Bool,
-  parent: Function,
-  name: String
+  ptr : &Value,
+  pointeeType : &Type,
+  indices : Array[&Value],
+  isInbounds : Bool,
+  parent : Function,
+  name : String
 ) -> GetElementPtrInst!LLVMValueError {
   guard ptr.getType().asTypeEnum() is PointerType(_) else {
     raise GetElementPtrInstValueTypeNotPtr(ptr.getType())
@@ -1152,30 +1145,37 @@ fn GetElementPtrInst::new(
   GetElementPtrInst::{ base, user_base, inst_base, isInbounds, pointeeType }
 }
 
+///|
 impl Value for GetElementPtrInst with getValueBase(self) {
   self.base
 }
 
+///|
 impl Value for GetElementPtrInst with asValueEnum(self) {
   GetElementPtrInst(self)
 }
 
+///|
 impl User for GetElementPtrInst with asUserEnum(self) {
   GetElementPtrInst(self)
 }
 
+///|
 impl User for GetElementPtrInst with getUserBase(self) {
   self.user_base
 }
 
+///|
 impl Instruction for GetElementPtrInst with getInstBase(self) {
   self.inst_base
 }
 
+///|
 impl Instruction for GetElementPtrInst with asInstEnum(self) {
   InstEnum::GetElementPtrInst(self)
 }
 
+///|
 impl Show for GetElementPtrInst with output(self, logger) {
   let parent = self.getParent()
   let prefix = match self.getName() {
@@ -1183,7 +1183,7 @@ impl Show for GetElementPtrInst with output(self, logger) {
     None if parent.getSlot(self) is Some(s) => "\{s}"
     None => "<badref>"
   }
-  
+
   // Format the pointer operand
   let ptr = self.getOperand(0).unwrap()
   let ptr_str = match ptr.getValueName() {
@@ -1192,7 +1192,7 @@ impl Show for GetElementPtrInst with output(self, logger) {
     None if ptr.tryAsConstant() is Some(c) => c.valstr()
     _ => "<badref>"
   }
-  
+
   // Format the indices
   let indices_strs = Array::new()
   let operand_count = self.getOperands().length()
@@ -1206,20 +1206,16 @@ impl Show for GetElementPtrInst with output(self, logger) {
     }
     indices_strs.push("\{idx.getType()} \{idx_str}")
   }
-  
   let indices_str = if indices_strs.length() > 0 {
     ", " + indices_strs.join(", ")
   } else {
     ""
   }
-  
   let inbounds_str = if self.isInbounds { " inbounds" } else { "" }
-  
   logger.write_string(
-    "  %\{prefix} = getelementptr\{inbounds_str} \{self.pointeeType}, ptr \{ptr_str}\{indices_str}"
+    "  %\{prefix} = getelementptr\{inbounds_str} \{self.pointeeType}, ptr \{ptr_str}\{indices_str}",
   )
 }
-
 
 // =======================================================
 // ReturnInst
@@ -1298,4 +1294,3 @@ pub impl Show for ReturnInst with output(self, logger) {
   }
   logger.write_string("  ret \{retStr}")
 }
-

@@ -68,7 +68,7 @@ pub fn Argument::getName(self : Argument) -> String? {
 ///   inspect!(arg0, content="i32 %lhs")
 ///   inspect!(arg1, content="i32 %rhs")
 ///
-///   assert_true!(arg1.setName?("lhs") is Err(_))
+///   assert_true!({try? arg1.setName("lhs")} is Err(_))
 /// }
 /// ```
 pub fn Argument::setName(self : Argument, name : String) -> Unit!LLVMValueError {
@@ -130,7 +130,7 @@ pub impl Value for Argument with asValueEnum(self) {
 fn Argument::getNameOrSlot(self : Argument) -> String {
   match self.name {
     Some(name) => name
-    None if self.parent.getSlot(self) is Some(s) => s.to_string() 
+    None if self.parent.getSlot(self) is Some(s) => s.to_string()
     None => "<badref>"
   }
 }

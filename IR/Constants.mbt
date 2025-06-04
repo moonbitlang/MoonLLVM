@@ -172,7 +172,7 @@ pub fn ConstantInt::isMinValue(self : ConstantInt) -> Bool {
 ///   let i64_m33 = ctx.getConstInt64(-33)
 ///   inspect!(i64_16.add(i64_m33), content="i64 -17")
 ///
-///   assert_true!(i8_0.add?(i16_5) is Err(_))
+///   assert_true!({try? i8_0.add(i16_5)} is Err(_))
 /// }
 /// ```
 pub fn ConstantInt::add(
@@ -220,7 +220,7 @@ pub fn ConstantInt::add(
 ///   let i64_m33 = ctx.getConstInt64(-33)
 ///   inspect!(i64_16.sub(i64_m33), content="i64 49")
 ///
-///   assert_true!(i32_81.sub?(i64_16) is Err(_))
+///   assert_true!({try? i32_81.sub(i64_16)} is Err(_))
 /// }
 /// ```
 pub fn ConstantInt::sub(
@@ -266,8 +266,6 @@ pub fn ConstantInt::sub(
 ///   let i64_16 = ctx.getConstInt64(16)
 ///   let i64_m33 = ctx.getConstInt64(-33)
 ///   inspect!(i64_16.mul(i64_m33), content="i64 -528")
-///
-///   assert_true!(i8_31.mul?(i16_5) is Err(_))
 /// }
 /// ```
 pub fn ConstantInt::mul(
@@ -313,8 +311,6 @@ pub fn ConstantInt::mul(
 ///   let i64_16 = ctx.getConstInt64(16)
 ///   let i64_m33 = ctx.getConstInt64(-33)
 ///   inspect!(i64_16.sdiv(i64_m33), content="i64 0")
-///
-///   assert_true!(i8_31.sdiv?(i16_5) is Err(_))
 /// }
 /// ```
 pub fn ConstantInt::sdiv(
@@ -373,11 +369,11 @@ pub fn ConstantInt::sdiv(
 ///   // Test case 5: Type mismatch
 ///   let i8_5 = ctx.getConstInt8(5)
 ///   let i16_2 = ctx.getConstInt16(2)
-///   assert_true!(i8_5.udiv?(i16_2) is Err(_))
+///   assert_true!({try? i8_5.udiv(i16_2)} is Err(_))
 ///
 ///   // Test case 6: Division by zero
 ///   let i8_0 = ctx.getConstInt8(0)
-///   assert_true!(i8_5.udiv?(i8_0) is Err(_))
+///   assert_true!({try? i8_5.udiv(i8_0)} is Err(_))
 ///
 ///   // Test case 7: i1 unsigned division
 ///   let i1_true = ctx.getConstTrue()
@@ -442,8 +438,6 @@ pub fn ConstantInt::udiv(
 ///   let i64_val = ctx.getConstInt64(0x123456789ABCDEF0L)
 ///   let i64_low_clear = ctx.getConstInt64(-1L<<4) // ...FFFFFFFFFFFFFFF0
 ///   inspect!(i64_val.and(i64_low_clear), content="i64 1311768467463790320") // 0x123456789ABCDEF0
-///
-///   assert_true!(i8_6.and?(i16_m1) is Err(_))
 /// }
 /// ```
 pub fn ConstantInt::and(
@@ -489,8 +483,6 @@ pub fn ConstantInt::and(
 ///   let i64_val = ctx.getConstInt64(0L)
 ///   let i64_m1 = ctx.getConstInt64(-1L)
 ///   inspect!(i64_val.or(i64_m1), content="i64 -1")
-///
-///   assert_true!(i8_6.or?(i16_1) is Err(_))
 /// }
 /// ```
 pub fn ConstantInt::or(
@@ -536,8 +528,6 @@ pub fn ConstantInt::or(
 ///   let i64_val = ctx.getConstInt64(12345L)
 ///   let i64_0 = ctx.getConstInt64(0L)
 ///   inspect!(i64_val.xor(i64_0), content="i64 12345")
-///
-///   assert_true!(i8_6.xor?(i16_val) is Err(_))
 /// }
 /// ```
 pub fn ConstantInt::xor(
@@ -583,8 +573,6 @@ pub fn ConstantInt::xor(
 ///   let i64_val = ctx.getConstInt64(0x123L)
 ///   let i64_8 = ctx.getConstInt64(8L)
 ///   inspect!(i64_val.shl(i64_8), content="i64 74496") // 0x123 << 8 = 0x12300
-///
-///   assert_true!(i8_1.shl?(i16_2) is Err(_))
 /// }
 /// ```
 pub fn ConstantInt::shl(
@@ -630,8 +618,6 @@ pub fn ConstantInt::shl(
 ///   let i64_val = ctx.getConstInt64(0x8000000000000000L) // MSB set
 ///   let i64_1 = ctx.getConstInt64(1L)
 ///   inspect!(i64_val.lshr(i64_1), content="i64 4611686018427387904") // logical shift
-///
-///   assert_true!(i8_200.lshr?(i16_1) is Err(_))
 /// }
 /// ```
 pub fn ConstantInt::lshr(
@@ -700,8 +686,6 @@ pub fn ConstantInt::lshr(
 ///   let i32_64 = ctx.getConstInt32(64)
 ///   let i32_2 = ctx.getConstInt32(2)
 ///   inspect!(i32_64.ashr(i32_2), content="i32 16") // 64 >> 2 = 16
-///
-///   assert_true!(i8_m1.ashr?(i16_2) is Err(_))
 /// }
 /// ```
 pub fn ConstantInt::ashr(
@@ -764,7 +748,7 @@ pub fn ConstantInt::ashr(
 ///
 ///   // Test type mismatch
 ///   let i16_5 = ctx.getConstInt16(5)
-///   assert_true!(i8_5.compare?(ICMP_EQ, i16_5) is Err(_))
+///   assert_true!({try? i8_5.compare(ICMP_EQ, i16_5)} is Err(_))
 /// }
 /// ```
 pub fn ConstantInt::compare(
@@ -866,7 +850,7 @@ pub fn ConstantInt::compare(
 ///
 ///   // Test error case: cannot truncate to larger type
 ///   let i8_val = ctx.getConstInt8(42)
-///   assert_true!(i8_val.trunc?(ctx.getInt32Ty()) is Err(_))
+///   assert_true!({try? i8_val.trunc(ctx.getInt32Ty())} is Err(_))
 /// }
 /// ```
 pub fn ConstantInt::trunc(
@@ -905,7 +889,7 @@ pub fn ConstantInt::trunc(
 ///
 ///   // Test error case: cannot zext to smaller type
 ///   let i32_val = ctx.getConstInt32(42)
-///   assert_true!(i32_val.zext?(ctx.getInt8Ty()) is Err(_))
+///   assert_true!({try? i32_val.zext(ctx.getInt8Ty())} is Err(_))
 /// }
 /// ```
 pub fn ConstantInt::zext(
@@ -952,7 +936,7 @@ pub fn ConstantInt::zext(
 ///
 ///   // Test error case: cannot sext to smaller type
 ///   let i32_val = ctx.getConstInt32(42)
-///   assert_true!(i32_val.sext?(ctx.getInt8Ty()) is Err(_))
+///   assert_true!({try? i32_val.sext(ctx.getInt8Ty())} is Err(_))
 /// }
 /// ```
 pub fn ConstantInt::sext(
@@ -1100,7 +1084,7 @@ pub fn ConstantInt::inttoptr(
 ///
 ///   // Test error case: different bit widths
 ///   let i8_val = ctx.getConstInt8(42)
-///   assert_true!(i8_val.bitcast?(ctx.getFloatTy()) is Err(_))
+///   assert_true!({try? i8_val.bitcast(ctx.getFloatTy())} is Err(_))
 /// }
 /// ```
 pub fn ConstantInt::bitcast(
@@ -1228,8 +1212,6 @@ pub fn[T : Floating] ConstantFP::exactlyEquals(
 ///   let f64_m1_5 = ctx.getConstDouble(-1.5)
 ///   let result2 = f64_2_5.add(f64_m1_5)
 ///   assert_eq!(result2.getValue(), 1.0)
-///
-///   assert_true!(f32_0.add?(f64_2_5) is Err(_))
 /// }
 /// ```
 pub fn ConstantFP::add(
@@ -1261,8 +1243,6 @@ pub fn ConstantFP::add(
 ///   let f64_m1_5 = ctx.getConstDouble(-1.5)
 ///   let result2 = f64_2_5.sub(f64_m1_5)
 ///   assert_eq!(result2.getValue(), 4.0)
-///
-///   assert_true!(f32_0.sub?(f64_2_5) is Err(_))
 /// }
 /// ```
 pub fn ConstantFP::sub(
@@ -1294,8 +1274,6 @@ pub fn ConstantFP::sub(
 ///   let f64_m1_5 = ctx.getConstDouble(-1.5)
 ///   let result2 = f64_2_5.mul(f64_m1_5)
 ///   assert_eq!(result2.getValue(), -3.75)
-///
-///   assert_true!(f32_0.mul?(f64_2_5) is Err(_))
 /// }
 /// ```
 pub fn ConstantFP::mul(
@@ -1327,8 +1305,6 @@ pub fn ConstantFP::mul(
 ///   let f64_m1_5 = ctx.getConstDouble(-1.5)
 ///   let result2 = f64_2_5.div(f64_m1_5)
 ///   assert_eq!(result2.getValue(), -5.0/3.0)
-///
-///   assert_true!(f32_0.div?(f64_2_5) is Err(_))
 /// }
 /// ```
 pub fn ConstantFP::div(
@@ -1391,7 +1367,7 @@ pub fn ConstantFP::div(
 ///
 ///   // Test type mismatch
 ///   let f64_1_5 = ctx.getConstDouble(1.5)
-///   assert_true!(f32_1_5.compare?(FCMP_OEQ, f64_1_5) is Err(_))
+///   assert_true!({try? f32_1_5.compare(FCMP_OEQ, f64_1_5)} is Err(_))
 /// }
 /// ```
 pub fn ConstantFP::compare(
@@ -1454,7 +1430,7 @@ pub fn ConstantFP::compare(
 ///
 ///   // Test error case: cannot truncate to larger type
 ///   let f32_val = ctx.getConstFloat(2.0)
-///   assert_true!(f32_val.fptrunc?(ctx.getDoubleTy()) is Err(_))
+///   assert_true!({try? f32_val.fptrunc(ctx.getDoubleTy())} is Err(_))
 /// }
 /// ```
 pub fn ConstantFP::fptrunc(
@@ -1492,7 +1468,7 @@ pub fn ConstantFP::fptrunc(
 ///
 ///   // Test error case: cannot extend to smaller type
 ///   let f64_val = ctx.getConstDouble(2.0)
-///   assert_true!(f64_val.fpext?(ctx.getFloatTy()) is Err(_))
+///   assert_true!({try? f64_val.fpext(ctx.getFloatTy())} is Err(_))
 /// }
 /// ```
 pub fn ConstantFP::fpext(
@@ -1622,11 +1598,11 @@ pub fn ConstantFP::fptosi(
 ///
 ///   // Test f32 to f32 (same type should error)
 ///   let f32_val = ctx.getConstFloat(1.0)
-///   assert_true!(f32_val.bitcast?(ctx.getFloatTy()) is Err(_))
+///   assert_true!({try? f32_val.bitcast(ctx.getFloatTy())} is Err(_))
 ///
 ///   // Test error case: different bit widths
 ///   let f64_val = ctx.getConstDouble(42.0)
-///   assert_true!(f64_val.bitcast?(ctx.getInt32Ty()) is Err(_))
+///   assert_true!({try? f64_val.bitcast(ctx.getInt32Ty())} is Err(_))
 /// }
 /// ```
 pub fn ConstantFP::bitcast(

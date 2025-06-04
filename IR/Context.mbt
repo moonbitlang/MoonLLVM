@@ -890,9 +890,10 @@ pub fn LLVMContext::getConstInt8Array(
   self : LLVMContext,
   data : Array[Int]
 ) -> ConstantArray {
-  let ty = self
-    .getArrayType?(self.getInt8Ty(), data.length().reinterpret_as_uint())
-    .unwrap()
+  let ty = (try? self.getArrayType(
+    self.getInt8Ty(),
+    data.length().reinterpret_as_uint(),
+  )).unwrap()
   ConstantArray::newInt8Array(ty, data)
 }
 
@@ -913,9 +914,10 @@ pub fn LLVMContext::getConstInt16Array(
   self : LLVMContext,
   data : Array[Int16]
 ) -> ConstantArray {
-  let ty = self
-    .getArrayType?(self.getInt16Ty(), data.length().reinterpret_as_uint())
-    .unwrap()
+  let ty = (try? self.getArrayType(
+    self.getInt16Ty(),
+    data.length().reinterpret_as_uint(),
+  )).unwrap()
   ConstantArray::newInt16Array(ty, data)
 }
 
@@ -936,9 +938,10 @@ pub fn LLVMContext::getConstInt32Array(
   self : LLVMContext,
   data : Array[Int]
 ) -> ConstantArray {
-  let ty = self
-    .getArrayType?(self.getInt32Ty(), data.length().reinterpret_as_uint())
-    .unwrap()
+  let ty = (try? self.getArrayType(
+    self.getInt32Ty(),
+    data.length().reinterpret_as_uint(),
+  )).unwrap()
   ConstantArray::newInt32Array(ty, data)
 }
 
@@ -959,9 +962,10 @@ pub fn LLVMContext::getConstInt64Array(
   self : LLVMContext,
   data : Array[Int64]
 ) -> ConstantArray {
-  let ty = self
-    .getArrayType?(self.getInt64Ty(), data.length().reinterpret_as_uint())
-    .unwrap()
+  let ty = (try? self.getArrayType(
+    self.getInt64Ty(),
+    data.length().reinterpret_as_uint(),
+  )).unwrap()
   ConstantArray::newInt64Array(ty, data)
 }
 
@@ -982,9 +986,8 @@ pub fn LLVMContext::getConstUInt8Array(
   self : LLVMContext,
   data : Array[Byte]
 ) -> ConstantArray {
-  let ty = self
-    .getArrayType?(self.getInt8Ty(), data.length().reinterpret_as_uint())
-    .unwrap()
+  let len = data.length().reinterpret_as_uint()
+  let ty = (try? self.getArrayType(self.getInt8Ty(), len)).unwrap()
   ConstantArray::newUInt8Array(ty, data)
 }
 
@@ -1005,9 +1008,8 @@ pub fn LLVMContext::getConstUInt16Array(
   self : LLVMContext,
   data : Array[UInt16]
 ) -> ConstantArray {
-  let ty = self
-    .getArrayType?(self.getInt16Ty(), data.length().reinterpret_as_uint())
-    .unwrap()
+  let len = data.length().reinterpret_as_uint()
+  let ty = (try? self.getArrayType(self.getInt16Ty(), len)).unwrap()
   ConstantArray::newUInt16Array(ty, data)
 }
 
@@ -1028,9 +1030,8 @@ pub fn LLVMContext::getConstUInt32Array(
   self : LLVMContext,
   data : Array[UInt]
 ) -> ConstantArray {
-  let ty = self
-    .getArrayType?(self.getInt32Ty(), data.length().reinterpret_as_uint())
-    .unwrap()
+  let len = data.length().reinterpret_as_uint()
+  let ty = (try? self.getArrayType(self.getInt32Ty(), len)).unwrap()
   ConstantArray::newUInt32Array(ty, data)
 }
 
@@ -1051,9 +1052,8 @@ pub fn LLVMContext::getConstUInt64Array(
   self : LLVMContext,
   data : Array[UInt64]
 ) -> ConstantArray {
-  let ty = self
-    .getArrayType?(self.getInt64Ty(), data.length().reinterpret_as_uint())
-    .unwrap()
+  let len = data.length().reinterpret_as_uint()
+  let ty = (try? self.getArrayType(self.getInt64Ty(), len)).unwrap()
   ConstantArray::newUInt64Array(ty, data)
 }
 
@@ -1077,9 +1077,8 @@ pub fn LLVMContext::getConstFloatArray(
   self : LLVMContext,
   data : Array[Float]
 ) -> ConstantArray {
-  let ty = self
-    .getArrayType?(self.getFloatTy(), data.length().reinterpret_as_uint())
-    .unwrap()
+  let len = data.length().reinterpret_as_uint()
+  let ty = (try? self.getArrayType(self.getFloatTy(), len)).unwrap()
   ConstantArray::newFloatArray(ty, data)
 }
 
@@ -1104,9 +1103,8 @@ pub fn LLVMContext::getConstDoubleArray(
   self : LLVMContext,
   data : Array[Double]
 ) -> ConstantArray {
-  let ty = self
-    .getArrayType?(self.getDoubleTy(), data.length().reinterpret_as_uint())
-    .unwrap()
+  let len = data.length().reinterpret_as_uint()
+  let ty = (try? self.getArrayType(self.getDoubleTy(), len)).unwrap()
   ConstantArray::newDoubleArray(ty, data)
 }
 
@@ -1134,9 +1132,8 @@ pub fn LLVMContext::getConstInt8Vector(
   self : LLVMContext,
   data : Array[Int]
 ) -> ConstantVector {
-  let ty = self
-    .getFixedVectorType?(self.getInt8Ty(), data.length().reinterpret_as_uint())
-    .unwrap()
+  let len = data.length().reinterpret_as_uint()
+  let ty = (try? self.getFixedVectorType(self.getInt8Ty(), len)).unwrap()
   ConstantVector::newInt8Vector(ty, data)
 }
 
@@ -1157,9 +1154,8 @@ pub fn LLVMContext::getConstInt16Vector(
   self : LLVMContext,
   data : Array[Int16]
 ) -> ConstantVector {
-  let ty = self
-    .getFixedVectorType?(self.getInt16Ty(), data.length().reinterpret_as_uint())
-    .unwrap()
+  let len = data.length().reinterpret_as_uint()
+  let ty = (try? self.getFixedVectorType(self.getInt16Ty(), len)).unwrap()
   ConstantVector::newInt16Vector(ty, data)
 }
 
@@ -1180,9 +1176,8 @@ pub fn LLVMContext::getConstInt32Vector(
   self : LLVMContext,
   data : Array[Int]
 ) -> ConstantVector {
-  let ty = self
-    .getFixedVectorType?(self.getInt32Ty(), data.length().reinterpret_as_uint())
-    .unwrap()
+  let len = data.length().reinterpret_as_uint()
+  let ty = (try? self.getFixedVectorType(self.getInt32Ty(), len)).unwrap()
   ConstantVector::newInt32Vector(ty, data)
 }
 
@@ -1203,9 +1198,8 @@ pub fn LLVMContext::getConstInt64Vector(
   self : LLVMContext,
   data : Array[Int64]
 ) -> ConstantVector {
-  let ty = self
-    .getFixedVectorType?(self.getInt64Ty(), data.length().reinterpret_as_uint())
-    .unwrap()
+  let len = data.length().reinterpret_as_uint()
+  let ty = (try? self.getFixedVectorType(self.getInt64Ty(), len)).unwrap()
   ConstantVector::newInt64Vector(ty, data)
 }
 

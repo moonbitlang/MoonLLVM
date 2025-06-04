@@ -226,6 +226,7 @@ impl Value with tryAsConstantEnum(self) {
   }
 }
 
+///|
 impl Value with tryAsUserEnum(self) {
   match self.asValueEnum() {
     AllocaInst(c) => Some(AllocaInst(c))
