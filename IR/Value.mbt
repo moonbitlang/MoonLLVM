@@ -44,7 +44,7 @@ pub enum ValueEnum {
   CmpInst(CmpInst)
   StoreInst(StoreInst)
   GetElementPtrInst(GetElementPtrInst)
-  //SelectInst(SelectInst)
+  SelectInst(SelectInst)
   //ExtractElementInst(ExtractElementInst)
   //InsertElementInst(InsertElementInst)
   //ShuffleVectorInst(ShuffleVectorInst)
@@ -95,6 +95,7 @@ pub fn ValueEnum::tryAsUserEnum(self : ValueEnum) -> UserEnum? {
     CmpInst(c) => CmpInst(c) |> Some
     StoreInst(s) => StoreInst(s) |> Some
     GetElementPtrInst(g) => GetElementPtrInst(g) |> Some
+    SelectInst(s) => SelectInst(s) |> Some
     ReturnInst(r) => ReturnInst(r) |> Some
     BranchInst(b) => BranchInst(b) |> Some
     _ => None
@@ -346,6 +347,7 @@ pub enum UserEnum {
   CmpInst(CmpInst)
   StoreInst(StoreInst)
   GetElementPtrInst(GetElementPtrInst)
+  SelectInst(SelectInst)
   ReturnInst(ReturnInst)
   BranchInst(BranchInst)
 }
@@ -360,6 +362,7 @@ pub fn UserEnum::getUserName(self : UserEnum) -> String? {
     StoreInst(s) => s.getUserName()
     CastInst(c) => c.getUserName()
     GetElementPtrInst(g) => g.getUserName()
+    SelectInst(s) => s.getUserName()
     ReturnInst(_) => None
     BranchInst(_) => None
   }
@@ -484,6 +487,7 @@ pub enum InstEnum {
   CmpInst(CmpInst)
   StoreInst(StoreInst)
   GetElementPtrInst(GetElementPtrInst)
+  SelectInst(SelectInst)
   ReturnInst(ReturnInst)
   BranchInst(BranchInst)
 }

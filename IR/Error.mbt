@@ -46,6 +46,8 @@ type! LLVMValueError {
   GetElementPtrInstValueTypeNotPtr(&Type)
   GetElementPtrInstNotValidPointeeType(&Type)
   GetElementPtrInstIndexNotInteger(&Type)
+  SelectInstConditionNotBoolean(&Type)
+  SelectInstTypeMismatch(&Type, &Type)
   BranchInstConditionNotBoolean(&Type)
 } derive(Show)
 

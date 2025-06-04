@@ -1218,6 +1218,92 @@ impl Show for GetElementPtrInst with output(self, logger) {
 }
 
 // =======================================================
+// SelectInst
+// =======================================================
+
+///|
+pub struct SelectInst {
+  base : ValueBase
+  user_base : UserBase
+  inst_base : InstBase
+}
+
+///|
+fn SelectInst::new(
+  condition : &Value,
+  trueValue : &Value,
+  falseValue : &Value,
+  parent : Function,
+  name : String
+) -> SelectInst!LLVMValueError {
+  guard condition.getType().tryAsIntegerTypeEnum() is Some(intTy) &&
+    intTy.getBitWidth() == 1 else {
+    raise SelectInstConditionNotBoolean(condition.getType())
+  }
+  let vty = trueValue.getType()
+  guard vty == falseValue.getType() else {
+    raise SelectInstTypeMismatch(vty, falseValue.getType())
+  }
+  let base = ValueBase::new(vty)
+  let user_base = UserBase::new(name)
+  let inst_base = InstBase::new(parent)
+  user_base.operands.push(condition)
+  user_base.operands.push(trueValue)
+  user_base.operands.push(falseValue)
+  SelectInst::{ base, user_base, inst_base }
+}
+
+///|
+pub fn SelectInst::getCondition(self : SelectInst) -> &Value {
+  self.getOperand(0).unwrap()
+}
+
+///|
+pub fn SelectInst::getTrueValue(self : SelectInst) -> &Value {
+  self.getOperand(1).unwrap()
+}
+
+///|
+pub fn SelectInst::getFalseValue(self : SelectInst) -> &Value {
+  self.getOperand(2).unwrap()
+}
+
+///|
+pub impl Value for SelectInst with getValueBase(self) {
+  self.base
+}
+
+///|
+pub impl Value for SelectInst with asValueEnum(self) {
+  SelectInst(self)
+}
+
+///|
+pub impl User for SelectInst with asUserEnum(self) {
+  SelectInst(self)
+}
+
+///|
+pub impl User for SelectInst with getUserBase(self) {
+  self.user_base
+}
+
+///|
+pub impl Instruction for SelectInst with getInstBase(self) {
+  self.inst_base
+}
+
+///|
+pub impl Instruction for SelectInst with asInstEnum(self) {
+  InstEnum::SelectInst(self)
+}
+
+///|
+pub impl Show for SelectInst with output(_, logger) {
+  logger.write_string("select inst")
+}
+
+// =======================================================
 // ReturnInst
 // =======================================================
 
