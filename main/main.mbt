@@ -41,7 +41,7 @@ fn main_err() -> Unit!Error {
   builder.setInsertPoint(entryBB)
   let alloc = builder.createAlloca!(i32ty)
   let arg0 = fval.getArg(0).unwrap()
-  let cond = builder.createCmp!(ICMP_SGT, arg0, ctx.getConstInt32(0))
+  let cond = builder.createICmpSGT!(arg0, ctx.getConstInt32(0))
   let thenBB = fval.addBasicBlock()
   let elseBB = fval.addBasicBlock()
   let mergeBB = fval.addBasicBlock()
