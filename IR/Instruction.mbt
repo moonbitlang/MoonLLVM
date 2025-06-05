@@ -1866,6 +1866,6 @@ pub impl Show for PHINode with output(self, logger) {
       incoming_strs.push("[ \{value_str}, \{block_str} ]")
     }
   }
-  let str = str + incoming_strs.join(", ")
+  let str = str + (if num_incoming> 0 { " " + incoming_strs.join(", ") } else  {""})
   logger.write_string(str)
 }

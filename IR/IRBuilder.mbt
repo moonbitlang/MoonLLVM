@@ -3947,3 +3947,90 @@ pub fn IRBuilder::createSwitch(
   self.insert!(inst)
   inst
 }
+
+///| Create PHI Instruction.
+///
+/// Creates a PHI node instruction for SSA (Static Single Assignment) form.
+/// A PHI node is used to merge values from different predecessors in the control flow graph.
+///
+/// **Note:**
+///
+/// - The type parameter specifies the type of values that will be merged
+///
+/// - After creation, use `addIncoming` method to add incoming values and their corresponding basic blocks
+///
+/// - Each incoming value must be of the same type as the PHI node
+///
+/// - PHI nodes are typically placed at the beginning of basic blocks that have multiple predecessors
+///
+/// ```moonbit
+/// test "IRBuilder::createPHI" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType!(i32ty, [i32ty])
+///   let fval = prog.addFunction!(fty, "phi_func")
+///   
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   let thenBB = fval.addBasicBlock(name="then")
+///   let elseBB = fval.addBasicBlock(name="else") 
+///   let mergeBB = fval.addBasicBlock(name="merge")
+///   
+///   // Entry block: create condition and branch
+///   builder.setInsertPoint(entryBB)
+///   let arg0 = fval.getArg(0).unwrap()
+///   let cond = builder.createCmp!(ICMP_SGT, arg0, ctx.getConstInt32(0))
+///   let _ = builder.createCondBr!(cond, thenBB, elseBB)
+///   
+///   // Then block: use value 100
+///   builder.setInsertPoint(thenBB)
+///   let then_val = ctx.getConstInt32(100)
+///   let _ = builder.createBr!(mergeBB)
+///   
+///   // Else block: use value 200  
+///   builder.setInsertPoint(elseBB)
+///   let else_val = ctx.getConstInt32(200)
+///   let _ = builder.createBr!(mergeBB)
+///   
+///   // Merge block: create PHI node to merge values
+///   builder.setInsertPoint(mergeBB)
+///   let phi = builder.createPHI!(i32ty, name="result")
+///   phi.addIncoming!(then_val, thenBB)
+///   phi.addIncoming!(else_val, elseBB)
+///   
+///   let _ = builder.createRet!(phi)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define i32 @phi_func(i32 %0) {
+///     #|entry:
+///     #|  %1 = icmp sgt i32 %0, 0
+///     #|  br i1 %1, label %then, label %else
+///     #|
+///     #|then:
+///     #|  br label %merge
+///     #|
+///     #|else:
+///     #|  br label %merge
+///     #|
+///     #|merge:
+///     #|  %result = phi i32 [ 100, %then ], [ 200, %else ]
+///     #|  ret i32 %result
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+pub fn IRBuilder::createPHI(
+  self : IRBuilder,
+  ty : &Type,
+  name~ : String = ""
+) -> PHINode!Error {
+  let parent = self.getInsertFunction()
+  let phi = PHINode::new(ty, parent, name)
+  self.insert!(phi)
+  phi
+}
