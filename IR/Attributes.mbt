@@ -124,16 +124,16 @@ pub impl Show for RetAttr with output(self, logger) {
 
 ///|
 struct AttributeSet {
-  fnAttrs : @hashset.T[FnAttr]
-  argAttrs : Map[UInt, @hashset.T[ArgAttr]]
-  retAttrs : @hashset.T[RetAttr]
+  fnAttrs : Set[FnAttr]
+  argAttrs : Map[UInt, Set[ArgAttr]]
+  retAttrs : Set[RetAttr]
 }
 
 ///|
 fn AttributeSet::new() -> AttributeSet {
   AttributeSet::{
-    fnAttrs: @hashset.new(),
+    fnAttrs: Set::new(),
     argAttrs: Map::new(),
-    retAttrs: @hashset.new(),
+    retAttrs: Set::new(),
   }
 }

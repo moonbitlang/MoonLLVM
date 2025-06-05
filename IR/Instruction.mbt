@@ -1869,3 +1869,98 @@ pub impl Show for PHINode with output(self, logger) {
   let str = str + (if num_incoming> 0 { " " + incoming_strs.join(", ") } else  {""})
   logger.write_string(str)
 }
+
+// =======================================================
+// CallInst
+// =======================================================
+
+pub enum OperandBundle {
+  OperandBundle(String, Array[&Value])
+}
+
+pub fn OperandBundle::new(tag: String, inputs: Array[&Value]) -> OperandBundle {
+  OperandBundle(tag, inputs)
+}
+
+pub fn OperandBundle::getTag(self: OperandBundle) -> String {
+  let OperandBundle(tag, _) = self
+  tag
+}
+
+pub fn OperandBundle::getInputs(self: OperandBundle) -> Array[&Value] {
+  let OperandBundle(_, inputs) = self
+  inputs
+}
+
+pub enum TailCallKind {
+  TCK_NoTail
+  TCK_Tail
+  TCK_MustTail
+}
+
+pub impl Show for TailCallKind with output(self, logger) {
+  let str = match self {
+    TCK_NoTail => ""
+    TCK_Tail => "tail"
+    TCK_MustTail => "musttail"
+  }
+  logger.write_string(str)
+}
+
+pub struct CallInst {
+  base : ValueBase
+  user_base : UserBase
+  inst_base : InstBase
+  argNums: Int
+  operand_bundles : Array[OperandBundle]
+  mut tck : TailCallKind
+}
+
+pub fn CallInst::isTailCall(self: CallInst) -> Bool {
+  not(self.tck is TCK_NoTail)
+}
+
+pub fn CallInst::getTailCallKind(self: CallInst) -> TailCallKind {
+  self.tck
+}
+
+pub fn CallInst::setTailCallKind(
+  self: CallInst,
+  tck: TailCallKind
+) -> Unit {
+  self.tck = tck
+}
+
+pub fn CallInst::getFunctionType(self: CallInst) -> FunctionType {
+  guard self.getOperand(0).unwrap().getType().asTypeEnum() is FunctionType(ft)
+  ft
+}
+
+pub impl Value for CallInst with getValueBase(self) {
+  self.base
+}
+
+pub impl Value for CallInst with asValueEnum(self) {
+  CallInst(self)
+}
+
+pub impl User for CallInst with asUserEnum(self) {
+  CallInst(self)
+}
+
+pub impl User for CallInst with getUserBase(self) {
+  self.user_base
+}
+
+pub impl Instruction for CallInst with getInstBase(self) {
+  self.inst_base
+}
+
+pub impl Instruction for CallInst with asInstEnum(self) {
+  InstEnum::CallInst(self)
+}
+
+pub impl Show for CallInst with output(self, logger) {
+  ignore(self)
+  logger.write_string("call")
+}

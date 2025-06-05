@@ -32,11 +32,15 @@ pub enum ValueEnum {
   //
   //BlockAddress(BlockAddress)
 
+  // =========
+  Argument(Argument)
+  BasicBlock(BasicBlock)
+  // MetadataAsValue(MetadataAsValue)
+
   // ======= Instruction Values =======
   // ------- Unary Instruction
   AllocaInst(AllocaInst)
   LoadInst(LoadInst)
-  // VAArgInst(VAArgInst)
   // ExtractValueInst(ExtractValueInst)
   // FreezeInst(FreezeInst)
   CastInst(CastInst)
@@ -52,6 +56,16 @@ pub enum ValueEnum {
   ReturnInst(ReturnInst)
   BranchInst(BranchInst)
   SwitchInst(SwitchInst)
+  CallInst(CallInst)
+  //FenceInst(FenceInst)
+  //AtomicCmpXchgInst(AtomicCmpXchgInst)
+  //AtomicRMWInst(AtomicRMWInst)
+
+
+  // ======= Not Plan To Support =======
+  //VAArgInst(VAArgInst)
+  //InvokeInst(InvokeInst)
+  //CallBrInst(CallBrInst)
   //IndirectBrInst(IndirectBrInst)
   //ResumeInst(ResumeInst)
   //CatchSwitchInst(CatchSwitchInst)
@@ -59,15 +73,7 @@ pub enum ValueEnum {
   //CleanupReturnInst(CleanupReturnInst)
   //UnreachableInst(UnreachableInst)
   //LandingPadInst(LandingPadInst)
-  //FenceInst(FenceInst)
-  //AtomicCmpXchgInst(AtomicCmpXchgInst)
-  //AtomicRMWInst(AtomicRMWInst)
-  //
-  // =========
-  Argument(Argument)
-  BasicBlock(BasicBlock)
-  // InlineAsm(InlineAsm)
-  // MetadataAsValue(MetadataAsValue)
+  //InlineAsm(InlineAsm)
 }
 
 ///|
@@ -100,6 +106,7 @@ pub fn ValueEnum::tryAsUserEnum(self : ValueEnum) -> UserEnum? {
     ReturnInst(r) => ReturnInst(r) |> Some
     BranchInst(b) => BranchInst(b) |> Some
     SwitchInst(s) => SwitchInst(s) |> Some
+    CallInst(c) => CallInst(c) |> Some
     _ => None
   }
 }
@@ -122,6 +129,7 @@ pub fn ValueEnum::tryAsInstEnum(self : ValueEnum) -> InstEnum? {
     ReturnInst(r) => ReturnInst(r) |> Some
     BranchInst(b) => BranchInst(b) |> Some
     SwitchInst(s) => SwitchInst(s) |> Some
+    CallInst(c) => CallInst(c) |> Some
     _ => None
   }
 }
@@ -360,6 +368,7 @@ pub enum UserEnum {
   ReturnInst(ReturnInst)
   BranchInst(BranchInst)
   SwitchInst(SwitchInst)
+  CallInst(CallInst)
 }
 
 ///|
@@ -377,6 +386,7 @@ pub fn UserEnum::getUserName(self : UserEnum) -> String? {
     ReturnInst(_) => None
     BranchInst(_) => None
     SwitchInst(_) => None
+    CallInst(c) => c.getUserName()
   }
 }
 
@@ -504,6 +514,7 @@ pub enum InstEnum {
   ReturnInst(ReturnInst)
   BranchInst(BranchInst)
   SwitchInst(SwitchInst)
+  CallInst(CallInst)
 }
 
 // =======================================================

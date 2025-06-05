@@ -108,7 +108,7 @@ pub fn Argument::addAttr(self : Argument, attr : ArgAttr) -> Unit {
   let attrSet = match argAttrs.get(self.argNo) {
     Some(attrSet) => attrSet
     None => {
-      let attrSet = @hashset.new()
+      let attrSet = Set::new()
       argAttrs.set(self.argNo, attrSet)
       attrSet
     }
@@ -313,6 +313,18 @@ pub fn Function::getDataLayout(self : Function) -> DataLayout {
 ///|
 pub fn Function::hasBody(self : Function) -> Bool {
   self.basicBlocks.length() > 0
+}
+
+pub fn Function::getFunctionAttrs(self : Function) -> Set[FnAttr] {
+  self.attrSet.fnAttrs
+}
+
+pub fn Function::getReturnAttrs(self : Function) -> Set[RetAttr] {
+  self.attrSet.retAttrs
+}
+
+pub fn Function::getArgAttrs(self : Function, argno: UInt) -> Set[ArgAttr]? {
+  self.attrSet.argAttrs.get(argno)
 }
 
 ///|
