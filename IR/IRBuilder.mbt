@@ -3850,3 +3850,100 @@ pub fn IRBuilder::createSelect(
   self.insert!(inst)
   inst
 }
+
+///| Create Switch Instruction.
+///
+/// Creates a switch instruction that transfers control to one of several destinations
+/// based on the value of an integer condition.
+///
+/// **Note:**
+///
+/// - The condition must be of integer type
+///
+/// - Use `addCase` method to add case values and destinations after creation
+///
+/// - The switch instruction transfers control to `defaultDest` if no cases match
+///
+/// ```moonbit
+/// test "IRBuilder::createSwitch" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let voidty = ctx.getVoidTy()
+///   let fty = ctx.getFunctionType!(voidty, [i32ty])
+///   let fval = prog.addFunction!(fty, "switch_func")
+///   
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   let case1BB = fval.addBasicBlock(name="case1")
+///   let case2BB = fval.addBasicBlock(name="case2") 
+///   let case3BB = fval.addBasicBlock(name="case3")
+///   let defaultBB = fval.addBasicBlock(name="default")
+///   
+///   builder.setInsertPoint(entryBB)
+///   let arg0 = fval.getArg(0).unwrap()
+///   
+///   // Create switch with default destination
+///   let switch_inst = builder.createSwitch!(arg0, defaultBB)
+///   
+///   // Add cases
+///   let case_65 = ctx.getConstInt32(65)
+///   let case_66 = ctx.getConstInt32(66)
+///   let case_67 = ctx.getConstInt32(67)
+///   
+///   switch_inst
+///   ..addCase(case_65, case1BB)
+///   ..addCase(case_66, case2BB)
+///   ..addCase(case_67, case3BB)
+///   
+///   // Setup case blocks
+///   builder.setInsertPoint(case1BB)
+///   let _ = builder.createRetVoid!()
+///   
+///   builder.setInsertPoint(case2BB)
+///   let _ = builder.createRetVoid!()
+///   
+///   builder.setInsertPoint(case3BB)
+///   let _ = builder.createRetVoid!()
+///   
+///   builder.setInsertPoint(defaultBB)
+///   let _ = builder.createRetVoid!()
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define void @switch_func(i32 %0) {
+///     #|entry:
+///     #|  switch i32 %0, label %default [
+///     #|    i32 65, label %case1
+///     #|    i32 66, label %case2
+///     #|    i32 67, label %case3
+///     #|  ]
+///     #|
+///     #|case1:
+///     #|  ret void
+///     #|
+///     #|case2:
+///     #|  ret void
+///     #|
+///     #|case3:
+///     #|  ret void
+///     #|
+///     #|default:
+///     #|  ret void
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+pub fn IRBuilder::createSwitch(
+  self : IRBuilder,
+  cond : &Value,
+  defaultDest : BasicBlock
+) -> SwitchInst!Error {
+  let parent = self.getInsertFunction()
+  let inst = SwitchInst::new!(cond, defaultDest, parent)
+  self.insert!(inst)
+  inst
+}

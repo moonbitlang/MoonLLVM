@@ -1574,20 +1574,10 @@ pub struct SwitchInst {
 fn SwitchInst::new(
   cond : &Value,
   defaultDest : BasicBlock,
-  cases : Array[(ConstantInt, BasicBlock)],
   parent : Function
 ) -> SwitchInst!LLVMValueError {
-  guard cond.getType().tryAsIntegerTypeEnum() is Some(intTy) else {
+  guard cond.getType().tryAsIntegerTypeEnum() is Some(_) else {
     raise SwitchInstConditionNotInteger(cond.getType())
-  }
-  for case in cases {
-    let (case_cond, _) = case
-    guard case_cond.getType().tryAsIntegerTypeEnum() is Some(case_cond_ty)
-    guard case_cond_ty == intTy else {
-      let case_cond_ty = case_cond_ty.asTypeClass()
-      let intTy = intTy.asTypeClass()
-      raise SwitchInstCaseConditionTypeMismatch(intTy, case_cond_ty)
-    }
   }
   let vty = parent.getContext().getVoidTy()
   let base = ValueBase::new(vty)
@@ -1595,12 +1585,6 @@ fn SwitchInst::new(
   let inst_base = InstBase::new(parent)
   user_base.operands.push(cond)
   user_base.operands.push(defaultDest)
-  cases.each(fn {
-    (cond, dest) => {
-      user_base.operands.push(cond)
-      user_base.operands.push(dest)
-    }
-  })
   SwitchInst::{ base, user_base, inst_base }
 }
 
