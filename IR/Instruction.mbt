@@ -1672,7 +1672,7 @@ pub impl Show for SwitchInst with output(self, logger) {
   let parent = self.getParent()
   let condition = self.getCondition()
   let condition_ty = condition.getType()
-  
+
   // Format condition value
   let condition_str = match condition.getValueName() {
     Some(name) => "%\{name}"
@@ -1680,7 +1680,7 @@ pub impl Show for SwitchInst with output(self, logger) {
     None if condition.tryAsConstant() is Some(c) => c.valstr()
     _ => "<badref>"
   }
-  
+
   // Format default destination
   let default_dest = self.getDefaultDest()
   let default_dest_str = match default_dest.getValueName() {
@@ -1688,10 +1688,12 @@ pub impl Show for SwitchInst with output(self, logger) {
     None if parent.getSlot(default_dest) is Some(slot) => "%\{slot}"
     _ => "<badref>"
   }
-  
+
   // Start with the switch statement
-  logger.write_string("  switch \{condition_ty} \{condition_str}, label \{default_dest_str} [")
-  
+  logger.write_string(
+    "  switch \{condition_ty} \{condition_str}, label \{default_dest_str} [",
+  )
+
   // Add each case
   let num_cases = self.getNumCases()
   for i = 0; i < num_cases; i = i + 1 {
@@ -1701,10 +1703,12 @@ pub impl Show for SwitchInst with output(self, logger) {
         None if parent.getSlot(case_dest) is Some(slot) => "%\{slot}"
         _ => "<badref>"
       }
-      logger.write_string("\n    \{condition_ty} \{case_value.valstr()}, label \{case_dest_str}")
+      logger.write_string(
+        "\n    \{condition_ty} \{case_value.valstr()}, label \{case_dest_str}",
+      )
     }
   }
-  
+
   // Close the switch statement
   logger.write_string("\n  ]")
 }
@@ -1721,11 +1725,7 @@ pub struct PHINode {
 }
 
 ///|
-fn PHINode::new(
-  vty : &Type,
-  parent : Function,
-  name : String
-) -> PHINode {
+fn PHINode::new(vty : &Type, parent : Function, name : String) -> PHINode {
   let base = ValueBase::new(vty)
   let user_base = UserBase::new(name)
   let inst_base = InstBase::new(parent)
@@ -1751,13 +1751,15 @@ pub fn PHINode::getIncomingBlock(self : PHINode, idx : Int) -> BasicBlock? {
   Some(block)
 }
 
-pub fn PHINode::getIncoming(self: PHINode, idx : Int) -> (&Value, BasicBlock)? {
+///|
+pub fn PHINode::getIncoming(self : PHINode, idx : Int) -> (&Value, BasicBlock)? {
   guard self.getOperand(idx * 2) is Some(value) else { return None }
   guard self.getOperand(idx * 2 + 1) is Some(block_val) else { return None }
   guard block_val.asValueEnum() is BasicBlock(block) else { return None }
   Some((value, block))
 }
 
+///|
 pub fn PHINode::getIncomings(self : PHINode) -> Array[(&Value, BasicBlock)] {
   let num_incoming = self.getNumIncomingValues()
   let incomings = Array::new()
@@ -1770,6 +1772,7 @@ pub fn PHINode::getIncomings(self : PHINode) -> Array[(&Value, BasicBlock)] {
   incomings
 }
 
+///|
 pub fn PHINode::getIncomingValues(self : PHINode) -> Array[&Value] {
   let num_incoming = self.getNumIncomingValues()
   let values = Array::new()
@@ -1780,6 +1783,7 @@ pub fn PHINode::getIncomingValues(self : PHINode) -> Array[&Value] {
   values
 }
 
+///|
 pub fn PHINode::getIncomingBlocks(self : PHINode) -> Array[BasicBlock] {
   let num_incoming = self.getNumIncomingValues()
   let blocks = Array::new()
@@ -1842,10 +1846,8 @@ pub impl Show for PHINode with output(self, logger) {
     None if parent.getSlot(self) is Some(s) => "\{s}"
     None => "<badref>"
   }
-  
   let ty = self.getType()
   let str = "  %\{prefix} = phi \{ty}"
-  
   let num_incoming = self.getNumIncomingValues()
   let incoming_strs = Array::new()
   for i = 0; i < num_incoming; i = i + 1 {
@@ -1856,17 +1858,16 @@ pub impl Show for PHINode with output(self, logger) {
         None if value.tryAsConstant() is Some(c) => c.valstr()
         _ => "<badref>"
       }
-      
       let block_str = match block.getValueName() {
         Some(name) => "%\{name}"
         None if parent.getSlot(block) is Some(slot) => "%\{slot}"
         _ => "<badref>"
       }
-      
       incoming_strs.push("[ \{value_str}, \{block_str} ]")
     }
   }
-  let str = str + (if num_incoming> 0 { " " + incoming_strs.join(", ") } else  {""})
+  let str = str +
+    (if num_incoming > 0 { " " + incoming_strs.join(", ") } else { "" })
   logger.write_string(str)
 }
 
@@ -1874,30 +1875,39 @@ pub impl Show for PHINode with output(self, logger) {
 // CallInst
 // =======================================================
 
+///|
 pub enum OperandBundle {
   OperandBundle(String, Array[&Value])
 }
 
-pub fn OperandBundle::new(tag: String, inputs: Array[&Value]) -> OperandBundle {
+///|
+pub fn OperandBundle::new(
+  tag : String,
+  inputs : Array[&Value]
+) -> OperandBundle {
   OperandBundle(tag, inputs)
 }
 
-pub fn OperandBundle::getTag(self: OperandBundle) -> String {
+///|
+pub fn OperandBundle::getTag(self : OperandBundle) -> String {
   let OperandBundle(tag, _) = self
   tag
 }
 
-pub fn OperandBundle::getInputs(self: OperandBundle) -> Array[&Value] {
+///|
+pub fn OperandBundle::getInputs(self : OperandBundle) -> Array[&Value] {
   let OperandBundle(_, inputs) = self
   inputs
 }
 
+///|
 pub enum TailCallKind {
   TCK_NoTail
   TCK_Tail
   TCK_MustTail
 }
 
+///|
 pub impl Show for TailCallKind with output(self, logger) {
   let str = match self {
     TCK_NoTail => ""
@@ -1907,59 +1917,68 @@ pub impl Show for TailCallKind with output(self, logger) {
   logger.write_string(str)
 }
 
+///|
 pub struct CallInst {
   base : ValueBase
   user_base : UserBase
   inst_base : InstBase
-  argNums: Int
+  argNums : Int
   operand_bundles : Array[OperandBundle]
   mut tck : TailCallKind
 }
 
-pub fn CallInst::isTailCall(self: CallInst) -> Bool {
+///|
+pub fn CallInst::isTailCall(self : CallInst) -> Bool {
   not(self.tck is TCK_NoTail)
 }
 
-pub fn CallInst::getTailCallKind(self: CallInst) -> TailCallKind {
+///|
+pub fn CallInst::getTailCallKind(self : CallInst) -> TailCallKind {
   self.tck
 }
 
-pub fn CallInst::setTailCallKind(
-  self: CallInst,
-  tck: TailCallKind
-) -> Unit {
+///|
+pub fn CallInst::setTailCallKind(self : CallInst, tck : TailCallKind) -> Unit {
   self.tck = tck
 }
 
-pub fn CallInst::getFunctionType(self: CallInst) -> FunctionType {
+///|
+pub fn CallInst::getFunctionType(self : CallInst) -> FunctionType {
   guard self.getOperand(0).unwrap().getType().asTypeEnum() is FunctionType(ft)
   ft
 }
 
+///|
 pub impl Value for CallInst with getValueBase(self) {
   self.base
 }
 
+///|
 pub impl Value for CallInst with asValueEnum(self) {
   CallInst(self)
 }
 
+///|
 pub impl User for CallInst with asUserEnum(self) {
   CallInst(self)
 }
 
+///|
 pub impl User for CallInst with getUserBase(self) {
   self.user_base
 }
 
+///|
 pub impl Instruction for CallInst with getInstBase(self) {
   self.inst_base
 }
 
+///|
 pub impl Instruction for CallInst with asInstEnum(self) {
   InstEnum::CallInst(self)
 }
 
+///|
 pub impl Show for CallInst with output(self, logger) {
   ignore(self)
   logger.write_string("call")

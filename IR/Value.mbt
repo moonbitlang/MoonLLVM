@@ -61,7 +61,6 @@ pub enum ValueEnum {
   //AtomicCmpXchgInst(AtomicCmpXchgInst)
   //AtomicRMWInst(AtomicRMWInst)
 
-
   // ======= Not Plan To Support =======
   //VAArgInst(VAArgInst)
   //InvokeInst(InvokeInst)

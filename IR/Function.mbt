@@ -315,15 +315,18 @@ pub fn Function::hasBody(self : Function) -> Bool {
   self.basicBlocks.length() > 0
 }
 
+///|
 pub fn Function::getFunctionAttrs(self : Function) -> Set[FnAttr] {
   self.attrSet.fnAttrs
 }
 
+///|
 pub fn Function::getReturnAttrs(self : Function) -> Set[RetAttr] {
   self.attrSet.retAttrs
 }
 
-pub fn Function::getArgAttrs(self : Function, argno: UInt) -> Set[ArgAttr]? {
+///|
+pub fn Function::getArgAttrs(self : Function, argno : UInt) -> Set[ArgAttr]? {
   self.attrSet.argAttrs.get(argno)
 }
 
