@@ -51,6 +51,7 @@ type! LLVMValueError {
   BranchInstConditionNotBoolean(&Type)
   SwitchInstConditionNotInteger(&Type)
   SwitchInstCaseConditionTypeMismatch(&Type, &Type)
+  PHINodeIncomingValueTypeMismatch(&Type, &Type)
 } derive(Show)
 
 ///|

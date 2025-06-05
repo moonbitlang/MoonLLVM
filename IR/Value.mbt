@@ -48,7 +48,7 @@ pub enum ValueEnum {
   //ExtractElementInst(ExtractElementInst)
   //InsertElementInst(InsertElementInst)
   //ShuffleVectorInst(ShuffleVectorInst)
-  //PHINode(PHINodeInst)
+  PHINode(PHINode)
   ReturnInst(ReturnInst)
   BranchInst(BranchInst)
   SwitchInst(SwitchInst)
@@ -96,8 +96,10 @@ pub fn ValueEnum::tryAsUserEnum(self : ValueEnum) -> UserEnum? {
     StoreInst(s) => StoreInst(s) |> Some
     GetElementPtrInst(g) => GetElementPtrInst(g) |> Some
     SelectInst(s) => SelectInst(s) |> Some
+    PHINode(p) => PHINode(p) |> Some
     ReturnInst(r) => ReturnInst(r) |> Some
     BranchInst(b) => BranchInst(b) |> Some
+    SwitchInst(s) => SwitchInst(s) |> Some
     _ => None
   }
 }
@@ -115,8 +117,11 @@ pub fn ValueEnum::tryAsInstEnum(self : ValueEnum) -> InstEnum? {
     CmpInst(c) => CmpInst(c) |> Some
     StoreInst(s) => StoreInst(s) |> Some
     GetElementPtrInst(g) => GetElementPtrInst(g) |> Some
+    SelectInst(s) => SelectInst(s) |> Some
+    PHINode(p) => PHINode(p) |> Some
     ReturnInst(r) => ReturnInst(r) |> Some
     BranchInst(b) => BranchInst(b) |> Some
+    SwitchInst(s) => SwitchInst(s) |> Some
     _ => None
   }
 }
@@ -242,6 +247,8 @@ impl Value with tryAsUserEnum(self) {
     CmpInst(c) => Some(CmpInst(c))
     StoreInst(s) => Some(StoreInst(s))
     GetElementPtrInst(g) => Some(GetElementPtrInst(g))
+    SelectInst(s) => Some(SelectInst(s))
+    PHINode(p) => Some(PHINode(p))
     ReturnInst(r) => Some(ReturnInst(r))
     BranchInst(b) => Some(BranchInst(b))
     SwitchInst(s) => Some(SwitchInst(s))
@@ -349,6 +356,7 @@ pub enum UserEnum {
   StoreInst(StoreInst)
   GetElementPtrInst(GetElementPtrInst)
   SelectInst(SelectInst)
+  PHINode(PHINode)
   ReturnInst(ReturnInst)
   BranchInst(BranchInst)
   SwitchInst(SwitchInst)
@@ -365,6 +373,7 @@ pub fn UserEnum::getUserName(self : UserEnum) -> String? {
     CastInst(c) => c.getUserName()
     GetElementPtrInst(g) => g.getUserName()
     SelectInst(s) => s.getUserName()
+    PHINode(p) => p.getUserName()
     ReturnInst(_) => None
     BranchInst(_) => None
     SwitchInst(_) => None
@@ -491,6 +500,7 @@ pub enum InstEnum {
   StoreInst(StoreInst)
   GetElementPtrInst(GetElementPtrInst)
   SelectInst(SelectInst)
+  PHINode(PHINode)
   ReturnInst(ReturnInst)
   BranchInst(BranchInst)
   SwitchInst(SwitchInst)

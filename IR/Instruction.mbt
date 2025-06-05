@@ -1708,3 +1708,164 @@ pub impl Show for SwitchInst with output(self, logger) {
   // Close the switch statement
   logger.write_string("\n  ]")
 }
+
+// =======================================================
+// PHINode
+// =======================================================
+
+///|
+pub struct PHINode {
+  base : ValueBase
+  user_base : UserBase
+  inst_base : InstBase
+}
+
+///|
+fn PHINode::new(
+  vty : &Type,
+  parent : Function,
+  name : String
+) -> PHINode {
+  let base = ValueBase::new(vty)
+  let user_base = UserBase::new(name)
+  let inst_base = InstBase::new(parent)
+  PHINode::{ base, user_base, inst_base }
+}
+
+///|
+pub fn PHINode::getNumIncomingValues(self : PHINode) -> Int {
+  self.getNumOperands() / 2
+}
+
+///|
+pub fn PHINode::getIncomingValue(self : PHINode, idx : Int) -> &Value? {
+  guard idx >= 0 && idx < self.getNumIncomingValues() else { return None }
+  self.getOperand(idx * 2)
+}
+
+///|
+pub fn PHINode::getIncomingBlock(self : PHINode, idx : Int) -> BasicBlock? {
+  guard idx >= 0 && idx < self.getNumIncomingValues() else { return None }
+  guard self.getOperand(idx * 2 + 1) is Some(block_val) else { return None }
+  guard block_val.asValueEnum() is BasicBlock(block) else { return None }
+  Some(block)
+}
+
+pub fn PHINode::getIncoming(self: PHINode, idx : Int) -> (&Value, BasicBlock)? {
+  guard self.getOperand(idx * 2) is Some(value) else { return None }
+  guard self.getOperand(idx * 2 + 1) is Some(block_val) else { return None }
+  guard block_val.asValueEnum() is BasicBlock(block) else { return None }
+  Some((value, block))
+}
+
+pub fn PHINode::getIncomings(self : PHINode) -> Array[(&Value, BasicBlock)] {
+  let num_incoming = self.getNumIncomingValues()
+  let incomings = Array::new()
+  for i in 0..<num_incoming {
+    guard self.getOperand(i * 2) is Some(value)
+    guard self.getOperand(i * 2 + 1) is Some(block_val)
+    guard block_val.asValueEnum() is BasicBlock(block)
+    incomings.push((value, block))
+  }
+  incomings
+}
+
+pub fn PHINode::getIncomingValues(self : PHINode) -> Array[&Value] {
+  let num_incoming = self.getNumIncomingValues()
+  let values = Array::new()
+  for i in 0..<num_incoming {
+    guard self.getOperand(i * 2) is Some(value)
+    values.push(value)
+  }
+  values
+}
+
+pub fn PHINode::getIncomingBlocks(self : PHINode) -> Array[BasicBlock] {
+  let num_incoming = self.getNumIncomingValues()
+  let blocks = Array::new()
+  for i in 0..<num_incoming {
+    guard self.getOperand(i * 2 + 1) is Some(block_val)
+    guard block_val.asValueEnum() is BasicBlock(block)
+    blocks.push(block)
+  }
+  blocks
+}
+
+///|
+pub fn PHINode::addIncoming(
+  self : PHINode,
+  value : &Value,
+  block : BasicBlock
+) -> Unit!LLVMValueError {
+  guard value.getType() == self.getType() else {
+    raise PHINodeIncomingValueTypeMismatch(value.getType(), self.getType())
+  }
+  self.user_base.operands.push(value)
+  self.user_base.operands.push(block)
+}
+
+///|
+pub impl Value for PHINode with getValueBase(self) {
+  self.base
+}
+
+///|
+pub impl Value for PHINode with asValueEnum(self) {
+  PHINode(self)
+}
+
+///|
+pub impl User for PHINode with asUserEnum(self) {
+  PHINode(self)
+}
+
+///|
+pub impl User for PHINode with getUserBase(self) {
+  self.user_base
+}
+
+///|
+pub impl Instruction for PHINode with getInstBase(self) {
+  self.inst_base
+}
+
+///|
+pub impl Instruction for PHINode with asInstEnum(self) {
+  InstEnum::PHINode(self)
+}
+
+///|
+pub impl Show for PHINode with output(self, logger) {
+  let parent = self.getParent()
+  let prefix = match self.getName() {
+    Some(name) => "\{name}"
+    None if parent.getSlot(self) is Some(s) => "\{s}"
+    None => "<badref>"
+  }
+  
+  let ty = self.getType()
+  let str = "  %\{prefix} = phi \{ty}"
+  
+  let num_incoming = self.getNumIncomingValues()
+  let incoming_strs = Array::new()
+  for i = 0; i < num_incoming; i = i + 1 {
+    if self.getIncoming(i) is Some((value, block)) {
+      let value_str = match value.getValueName() {
+        Some(name) => "%\{name}"
+        None if parent.getSlot(value) is Some(slot) => "%\{slot}"
+        None if value.tryAsConstant() is Some(c) => c.valstr()
+        _ => "<badref>"
+      }
+      
+      let block_str = match block.getValueName() {
+        Some(name) => "%\{name}"
+        None if parent.getSlot(block) is Some(slot) => "%\{slot}"
+        _ => "<badref>"
+      }
+      
+      incoming_strs.push("[ \{value_str}, \{block_str} ]")
+    }
+  }
+  let str = str + incoming_strs.join(", ")
+  logger.write_string(str)
+}
