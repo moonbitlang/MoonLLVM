@@ -51,7 +51,7 @@ pub enum ValueEnum {
   //PHINode(PHINodeInst)
   ReturnInst(ReturnInst)
   BranchInst(BranchInst)
-  //SwitchInst(SwitchInst)
+  SwitchInst(SwitchInst)
   //IndirectBrInst(IndirectBrInst)
   //ResumeInst(ResumeInst)
   //CatchSwitchInst(CatchSwitchInst)
@@ -244,6 +244,7 @@ impl Value with tryAsUserEnum(self) {
     GetElementPtrInst(g) => Some(GetElementPtrInst(g))
     ReturnInst(r) => Some(ReturnInst(r))
     BranchInst(b) => Some(BranchInst(b))
+    SwitchInst(s) => Some(SwitchInst(s))
     _ => None
   }
 }
@@ -350,6 +351,7 @@ pub enum UserEnum {
   SelectInst(SelectInst)
   ReturnInst(ReturnInst)
   BranchInst(BranchInst)
+  SwitchInst(SwitchInst)
 }
 
 ///|
@@ -365,6 +367,7 @@ pub fn UserEnum::getUserName(self : UserEnum) -> String? {
     SelectInst(s) => s.getUserName()
     ReturnInst(_) => None
     BranchInst(_) => None
+    SwitchInst(_) => None
   }
 }
 
@@ -490,6 +493,7 @@ pub enum InstEnum {
   SelectInst(SelectInst)
   ReturnInst(ReturnInst)
   BranchInst(BranchInst)
+  SwitchInst(SwitchInst)
 }
 
 // =======================================================

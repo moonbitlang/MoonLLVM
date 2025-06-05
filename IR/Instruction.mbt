@@ -1558,3 +1558,169 @@ pub impl Show for BranchInst with output(self, logger) {
     logger.write_string("  br label \{target_block_str}")
   }
 }
+
+// =======================================================
+// Switch Inst
+// =======================================================
+
+///|
+pub struct SwitchInst {
+  base : ValueBase
+  user_base : UserBase
+  inst_base : InstBase
+}
+
+///|
+fn SwitchInst::new(
+  cond : &Value,
+  defaultDest : BasicBlock,
+  cases : Array[(ConstantInt, BasicBlock)],
+  parent : Function
+) -> SwitchInst!LLVMValueError {
+  guard cond.getType().tryAsIntegerTypeEnum() is Some(intTy) else {
+    raise SwitchInstConditionNotInteger(cond.getType())
+  }
+  for case in cases {
+    let (case_cond, _) = case
+    guard case_cond.getType().tryAsIntegerTypeEnum() is Some(case_cond_ty)
+    guard case_cond_ty == intTy else {
+      let case_cond_ty = case_cond_ty.asTypeClass()
+      let intTy = intTy.asTypeClass()
+      raise SwitchInstCaseConditionTypeMismatch(intTy, case_cond_ty)
+    }
+  }
+  let vty = parent.getContext().getVoidTy()
+  let base = ValueBase::new(vty)
+  let user_base = UserBase::new("")
+  let inst_base = InstBase::new(parent)
+  user_base.operands.push(cond)
+  user_base.operands.push(defaultDest)
+  cases.each(fn {
+    (cond, dest) => {
+      user_base.operands.push(cond)
+      user_base.operands.push(dest)
+    }
+  })
+  SwitchInst::{ base, user_base, inst_base }
+}
+
+///|
+pub fn SwitchInst::getCondition(self : Self) -> &Value {
+  self.getOperand(0).unwrap()
+}
+
+///|
+pub fn SwitchInst::getDefaultDest(self : Self) -> BasicBlock {
+  guard self.getOperand(1).unwrap().asValueEnum() is BasicBlock(bb)
+  bb
+}
+
+///|
+pub fn SwitchInst::getNumCases(self : Self) -> Int {
+  self.getNumOperands() / 2 - 1
+}
+
+///|
+pub fn SwitchInst::getCase(
+  self : Self,
+  idx : Int
+) -> (ConstantInt, BasicBlock)? {
+  guard idx >= 0 && idx < self.getNumCases() else { return None }
+  let idx = idx + 1 // +1 for the default case
+  let condidx = 2 * idx
+  let destidx = condidx + 1
+  let cond = self.getOperand(condidx).unwrap()
+  let dest = self.getOperand(destidx).unwrap()
+  guard cond.asValueEnum() is ConstantInt(c)
+  guard dest.asValueEnum() is BasicBlock(bb)
+  Some((c, bb))
+}
+
+///|
+pub fn SwitchInst::addCase(
+  self : Self,
+  cond : ConstantInt,
+  dest : BasicBlock
+) -> Unit!LLVMValueError {
+  guard self.getCondition().getType().tryAsIntegerTypeEnum() is Some(intTy)
+  guard cond.getType().tryAsIntegerTypeEnum() is Some(case_cond_ty)
+  guard intTy == case_cond_ty else {
+    let intTy = intTy.asTypeClass()
+    let case_cond_ty = case_cond_ty.asTypeClass()
+    raise SwitchInstCaseConditionTypeMismatch(intTy, case_cond_ty)
+  }
+  self.user_base.operands.push(cond)
+  self.user_base.operands.push(dest)
+}
+
+///|
+pub impl Value for SwitchInst with getValueBase(self) {
+  self.base
+}
+
+///|
+pub impl Value for SwitchInst with asValueEnum(self) {
+  SwitchInst(self)
+}
+
+///|
+pub impl User for SwitchInst with asUserEnum(self) {
+  SwitchInst(self)
+}
+
+///|
+pub impl User for SwitchInst with getUserBase(self) {
+  self.user_base
+}
+
+///|
+pub impl Instruction for SwitchInst with getInstBase(self) {
+  self.inst_base
+}
+
+///|
+pub impl Instruction for SwitchInst with asInstEnum(self) {
+  InstEnum::SwitchInst(self)
+}
+
+///|
+pub impl Show for SwitchInst with output(self, logger) {
+  let parent = self.getParent()
+  let condition = self.getCondition()
+  let condition_ty = condition.getType()
+  
+  // Format condition value
+  let condition_str = match condition.getValueName() {
+    Some(name) => "%\{name}"
+    None if parent.getSlot(condition) is Some(slot) => "%\{slot}"
+    None if condition.tryAsConstant() is Some(c) => c.valstr()
+    _ => "<badref>"
+  }
+  
+  // Format default destination
+  let default_dest = self.getDefaultDest()
+  let default_dest_str = match default_dest.getValueName() {
+    Some(name) => "%\{name}"
+    None if parent.getSlot(default_dest) is Some(slot) => "%\{slot}"
+    _ => "<badref>"
+  }
+  
+  // Start with the switch statement
+  logger.write_string("  switch \{condition_ty} \{condition_str}, label \{default_dest_str} [")
+  
+  // Add each case
+  let num_cases = self.getNumCases()
+  for i = 0; i < num_cases; i = i + 1 {
+    if self.getCase(i) is Some((case_value, case_dest)) {
+      let case_dest_str = match case_dest.getValueName() {
+        Some(name) => "%\{name}"
+        None if parent.getSlot(case_dest) is Some(slot) => "%\{slot}"
+        _ => "<badref>"
+      }
+      logger.write_string("\n    \{condition_ty} \{case_value.valstr()}, label \{case_dest_str}")
+    }
+  }
+  
+  // Close the switch statement
+  logger.write_string("\n  ]")
+}

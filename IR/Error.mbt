@@ -49,6 +49,8 @@ type! LLVMValueError {
   SelectInstConditionNotBoolean(&Type)
   SelectInstTypeMismatch(&Type, &Type)
   BranchInstConditionNotBoolean(&Type)
+  SwitchInstConditionNotInteger(&Type)
+  SwitchInstCaseConditionTypeMismatch(&Type, &Type)
 } derive(Show)
 
 ///|
