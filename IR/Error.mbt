@@ -54,6 +54,12 @@ type! LLVMValueError {
   PHINodeIncomingValueTypeMismatch(&Type, &Type)
   CallInstArgCountMismatch(Int, Int)
   CallInstArgTypeMismatchParamType(Array[&Type], Array[&Type])
+  ExtractValueInstRequiresNonEmptyIndices
+  ExtractValueInstInvalidAggregateType(&Type)
+  ExtractValueInstInvalidIndex(&Type, Array[Int])
+  InsertValueInstRequiresNonEmptyIndices
+  InsertValueInstInvalidAggregateType(&Type)
+  //InsertValueInstInvalidIndex(&Type, Array[Int])
 } derive(Show)
 
 ///|

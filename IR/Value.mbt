@@ -41,7 +41,7 @@ pub enum ValueEnum {
   // ------- Unary Instruction
   AllocaInst(AllocaInst)
   LoadInst(LoadInst)
-  // ExtractValueInst(ExtractValueInst)
+  ExtractValueInst(ExtractValueInst)
   // FreezeInst(FreezeInst)
   CastInst(CastInst)
   BinaryInstruction(BinaryInstruction)
@@ -50,6 +50,7 @@ pub enum ValueEnum {
   GetElementPtrInst(GetElementPtrInst)
   SelectInst(SelectInst)
   //ExtractElementInst(ExtractElementInst)
+  InsertValueInst(InsertValueInst)
   //InsertElementInst(InsertElementInst)
   //ShuffleVectorInst(ShuffleVectorInst)
   PHINode(PHINode)
@@ -93,7 +94,7 @@ pub fn ValueEnum::tryAsUserEnum(self : ValueEnum) -> UserEnum? {
     AllocaInst(c) => AllocaInst(c) |> Some
     LoadInst(c) => LoadInst(c) |> Some
     //VAArgInst(c) => VAArgInst(c) |> Some
-    //ExtractValueInst(c) => ExtractValueInst(c) |> Some
+    ExtractValueInst(c) => ExtractValueInst(c) |> Some
     //FreezeInst(c) => FreezeInst(c) |> Some
     CastInst(c) => CastInst(c) |> Some
     BinaryInstruction(b) => BinaryInstruction(b) |> Some
@@ -101,6 +102,7 @@ pub fn ValueEnum::tryAsUserEnum(self : ValueEnum) -> UserEnum? {
     StoreInst(s) => StoreInst(s) |> Some
     GetElementPtrInst(g) => GetElementPtrInst(g) |> Some
     SelectInst(s) => SelectInst(s) |> Some
+    InsertValueInst(i) => InsertValueInst(i) |> Some
     PHINode(p) => PHINode(p) |> Some
     ReturnInst(r) => ReturnInst(r) |> Some
     BranchInst(b) => BranchInst(b) |> Some
@@ -116,7 +118,7 @@ pub fn ValueEnum::tryAsInstEnum(self : ValueEnum) -> InstEnum? {
     AllocaInst(c) => AllocaInst(c) |> Some
     LoadInst(c) => LoadInst(c) |> Some
     //VAArgInst(c) => VAArgInst(c) |> Some
-    //ExtractValueInst(c) => ExtractValueInst(c) |> Some
+    ExtractValueInst(c) => ExtractValueInst(c) |> Some
     //FreezeInst(c) => FreezeInst(c) |> Some
     CastInst(c) => CastInst(c) |> Some
     BinaryInstruction(b) => BinaryInstruction(b) |> Some
@@ -124,6 +126,7 @@ pub fn ValueEnum::tryAsInstEnum(self : ValueEnum) -> InstEnum? {
     StoreInst(s) => StoreInst(s) |> Some
     GetElementPtrInst(g) => GetElementPtrInst(g) |> Some
     SelectInst(s) => SelectInst(s) |> Some
+    InsertValueInst(i) => InsertValueInst(i) |> Some
     PHINode(p) => PHINode(p) |> Some
     ReturnInst(r) => ReturnInst(r) |> Some
     BranchInst(b) => BranchInst(b) |> Some
@@ -247,7 +250,7 @@ impl Value with tryAsUserEnum(self) {
     AllocaInst(c) => Some(AllocaInst(c))
     LoadInst(c) => Some(LoadInst(c))
     //VAArgInst(c) => Some(VAArgInst(c))
-    //ExtractValueInst(c) => Some(ExtractValueInst(c))
+    ExtractValueInst(c) => Some(ExtractValueInst(c))
     //FreezeInst(c) => Some(FreezeInst(c))
     CastInst(c) => Some(CastInst(c))
     BinaryInstruction(b) => Some(BinaryInstruction(b))
@@ -255,10 +258,12 @@ impl Value with tryAsUserEnum(self) {
     StoreInst(s) => Some(StoreInst(s))
     GetElementPtrInst(g) => Some(GetElementPtrInst(g))
     SelectInst(s) => Some(SelectInst(s))
+    InsertValueInst(i) => Some(InsertValueInst(i))
     PHINode(p) => Some(PHINode(p))
     ReturnInst(r) => Some(ReturnInst(r))
     BranchInst(b) => Some(BranchInst(b))
     SwitchInst(s) => Some(SwitchInst(s))
+    CallInst(c) => Some(CallInst(c))
     _ => None
   }
 }
@@ -355,7 +360,7 @@ pub enum UserEnum {
   AllocaInst(AllocaInst)
   LoadInst(LoadInst)
   //VAArgInst(VAArgInst)
-  //ExtractValueInst(ExtractValueInst)
+  ExtractValueInst(ExtractValueInst)
   //FreezeInst(FreezeInst)
   CastInst(CastInst)
   BinaryInstruction(BinaryInstruction)
@@ -363,6 +368,7 @@ pub enum UserEnum {
   StoreInst(StoreInst)
   GetElementPtrInst(GetElementPtrInst)
   SelectInst(SelectInst)
+  InsertValueInst(InsertValueInst)
   PHINode(PHINode)
   ReturnInst(ReturnInst)
   BranchInst(BranchInst)
@@ -375,12 +381,14 @@ pub fn UserEnum::getUserName(self : UserEnum) -> String? {
   match self {
     AllocaInst(c) => c.getUserName()
     LoadInst(l) => l.getUserName()
+    ExtractValueInst(e) => e.getUserName()
     BinaryInstruction(b) => b.getUserName()
     CmpInst(c) => c.getUserName()
     StoreInst(s) => s.getUserName()
     CastInst(c) => c.getUserName()
     GetElementPtrInst(g) => g.getUserName()
     SelectInst(s) => s.getUserName()
+    InsertValueInst(i) => i.getUserName()
     PHINode(p) => p.getUserName()
     ReturnInst(_) => None
     BranchInst(_) => None
@@ -505,7 +513,7 @@ pub enum InstEnum {
   AllocaInst(AllocaInst)
   LoadInst(LoadInst)
   //VAArgInst(VAArgInst)
-  //ExtractValueInst(ExtractValueInst)
+  ExtractValueInst(ExtractValueInst)
   //FreezeInst(FreezeInst)
   CastInst(CastInst)
   BinaryInstruction(BinaryInstruction)
@@ -513,6 +521,7 @@ pub enum InstEnum {
   StoreInst(StoreInst)
   GetElementPtrInst(GetElementPtrInst)
   SelectInst(SelectInst)
+  InsertValueInst(InsertValueInst)
   PHINode(PHINode)
   ReturnInst(ReturnInst)
   BranchInst(BranchInst)
@@ -534,7 +543,7 @@ pub enum UnaryInstEnum {
   AllocaInst(AllocaInst)
   LoadInst(LoadInst)
   //VAArgInst(VAArgInst)
-  //ExtractValueInst(ExtractValueInst)
+  ExtractValueInst(ExtractValueInst)
   //FreezeInst(FreezeInst)
   CastInst(CastInst)
 }

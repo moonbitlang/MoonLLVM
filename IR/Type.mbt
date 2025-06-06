@@ -276,6 +276,7 @@ impl Type with isSingleValueType(self) -> Bool {
 impl Type with isAggregateType(self) -> Bool {
   match self.asTypeEnum() {
     StructType(_) | ArrayType(_) => true
+    FixedVectorType(_) | ScalableVectorType(_) => true
     _ => false
   }
 }
@@ -627,6 +628,12 @@ pub fn PrimitiveTypeEnum::getBitWidth(self : PrimitiveTypeEnum) -> UInt {
 ///|
 pub trait AggregateType: Type {
   asAggregateTypeEnum(Self) -> AggregateTypeEnum
+  getIndexedType(Self, idxs : ArrayView[Int]) -> &Type? = _
+}
+
+///|
+impl AggregateType with getIndexedType(self, idxs : ArrayView[Int]) -> &Type? {
+  self.asAggregateTypeEnum().getIndexedType(idxs)
 }
 
 ///|
@@ -636,6 +643,55 @@ pub enum AggregateTypeEnum {
   FixedVectorType(FixedVectorType)
   ScalableVectorType(ScalableVectorType)
 } derive(Eq, Show)
+
+///|
+pub fn AggregateTypeEnum::toTypeEnum(self : AggregateTypeEnum) -> TypeEnum {
+  match self {
+    StructType(sty) => StructType(sty)
+    ArrayType(arr) => ArrayType(arr)
+    FixedVectorType(vec) => FixedVectorType(vec)
+    ScalableVectorType(vec) => ScalableVectorType(vec)
+  }
+}
+
+///|
+pub fn AggregateTypeEnum::asTypeClass(self : Self) -> &Type {
+  match self {
+    StructType(sty) => (sty : &Type)
+    ArrayType(arr) => arr
+    FixedVectorType(vec) => vec
+    ScalableVectorType(vec) => vec
+  }
+}
+
+///|
+pub fn AggregateTypeEnum::getIndexedType(
+  self : Self,
+  idxs : ArrayView[Int]
+) -> &Type? {
+  match self {
+    StructType(sty) => sty.getIndexedType(idxs)
+    ArrayType(arr) =>
+      @option.when(
+        idxs.length() == 1 &&
+        idxs[0] >= 0 &&
+        idxs[0] < arr.getElementCount().reinterpret_as_int(),
+        fn() { arr.getElementType() },
+      )
+    FixedVectorType(arr) =>
+      @option.when(
+        idxs.length() == 1 &&
+        idxs[0] >= 0 &&
+        idxs[0] < arr.getElementCount().reinterpret_as_int(),
+        fn() { arr.getElementType() },
+      )
+    ScalableVectorType(arr) =>
+      @option.when(
+        idxs.length() == 1 && idxs[0] >= 0, // no need to check upper bound
+        fn() { arr.getElementType() },
+      )
+  }
+}
 
 // ====================================================================
 // Abstract Types, AbstractType && AbstractTypeEnum
@@ -1663,6 +1719,19 @@ pub fn StructType::setName(
       self.name = Some(new_name)
       self.uniqueLiteralID = None
     }
+  }
+}
+
+///|
+pub fn StructType::getIndexedType(self : Self, idxs : ArrayView[Int]) -> &Type? {
+  guard self.elements.get(idxs[0]) is Some(ty) else { return None }
+  if idxs.length() == 1 {
+    return Some(ty)
+  }
+  if ty.tryAsAggregateTypeEnum() is Some(aggTy) {
+    aggTy.getIndexedType(idxs[1:])
+  } else {
+    None
   }
 }
 

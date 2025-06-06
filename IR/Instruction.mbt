@@ -2082,3 +2082,227 @@ pub impl Show for CallInst with output(self, logger) {
     )
   }
 }
+
+// =======================================================
+// ExtractValueInst
+// =======================================================
+
+///|
+pub struct ExtractValueInst {
+  base : ValueBase
+  user_base : UserBase
+  inst_base : InstBase
+  indices : Array[Int]
+}
+
+///|
+fn ExtractValueInst::new(
+  agg : &Value,
+  indices : Array[Int],
+  parent : Function,
+  name : String
+) -> ExtractValueInst!LLVMValueError {
+  guard not(indices.is_empty()) else {
+    raise ExtractValueInstRequiresNonEmptyIndices
+  }
+
+  // 验证聚合类型
+  let agg_ty = agg.getType()
+  guard agg_ty.tryAsAggregateTypeEnum() is Some(agg_ty) else {
+    raise ExtractValueInstInvalidAggregateType(agg_ty)
+  }
+  guard agg_ty.getIndexedType(indices) is Some(result_ty) else {
+    raise ExtractValueInstInvalidIndex(agg_ty.asTypeClass(), indices)
+  }
+  let base = ValueBase::new(result_ty)
+  let user_base = UserBase::new(name)
+  let inst_base = InstBase::new(parent)
+  user_base.operands.push(agg)
+  ExtractValueInst::{ base, user_base, inst_base, indices }
+}
+
+///|
+pub fn ExtractValueInst::getAggregateOperand(self : ExtractValueInst) -> &Value {
+  self.getOperand(0).unwrap()
+}
+
+///|
+pub fn ExtractValueInst::getIndices(self : ExtractValueInst) -> Array[Int] {
+  self.indices
+}
+
+///|
+pub impl Value for ExtractValueInst with getValueBase(self) {
+  self.base
+}
+
+///|
+pub impl Value for ExtractValueInst with asValueEnum(self) {
+  ExtractValueInst(self)
+}
+
+///|
+pub impl User for ExtractValueInst with asUserEnum(self) {
+  ExtractValueInst(self)
+}
+
+///|
+pub impl User for ExtractValueInst with getUserBase(self) {
+  self.user_base
+}
+
+///|
+pub impl Instruction for ExtractValueInst with getInstBase(self) {
+  self.inst_base
+}
+
+///|
+pub impl Instruction for ExtractValueInst with asInstEnum(self) {
+  InstEnum::ExtractValueInst(self)
+}
+
+///|
+pub impl UnaryInst for ExtractValueInst with asUnaryInstEnum(self) {
+  UnaryInstEnum::ExtractValueInst(self)
+}
+
+///|
+pub impl Show for ExtractValueInst with output(self, logger) {
+  let parent = self.getParent()
+  let prefix = match self.getName() {
+    Some(name) => "\{name}"
+    None if parent.getSlot(self) is Some(s) => "\{s}"
+    None => "<badref>"
+  }
+  let agg = self.getAggregateOperand()
+  let agg_ty = agg.getType()
+  let agg_str = match agg.getValueName() {
+    Some(name) => "%\{name}"
+    None if parent.getSlot(agg) is Some(slot) => "%\{slot}"
+    None if agg.tryAsConstant() is Some(c) => c.valstr()
+    _ => "<badref>"
+  }
+  let indices_str = self.indices.iter().map(fn { i => "\{i}" }).join(", ")
+  logger.write_string(
+    "  %\{prefix} = extractvalue \{agg_ty} \{agg_str}, \{indices_str}",
+  )
+}
+
+// =======================================================
+// InsertValueInst
+// =======================================================
+
+///|
+pub struct InsertValueInst {
+  base : ValueBase
+  user_base : UserBase
+  inst_base : InstBase
+  indices : Array[Int]
+}
+
+///|
+fn InsertValueInst::new(
+  agg : &Value,
+  val : &Value,
+  indices : Array[Int],
+  parent : Function,
+  name : String
+) -> InsertValueInst!LLVMValueError {
+  guard not(indices.is_empty()) else {
+    raise InsertValueInstRequiresNonEmptyIndices
+  }
+
+  // 验证聚合类型
+  let agg_ty = agg.getType()
+  guard agg_ty.tryAsAggregateTypeEnum() is Some(agg_ty) else {
+    raise InsertValueInstInvalidAggregateType(agg_ty)
+  }
+
+  //guard agg_ty.getIndexedType(indices) is Some(result_ty) else {
+  //  raise InsertValueInstInvalidIndex(agg_ty.asTypeClass(), indices)
+  //}
+
+  let base = ValueBase::new(agg_ty.asTypeClass())
+  let user_base = UserBase::new(name)
+  let inst_base = InstBase::new(parent)
+  user_base.operands.push(agg)
+  user_base.operands.push(val)
+  InsertValueInst::{ base, user_base, inst_base, indices }
+}
+
+///|
+pub fn InsertValueInst::getAggregateOperand(self : InsertValueInst) -> &Value {
+  self.getOperand(0).unwrap()
+}
+
+///|
+pub fn InsertValueInst::getInsertedValueOperand(
+  self : InsertValueInst
+) -> &Value {
+  self.getOperand(1).unwrap()
+}
+
+///|
+pub fn InsertValueInst::getIndices(self : InsertValueInst) -> Array[Int] {
+  self.indices
+}
+
+///|
+pub impl Value for InsertValueInst with getValueBase(self) {
+  self.base
+}
+
+///|
+pub impl Value for InsertValueInst with asValueEnum(self) {
+  InsertValueInst(self)
+}
+
+///|
+pub impl User for InsertValueInst with asUserEnum(self) {
+  InsertValueInst(self)
+}
+
+///|
+pub impl User for InsertValueInst with getUserBase(self) {
+  self.user_base
+}
+
+///|
+pub impl Instruction for InsertValueInst with getInstBase(self) {
+  self.inst_base
+}
+
+///|
+pub impl Instruction for InsertValueInst with asInstEnum(self) {
+  InstEnum::InsertValueInst(self)
+}
+
+///|
+pub impl Show for InsertValueInst with output(self, logger) {
+  let parent = self.getParent()
+  let prefix = match self.getName() {
+    Some(name) => "\{name}"
+    None if parent.getSlot(self) is Some(s) => "\{s}"
+    None => "<badref>"
+  }
+  let agg = self.getAggregateOperand()
+  let val = self.getInsertedValueOperand()
+  let agg_ty = agg.getType()
+  let val_ty = val.getType()
+  let agg_str = match agg.getValueName() {
+    Some(name) => "%\{name}"
+    None if parent.getSlot(agg) is Some(slot) => "%\{slot}"
+    None if agg.tryAsConstant() is Some(c) => c.valstr()
+    _ => "<badref>"
+  }
+  let val_str = match val.getValueName() {
+    Some(name) => "%\{name}"
+    None if parent.getSlot(val) is Some(slot) => "%\{slot}"
+    None if val.tryAsConstant() is Some(c) => c.valstr()
+    _ => "<badref>"
+  }
+  let indices_str = self.indices.iter().map(fn { i => "\{i}" }).join(", ")
+  logger.write_string(
+    "  %\{prefix} = insertvalue \{agg_ty} \{agg_str}, \{val_ty} \{val_str}, \{indices_str}",
+  )
+}

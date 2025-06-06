@@ -33,6 +33,9 @@ pub enum AggregateTypeEnum {
   FixedVectorType(FixedVectorType)
   ScalableVectorType(ScalableVectorType)
 }
+fn AggregateTypeEnum::asTypeClass(Self) -> &Type
+fn AggregateTypeEnum::getIndexedType(Self, ArrayView[Int]) -> &Type?
+fn AggregateTypeEnum::toTypeEnum(Self) -> TypeEnum
 impl Eq for AggregateTypeEnum
 impl Show for AggregateTypeEnum
 
@@ -380,6 +383,20 @@ pub(all) enum Endian {
   Big
 }
 
+pub struct ExtractValueInst {
+  base : ValueBase
+  user_base : UserBase
+  inst_base : InstBase
+  indices : Array[Int]
+}
+fn ExtractValueInst::getAggregateOperand(Self) -> &Value
+fn ExtractValueInst::getIndices(Self) -> Array[Int]
+impl Instruction for ExtractValueInst
+impl UnaryInst for ExtractValueInst
+impl User for ExtractValueInst
+impl Value for ExtractValueInst
+impl Show for ExtractValueInst
+
 pub struct FP128Type {
   // private fields
 }
@@ -619,6 +636,20 @@ fn IRBuilder::createZExt(Self, &Value, &IntegerType, name~ : String = ..) -> &Va
 fn IRBuilder::new() -> Self
 fn[T : InsertPoint] IRBuilder::setInsertPoint(Self, T) -> Unit
 
+pub struct InsertValueInst {
+  base : ValueBase
+  user_base : UserBase
+  inst_base : InstBase
+  indices : Array[Int]
+}
+fn InsertValueInst::getAggregateOperand(Self) -> &Value
+fn InsertValueInst::getIndices(Self) -> Array[Int]
+fn InsertValueInst::getInsertedValueOperand(Self) -> &Value
+impl Instruction for InsertValueInst
+impl User for InsertValueInst
+impl Value for InsertValueInst
+impl Show for InsertValueInst
+
 pub struct InstBase {
   parent : Function
   // private fields
@@ -628,12 +659,14 @@ fn InstBase::new(Function, bb~ : BasicBlock? = .., next~ : &Instruction? = .., p
 pub enum InstEnum {
   AllocaInst(AllocaInst)
   LoadInst(LoadInst)
+  ExtractValueInst(ExtractValueInst)
   CastInst(CastInst)
   BinaryInstruction(BinaryInstruction)
   CmpInst(CmpInst)
   StoreInst(StoreInst)
   GetElementPtrInst(GetElementPtrInst)
   SelectInst(SelectInst)
+  InsertValueInst(InsertValueInst)
   PHINode(PHINode)
   ReturnInst(ReturnInst)
   BranchInst(BranchInst)
@@ -1044,6 +1077,7 @@ pub struct StructType {
 }
 fn StructType::element_iter(Self) -> Iter[&Type]
 fn StructType::elements(Self) -> Array[&Type]
+fn StructType::getIndexedType(Self, ArrayView[Int]) -> &Type?
 fn StructType::getName(Self) -> String?
 fn StructType::isLiteral(Self) -> Bool
 fn StructType::isOpaque(Self) -> Bool
@@ -1172,6 +1206,7 @@ impl Show for UnSignedEnum
 pub enum UnaryInstEnum {
   AllocaInst(AllocaInst)
   LoadInst(LoadInst)
+  ExtractValueInst(ExtractValueInst)
   CastInst(CastInst)
 }
 
@@ -1184,12 +1219,14 @@ fn UserBase::new(String, operands~ : Array[&Value] = ..) -> Self
 pub enum UserEnum {
   AllocaInst(AllocaInst)
   LoadInst(LoadInst)
+  ExtractValueInst(ExtractValueInst)
   CastInst(CastInst)
   BinaryInstruction(BinaryInstruction)
   CmpInst(CmpInst)
   StoreInst(StoreInst)
   GetElementPtrInst(GetElementPtrInst)
   SelectInst(SelectInst)
+  InsertValueInst(InsertValueInst)
   PHINode(PHINode)
   ReturnInst(ReturnInst)
   BranchInst(BranchInst)
@@ -1212,12 +1249,14 @@ pub enum ValueEnum {
   BasicBlock(BasicBlock)
   AllocaInst(AllocaInst)
   LoadInst(LoadInst)
+  ExtractValueInst(ExtractValueInst)
   CastInst(CastInst)
   BinaryInstruction(BinaryInstruction)
   CmpInst(CmpInst)
   StoreInst(StoreInst)
   GetElementPtrInst(GetElementPtrInst)
   SelectInst(SelectInst)
+  InsertValueInst(InsertValueInst)
   PHINode(PHINode)
   ReturnInst(ReturnInst)
   BranchInst(BranchInst)
@@ -1252,6 +1291,7 @@ pub trait AbstractType : Type {
 
 pub trait AggregateType : Type {
   asAggregateTypeEnum(Self) -> AggregateTypeEnum
+  getIndexedType(Self, ArrayView[Int]) -> &Type?
 }
 
 pub trait Constant : Value {
