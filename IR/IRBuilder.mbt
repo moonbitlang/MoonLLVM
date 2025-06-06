@@ -4034,3 +4034,77 @@ pub fn IRBuilder::createPHI(
   self.insert!(phi)
   phi
 }
+
+///| Create Call Instruction.
+///
+/// Creates a function call instruction that invokes the specified function with the given arguments.
+///
+/// **Note:**
+///
+/// - The `callee` must be a Function value
+/// - The number and types of `args` must match the function's parameter list exactly
+/// - The instruction can be marked as a tail call using `setTailCallKind` after creation
+/// - For void-returning functions, the call instruction has no name
+/// - For non-void functions, a name can be provided for the return value
+///
+/// ```moonbit
+/// test "IRBuilder::createCall" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   
+///   // Create two helper functions to be called
+///   let helper1_fty = ctx.getFunctionType!(i32ty, [i32ty])
+///   let helper1 = prog.addFunction!(helper1_fty, "helper1")
+///   
+///   let helper2_fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
+///   let helper2 = prog.addFunction!(helper2_fty, "helper2")
+///   
+///   // Create main function that calls the helpers
+///   let main_fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty, i32ty])
+///   let main_func = prog.addFunction!(main_fty, "main")
+///   let entryBB = main_func.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let arg0 = main_func.getArg(0).unwrap()
+///   let arg1 = main_func.getArg(1).unwrap()
+///   let arg2 = main_func.getArg(2).unwrap()
+///
+///   // Call helper1 with tail call
+///   let call1 = builder.createCall!(helper1, [arg0], name="result1")
+///   call1.setTailCallKind(Tail)
+///   
+///   // Call helper2 without tail call
+///   let call2 = builder.createCall!(helper2, [arg1, arg2], name="result2")
+///   
+///   // Add the results and return
+///   let sum = builder.createAdd!(call1, call2, name="sum")
+///   let _ = builder.createRet!(sum)
+///
+///   inspect(
+///     main_func,
+///     content =
+///     #|define i32 @main(i32 %0, i32 %1, i32 %2) {
+///     #|entry:
+///     #|  %result1 = tail call i32 @helper1(i32 %0)
+///     #|  %result2 = call i32 @helper2(i32 %1, i32 %2)
+///     #|  %sum = add i32 %result1, %result2
+///     #|  ret i32 %sum
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+pub fn IRBuilder::createCall(
+  self : IRBuilder,
+  callee : Function,
+  args : Array[&Value],
+  name~ : String = ""
+) -> CallInst!Error {
+  let parent = self.getInsertFunction()
+  let inst = CallInst::new!(callee, args, parent, name)
+  self.insert!(inst)
+  inst
+}
