@@ -1,0 +1,181 @@
+name: check
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  check:
+    strategy:
+      matrix:
+        os:
+          - name: ubuntu-latest
+            version: stable
+          - name: macos-latest
+            version: stable
+          - name: macos-13
+            version: stable
+          - name: windows-latest
+            version: stable
+
+          # bleeding check 
+          # 1. install latest toolchain 
+          # 2. install latest core library from github.com
+          # - name: ubuntu-latest
+          #   version: bleeding
+          # - name: macos-latest
+          #   version: bleeding
+          # - name: macos-13
+          #   version: bleeding
+          # - name: windows-latest
+          #   version: bleeding
+
+          # pre-release check
+          # - name: ubuntu-latest
+          #   version: pre-release
+          # - name: macos-latest
+          #   version: pre-release
+          # - name: macos-13
+          #   version: pre-release
+          # - name: windows-latest
+          #   version: pre-release
+
+      fail-fast: false
+    runs-on: ${{ matrix.os.name }}
+    continue-on-error: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install stable version on unix
+        if: ${{ matrix.os.name != 'windows-latest' && matrix.os.version == 'stable' }}
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+
+      - name: install stable version on windows
+        if: ${{ matrix.os.name == 'windows-latest' && matrix.os.version == 'stable' }}
+        run: |
+          Set-ExecutionPolicy RemoteSigned -Scope CurrentUser; irm https://cli.moonbitlang.com/install/powershell.ps1 | iex
+          
+      - name: install bleeding version on unix
+        if: ${{ matrix.os.name != 'windows-latest' && matrix.os.version == 'bleeding' }}
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s bleeding
+        # passing bleeding as argument to unix.sh
+
+      - name: install bleeding version on windows
+        env:
+          MOONBIT_INSTALL_VERSION: bleeding
+        # set global env variable for powershell.ps1
+        if: ${{ matrix.os.name == 'windows-latest' && matrix.os.version == 'bleeding' }}
+        run: |
+          Set-ExecutionPolicy RemoteSigned -Scope CurrentUser; irm https://cli.moonbitlang.com/install/powershell.ps1 | iex
+
+      - name: install pre-release version on unix
+        if: ${{ matrix.os.name != 'windows-latest' && matrix.os.version == 'pre-release' }}
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s pre-release
+        # passing pre-release as argument to unix.sh
+
+      - name: install pre-release version on windows
+        env:
+          MOONBIT_INSTALL_VERSION: pre-release
+        # set global env variable for powershell.ps1
+        if: ${{ matrix.os.name == 'windows-latest' && matrix.os.version == 'pre-release' }}
+        run: |
+          Set-ExecutionPolicy RemoteSigned -Scope CurrentUser; irm https://cli.moonbitlang.com/install/powershell.ps1 | iex
+
+      - name: add env path on unix
+        if: ${{ matrix.os.name != 'windows-latest' }}
+        run: |
+          echo "$HOME/.moon/bin" >> $GITHUB_PATH
+
+      - name: add env path on windows
+        if: ${{ matrix.os.name == 'windows-latest' }}
+        run: |
+          "C:\Users\runneradmin\.moon\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+      
+      - name: moon version
+        run: |
+          moon version --all
+          moonrun --version
+      
+      - name: install module dependencies
+        run: |
+          moon update
+          moon install
+
+      - name: moon check
+        run: moon check --deny-warn
+
+      - name: moon info
+        run: |
+          moon info --target wasm,wasm-gc,js,native
+          git diff --exit-code
+
+      - name: format diff
+        run: |
+          moon fmt
+          git diff --exit-code
+
+      - name: Setup MSVC
+        if: ${{ matrix.os.name == 'windows-latest' }}
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Set ulimit on unix
+        if: ${{ matrix.os.name != 'windows-latest' }}
+        run: |
+          ulimit -s 8176
+
+      - name: moon test
+        run: |
+          moon test --target all,native
+          moon test --target all,native --release
+
+      - name: moon test with dedup_wasm
+        if: ${{ matrix.os.name != 'windows-latest' }}
+        env: 
+          MOONC_INTERNAL_PARAMS: dedup_wasm = 1 |
+
+        run: |
+          moon clean
+          ulimit -s 8176
+          moon test --target wasm,wasm-gc
+          moon test --target wasm,wasm-gc --release 
+
+      - name: moon test --doc
+        run: |
+          moon test --doc
+
+  moon-json-format-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: check `moon.*.json` format
+        shell: bash
+        run: |
+          _passed=0;
+          for f in $(find . -type f -name "moon.*.json"); do
+            if ! jq '.' $f > /dev/null; then
+              echo $f;
+              _passed=1;
+            fi
+          done
+          (exit $_passed)
+
+  check-typos:
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: AutoCorrect
+      uses: huacnlee/autocorrect-action@v2
+
+    - name: typos-action
+      uses: crate-ci/typos@v1.31.1
