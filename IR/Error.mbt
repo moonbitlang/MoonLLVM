@@ -52,6 +52,8 @@ type! LLVMValueError {
   SwitchInstConditionNotInteger(&Type)
   SwitchInstCaseConditionTypeMismatch(&Type, &Type)
   PHINodeIncomingValueTypeMismatch(&Type, &Type)
+  CallInstArgCountMismatch(Int, Int)
+  CallInstArgTypeMismatchParamType(Array[&Type], Array[&Type])
 } derive(Show)
 
 ///|

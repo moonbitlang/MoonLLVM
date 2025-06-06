@@ -1337,7 +1337,7 @@ pub struct FunctionType {
 ///| Create a FunctionType
 fn FunctionType::new(
   returnType : &Type,
-  paramsTypes : Array[&Type],
+  paramsTypes : Array[&Type]
 ) -> FunctionType!LLVMTypeError {
   let context = returnType.getContext()
   if not(FunctionType::isValidReturnType(returnType)) {
@@ -1369,6 +1369,13 @@ pub fn FunctionType::param_iter(self : FunctionType) -> Iter[&Type] {
 ///
 /// - See LLVM: `FunctionType::params`.
 pub fn FunctionType::params(self : FunctionType) -> Array[&Type] {
+  self.paramTypes
+}
+
+///| Get the params of the function.
+///
+/// - See LLVM: `FunctionType::params`.
+pub fn FunctionType::getParamTypes(self : FunctionType) -> Array[&Type] {
   self.paramTypes
 }
 

@@ -248,6 +248,16 @@ pub fn Function::getNumArgs(self : Function) -> Int {
 }
 
 ///|
+pub fn Function::getNumParams(self : Function) -> Int {
+  self.arguments.length()
+}
+
+///|
+pub fn Function::getParamTypes(self : Function) -> Array[&Type] {
+  self.getFunctionType().params()
+}
+
+///|
 pub fn Function::getNumBasicBlocks(self : Function) -> Int {
   self.basicBlocks.length()
 }

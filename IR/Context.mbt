@@ -286,7 +286,7 @@ pub fn LLVMContext::getPtrTy(
 pub fn LLVMContext::getFunctionType(
   self : LLVMContext,
   returnType : &Type,
-  paramTypes : Array[&Type],
+  paramTypes : Array[&Type]
 ) -> FunctionType!LLVMTypeError {
   ignore(self)
   FunctionType::new!(returnType, paramTypes)

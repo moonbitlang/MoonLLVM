@@ -210,11 +210,13 @@ pub struct CallInst {
   base : ValueBase
   user_base : UserBase
   inst_base : InstBase
-  argNums : Int
-  operand_bundles : Array[OperandBundle]
-  mut tck : TailCallKind
+  callee : Function
+  mut tailCallKind : TailCallKind
 }
+fn CallInst::getArgOperand(Self, Int) -> &Value?
+fn CallInst::getCallee(Self) -> Function
 fn CallInst::getFunctionType(Self) -> FunctionType
+fn CallInst::getNumArgs(Self) -> Int
 fn CallInst::getTailCallKind(Self) -> TailCallKind
 fn CallInst::isTailCall(Self) -> Bool
 fn CallInst::setTailCallKind(Self, TailCallKind) -> Unit
@@ -482,6 +484,8 @@ fn Function::getFunctionAttrs(Self) -> @set.Set[FnAttr]
 fn Function::getFunctionType(Self) -> FunctionType
 fn Function::getNumArgs(Self) -> Int
 fn Function::getNumBasicBlocks(Self) -> Int
+fn Function::getNumParams(Self) -> Int
+fn Function::getParamTypes(Self) -> Array[&Type]
 fn Function::getReturnAttrs(Self) -> @set.Set[RetAttr]
 fn Function::getReturnType(Self) -> &Type
 fn[V : Value] Function::getSlot(Self, V) -> UInt64?
@@ -495,11 +499,11 @@ impl Show for Function
 pub struct FunctionType {
   returnType : &Type
   paramTypes : Array[&Type]
-  isVarArgs : Bool
   // private fields
 }
 fn FunctionType::getNumParams(Self) -> UInt
 fn FunctionType::getParamType(Self, Int) -> &Type?
+fn FunctionType::getParamTypes(Self) -> Array[&Type]
 fn FunctionType::getReturnType(Self) -> &Type
 fn FunctionType::param_iter(Self) -> Iter[&Type]
 fn FunctionType::params(Self) -> Array[&Type]
@@ -785,7 +789,7 @@ fn LLVMContext::getDoubleTy(Self) -> DoubleType
 fn LLVMContext::getFP128Ty(Self) -> FP128Type
 fn LLVMContext::getFixedVectorType(Self, &Type, UInt) -> FixedVectorType!LLVMTypeError
 fn LLVMContext::getFloatTy(Self) -> FloatType
-fn LLVMContext::getFunctionType(Self, &Type, Array[&Type], isVarArgs~ : Bool = ..) -> FunctionType!LLVMTypeError
+fn LLVMContext::getFunctionType(Self, &Type, Array[&Type]) -> FunctionType!LLVMTypeError
 fn LLVMContext::getHalfTy(Self) -> HalfType
 fn LLVMContext::getInt16Ty(Self) -> Int16Type
 fn LLVMContext::getInt1Ty(Self) -> Int1Type
@@ -880,13 +884,6 @@ type NumberArrayEnum
 impl Eq for NumberArrayEnum
 impl Hash for NumberArrayEnum
 impl Show for NumberArrayEnum
-
-pub enum OperandBundle {
-  OperandBundle(String, Array[&Value])
-}
-fn OperandBundle::getInputs(Self) -> Array[&Value]
-fn OperandBundle::getTag(Self) -> String
-fn OperandBundle::new(String, Array[&Value]) -> Self
 
 pub struct PHINode {
   base : ValueBase
@@ -1074,10 +1071,10 @@ impl User for SwitchInst
 impl Value for SwitchInst
 impl Show for SwitchInst
 
-pub enum TailCallKind {
-  TCK_NoTail
-  TCK_Tail
-  TCK_MustTail
+pub(all) enum TailCallKind {
+  NoTail
+  Tail
+  MustTail
 }
 impl Show for TailCallKind
 

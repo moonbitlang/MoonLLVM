@@ -1876,43 +1876,18 @@ pub impl Show for PHINode with output(self, logger) {
 // =======================================================
 
 ///|
-pub enum OperandBundle {
-  OperandBundle(String, Array[&Value])
-}
-
-///|
-pub fn OperandBundle::new(
-  tag : String,
-  inputs : Array[&Value]
-) -> OperandBundle {
-  OperandBundle(tag, inputs)
-}
-
-///|
-pub fn OperandBundle::getTag(self : OperandBundle) -> String {
-  let OperandBundle(tag, _) = self
-  tag
-}
-
-///|
-pub fn OperandBundle::getInputs(self : OperandBundle) -> Array[&Value] {
-  let OperandBundle(_, inputs) = self
-  inputs
-}
-
-///|
-pub enum TailCallKind {
-  TCK_NoTail
-  TCK_Tail
-  TCK_MustTail
+pub(all) enum TailCallKind {
+  NoTail
+  Tail
+  MustTail
 }
 
 ///|
 pub impl Show for TailCallKind with output(self, logger) {
   let str = match self {
-    TCK_NoTail => ""
-    TCK_Tail => "tail"
-    TCK_MustTail => "musttail"
+    NoTail => ""
+    Tail => "tail"
+    MustTail => "musttail"
   }
   logger.write_string(str)
 }
@@ -1922,9 +1897,8 @@ pub struct CallInst {
   base : ValueBase
   user_base : UserBase
   inst_base : InstBase
-  callee: Function
-  operand_bundles : Array[OperandBundle]
-  mut tck : TailCallKind
+  callee : Function
+  mut tailCallKind : TailCallKind
 }
 
 ///|
@@ -1932,62 +1906,77 @@ fn CallInst::new(
   callee : Function,
   args : Array[&Value],
   parent : Function,
-  name : String,
-  operand_bundles~ : Array[OperandBundle] = [],
-  tck~ : TailCallKind = TCK_NoTail
+  name : String
 ) -> CallInst!LLVMValueError {
   let fty = callee.getFunctionType()
-  
-  // 验证参数数量匹配（不考虑可变参数）
   let expected_params = fty.getNumParams().reinterpret_as_int()
   guard args.length() == expected_params else {
-    raise TypeMismatchForBinaryOp(callee.getType(), callee.getType()) // 复用现有错误类型
+    raise CallInstArgCountMismatch(expected_params, args.length())
   }
-  
-  // 验证参数类型匹配
-  for i = 0; i < expected_params; i = i + 1 {
-    let expected_ty = fty.getParamType(i).unwrap()
-    let actual_ty = args[i].getType()
-    guard expected_ty == actual_ty else {
-      raise TypeMismatchForBinaryOp(expected_ty, actual_ty)
-    }
+  let argTys = args.map(fn { arg => arg.getType() })
+  let paramTys = callee.getParamTypes()
+  let arg_param_type_match = argTys
+    .zip(paramTys)
+    .iter()
+    .all(fn { (arg_ty, param_ty) => arg_ty == param_ty })
+  guard arg_param_type_match else {
+    raise CallInstArgTypeMismatchParamType(argTys, paramTys)
   }
-  
+  let name = if fty.getReturnType().asTypeEnum() is VoidType(_) {
+    // 如果返回类型是void，name可以是空字符串
+    ""
+  } else {
+    name
+  }
   let ret_ty = fty.getReturnType()
   let base = ValueBase::new(ret_ty)
   let user_base = UserBase::new(name)
   let inst_base = InstBase::new(parent)
-  
-  // 第一个操作数是被调用的函数
   user_base.operands.push(callee)
-  
-  // 添加所有参数作为操作数
-  for arg in args {
-    user_base.operands.push(arg)
-  }
-  
-  CallInst::{ base, user_base, inst_base, callee, operand_bundles, tck }
+  args.each(fn { arg => user_base.operands.push(arg) })
+  CallInst::{ base, user_base, inst_base, callee, tailCallKind: NoTail }
 }
 
 ///|
 pub fn CallInst::isTailCall(self : CallInst) -> Bool {
-  not(self.tck is TCK_NoTail)
+  not(self.tailCallKind is NoTail)
 }
 
 ///|
 pub fn CallInst::getTailCallKind(self : CallInst) -> TailCallKind {
-  self.tck
+  self.tailCallKind
 }
 
 ///|
-pub fn CallInst::setTailCallKind(self : CallInst, tck : TailCallKind) -> Unit {
-  self.tck = tck
+pub fn CallInst::setTailCallKind(
+  self : CallInst,
+  tailCallKind : TailCallKind
+) -> Unit {
+  self.tailCallKind = tailCallKind
 }
 
 ///|
 pub fn CallInst::getFunctionType(self : CallInst) -> FunctionType {
   guard self.getOperand(0).unwrap().getType().asTypeEnum() is FunctionType(ft)
   ft
+}
+
+///|
+pub fn CallInst::getCallee(self : CallInst) -> Function {
+  guard self.getOperand(0) is Some(callee_val)
+  guard callee_val.asValueEnum() is Function(callee)
+  callee
+}
+
+///|
+pub fn CallInst::getArgOperand(self : Self, idx : Int) -> &Value? {
+  guard idx >= 0 && idx < self.getNumArgs() - 1 else { return None }
+  self.getOperand(idx + 1) // +1 because the first operand is the callee
+}
+
+///|
+pub fn CallInst::getNumArgs(self : Self) -> Int {
+  self.callee.getFunctionType().getNumParams().reinterpret_as_int()
 }
 
 ///|
@@ -2023,26 +2012,27 @@ pub impl Instruction for CallInst with asInstEnum(self) {
 ///|
 pub impl Show for CallInst with output(self, logger) {
   let parent = self.getParent()
-  
-  // 格式化返回值名称或slot
-  let prefix = match self.getName() {
-    Some(name) => "\{name}"
-    None if parent.getSlot(self) is Some(s) => "\{s}"
-    None => "<badref>"
-  }
-  
+
   // 获取被调用函数的信息
   let callee = self.callee
   let fty = callee.getFunctionType()
   let ret_ty = fty.getReturnType()
-  
-  // 格式化tail call类型
-  let tail_str = match self.tck {
-    TCK_NoTail => ""
-    TCK_Tail => "tail "
-    TCK_MustTail => "musttail "
+  let is_void_ret = ret_ty.asTypeEnum() is VoidType(_)
+
+  // 格式化返回值名称或slot
+  let prefix = if is_void_ret {
+    "" // 如果返回类型是void，不需要前缀
+  } else {
+    match self.getName() {
+      Some(name) => "\{name}"
+      None if parent.getSlot(self) is Some(s) => "%\{s}"
+      None => "<badref>"
+    }
   }
-  
+
+  // 格式化tail call类型let tail_str = match self.tck {
+  let tail_str = self.tailCallKind.to_string()
+
   // 格式化返回值属性
   let ret_attrs = callee.getReturnAttrs()
   let ret_attrs_str = if ret_attrs.is_empty() {
@@ -2050,23 +2040,23 @@ pub impl Show for CallInst with output(self, logger) {
   } else {
     " " + ret_attrs.iter().map(fn(a) { "\{a}" }).join(" ")
   }
-  
+
   // 格式化参数
   let arg_strs = Array::new()
   let num_operands = self.getNumOperands()
-  for i = 1; i < num_operands; i = i + 1 { // 跳过第0个操作数（函数本身）
+  for i in 1..<num_operands { // 跳过第0个操作数（函数本身）
     let arg = self.getOperand(i).unwrap()
     let arg_ty = arg.getType()
-    
+
     // 获取参数属性
     let arg_idx = (i - 1).reinterpret_as_uint()
     let arg_attrs = callee.getArgAttrs(arg_idx)
     let arg_attrs_str = match arg_attrs {
-      Some(attrs) if not(attrs.is_empty()) => 
+      Some(attrs) if not(attrs.is_empty()) =>
         " " + attrs.iter().map(fn(a) { "\{a}" }).join(" ")
       _ => ""
     }
-    
+
     // 格式化参数值
     let arg_str = match arg.getValueName() {
       Some(name) => "%\{name}"
@@ -2074,20 +2064,16 @@ pub impl Show for CallInst with output(self, logger) {
       None if arg.tryAsConstant() is Some(c) => c.valstr()
       _ => "<badref>"
     }
-    
     arg_strs.push("\{arg_ty}\{arg_attrs_str} \{arg_str}")
   }
-  
   let args_str = arg_strs.join(", ")
-  
-  // 检查返回类型是否为void
-  let is_void_ret = ret_ty.asTypeEnum() is VoidType(_)
-  
   if is_void_ret {
-    // void返回类型，不需要赋值前缀
-    logger.write_string("  \{tail_str}call\{ret_attrs_str} \{ret_ty} @\{callee.name}(\{args_str})")
+    logger.write_string(
+      "  \{tail_str}call\{ret_attrs_str} \{ret_ty} @\{callee.name}(\{args_str})",
+    )
   } else {
-    // 非void返回类型，需要赋值前缀
-    logger.write_string("  %\{prefix} = \{tail_str}call\{ret_attrs_str} \{ret_ty} @\{callee.name}(\{args_str})")
+    logger.write_string(
+      "  %\{prefix} = \{tail_str}call\{ret_attrs_str} \{ret_ty} @\{callee.name}(\{args_str})",
+    )
   }
 }
