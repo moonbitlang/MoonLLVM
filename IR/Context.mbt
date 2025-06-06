@@ -281,19 +281,15 @@ pub fn LLVMContext::getPtrTy(
 ///
 ///   let fty = ctx.getFunctionType!(voidty, [i32ty, f64ty])
 ///   inspect!(fty, content="void (i32, double)")
-///
-///   let fty2 = ctx.getFunctionType!(voidty, [i32ty, f64ty], isVarArgs = true)
-///   inspect!(fty2, content="void (i32, double, ...)")
 /// }
 /// ```
 pub fn LLVMContext::getFunctionType(
   self : LLVMContext,
   returnType : &Type,
   paramTypes : Array[&Type],
-  isVarArgs~ : Bool = false
 ) -> FunctionType!LLVMTypeError {
   ignore(self)
-  FunctionType::new!(returnType, paramTypes, isVarArgs~)
+  FunctionType::new!(returnType, paramTypes)
 }
 
 ///| Create a struct type in the context.

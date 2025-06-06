@@ -1940,7 +1940,7 @@ fn CallInst::new(
   
   // 验证参数数量匹配（不考虑可变参数）
   let expected_params = fty.getNumParams().reinterpret_as_int()
-  guard fty.isVarArgs || args.length() == expected_params else {
+  guard args.length() == expected_params else {
     raise TypeMismatchForBinaryOp(callee.getType(), callee.getType()) // 复用现有错误类型
   }
   

@@ -1326,23 +1326,18 @@ pub impl AbstractType for TokenType with asAbstractTypeEnum(self) -> AbstractTyp
 ///   let f64ty = ctx.getDoubleTy()
 ///   let fty = ctx.getFunctionType!(voidty, [int32ty, f32ty, f64ty])
 ///   inspect!(fty, content="void (i32, float, double)")
-///
-///   let fty = ctx.getFunctionType!(voidty, [int32ty, f32ty, f64ty], isVarArgs=true)
-///   inspect!(fty, content="void (i32, float, double, ...)")
 /// }
 /// ```
 pub struct FunctionType {
   priv base : TypeBase
   returnType : &Type
   paramTypes : Array[&Type]
-  isVarArgs : Bool
 } derive(Eq, Hash)
 
 ///| Create a FunctionType
 fn FunctionType::new(
   returnType : &Type,
   paramsTypes : Array[&Type],
-  isVarArgs~ : Bool = false
 ) -> FunctionType!LLVMTypeError {
   let context = returnType.getContext()
   if not(FunctionType::isValidReturnType(returnType)) {
@@ -1355,7 +1350,7 @@ fn FunctionType::new(
   }
   let paramTypes = paramsTypes.copy()
   let base = TypeBase::new(context)
-  FunctionType::{ base, returnType, paramTypes, isVarArgs }
+  FunctionType::{ base, returnType, paramTypes }
 }
 
 ///| Get the return type of the function.
@@ -1394,9 +1389,6 @@ pub fn FunctionType::getParamType(self : FunctionType, idx : Int) -> &Type? {
 pub impl Show for FunctionType with output(self, logger : &Logger) {
   let ret_str = self.getReturnType().to_string()
   let param_strs = self.param_iter().map(fn { p => p.to_string() }).collect()
-  if self.isVarArgs {
-    param_strs.push("...")
-  }
   let param_str = param_strs.join(", ")
   logger.write_string("\{ret_str} (\{param_str})")
 }

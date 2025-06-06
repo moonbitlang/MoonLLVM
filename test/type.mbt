@@ -33,14 +33,11 @@ test "Baisc Type Print" {
 test "Function Type Print" {
   let ctx = LLVMContext::new()
   let i32ty = ctx.getInt32Ty()
-  let i64ty = ctx.getInt64Ty()
   let f32ty = ctx.getFloatTy()
   let f64ty = ctx.getDoubleTy()
   let voidty = ctx.getVoidTy()
   let fty = ctx.getFunctionType!(voidty, [i32ty, f64ty, f32ty])
   inspect!(fty, content="void (i32, double, float)")
-  let fty = ctx.getFunctionType!(i64ty, [i32ty, f64ty, f32ty], isVarArgs=true)
-  inspect!(fty, content="i64 (i32, double, float, ...)")
 }
 
 ///|
