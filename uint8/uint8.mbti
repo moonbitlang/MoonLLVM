@@ -1,0 +1,29 @@
+package "Kaida-Amethyst/Aether/uint8"
+
+// Values
+let max_value : UInt8
+
+let min_value : UInt8
+
+// Types and methods
+pub type UInt8 Byte
+fn UInt8::from(Byte) -> Self
+fn UInt8::from_int64(Int64) -> Self
+fn UInt8::from_uint64(UInt64) -> Self
+fn UInt8::to_int(Self) -> Int
+fn UInt8::to_int64(Self) -> Int64
+fn UInt8::to_uint(Self) -> UInt
+fn UInt8::to_uint64(Self) -> UInt64
+impl Add for UInt8
+impl Compare for UInt8
+impl Div for UInt8
+impl Eq for UInt8
+impl Hash for UInt8
+impl Mul for UInt8
+impl Show for UInt8
+impl Sub for UInt8
+
+// Type aliases
+
+// Traits
+
