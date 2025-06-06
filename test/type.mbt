@@ -1,5 +1,5 @@
 ///|
-test "Baisc Type Print" {
+test "Basic Type Print" {
   let ctx = LLVMContext::new()
   let halfty = ctx.getHalfTy()
   let bfloaty = ctx.getBFloatTy()

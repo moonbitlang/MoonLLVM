@@ -15,7 +15,7 @@ type! LLVMTypeError {
 type! LLVMValueError {
   DuplicateFunctionName(String)
   DuplicateArgumentName(String)
-  OnlyIndependInstructionCanBeInsert
+  OnlyIndependentInstructionCanBeInsert
   InValidFunctionName(String)
   TypeMismatchForBinaryOp(&Type, &Type)
   TypeNotSupportForBinaryOp(&Type, BinaryOps)

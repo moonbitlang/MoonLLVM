@@ -326,7 +326,7 @@ pub impl UnSigned for UInt64 with asEnum(self) {
 }
 
 // ====================================================
-// IntergerNumber and IntergerNumberEnum
+// IntegerNumber and IntegerNumberEnum
 // ====================================================
 
 ///|

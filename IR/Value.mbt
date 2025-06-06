@@ -460,7 +460,9 @@ impl Instruction with prev(self) {
 
 ///|
 impl Instruction with insertAfter(self, insertPt : &Instruction) {
-  guard self.isIndependent() else { raise OnlyIndependInstructionCanBeInsert }
+  guard self.isIndependent() else {
+    raise OnlyIndependentInstructionCanBeInsert
+  }
   match insertPt.next() {
     None => {
       insertPt.getInstBase().next = Some(self)
@@ -479,7 +481,9 @@ impl Instruction with insertAfter(self, insertPt : &Instruction) {
 
 ///|
 impl Instruction with insertBefore(self, insertPt : &Instruction) {
-  guard self.isIndependent() else { raise OnlyIndependInstructionCanBeInsert }
+  guard self.isIndependent() else {
+    raise OnlyIndependentInstructionCanBeInsert
+  }
   match insertPt.prev() {
     None => {
       insertPt.getInstBase().prev = Some(self)
@@ -587,7 +591,7 @@ struct GlobalValueBase {
   //visibility: VisibilityTypes
   //unnamed_addr: UnnamedAddr
   //dllStorageClass: DLLStorageClassTypes
-  //threadLoacal: ThreadLocalTypes
+  //threadLocal: ThreadLocalTypes
 }
 
 ///|

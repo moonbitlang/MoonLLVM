@@ -26,7 +26,7 @@ test "Init Type" {
 
   // Pointer Type
   // Note that after LLVM17, typed pointer has been deprecated
-  // We follow the design of LLVM20, also unsupport typed pointer
+  // We follow the design of LLVM20, also unsupported typed pointer
   let ptrty = ctx.getPtrTy()
   inspect!(ptrty, content="ptr")
 

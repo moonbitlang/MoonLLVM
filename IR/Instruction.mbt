@@ -2067,7 +2067,11 @@ pub impl Show for CallInst with output(self, logger) {
     arg_strs.push("\{arg_ty}\{arg_attrs_str} \{arg_str}")
   }
   let args_str = arg_strs.join(", ")
-  let call_prefix = if tail_str.is_empty() { "call" } else { "\{tail_str} call" }
+  let call_prefix = if tail_str.is_empty() {
+    "call"
+  } else {
+    "\{tail_str} call"
+  }
   if is_void_ret {
     logger.write_string(
       "  \{call_prefix}\{ret_attrs_str} \{ret_ty} @\{callee.name}(\{args_str})",

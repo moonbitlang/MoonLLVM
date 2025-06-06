@@ -547,6 +547,7 @@ fn IRBuilder::createAlloca(Self, &Type, addressSpace~ : AddressSpace = .., name~
 fn IRBuilder::createAnd(Self, &Value, &Value, name~ : String = ..) -> &Value!
 fn IRBuilder::createBitCast(Self, &Value, &PrimitiveType, name~ : String = ..) -> &Value!
 fn IRBuilder::createBr(Self, BasicBlock) -> &Instruction!
+fn IRBuilder::createCall(Self, Function, Array[&Value], name~ : String = ..) -> CallInst!
 fn IRBuilder::createCmp(Self, Predicate, &Value, &Value, name~ : String = ..) -> &Value!
 fn IRBuilder::createCondBr(Self, &Value, BasicBlock, BasicBlock) -> &Instruction!
 fn IRBuilder::createExactSDiv(Self, &Value, &Value, name~ : String = ..) -> &Value!

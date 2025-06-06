@@ -1,0 +1,14 @@
+[default.extend-words]
+# LLVM comparison operations - these are standard LLVM instruction names
+OLT = "OLT"  # Ordered Less Than
+olt = "olt"  # fcmp olt instruction
+
+# Variable names that are intentionally short
+nd = "nd"   # variable name for "number double" or similar
+
+[files]
+extend-exclude = [
+    "target/",
+    ".git/",
+    ".mooncakes/"
+] 

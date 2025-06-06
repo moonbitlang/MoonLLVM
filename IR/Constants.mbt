@@ -36,7 +36,7 @@ fn[T : IntegerNumber] ConstantInt::new(vty : &Type, value : T) -> ConstantInt {
     Int16Type(_) => value.to_int().to_int16().to_int().to_int64()
     Int32Type(_) => value.to_int().to_int64()
     Int64Type(_) => value
-    _ => unreachable("ConstantInt::new: Type MisMatch, should be IntegerType")
+    _ => unreachable("ConstantInt::new: Type Mismatch, should be IntegerType")
   }
   let base = ValueBase::new(vty)
   ConstantInt::{ base, value }
@@ -94,7 +94,7 @@ pub fn ConstantInt::getIntegerType(self : ConstantInt) -> &IntegerType {
     Int16Type(i16ty) => i16ty
     Int32Type(i32ty) => i32ty
     Int64Type(i64ty) => i64ty
-    _ => unreachable("ConstantInt::getIntegerType: Type MisMatch")
+    _ => unreachable("ConstantInt::getIntegerType: Type Mismatch")
   }
 }
 
@@ -1770,19 +1770,19 @@ fn ConstantArray::newConstantArray(
     unreachable("ConstantArray::new: data length is not equal to element count")
   }
   let eleTy = arrTy.getElementType()
-  let consistancy = data
+  let consistency = data
     .map(fn { d => d.getType() })
     .fold(init=true, fn(acc, ty) { acc && ty == eleTy })
-  guard consistancy else {
+  guard consistency else {
     unreachable(
-      "ConstantArray::new: data type is not consistant with elementType",
+      "ConstantArray::new: data type is not consistent with elementType",
     )
   }
   let base = ValueBase::new(vty)
   ConstantArray::{ base, data: Either::Left(data) }
 }
 
-// TODO: use `Int8` instead of `Int` when stard support `Int8`
+// TODO: use `Int8` instead of `Int` when standard library support `Int8`
 ///|
 fn ConstantArray::newInt8Array(vty : &Type, data : Array[Int]) -> ConstantArray {
   guard vty.asTypeEnum() is ArrayType(arrTy) else {
@@ -2099,19 +2099,19 @@ fn ConstantVector::newConstantVector(
     )
   }
   let eleTy = arrTy.getElementType()
-  let consistancy = data
+  let consistency = data
     .map(fn { d => d.getType() })
     .fold(init=true, fn(acc, ty) { acc && ty == eleTy })
-  guard consistancy else {
+  guard consistency else {
     unreachable(
-      "ConstantVector::new: data type is not consistant with elementType",
+      "ConstantVector::new: data type is not consistent with elementType",
     )
   }
   let base = ValueBase::new(vty)
   ConstantVector::{ base, data: Either::Left(data) }
 }
 
-// TODO: use `Int8` instead of `Int` when stard support `Int8`
+// TODO: use `Int8` instead of `Int` when standard library support `Int8`
 ///|
 fn ConstantVector::newInt8Vector(
   vty : &Type,
