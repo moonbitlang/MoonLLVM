@@ -1,11 +1,11 @@
 ///|
-typealias Either[L, R] = @Either.Either[L, R]
+typealias @Either.Either
 
 ///|
-typealias Int8 = @int8.Int8
+typealias @int8.Int8
 
 ///|
-typealias UInt8 = @uint8.UInt8
+typealias @uint8.UInt8
 
 ///|
 let valueOIDAssigner : Ref[UInt64] = Ref::new(0)

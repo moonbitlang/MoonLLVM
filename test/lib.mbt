@@ -1,5 +1,5 @@
 ///|
-typealias LLVMContext = @IR.LLVMContext
+typealias @IR.LLVMContext
 
 ///|
-traitalias Type = @IR.Type
+traitalias @IR.Type

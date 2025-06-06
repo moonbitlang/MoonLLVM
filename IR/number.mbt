@@ -167,7 +167,8 @@ fn FloatingEnum::asClass(self : FloatingEnum) -> &Floating {
 ///|
 fn FloatingEnum::to_float64(self : FloatingEnum) -> Double {
   match self {
-    Float(v) => v.to_float64()
+    //Float(v) => v.to_float64()
+    Float(v) => Floating::to_float64(v)
     Double(v) => v
   }
 }
@@ -185,7 +186,7 @@ pub impl Floating for Float with asEnum(self) {
 
 ///|
 pub impl Floating for Float with to_float64(self) {
-  self.to_float64()
+  Floating::to_float64(self)
 }
 
 ///|
