@@ -1542,13 +1542,7 @@ fn StructType::new(
   //let containsScalableVector = false
   //let containsNonGlobalTargetExtType = false
   //let containsNonLocalTargetExtType = false
-  let sty = StructType::{
-    base,
-    name,
-    elements,
-    isPacked,
-    isSized: None,
-  }
+  let sty = StructType::{ base, name, elements, isPacked, isSized: None }
   //containsScalableVector,
   //containsNonGlobalTargetExtType,
   //containsNonLocalTargetExtType
@@ -1710,6 +1704,7 @@ pub fn StructType::setName(
   }
 }
 
+///|
 pub fn StructType::removeName(self : StructType) -> Unit {
   guard self.name is Some(name) else { return }
   let ctx = self.getContext().pimpl.unwrap()
@@ -1730,7 +1725,8 @@ pub fn StructType::getIndexedType(self : Self, idxs : ArrayView[Int]) -> &Type? 
   }
 }
 
-pub fn StructType::body_str(self: Self) -> String {
+///|
+pub fn StructType::body_str(self : Self) -> String {
   let s = self.elements.iter().map(fn { ty => ty.to_string() }).join(", ")
   match self.isPacked() {
     true => "<{ \{s} }>"
@@ -1738,12 +1734,15 @@ pub fn StructType::body_str(self: Self) -> String {
   }
 }
 
-pub fn StructType::full_info(self: Self) -> String {
+///|
+pub fn StructType::full_info(self : Self) -> String {
   match self.getName() {
-    Some(ident) => "%\{ident} = " + (match self.isOpaque() {
-      true => "opaque"
-      false => "type " + self.body_str()
-    })
+    Some(ident) =>
+      "%\{ident} = " +
+      (match self.isOpaque() {
+        true => "opaque"
+        false => "type " + self.body_str()
+      })
     None => self.body_str()
   }
 }

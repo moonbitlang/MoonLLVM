@@ -569,6 +569,7 @@ fn IRBuilder::createCmp(Self, Predicate, &Value, &Value, name~ : String = ..) ->
 fn IRBuilder::createCondBr(Self, &Value, BasicBlock, BasicBlock) -> &Instruction!
 fn IRBuilder::createExactSDiv(Self, &Value, &Value, name~ : String = ..) -> &Value!
 fn IRBuilder::createExactUDiv(Self, &Value, &Value, name~ : String = ..) -> &Value!
+fn IRBuilder::createExtractValue(Self, &Value, Array[Int], name~ : String = ..) -> &Value!
 fn IRBuilder::createFAdd(Self, &Value, &Value, name~ : String = .., fast_math_flags~ : @set.Set[FastMathFlag] = ..) -> &Value!
 fn IRBuilder::createFCmpOEQ(Self, &Value, &Value, name~ : String = ..) -> &Value!
 fn IRBuilder::createFCmpOGE(Self, &Value, &Value, name~ : String = ..) -> &Value!
@@ -603,6 +604,7 @@ fn IRBuilder::createICmpUGE(Self, &Value, &Value, name~ : String = ..) -> &Value
 fn IRBuilder::createICmpUGT(Self, &Value, &Value, name~ : String = ..) -> &Value!
 fn IRBuilder::createICmpULE(Self, &Value, &Value, name~ : String = ..) -> &Value!
 fn IRBuilder::createICmpULT(Self, &Value, &Value, name~ : String = ..) -> &Value!
+fn IRBuilder::createInsertValue(Self, &Value, &Value, Array[Int], name~ : String = ..) -> &Value!
 fn IRBuilder::createIntToPtr(Self, &Value, name~ : String = ..) -> &Value!
 fn IRBuilder::createLShr(Self, &Value, &Value, name~ : String = .., is_exact~ : Bool = ..) -> &Value!
 fn IRBuilder::createLoad(Self, &Type, &Value, isVolatile~ : Bool = .., atomicOrdering~ : AtomicOrdering = .., name~ : String = ..) -> &Value!
@@ -1075,14 +1077,17 @@ pub struct StructType {
   elements : Array[&Type]
   // private fields
 }
+fn StructType::body_str(Self) -> String
 fn StructType::element_iter(Self) -> Iter[&Type]
 fn StructType::elements(Self) -> Array[&Type]
+fn StructType::full_info(Self) -> String
 fn StructType::getIndexedType(Self, ArrayView[Int]) -> &Type?
 fn StructType::getName(Self) -> String?
 fn StructType::isLiteral(Self) -> Bool
 fn StructType::isOpaque(Self) -> Bool
 fn StructType::isPacked(Self) -> Bool
 fn StructType::isSized(Self) -> Bool
+fn StructType::removeName(Self) -> Unit
 fn StructType::setBody(Self, Array[&Type], isPacked~ : Bool = ..) -> Unit!LLVMTypeError
 fn StructType::setName(Self, String) -> Unit!LLVMTypeError
 impl AggregateType for StructType
