@@ -31,7 +31,6 @@ struct LLVMContextImpl {
   i64ty : Int64Type
   namedStructTypes : Map[String, StructType]
   pointerTypes : Map[AddressSpace, PointerType]
-  mut literalStructID : UInt64
 
   // Metadata
   mdstrings : Map[String, MDString]
@@ -63,7 +62,6 @@ pub fn LLVMContext::new() -> LLVMContext {
     i32ty: Int32Type::new(ctx),
     i64ty: Int64Type::new(ctx),
     namedStructTypes: Map::new(),
-    literalStructID: 0,
     pointerTypes,
     mdstrings: Map::new(),
     //valueMetadata: Map::new(),

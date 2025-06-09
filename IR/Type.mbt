@@ -1512,7 +1512,6 @@ pub struct StructType {
   priv base : TypeBase
   priv mut name : String?
   elements : Array[&Type]
-  priv mut uniqueLiteralID : UInt64? // only valid when struct is literal
   priv mut isPacked : Bool
   priv mut isSized : Bool?
   //priv mut containsScalableVector: Bool
@@ -1533,16 +1532,12 @@ fn StructType::new(
   }
   let elements = elements.copy()
   let namedStructTypes = context.pimpl.unwrap().namedStructTypes
-  let uniqueLiteralID = context.pimpl.unwrap().literalStructID
   let base = TypeBase::new(context)
-  let (name, uniqueLiteralID) = match name {
-    Some(n) if n.is_empty() => raise InValidStructName("")
+  let name = match name {
+    Some("") => raise InValidStructName("")
     Some(n) if namedStructTypes.contains(n) => raise DuplicateStructName(n)
-    Some(n) => (Some(n), None)
-    None => {
-      context.pimpl.unwrap().literalStructID += 1
-      (None, Some(uniqueLiteralID))
-    }
+    Some(n) => Some(n)
+    None => None
   }
   //let containsScalableVector = false
   //let containsNonGlobalTargetExtType = false
@@ -1551,7 +1546,6 @@ fn StructType::new(
     base,
     name,
     elements,
-    uniqueLiteralID,
     isPacked,
     isSized: None,
   }
@@ -1692,7 +1686,6 @@ pub fn StructType::getName(self : StructType) -> String? {
 ///   - If context has already have a struct with the given new name, it will raise error.
 ///
 /// - See LLVM: `StructType::setName`.
-/// TODO: remove logics about checking empty name.
 pub fn StructType::setName(
   self : StructType,
   new_name : String
@@ -1703,27 +1696,25 @@ pub fn StructType::setName(
   let ctx = self.getContext().pimpl.unwrap()
   let namedStructTypes = ctx.namedStructTypes
   match (self.name, new_name) {
-    (None, "") => return
     (Some(old_name), new_name) if old_name == new_name => return
     (_, new_name) if namedStructTypes.contains(new_name) =>
       raise DuplicateStructName(new_name)
     (None, new_name) => {
       self.name = Some(new_name)
       namedStructTypes.set(new_name, self)
-      self.uniqueLiteralID = None
-    }
-    (Some(name), "") => {
-      namedStructTypes.remove(name)
-      self.name = None
-      self.uniqueLiteralID = ctx.literalStructID |> Some
-      ctx.literalStructID += 1
     }
     (Some(old_name), new_name) => {
       namedStructTypes..remove(old_name)..set(new_name, self)
       self.name = Some(new_name)
-      self.uniqueLiteralID = None
     }
   }
+}
+
+pub fn StructType::removeName(self : StructType) -> Unit {
+  guard self.name is Some(name) else { return }
+  let ctx = self.getContext().pimpl.unwrap()
+  ctx.namedStructTypes.remove(name)
+  self.name = None
 }
 
 ///|
@@ -1768,7 +1759,12 @@ pub impl Show for StructType with output(self, logger : &Logger) {
 
 ///|
 pub impl Eq for StructType with op_equal(self, other) {
-  self.name == other.name && self.uniqueLiteralID == other.uniqueLiteralID
+  match (self.name, other.name) {
+    (Some(n1), Some(n2)) => n1 == n2
+    (Some(_), None) => false
+    (None, Some(_)) => false
+    (None, None) => self.elements == other.elements
+  }
 }
 
 ///|
