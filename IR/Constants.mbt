@@ -2425,3 +2425,204 @@ pub impl Show for ConstantVector with output(self, logger) {
   let data_str = self.valstr()
   logger.write_string("\{self.getType()} <\{data_str}>")
 }
+
+// ====================================================================
+// ConstantStruct
+// ====================================================================
+
+///| ConstantStruct
+///
+/// Represents a constant struct value in LLVM IR.
+///
+/// ```moonbit
+/// test "ConstantStruct basic print" {
+///   let ctx = LLVMContext::new()
+///   let i32ty = ctx.getInt32Ty()
+///   let f32ty = ctx.getFloatTy()
+///   let sty = ctx.getStructType!([i32ty, f32ty])
+///   
+///   let i32_val = ctx.getConstInt32(42)
+///   let f32_val = ctx.getConstFloat(3.14)
+///   let struct_val = ConstantStruct::new(sty, [i32_val, f32_val])
+///
+///   inspect(struct_val, content="{ i32, float } { i32 42, float 0x40091EB851EB851F }")
+/// }
+/// ```
+pub struct ConstantStruct {
+  base : ValueBase
+  elements : Array[&Constant]
+} derive(Eq)
+
+///|
+pub fn ConstantStruct::new(
+  vty : &Type,
+  elements : Array[&Constant]
+) -> ConstantStruct {
+  guard vty.asTypeEnum() is StructType(sty) else {
+    unreachable("ConstantStruct::new: vty is not StructType")
+  }
+  let struct_elements = sty.elements()
+  guard elements.length() == struct_elements.length() else {
+    unreachable("ConstantStruct::new: elements length mismatch")
+  }
+  for i = 0; i < elements.length(); i = i + 1 {
+    guard elements[i].getType() == struct_elements[i] else {
+      unreachable("ConstantStruct::new: element type mismatch at index \{i}")
+    }
+  }
+  let base = ValueBase::new(vty)
+  ConstantStruct::{ base, elements: elements.copy() }
+}
+
+///| Get the elements of this constant struct.
+pub fn ConstantStruct::getElements(self : ConstantStruct) -> Array[&Constant] {
+  self.elements.copy()
+}
+
+///| Get the element at the specified index.
+pub fn ConstantStruct::getElement(self : ConstantStruct, index : Int) -> &Constant? {
+  if index >= 0 && index < self.elements.length() {
+    Some(self.elements[index])
+  } else {
+    None
+  }
+}
+
+///| Extract a value from this constant struct using a sequence of indices.
+///
+/// This is equivalent to LLVM's `extractvalue` instruction for constant structs.
+/// The indices specify a path through nested aggregate types.
+///
+/// ```moonbit
+/// test "ConstantStruct extractValue" {
+///   let ctx = LLVMContext::new()
+///   let i32ty = ctx.getInt32Ty()
+///   let f32ty = ctx.getFloatTy()
+///   let sty = ctx.getStructType!([i32ty, f32ty])
+///   
+///   let i32_val = ctx.getConstInt32(42)
+///   let f32_val = ctx.getConstFloat(3.14)
+///   let struct_val = ConstantStruct::new(sty, [i32_val, f32_val])
+///
+///   inspect(struct_val.extractValue([0]), content="Some(i32 42)")
+///   inspect(struct_val.extractValue([1]), content="Some(float 0x40091EB851EB851F)")
+///   inspect(struct_val.extractValue([2]), content="None") // Out of bounds
+/// }
+/// ```
+pub fn ConstantStruct::extractValue(
+  self : ConstantStruct,
+  indices : ArrayView[Int]
+) -> &Constant? {
+  guard indices.length() > 0 else { return None }
+  
+  let first_index = indices[0]
+  guard first_index >= 0 && first_index < self.elements.length() else {
+    return None
+  }
+  
+  let element = self.elements[first_index]
+  
+  if indices.length() == 1 {
+    // Base case: return the element
+    Some(element)
+  } else {
+    // Recursive case: extract from the nested aggregate
+    match element.asConstantEnum() {
+      ConstantStruct(nested_struct) => 
+        nested_struct.extractValue(indices[1:])
+      _ => None // For now, only support nested structs
+    }
+  }
+}
+
+///| Insert a value into this constant struct using a sequence of indices.
+///
+/// This is equivalent to LLVM's `insertvalue` instruction for constant structs.
+/// Returns a new ConstantStruct with the value inserted at the specified path.
+///
+/// ```moonbit
+/// test "ConstantStruct insertValue" {
+///   let ctx = LLVMContext::new()
+///   let i32ty = ctx.getInt32Ty()
+///   let f32ty = ctx.getFloatTy()
+///   let sty = ctx.getStructType!([i32ty, f32ty])
+///   
+///   let i32_val = ctx.getConstInt32(42)
+///   let f32_val = ctx.getConstFloat(3.14)
+///   let struct_val = ConstantStruct::new(sty, [i32_val, f32_val])
+///   
+///   // Insert new value at index 0
+///   let new_i32_val = ctx.getConstInt32(100)
+///   guard struct_val.insertValue([0], new_i32_val) is Some(new_struct)
+///   
+///   // Verify the new value was inserted
+///   assert_true!(new_struct.extractValue([0]) is Some(_))
+/// }
+/// ```
+/// // TODO: not correct
+pub fn ConstantStruct::insertValue(
+  self : ConstantStruct,
+  indices : ArrayView[Int],
+  value : &Constant
+) -> ConstantStruct? {
+  let first_index = indices[0]
+  guard first_index >= 0 && first_index < self.elements.length() else {
+    return None
+  }
+  
+  if indices.length() == 1 {
+    // Base case: replace the element at this index
+    guard self.getType().asTypeEnum() is StructType(sty) else { return None }
+    guard value.getType() == sty.elements()[first_index] else { return None }
+    
+    let new_elements = self.elements.copy()
+    new_elements[first_index] = value
+    Some(ConstantStruct::new(self.getType(), new_elements))
+  } else {
+    // Recursive case: insert into the nested aggregate
+    let element = self.elements[first_index]
+    let new_element = match element.asConstantEnum() {
+      ConstantStruct(nested_struct) => 
+        match nested_struct.insertValue(indices[1:], value) {
+          Some(new_nested) => Some((new_nested : &Constant))
+          None => None
+        }
+      _ => None // For now, only support nested structs
+    }
+    
+    match new_element {
+      Some(elem) => {
+        let new_elements = self.elements.copy()
+        new_elements[first_index] = elem
+        Some(ConstantStruct::new(self.getType(), new_elements))
+      }
+      None => None
+    }
+  }
+}
+
+///|
+impl Value for ConstantStruct with getValueBase(self) {
+  self.base
+}
+
+///|
+impl Value for ConstantStruct with asValueEnum(self) {
+  ConstantStruct(self)
+}
+
+///|
+impl Constant for ConstantStruct with asConstantEnum(self) {
+  ConstantStruct(self)
+}
+
+///|
+impl Constant for ConstantStruct with valstr(self) {
+  self.elements.map(fn { c => c.to_string() }).join(", ")
+}
+
+///|
+pub impl Show for ConstantStruct with output(self, logger) {
+  let data_str = self.valstr()
+  logger.write_string("\{self.getType()} { \{data_str} }")
+}

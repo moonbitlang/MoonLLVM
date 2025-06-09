@@ -25,7 +25,7 @@ pub enum ValueEnum {
   //ConstantAggregate(ConstantAggregate)
   ConstantArray(ConstantArray)
   ConstantVector(ConstantVector)
-  //ConstantStruct(ConstantStruct)
+  ConstantStruct(ConstantStruct)
   //ConstantTokenNone(ConstantTokenNone)
   //UndefValue(UndefValue)
   //PoisonValue(PoisonValue)
@@ -84,6 +84,7 @@ pub fn ValueEnum::tryAsConstantEnum(self : ValueEnum) -> ConstantEnum? {
     ConstantPointerNull(c) => ConstantPointerNull(c) |> Some
     ConstantArray(c) => ConstantArray(c) |> Some
     ConstantVector(c) => ConstantVector(c) |> Some
+    ConstantStruct(c) => ConstantStruct(c) |> Some
     _ => None
   }
 }
@@ -228,6 +229,7 @@ impl Value with tryAsConstant(self) {
     ConstantPointerNull(c) => Some(c)
     ConstantArray(c) => Some(c)
     ConstantVector(c) => Some(c)
+    ConstantStruct(c) => Some(c)
     _ => None
   }
 }
@@ -240,6 +242,7 @@ impl Value with tryAsConstantEnum(self) {
     ConstantPointerNull(c) => Some(ConstantPointerNull(c))
     ConstantArray(c) => Some(ConstantArray(c))
     ConstantVector(c) => Some(ConstantVector(c))
+    ConstantStruct(c) => Some(ConstantStruct(c))
     _ => None
   }
 }
@@ -559,6 +562,7 @@ pub enum ConstantEnum {
   ConstantPointerNull(ConstantPointerNull)
   ConstantArray(ConstantArray)
   ConstantVector(ConstantVector)
+  ConstantStruct(ConstantStruct)
 } derive(Eq)
 
 ///|
