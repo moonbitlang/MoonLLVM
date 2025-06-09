@@ -2218,9 +2218,9 @@ fn InsertValueInst::new(
     raise InsertValueInstInvalidAggregateType(agg_ty)
   }
 
-  //guard agg_ty.getIndexedType(indices) is Some(result_ty) else {
-  //  raise InsertValueInstInvalidIndex(agg_ty.asTypeClass(), indices)
-  //}
+  guard agg_ty.getIndexedType(indices) is Some(_) else {
+    raise InsertValueInstInvalidIndex(agg_ty.asTypeClass(), indices)
+  }
 
   let base = ValueBase::new(agg_ty.asTypeClass())
   let user_base = UserBase::new(name)
@@ -2306,3 +2306,4 @@ pub impl Show for InsertValueInst with output(self, logger) {
     "  %\{prefix} = insertvalue \{agg_ty} \{agg_str}, \{val_ty} \{val_str}, \{indices_str}",
   )
 }
+

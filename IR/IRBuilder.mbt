@@ -4108,3 +4108,119 @@ pub fn IRBuilder::createCall(
   self.insert!(inst)
   inst
 }
+
+///| Create ExtractValue Instruction.
+///
+/// Creates an extractvalue instruction that extracts a value from an aggregate type (struct or array).
+/// This instruction extracts the value at the specified indices from the aggregate operand.
+///
+/// **Note:**
+///
+/// - The `aggregate` operand must be of an aggregate type (struct or array)
+/// - The `indices` array specifies the path to the element to be extracted
+/// - The indices must not be empty and must be valid for the aggregate type
+/// - The result type is determined by the type of the element at the specified indices
+///
+/// ```moonbit
+/// test "IRBuilder::createExtractValue" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let f32ty = ctx.getFloatTy()
+///   let sty = ctx.getStructType!([i32ty, f32ty], name="MyStruct")
+///   let fty = ctx.getFunctionType!(i32ty, [sty])
+///   let fval = prog.addFunction!(fty, "extract_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let struct_arg = fval.getArg(0).unwrap()
+///   
+///   // Extract the first element (i32) from struct
+///   let extracted_val = builder.createExtractValue!(struct_arg, [0], name="field0")
+///   let _ = builder.createRet!(extracted_val)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define i32 @extract_func(%MyStruct %0) {
+///     #|entry:
+///     #|  %field0 = extractvalue %MyStruct %0, 0
+///     #|  ret i32 %field0
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+pub fn IRBuilder::createExtractValue(
+  self : IRBuilder,
+  aggregate : &Value,
+  indices : Array[Int],
+  name~ : String = ""
+) -> &Value!Error {
+  let parent = self.getInsertFunction()
+  let inst = ExtractValueInst::new!(aggregate, indices, parent, name)
+  self.insert!(inst)
+  inst
+}
+
+///| Create InsertValue Instruction.
+///
+/// Creates an insertvalue instruction that inserts a value into an aggregate type (struct or array).
+/// This instruction creates a new aggregate value by inserting the specified value at the specified indices.
+///
+/// **Note:**
+///
+/// - The `aggregate` operand must be of an aggregate type (struct or array)
+/// - The `value` is the value to be inserted into the aggregate
+/// - The `indices` array specifies the path to where the value should be inserted
+/// - The indices must not be empty and must be valid for the aggregate type
+/// - The result type is the same as the aggregate type
+///
+/// ```moonbit
+/// test "IRBuilder::createInsertValue" {
+///   let ctx = LLVMContext::new()
+///   let prog = ctx.addProgram("demo")
+///   let builder = IRBuilder::new()
+///
+///   let i32ty = ctx.getInt32Ty()
+///   let f32ty = ctx.getFloatTy()
+///   let sty = ctx.getStructType!([i32ty, f32ty], name="MyStruct")
+///   let fty = ctx.getFunctionType!(sty, [sty, i32ty])
+///   let fval = prog.addFunction!(fty, "insert_func")
+///   let entryBB = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entryBB)
+///
+///   let struct_arg = fval.getArg(0).unwrap()
+///   let new_val = fval.getArg(1).unwrap()
+///   
+///   // Insert the new value into the first field of the struct
+///   let new_struct = builder.createInsertValue!(struct_arg, new_val, [0], name="new_struct")
+///   let _ = builder.createRet!(new_struct)
+///
+///   inspect(
+///     fval,
+///     content =
+///     #|define %MyStruct @insert_func(%MyStruct %0, i32 %1) {
+///     #|entry:
+///     #|  %new_struct = insertvalue %MyStruct %0, i32 %1, 0
+///     #|  ret %MyStruct %new_struct
+///     #|}
+///     ,
+///   )
+/// }
+/// ```
+pub fn IRBuilder::createInsertValue(
+  self : IRBuilder,
+  aggregate : &Value,
+  value : &Value,
+  indices : Array[Int],
+  name~ : String = ""
+) -> &Value!Error {
+  let parent = self.getInsertFunction()
+  let inst = InsertValueInst::new!(aggregate, value, indices, parent, name)
+  self.insert!(inst)
+  inst
+}
+

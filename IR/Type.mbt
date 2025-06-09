@@ -1502,10 +1502,10 @@ pub impl AbstractType for FunctionType with asAbstractTypeEnum(self) -> Abstract
 ///   let f32ty = ctx.getFloatTy()
 ///
 ///   let sty = ctx.getStructType!([i32ty, f32ty], name="foo")
-///   inspect!(sty, content="%foo = type { i32, float }")
+///   inspect!(sty.full_info(), content="%foo = type { i32, float }")
 ///
 ///   let sty = ctx.getStructType!([i8ty, i16ty], name="bar", isPacked=true)
-///   inspect!(sty, content="%bar = type <{ i8, i16 }>")
+///   inspect!(sty.full_info(), content="%bar = type <{ i8, i16 }>")
 /// }
 /// ```
 pub struct StructType {
@@ -1692,10 +1692,14 @@ pub fn StructType::getName(self : StructType) -> String? {
 ///   - If context has already have a struct with the given new name, it will raise error.
 ///
 /// - See LLVM: `StructType::setName`.
+/// TODO: remove logics about checking empty name.
 pub fn StructType::setName(
   self : StructType,
   new_name : String
 ) -> Unit!LLVMTypeError {
+  if new_name.is_empty() {
+    raise StructTypeNameCannotBeEmpty
+  }
   let ctx = self.getContext().pimpl.unwrap()
   let namedStructTypes = ctx.namedStructTypes
   match (self.name, new_name) {
@@ -1735,24 +1739,31 @@ pub fn StructType::getIndexedType(self : Self, idxs : ArrayView[Int]) -> &Type? 
   }
 }
 
+pub fn StructType::body_str(self: Self) -> String {
+  let s = self.elements.iter().map(fn { ty => ty.to_string() }).join(", ")
+  match self.isPacked() {
+    true => "<{ \{s} }>"
+    false => "{ \{s} }"
+  }
+}
+
+pub fn StructType::full_info(self: Self) -> String {
+  match self.getName() {
+    Some(ident) => "%\{ident} = " + (match self.isOpaque() {
+      true => "opaque"
+      false => "type " + self.body_str()
+    })
+    None => self.body_str()
+  }
+}
+
 ///|
 pub impl Show for StructType with output(self, logger : &Logger) {
-  let ident = match self.getName() {
-    Some(name) => name
-    None => "\"&literal.\{self.uniqueLiteralID.unwrap()}\""
+  let s = match self.getName() {
+    Some(name) => "%\{name}"
+    None => self.body_str()
   }
-  logger.write_string("%\{ident} = ")
-  if self.isOpaque() {
-    logger.write_string("opaque")
-    return
-  }
-  let elements_str = self.elements().map(fn { ty => ty.to_string() }).join(", ")
-  logger.write_string("type ")
-  if self.isPacked() {
-    logger.write_string("<{ \{elements_str} }>")
-  } else {
-    logger.write_string("{ \{elements_str} }")
-  }
+  logger.write_string(s)
 }
 
 ///|

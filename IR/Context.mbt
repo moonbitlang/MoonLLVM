@@ -309,7 +309,7 @@ pub fn LLVMContext::getFunctionType(
 ///   let f64ty = ctx.getDoubleTy()
 ///
 ///   let sty = ctx.getStructType!([i32ty, f32ty, f64ty], name = "foo")
-///   inspect!(sty, content="%foo = type { i32, float, double }")
+///   inspect!(sty.full_info(), content="%foo = type { i32, float, double }")
 ///
 ///   // Cannot create a ananymous struct type with empty elements.
 ///   assert_true!(ctx.getStructType?([]).is_err())

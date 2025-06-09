@@ -5,6 +5,7 @@ type! LLVMTypeError {
   RecursiveStructDefinition
   InValidStructName(String)
   DuplicateStructName(String)
+  StructTypeNameCannotBeEmpty
   InValidFunctionReturnType(&Type)
   InValidFunctionArgumentType(&Type)
   InValidArrayElementType(&Type)
@@ -59,7 +60,7 @@ type! LLVMValueError {
   ExtractValueInstInvalidIndex(&Type, Array[Int])
   InsertValueInstRequiresNonEmptyIndices
   InsertValueInstInvalidAggregateType(&Type)
-  //InsertValueInstInvalidIndex(&Type, Array[Int])
+  InsertValueInstInvalidIndex(&Type, Array[Int])
 } derive(Show)
 
 ///|

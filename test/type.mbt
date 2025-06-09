@@ -47,19 +47,22 @@ test "Struct Type Print" {
   let f32ty = ctx.getFloatTy()
   let f64ty = ctx.getDoubleTy()
   let opaque = ctx.getStructType!([], name="baz")
-  inspect!(opaque, content="%baz = opaque")
+  inspect!(opaque, content="%baz")
+  inspect!(opaque.full_info(), content="%baz = opaque")
   let literal = ctx.getStructType!([i32ty, f32ty, f64ty])
-  inspect!(literal, content="%\"&literal.0\" = type { i32, float, double }")
+  inspect!(literal, content="{ i32, float, double }")
+  inspect!(literal.full_info(), content="{ i32, float, double }")
   let named = ctx.getStructType!([i32ty, f32ty, f64ty], name="foo")
-  inspect!(named, content="%foo = type { i32, float, double }")
+  inspect!(named, content="%foo")
+  inspect!(named.full_info(), content="%foo = type { i32, float, double }")
   let named2 = ctx.getStructType!([i32ty, f32ty, f64ty], name="bar")
-  inspect!(named2, content="%bar = type { i32, float, double }")
+  inspect!(named2.full_info(), content="%bar = type { i32, float, double }")
   let packed = ctx.getStructType!(
     [i32ty, f32ty, f64ty],
     name="bax",
     isPacked=true,
   )
-  inspect!(packed, content="%bax = type <{ i32, float, double }>")
+  inspect!(packed.full_info(), content="%bax = type <{ i32, float, double }>")
 }
 
 ///|
@@ -126,15 +129,15 @@ test "Struct Type Functionality Test" {
 
   // opaque
   let opaque = ctx.getStructType!([], name="bar")
-  inspect!(opaque, content="%bar = opaque")
+  inspect!(opaque.full_info(), content="%bar = opaque")
   assert_true!(opaque.isOpaque())
 
   // literal
   let literal = ctx.getStructType!([i32ty, f32ty, f64ty])
-  inspect!(literal, content="%\"&literal.0\" = type { i32, float, double }")
+  inspect!(literal, content="{ i32, float, double }")
   assert_true!(literal.isLiteral())
   let named = ctx.getStructType!([i32ty, f32ty], name="foo")
-  inspect!(named, content="%foo = type { i32, float }")
+  inspect!(named.full_info(), content="%foo = type { i32, float }")
   assert_eq!(named.getName().unwrap(), "foo")
 
   // setName for literal
@@ -142,16 +145,16 @@ test "Struct Type Functionality Test" {
   assert_true!(named.setName?("baz").is_ok())
   assert_eq!(named.getName().unwrap(), "baz")
   assert_true!(literal.setName?("foo").is_ok())
-  inspect!(literal, content="%foo = type { i32, float, double }")
+  inspect!(literal.full_info(), content="%foo = type { i32, float, double }")
 
   // setBody for opaque
   let elements : Array[&Type] = [f64ty, i32ty, f32ty]
   assert_true!(opaque.setBody?(elements, isPacked=true).is_ok())
-  inspect!(opaque, content="%bar = type <{ double, i32, float }>")
+  inspect!(opaque.full_info(), content="%bar = type <{ double, i32, float }>")
   assert_false!(opaque.isOpaque())
 
   // Ensure the body will not effect by changing the elements outside.
   elements.push(f32ty)
-  inspect!(opaque, content="%bar = type <{ double, i32, float }>")
+  inspect!(opaque.full_info(), content="%bar = type <{ double, i32, float }>")
   assert_false!(opaque.setBody?(elements, isPacked=false).is_ok())
 }
