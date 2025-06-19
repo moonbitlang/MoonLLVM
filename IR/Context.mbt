@@ -293,11 +293,11 @@ pub fn LLVMContext::getFunctionType(
 /// inspect(sty.full_info(), content="%foo = type { i32, float, double }")
 ///
 /// // Cannot create a ananymous struct type with empty elements.
-/// assert_true(ctx.getStructType?([]).is_err())
+/// assert_true((try? ctx.getStructType([])).is_err())
 ///
 /// // Cannot create a struct which has same name with other struct.
 /// // the `foo` struct is already created.
-/// assert_true(ctx.getStructType?([], name="foo").is_err())
+/// assert_true((try? ctx.getStructType([], name="foo")).is_err())
 /// ```
 pub fn LLVMContext::getStructType(
   self : LLVMContext,
@@ -1122,9 +1122,10 @@ pub fn LLVMContext::getConstUInt8Vector(
   self : LLVMContext,
   data : Array[Byte]
 ) -> ConstantVector {
-  let ty = (try? self
-    .getFixedVectorType(self.getInt8Ty(), data.length().reinterpret_as_uint())
-  ).unwrap()
+  let ty = (try? self.getFixedVectorType(
+    self.getInt8Ty(),
+    data.length().reinterpret_as_uint(),
+  )).unwrap()
   ConstantVector::newUInt8Vector(ty, data)
 }
 
@@ -1143,9 +1144,10 @@ pub fn LLVMContext::getConstUInt16Vector(
   self : LLVMContext,
   data : Array[UInt16]
 ) -> ConstantVector {
-  let ty = (try? self
-    .getFixedVectorType(self.getInt16Ty(), data.length().reinterpret_as_uint())
-  ).unwrap()
+  let ty = (try? self.getFixedVectorType(
+    self.getInt16Ty(),
+    data.length().reinterpret_as_uint(),
+  )).unwrap()
   ConstantVector::newUInt16Vector(ty, data)
 }
 
@@ -1164,9 +1166,10 @@ pub fn LLVMContext::getConstUInt32Vector(
   self : LLVMContext,
   data : Array[UInt]
 ) -> ConstantVector {
-  let ty = (try? self
-    .getFixedVectorType(self.getInt32Ty(), data.length().reinterpret_as_uint())
-  ).unwrap()
+  let ty = (try? self.getFixedVectorType(
+    self.getInt32Ty(),
+    data.length().reinterpret_as_uint(),
+  )).unwrap()
   ConstantVector::newUInt32Vector(ty, data)
 }
 
@@ -1185,9 +1188,10 @@ pub fn LLVMContext::getConstUInt64Vector(
   self : LLVMContext,
   data : Array[UInt64]
 ) -> ConstantVector {
-  let ty = (try? self
-    .getFixedVectorType(self.getInt64Ty(), data.length().reinterpret_as_uint())
-  ).unwrap()
+  let ty = (try? self.getFixedVectorType(
+    self.getInt64Ty(),
+    data.length().reinterpret_as_uint(),
+  )).unwrap()
   ConstantVector::newUInt64Vector(ty, data)
 }
 
@@ -1236,9 +1240,9 @@ pub fn LLVMContext::getConstDoubleVector(
   data : Array[Double]
 ) -> ConstantVector {
   let ty = (try? self.getFixedVectorType(
-      self.getDoubleTy(),
-      data.length().reinterpret_as_uint(),
-    )).unwrap()
+    self.getDoubleTy(),
+    data.length().reinterpret_as_uint(),
+  )).unwrap()
   ConstantVector::newDoubleVector(ty, data)
 }
 

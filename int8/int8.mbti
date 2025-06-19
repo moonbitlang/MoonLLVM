@@ -10,6 +10,7 @@ pub type Int8 Int
 fn Int8::from(Int) -> Self
 fn Int8::from_int64(Int64) -> Self
 fn Int8::from_uint64(UInt64) -> Self
+fn Int8::inner(Self) -> Int
 fn Int8::to_int(Self) -> Int
 fn Int8::to_int64(Self) -> Int64
 fn Int8::to_uint(Self) -> UInt

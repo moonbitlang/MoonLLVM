@@ -7,22 +7,20 @@
 /// - See `llvm::Argument`.
 ///
 /// ```moonbit
-/// test "Argument" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
 ///
-///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+/// let i32ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
 ///
-///   let f = prog.addFunction(fty, "add")
+/// let f = prog.addFunction(fty, "add")
 ///
-///   let arg0 = f.getArg(0).unwrap()
-///   let arg1 = f.getArg(1).unwrap()
+/// let arg0 = f.getArg(0).unwrap()
+/// let arg1 = f.getArg(1).unwrap()
 ///
-///   inspect(arg0, content="i32 %0")
-///   inspect(arg1.getType(), content="i32")
-///   assert_true(f.getArg(2) is None)
-/// }
+/// inspect(arg0, content="i32 %0")
+/// inspect(arg1.getType(), content="i32")
+/// assert_true(f.getArg(2) is None)
 /// ```
 pub struct Argument {
   base : ValueBase
@@ -47,29 +45,27 @@ pub fn Argument::getName(self : Argument) -> String? {
 /// - See `llvm::Argument::setName`.
 ///
 /// ```moonbit
-/// test "Argument::setName" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
 ///
-///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+/// let i32ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
 ///
-///   let f = prog.addFunction(fty, "add")
+/// let f = prog.addFunction(fty, "add")
 ///
-///   let arg0 = f.getArg(0).unwrap()
-///   let arg1 = f.getArg(1).unwrap()
+/// let arg0 = f.getArg(0).unwrap()
+/// let arg1 = f.getArg(1).unwrap()
 ///
-///   assert_true(f.getArg(2) is None)
-///   inspect(arg0, content="i32 %0")
-///   inspect(arg1.getType(), content="i32")
+/// assert_true(f.getArg(2) is None)
+/// inspect(arg0, content="i32 %0")
+/// inspect(arg1.getType(), content="i32")
 ///
-///   arg0.setName("lhs")
-///   arg1.setName("rhs")
-///   inspect(arg0, content="i32 %lhs")
-///   inspect(arg1, content="i32 %rhs")
+/// arg0.setName("lhs")
+/// arg1.setName("rhs")
+/// inspect(arg0, content="i32 %lhs")
+/// inspect(arg1, content="i32 %rhs")
 ///
-///   assert_true({try? arg1.setName("lhs")} is Err(_))
-/// }
+/// assert_true({try? arg1.setName("lhs")} is Err(_))
 /// ```
 pub fn Argument::setName(
   self : Argument,

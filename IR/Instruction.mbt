@@ -1918,7 +1918,10 @@ fn CallInst::new(
   let arg_param_type_match = argTys
     .zip(paramTys)
     .iter()
-    .all(arg_param => {let (arg_ty, param_ty) = arg_param ; arg_ty == param_ty})
+    .all(arg_param => {
+      let (arg_ty, param_ty) = arg_param
+      arg_ty == param_ty
+    })
   guard arg_param_type_match else {
     raise CallInstArgTypeMismatchParamType(argTys, paramTys)
   }

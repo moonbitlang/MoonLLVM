@@ -21,6 +21,7 @@ pub enum AbstractTypeEnum {
 impl Show for AbstractTypeEnum
 
 pub type AddressSpace UInt
+fn AddressSpace::inner(Self) -> UInt
 fn AddressSpace::new(UInt) -> Self
 impl Default for AddressSpace
 impl Eq for AddressSpace
@@ -40,6 +41,7 @@ impl Eq for AggregateTypeEnum
 impl Show for AggregateTypeEnum
 
 type Align
+fn Align::new(UInt64) -> Self
 impl Eq for Align
 impl Show for Align
 
@@ -76,7 +78,7 @@ pub struct Argument {
 }
 fn Argument::addAttr(Self, ArgAttr) -> Unit
 fn Argument::getName(Self) -> String?
-fn Argument::setName(Self, String) -> Unit!LLVMValueError
+fn Argument::setName(Self, String) -> Unit raise LLVMValueError
 impl Value for Argument
 impl Show for Argument
 
@@ -278,6 +280,7 @@ pub enum ConstantEnum {
   ConstantPointerNull(ConstantPointerNull)
   ConstantArray(ConstantArray)
   ConstantVector(ConstantVector)
+  ConstantStruct(ConstantStruct)
 }
 impl Eq for ConstantEnum
 
@@ -285,19 +288,19 @@ pub struct ConstantFP {
   base : ValueBase
   value : Double
 }
-fn ConstantFP::add(Self, Self) -> Self!LLVMValueError
-fn ConstantFP::bitcast(Self, &PrimitiveType) -> &Constant!LLVMValueError
-fn ConstantFP::compare(Self, Predicate, Self) -> ConstantInt!LLVMValueError
-fn ConstantFP::div(Self, Self) -> Self!LLVMValueError
+fn ConstantFP::add(Self, Self) -> Self raise LLVMValueError
+fn ConstantFP::bitcast(Self, &PrimitiveType) -> &Constant raise LLVMValueError
+fn ConstantFP::compare(Self, Predicate, Self) -> ConstantInt raise LLVMValueError
+fn ConstantFP::div(Self, Self) -> Self raise LLVMValueError
 fn[T : Floating] ConstantFP::equals(Self, T) -> Bool
 fn[T : Floating] ConstantFP::exactlyEquals(Self, T) -> Bool
-fn ConstantFP::fpext(Self, &FPType) -> Self!LLVMValueError
-fn ConstantFP::fptosi(Self, &IntegerType) -> ConstantInt!LLVMValueError
-fn ConstantFP::fptoui(Self, &IntegerType) -> ConstantInt!LLVMValueError
-fn ConstantFP::fptrunc(Self, &FPType) -> Self!LLVMValueError
+fn ConstantFP::fpext(Self, &FPType) -> Self raise LLVMValueError
+fn ConstantFP::fptosi(Self, &IntegerType) -> ConstantInt raise LLVMValueError
+fn ConstantFP::fptoui(Self, &IntegerType) -> ConstantInt raise LLVMValueError
+fn ConstantFP::fptrunc(Self, &FPType) -> Self raise LLVMValueError
 fn ConstantFP::getValue(Self) -> Double
-fn ConstantFP::mul(Self, Self) -> Self!LLVMValueError
-fn ConstantFP::sub(Self, Self) -> Self!LLVMValueError
+fn ConstantFP::mul(Self, Self) -> Self raise LLVMValueError
+fn ConstantFP::sub(Self, Self) -> Self raise LLVMValueError
 impl Constant for ConstantFP
 impl Value for ConstantFP
 impl Eq for ConstantFP
@@ -307,31 +310,31 @@ pub struct ConstantInt {
   base : ValueBase
   value : Int64
 }
-fn ConstantInt::add(Self, Self) -> Self!LLVMValueError
-fn ConstantInt::and(Self, Self) -> Self!LLVMValueError
-fn ConstantInt::ashr(Self, Self) -> Self!LLVMValueError
-fn ConstantInt::bitcast(Self, &PrimitiveType) -> &Constant!LLVMValueError
-fn ConstantInt::compare(Self, Predicate, Self) -> Self!LLVMValueError
+fn ConstantInt::add(Self, Self) -> Self raise LLVMValueError
+fn ConstantInt::ashr(Self, Self) -> Self raise LLVMValueError
+fn ConstantInt::bitcast(Self, &PrimitiveType) -> &Constant raise LLVMValueError
+fn ConstantInt::compare(Self, Predicate, Self) -> Self raise LLVMValueError
+fn ConstantInt::compute_and(Self, Self) -> Self raise LLVMValueError
+fn ConstantInt::compute_shl(Self, Self) -> Self raise LLVMValueError
 fn[T : IntegerNumber] ConstantInt::equals(Self, T) -> Bool
 fn ConstantInt::getIntegerType(Self) -> &IntegerType
 fn ConstantInt::getValueAsInt64(Self) -> Int64
-fn ConstantInt::inttoptr(Self) -> ConstantPointerNull!LLVMValueError
+fn ConstantInt::inttoptr(Self) -> ConstantPointerNull raise LLVMValueError
 fn ConstantInt::isMaxValue(Self) -> Bool
 fn ConstantInt::isMinValue(Self) -> Bool
 fn ConstantInt::isNegative(Self) -> Bool
-fn ConstantInt::lshr(Self, Self) -> Self!LLVMValueError
-fn ConstantInt::mul(Self, Self) -> Self!LLVMValueError
-fn ConstantInt::or(Self, Self) -> Self!LLVMValueError
-fn ConstantInt::sdiv(Self, Self) -> Self!LLVMValueError
-fn ConstantInt::sext(Self, &IntegerType) -> Self!LLVMValueError
-fn ConstantInt::shl(Self, Self) -> Self!LLVMValueError
-fn ConstantInt::sitofp(Self, &FPType) -> ConstantFP!LLVMValueError
-fn ConstantInt::sub(Self, Self) -> Self!LLVMValueError
-fn ConstantInt::trunc(Self, &IntegerType) -> Self!LLVMValueError
-fn ConstantInt::udiv(Self, Self) -> Self!LLVMValueError
-fn ConstantInt::uitofp(Self, &FPType) -> ConstantFP!LLVMValueError
-fn ConstantInt::xor(Self, Self) -> Self!LLVMValueError
-fn ConstantInt::zext(Self, &IntegerType) -> Self!LLVMValueError
+fn ConstantInt::lshr(Self, Self) -> Self raise LLVMValueError
+fn ConstantInt::mul(Self, Self) -> Self raise LLVMValueError
+fn ConstantInt::or(Self, Self) -> Self raise LLVMValueError
+fn ConstantInt::sdiv(Self, Self) -> Self raise LLVMValueError
+fn ConstantInt::sext(Self, &IntegerType) -> Self raise LLVMValueError
+fn ConstantInt::sitofp(Self, &FPType) -> ConstantFP raise LLVMValueError
+fn ConstantInt::sub(Self, Self) -> Self raise LLVMValueError
+fn ConstantInt::trunc(Self, &IntegerType) -> Self raise LLVMValueError
+fn ConstantInt::udiv(Self, Self) -> Self raise LLVMValueError
+fn ConstantInt::uitofp(Self, &FPType) -> ConstantFP raise LLVMValueError
+fn ConstantInt::xor(Self, Self) -> Self raise LLVMValueError
+fn ConstantInt::zext(Self, &IntegerType) -> Self raise LLVMValueError
 impl Constant for ConstantInt
 impl Value for ConstantInt
 impl Eq for ConstantInt
@@ -344,6 +347,18 @@ impl Constant for ConstantPointerNull
 impl Value for ConstantPointerNull
 impl Eq for ConstantPointerNull
 impl Show for ConstantPointerNull
+
+pub struct ConstantStruct {
+  base : ValueBase
+  elements : Array[&Constant]
+}
+fn ConstantStruct::extractValue(Self, ArrayView[Int]) -> &Constant?
+fn ConstantStruct::getElement(Self, Int) -> &Constant?
+fn ConstantStruct::getElements(Self) -> Array[&Constant]
+fn ConstantStruct::insertValue(Self, ArrayView[Int], &Constant) -> Self?
+fn ConstantStruct::new(&Type, Array[&Constant]) -> Self
+impl Eq for ConstantStruct
+impl Show for ConstantStruct
 
 pub struct ConstantVector {
   base : ValueBase
@@ -358,7 +373,10 @@ pub(all) enum DLLStorageClassTypes {
   DLLExportStorageClass
 }
 
-type DataLayout
+pub struct DataLayout {
+  endian : Endian
+}
+fn DataLayout::getEndian(Self) -> Endian
 
 type DoubleArray
 fn DoubleArray::from(Array[Double]) -> Self
@@ -558,83 +576,83 @@ pub struct IRBuilder {
   mut bb : BasicBlock?
   mut insertPt : &Instruction?
 }
-fn IRBuilder::createAShr(Self, &Value, &Value, name~ : String = .., is_exact~ : Bool = ..) -> &Value!
-fn IRBuilder::createAdd(Self, &Value, &Value, name~ : String = .., has_nsw~ : Bool = .., has_nuw~ : Bool = ..) -> &Value!
-fn IRBuilder::createAlloca(Self, &Type, addressSpace~ : AddressSpace = .., name~ : String = ..) -> &Value!
-fn IRBuilder::createAnd(Self, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createBitCast(Self, &Value, &PrimitiveType, name~ : String = ..) -> &Value!
-fn IRBuilder::createBr(Self, BasicBlock) -> &Instruction!
-fn IRBuilder::createCall(Self, Function, Array[&Value], name~ : String = ..) -> CallInst!
-fn IRBuilder::createCmp(Self, Predicate, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createCondBr(Self, &Value, BasicBlock, BasicBlock) -> &Instruction!
-fn IRBuilder::createExactSDiv(Self, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createExactUDiv(Self, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createExtractValue(Self, &Value, Array[Int], name~ : String = ..) -> &Value!
-fn IRBuilder::createFAdd(Self, &Value, &Value, name~ : String = .., fast_math_flags~ : @set.Set[FastMathFlag] = ..) -> &Value!
-fn IRBuilder::createFCmpOEQ(Self, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createFCmpOGE(Self, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createFCmpOGT(Self, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createFCmpOLE(Self, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createFCmpOLT(Self, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createFCmpONE(Self, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createFCmpORD(Self, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createFCmpUEQ(Self, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createFCmpUGE(Self, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createFCmpUGT(Self, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createFCmpULE(Self, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createFCmpULT(Self, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createFCmpUNE(Self, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createFCmpUNO(Self, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createFDiv(Self, &Value, &Value, name~ : String = .., fast_math_flags~ : @set.Set[FastMathFlag] = ..) -> &Value!
-fn IRBuilder::createFMul(Self, &Value, &Value, name~ : String = .., fast_math_flags~ : @set.Set[FastMathFlag] = ..) -> &Value!
-fn IRBuilder::createFPExt(Self, &Value, &FPType, name~ : String = ..) -> &Value!
-fn IRBuilder::createFPToSI(Self, &Value, &IntegerType, name~ : String = ..) -> &Value!
-fn IRBuilder::createFPToUI(Self, &Value, &IntegerType, name~ : String = ..) -> &Value!
-fn IRBuilder::createFPTrunc(Self, &Value, &FPType, name~ : String = ..) -> &Value!
-fn IRBuilder::createFRem(Self, &Value, &Value, name~ : String = .., fast_math_flags~ : @set.Set[FastMathFlag] = ..) -> &Value!
-fn IRBuilder::createFSub(Self, &Value, &Value, name~ : String = .., fast_math_flags~ : @set.Set[FastMathFlag] = ..) -> &Value!
-fn IRBuilder::createGEP(Self, &Value, &Type, Array[&Value], name~ : String = .., inbounds~ : Bool = ..) -> &Value!
-fn IRBuilder::createICmpEQ(Self, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createICmpNE(Self, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createICmpSGE(Self, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createICmpSGT(Self, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createICmpSLE(Self, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createICmpSLT(Self, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createICmpUGE(Self, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createICmpUGT(Self, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createICmpULE(Self, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createICmpULT(Self, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createInsertValue(Self, &Value, &Value, Array[Int], name~ : String = ..) -> &Value!
-fn IRBuilder::createIntToPtr(Self, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createLShr(Self, &Value, &Value, name~ : String = .., is_exact~ : Bool = ..) -> &Value!
-fn IRBuilder::createLoad(Self, &Type, &Value, isVolatile~ : Bool = .., atomicOrdering~ : AtomicOrdering = .., name~ : String = ..) -> &Value!
-fn IRBuilder::createMul(Self, &Value, &Value, name~ : String = .., has_nsw~ : Bool = .., has_nuw~ : Bool = ..) -> &Value!
-fn IRBuilder::createNSWAdd(Self, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createNSWMul(Self, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createNSWSub(Self, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createNUWAdd(Self, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createNUWMul(Self, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createNUWSub(Self, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createOr(Self, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createPHI(Self, &Type, name~ : String = ..) -> PHINode!
-fn IRBuilder::createPtrToInt(Self, &Value, &IntegerType, name~ : String = ..) -> &Value!
-fn IRBuilder::createRet(Self, &Value) -> &Instruction!
-fn IRBuilder::createRetVoid(Self) -> &Instruction!
-fn IRBuilder::createSDiv(Self, &Value, &Value, name~ : String = .., is_exact~ : Bool = ..) -> &Value!
-fn IRBuilder::createSExt(Self, &Value, &IntegerType, name~ : String = ..) -> &Value!
-fn IRBuilder::createSIToFP(Self, &Value, &FPType, name~ : String = ..) -> &Value!
-fn IRBuilder::createSRem(Self, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createSelect(Self, &Value, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createShl(Self, &Value, &Value, name~ : String = .., has_nsw~ : Bool = .., has_nuw~ : Bool = ..) -> &Value!
-fn IRBuilder::createStore(Self, &Value, &Value, isVolatile~ : Bool = .., atomicOrdering~ : AtomicOrdering = ..) -> &Instruction!
-fn IRBuilder::createSub(Self, &Value, &Value, name~ : String = .., has_nsw~ : Bool = .., has_nuw~ : Bool = ..) -> &Value!
-fn IRBuilder::createSwitch(Self, &Value, BasicBlock) -> SwitchInst!
-fn IRBuilder::createTrunc(Self, &Value, &IntegerType, name~ : String = ..) -> &Value!
-fn IRBuilder::createUDiv(Self, &Value, &Value, name~ : String = .., is_exact~ : Bool = ..) -> &Value!
-fn IRBuilder::createUIToFP(Self, &Value, &FPType, name~ : String = ..) -> &Value!
-fn IRBuilder::createURem(Self, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createXor(Self, &Value, &Value, name~ : String = ..) -> &Value!
-fn IRBuilder::createZExt(Self, &Value, &IntegerType, name~ : String = ..) -> &Value!
+fn IRBuilder::createAShr(Self, &Value, &Value, name~ : String = .., is_exact~ : Bool = ..) -> &Value raise
+fn IRBuilder::createAdd(Self, &Value, &Value, name~ : String = .., has_nsw~ : Bool = .., has_nuw~ : Bool = ..) -> &Value raise
+fn IRBuilder::createAlloca(Self, &Type, addressSpace~ : AddressSpace = .., name~ : String = ..) -> &Value raise
+fn IRBuilder::createAnd(Self, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createBitCast(Self, &Value, &PrimitiveType, name~ : String = ..) -> &Value raise
+fn IRBuilder::createBr(Self, BasicBlock) -> &Instruction raise
+fn IRBuilder::createCall(Self, Function, Array[&Value], name~ : String = ..) -> CallInst raise
+fn IRBuilder::createCmp(Self, Predicate, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createCondBr(Self, &Value, BasicBlock, BasicBlock) -> &Instruction raise
+fn IRBuilder::createExactSDiv(Self, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createExactUDiv(Self, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createExtractValue(Self, &Value, Array[Int], name~ : String = ..) -> &Value raise
+fn IRBuilder::createFAdd(Self, &Value, &Value, name~ : String = .., fast_math_flags~ : @set.Set[FastMathFlag] = ..) -> &Value raise
+fn IRBuilder::createFCmpOEQ(Self, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createFCmpOGE(Self, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createFCmpOGT(Self, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createFCmpOLE(Self, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createFCmpOLT(Self, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createFCmpONE(Self, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createFCmpORD(Self, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createFCmpUEQ(Self, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createFCmpUGE(Self, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createFCmpUGT(Self, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createFCmpULE(Self, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createFCmpULT(Self, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createFCmpUNE(Self, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createFCmpUNO(Self, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createFDiv(Self, &Value, &Value, name~ : String = .., fast_math_flags~ : @set.Set[FastMathFlag] = ..) -> &Value raise
+fn IRBuilder::createFMul(Self, &Value, &Value, name~ : String = .., fast_math_flags~ : @set.Set[FastMathFlag] = ..) -> &Value raise
+fn IRBuilder::createFPExt(Self, &Value, &FPType, name~ : String = ..) -> &Value raise
+fn IRBuilder::createFPToSI(Self, &Value, &IntegerType, name~ : String = ..) -> &Value raise
+fn IRBuilder::createFPToUI(Self, &Value, &IntegerType, name~ : String = ..) -> &Value raise
+fn IRBuilder::createFPTrunc(Self, &Value, &FPType, name~ : String = ..) -> &Value raise
+fn IRBuilder::createFRem(Self, &Value, &Value, name~ : String = .., fast_math_flags~ : @set.Set[FastMathFlag] = ..) -> &Value raise
+fn IRBuilder::createFSub(Self, &Value, &Value, name~ : String = .., fast_math_flags~ : @set.Set[FastMathFlag] = ..) -> &Value raise
+fn IRBuilder::createGEP(Self, &Value, &Type, Array[&Value], name~ : String = .., inbounds~ : Bool = ..) -> &Value raise
+fn IRBuilder::createICmpEQ(Self, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createICmpNE(Self, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createICmpSGE(Self, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createICmpSGT(Self, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createICmpSLE(Self, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createICmpSLT(Self, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createICmpUGE(Self, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createICmpUGT(Self, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createICmpULE(Self, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createICmpULT(Self, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createInsertValue(Self, &Value, &Value, Array[Int], name~ : String = ..) -> &Value raise
+fn IRBuilder::createIntToPtr(Self, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createLShr(Self, &Value, &Value, name~ : String = .., is_exact~ : Bool = ..) -> &Value raise
+fn IRBuilder::createLoad(Self, &Type, &Value, isVolatile~ : Bool = .., atomicOrdering~ : AtomicOrdering = .., name~ : String = ..) -> &Value raise
+fn IRBuilder::createMul(Self, &Value, &Value, name~ : String = .., has_nsw~ : Bool = .., has_nuw~ : Bool = ..) -> &Value raise
+fn IRBuilder::createNSWAdd(Self, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createNSWMul(Self, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createNSWSub(Self, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createNUWAdd(Self, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createNUWMul(Self, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createNUWSub(Self, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createOr(Self, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createPHI(Self, &Type, name~ : String = ..) -> PHINode raise
+fn IRBuilder::createPtrToInt(Self, &Value, &IntegerType, name~ : String = ..) -> &Value raise
+fn IRBuilder::createRet(Self, &Value) -> &Instruction raise
+fn IRBuilder::createRetVoid(Self) -> &Instruction raise
+fn IRBuilder::createSDiv(Self, &Value, &Value, name~ : String = .., is_exact~ : Bool = ..) -> &Value raise
+fn IRBuilder::createSExt(Self, &Value, &IntegerType, name~ : String = ..) -> &Value raise
+fn IRBuilder::createSIToFP(Self, &Value, &FPType, name~ : String = ..) -> &Value raise
+fn IRBuilder::createSRem(Self, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createSelect(Self, &Value, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createShl(Self, &Value, &Value, name~ : String = .., has_nsw~ : Bool = .., has_nuw~ : Bool = ..) -> &Value raise
+fn IRBuilder::createStore(Self, &Value, &Value, isVolatile~ : Bool = .., atomicOrdering~ : AtomicOrdering = ..) -> &Instruction raise
+fn IRBuilder::createSub(Self, &Value, &Value, name~ : String = .., has_nsw~ : Bool = .., has_nuw~ : Bool = ..) -> &Value raise
+fn IRBuilder::createSwitch(Self, &Value, BasicBlock) -> SwitchInst raise
+fn IRBuilder::createTrunc(Self, &Value, &IntegerType, name~ : String = ..) -> &Value raise
+fn IRBuilder::createUDiv(Self, &Value, &Value, name~ : String = .., is_exact~ : Bool = ..) -> &Value raise
+fn IRBuilder::createUIToFP(Self, &Value, &FPType, name~ : String = ..) -> &Value raise
+fn IRBuilder::createURem(Self, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createXor(Self, &Value, &Value, name~ : String = ..) -> &Value raise
+fn IRBuilder::createZExt(Self, &Value, &IntegerType, name~ : String = ..) -> &Value raise
 fn IRBuilder::new() -> Self
 fn[T : InsertPoint] IRBuilder::setInsertPoint(Self, T) -> Unit
 
@@ -779,7 +797,7 @@ pub struct LLVMContext {
   // private fields
 }
 fn LLVMContext::addProgram(Self, String) -> Program
-fn LLVMContext::getArrayType(Self, &Type, UInt) -> ArrayType!LLVMTypeError
+fn LLVMContext::getArrayType(Self, &Type, UInt) -> ArrayType raise LLVMTypeError
 fn LLVMContext::getBFloatTy(Self) -> BFloatType
 fn LLVMContext::getConstBool(Self, Bool) -> ConstantInt
 fn LLVMContext::getConstDouble(Self, Double) -> ConstantFP
@@ -818,14 +836,14 @@ fn LLVMContext::getConstUInt64Array(Self, Array[UInt64]) -> ConstantArray
 fn LLVMContext::getConstUInt64Vector(Self, Array[UInt64]) -> ConstantVector
 fn LLVMContext::getConstUInt8Array(Self, Array[Byte]) -> ConstantArray
 fn LLVMContext::getConstUInt8Vector(Self, Array[Byte]) -> ConstantVector
-fn LLVMContext::getConstZero(Self, &Type) -> &Constant!LLVMValueError
+fn LLVMContext::getConstZero(Self, &Type) -> &Constant raise LLVMValueError
 fn LLVMContext::getConstZeroDouble(Self, isNegative~ : Bool = ..) -> ConstantFP
 fn LLVMContext::getConstZeroFloat(Self, isNegative~ : Bool = ..) -> ConstantFP
 fn LLVMContext::getDoubleTy(Self) -> DoubleType
 fn LLVMContext::getFP128Ty(Self) -> FP128Type
-fn LLVMContext::getFixedVectorType(Self, &Type, UInt) -> FixedVectorType!LLVMTypeError
+fn LLVMContext::getFixedVectorType(Self, &Type, UInt) -> FixedVectorType raise LLVMTypeError
 fn LLVMContext::getFloatTy(Self) -> FloatType
-fn LLVMContext::getFunctionType(Self, &Type, Array[&Type]) -> FunctionType!LLVMTypeError
+fn LLVMContext::getFunctionType(Self, &Type, Array[&Type]) -> FunctionType raise LLVMTypeError
 fn LLVMContext::getHalfTy(Self) -> HalfType
 fn LLVMContext::getInt16Ty(Self) -> Int16Type
 fn LLVMContext::getInt1Ty(Self) -> Int1Type
@@ -836,8 +854,8 @@ fn LLVMContext::getLabelTy(Self) -> LabelType
 fn LLVMContext::getMDString(Self, String) -> MDString
 fn LLVMContext::getMetadataTy(Self) -> MetadataType
 fn LLVMContext::getPtrTy(Self, addressSpace~ : AddressSpace = ..) -> PointerType
-fn LLVMContext::getScalableVectorType(Self, &Type, UInt) -> ScalableVectorType!LLVMTypeError
-fn LLVMContext::getStructType(Self, Array[&Type], name~ : String = .., isPacked~ : Bool = ..) -> StructType!LLVMTypeError
+fn LLVMContext::getScalableVectorType(Self, &Type, UInt) -> ScalableVectorType raise LLVMTypeError
+fn LLVMContext::getStructType(Self, Array[&Type], name~ : String = .., isPacked~ : Bool = ..) -> StructType raise LLVMTypeError
 fn LLVMContext::getTokenTy(Self) -> TokenType
 fn LLVMContext::getVoidTy(Self) -> VoidType
 fn LLVMContext::new() -> Self
@@ -926,7 +944,7 @@ pub struct PHINode {
   user_base : UserBase
   inst_base : InstBase
 }
-fn PHINode::addIncoming(Self, &Value, BasicBlock) -> Unit!LLVMValueError
+fn PHINode::addIncoming(Self, &Value, BasicBlock) -> Unit raise LLVMValueError
 fn PHINode::getIncoming(Self, Int) -> (&Value, BasicBlock)?
 fn PHINode::getIncomingBlock(Self, Int) -> BasicBlock?
 fn PHINode::getIncomingBlocks(Self) -> Array[BasicBlock]
@@ -1003,7 +1021,7 @@ pub struct Program {
   programID : String
   dataLayout : DataLayout
 }
-fn Program::addFunction(Self, FunctionType, String, linkage~ : LinkageTypes = .., addressSpace~ : AddressSpace = ..) -> Function!LLVMValueError
+fn Program::addFunction(Self, FunctionType, String, linkage~ : LinkageTypes = .., addressSpace~ : AddressSpace = ..) -> Function raise LLVMValueError
 fn Program::getContext(Self) -> LLVMContext
 
 pub(all) enum RetAttr {
@@ -1088,8 +1106,8 @@ fn StructType::isOpaque(Self) -> Bool
 fn StructType::isPacked(Self) -> Bool
 fn StructType::isSized(Self) -> Bool
 fn StructType::removeName(Self) -> Unit
-fn StructType::setBody(Self, Array[&Type], isPacked~ : Bool = ..) -> Unit!LLVMTypeError
-fn StructType::setName(Self, String) -> Unit!LLVMTypeError
+fn StructType::setBody(Self, Array[&Type], isPacked~ : Bool = ..) -> Unit raise LLVMTypeError
+fn StructType::setName(Self, String) -> Unit raise LLVMTypeError
 impl AggregateType for StructType
 impl Type for StructType
 impl Eq for StructType
@@ -1101,7 +1119,7 @@ pub struct SwitchInst {
   user_base : UserBase
   inst_base : InstBase
 }
-fn SwitchInst::addCase(Self, ConstantInt, BasicBlock) -> Unit!LLVMValueError
+fn SwitchInst::addCase(Self, ConstantInt, BasicBlock) -> Unit raise LLVMValueError
 fn SwitchInst::getCase(Self, Int) -> (ConstantInt, BasicBlock)?
 fn SwitchInst::getCondition(Self) -> &Value
 fn SwitchInst::getDefaultDest(Self) -> BasicBlock
@@ -1250,6 +1268,7 @@ pub enum ValueEnum {
   ConstantPointerNull(ConstantPointerNull)
   ConstantArray(ConstantArray)
   ConstantVector(ConstantVector)
+  ConstantStruct(ConstantStruct)
   Argument(Argument)
   BasicBlock(BasicBlock)
   AllocaInst(AllocaInst)
@@ -1336,8 +1355,8 @@ pub trait Instruction : User {
   isIndependent(Self) -> Bool
   next(Self) -> &Instruction?
   prev(Self) -> &Instruction?
-  insertAfter(Self, &Instruction) -> Unit!LLVMValueError
-  insertBefore(Self, &Instruction) -> Unit!LLVMValueError
+  insertAfter(Self, &Instruction) -> Unit raise LLVMValueError
+  insertBefore(Self, &Instruction) -> Unit raise LLVMValueError
 }
 
 trait IntegerNumber : Show
