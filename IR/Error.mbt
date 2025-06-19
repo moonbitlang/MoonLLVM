@@ -1,5 +1,5 @@
 ///|
-type! LLVMTypeError {
+suberror LLVMTypeError {
   OpaqueStructMustHaveName
   SetBodyForNonOpaqueStruct
   RecursiveStructDefinition
@@ -13,7 +13,7 @@ type! LLVMTypeError {
 } derive(Show)
 
 ///|
-type! LLVMValueError {
+suberror LLVMValueError {
   DuplicateFunctionName(String)
   DuplicateArgumentName(String)
   OnlyIndependentInstructionCanBeInsert
@@ -64,6 +64,6 @@ type! LLVMValueError {
 } derive(Show)
 
 ///|
-priv type! BuilderError {
+priv suberror BuilderError {
   UnsetInsertPoint
 } derive(Show)

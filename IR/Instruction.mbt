@@ -220,7 +220,7 @@ fn LoadInst::new(
   atomicOrdering : AtomicOrdering,
   parent : Function,
   name : String
-) -> LoadInst!LLVMValueError {
+) -> LoadInst raise LLVMValueError {
   guard ptr.getType().asTypeEnum() is PointerType(_) else {
     raise LoadInstShouldLoadFromAPointer(ptr.getType())
   }
@@ -325,7 +325,7 @@ fn StoreInst::new(
   isVolatile : Bool,
   atomicOrdering : AtomicOrdering,
   parent : Function
-) -> StoreInst!LLVMValueError {
+) -> StoreInst raise LLVMValueError {
   guard ptr.getType().asTypeEnum() is PointerType(_) else {
     raise StoreInstShouldStoreToAPointer(ptr.getType())
   }
@@ -437,7 +437,7 @@ fn BinaryInstruction::newStandardOp(
   parent : Function,
   name : String,
   flags : Set[BinaryOpFlags]
-) -> BinaryInstruction!LLVMValueError {
+) -> BinaryInstruction raise LLVMValueError {
   guard opcode
     is (Add
     | Sub
@@ -452,7 +452,7 @@ fn BinaryInstruction::newStandardOp(
     | Shl
     | LShr
     | AShr) else {
-    unreachable(
+    llvm_unreachable(
       "Should not call BinaryInstruction::newStandardOp with opcode \{opcode}",
     )
   }
@@ -485,9 +485,9 @@ fn BinaryInstruction::newFPMathOp(
   parent : Function,
   name : String,
   fast_math_flags : Set[FastMathFlag]
-) -> BinaryInstruction!LLVMValueError {
+) -> BinaryInstruction raise LLVMValueError {
   guard opcode is (FAdd | FSub | FMul | FDiv | FRem) else {
-    unreachable(
+    llvm_unreachable(
       "Should not call BinaryInstruction::newFPMathOp with opcode \{opcode}",
     )
   }
@@ -565,11 +565,11 @@ pub impl Show for BinaryInstruction with output(self, logger) {
     None if rhs.tryAsConstant() is Some(c) => c.valstr()
     _ => "<badref>"
   }
-  let flags_str = self.flags.iter().map(fn { f => "\{f}" }).join(" ")
+  let flags_str = self.flags.iter().map(f => "\{f}").join(" ")
   let flags_str = if flags_str.is_empty() { "" } else { " " + flags_str }
   let fast_math_flags_str = self.fast_math_flags
     .iter()
-    .map(fn { f => "\{f}" })
+    .map(f => "\{f}")
     .join(" ")
   let fast_math_flags_str = if fast_math_flags_str.is_empty() {
     ""
@@ -690,7 +690,7 @@ fn CmpInst::new(
   rhs : &Value,
   parent : Function,
   name : String
-) -> CmpInst!LLVMValueError {
+) -> CmpInst raise LLVMValueError {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else { raise TypeMismatchForCmpInst(lhsTy, rhsTy) }
   let vty = parent.getContext().getInt1Ty()
@@ -815,7 +815,7 @@ fn CastInst::newTrunc(
   dst_ty : &IntegerType,
   parent : Function,
   name : String
-) -> CastInst!LLVMValueError {
+) -> CastInst raise LLVMValueError {
   guard src_val.getType().tryAsIntegerTypeEnum() is Some(src_ty) else {
     raise TruncCastInstTypeMismatch(src_val.getType(), dst_ty)
   }
@@ -836,7 +836,7 @@ fn CastInst::newZExt(
   dst_ty : &IntegerType,
   parent : Function,
   name : String
-) -> CastInst!LLVMValueError {
+) -> CastInst raise LLVMValueError {
   guard src_val.getType().tryAsIntegerTypeEnum() is Some(src_ty) else {
     raise ZExtCastInstTypeMismatch(src_val.getType(), dst_ty)
   }
@@ -857,7 +857,7 @@ fn CastInst::newSExt(
   dst_ty : &IntegerType,
   parent : Function,
   name : String
-) -> CastInst!LLVMValueError {
+) -> CastInst raise LLVMValueError {
   guard src_val.getType().tryAsIntegerTypeEnum() is Some(src_ty) else {
     raise SExtCastInstTypeMismatch(src_val.getType(), dst_ty)
   }
@@ -878,7 +878,7 @@ fn CastInst::newFPTrunc(
   dst_ty : &FPType,
   parent : Function,
   name : String
-) -> CastInst!LLVMValueError {
+) -> CastInst raise LLVMValueError {
   guard src_val.getType().tryAsFPTypeEnum() is Some(src_ty) else {
     raise FPTruncCastInstTypeMismatch(src_val.getType(), dst_ty)
   }
@@ -899,7 +899,7 @@ fn CastInst::newFPExt(
   dst_ty : &FPType,
   parent : Function,
   name : String
-) -> CastInst!LLVMValueError {
+) -> CastInst raise LLVMValueError {
   guard src_val.getType().tryAsFPTypeEnum() is Some(src_ty) else {
     raise FPExtCastInstTypeMismatch(src_val.getType(), dst_ty)
   }
@@ -920,7 +920,7 @@ fn CastInst::newUIToFP(
   dst_ty : &FPType,
   parent : Function,
   name : String
-) -> CastInst!LLVMValueError {
+) -> CastInst raise LLVMValueError {
   guard src_val.getType().tryAsIntegerTypeEnum() is Some(_) else {
     raise UIToFPInstTypeMismatch(src_val.getType(), dst_ty)
   }
@@ -938,7 +938,7 @@ fn CastInst::newFPToUI(
   dst_ty : &IntegerType,
   parent : Function,
   name : String
-) -> CastInst!LLVMValueError {
+) -> CastInst raise LLVMValueError {
   guard src_val.getType().tryAsFPTypeEnum() is Some(_) else {
     raise FPToUIInstTypeMismatch(src_val.getType(), dst_ty)
   }
@@ -956,7 +956,7 @@ fn CastInst::newSIToFP(
   dst_ty : &FPType,
   parent : Function,
   name : String
-) -> CastInst!LLVMValueError {
+) -> CastInst raise LLVMValueError {
   guard src_val.getType().tryAsIntegerTypeEnum() is Some(_) else {
     raise SIToFPInstTypeMismatch(src_val.getType(), dst_ty)
   }
@@ -974,7 +974,7 @@ fn CastInst::newFPToSI(
   dst_ty : &IntegerType,
   parent : Function,
   name : String
-) -> CastInst!LLVMValueError {
+) -> CastInst raise LLVMValueError {
   guard src_val.getType().tryAsFPTypeEnum() is Some(_) else {
     raise FPToSIInstTypeMismatch(src_val.getType(), dst_ty)
   }
@@ -992,7 +992,7 @@ fn CastInst::newPtrToInt(
   dst_ty : &IntegerType,
   parent : Function,
   name : String
-) -> CastInst!LLVMValueError {
+) -> CastInst raise LLVMValueError {
   guard src_val.getType().asTypeEnum() is PointerType(_) else {
     raise PtrToIntCastInstTypeMismatch(src_val.getType())
   }
@@ -1009,7 +1009,7 @@ fn CastInst::newIntToPtr(
   src_val : &Value,
   parent : Function,
   name : String
-) -> CastInst!LLVMValueError {
+) -> CastInst raise LLVMValueError {
   guard src_val.getType().tryAsIntegerTypeEnum() is Some(_) else {
     raise IntToPtrCastInstTypeMismatch(src_val.getType())
   }
@@ -1029,7 +1029,7 @@ fn CastInst::newBitCast(
   dst_ty : &PrimitiveType,
   parent : Function,
   name : String
-) -> CastInst!LLVMValueError {
+) -> CastInst raise LLVMValueError {
   let src_ty = src_val.getType()
   guard src_ty != dst_ty else { raise BitCastInstTypeMismatch(src_ty, dst_ty) }
   guard src_ty.tryAsPrimitiveTypeEnum() is Some(src_ty_prim) else {
@@ -1122,7 +1122,7 @@ fn GetElementPtrInst::new(
   isInbounds : Bool,
   parent : Function,
   name : String
-) -> GetElementPtrInst!LLVMValueError {
+) -> GetElementPtrInst raise LLVMValueError {
   guard ptr.getType().asTypeEnum() is PointerType(_) else {
     raise GetElementPtrInstValueTypeNotPtr(ptr.getType())
   }
@@ -1235,7 +1235,7 @@ fn SelectInst::new(
   falseValue : &Value,
   parent : Function,
   name : String
-) -> SelectInst!LLVMValueError {
+) -> SelectInst raise LLVMValueError {
   guard condition.getType().tryAsIntegerTypeEnum() is Some(intTy) &&
     intTy.getBitWidth() == 1 else {
     raise SelectInstConditionNotBoolean(condition.getType())
@@ -1349,7 +1349,7 @@ pub struct ReturnInst {
 fn ReturnInst::new(
   retVal : &Value?,
   parent : Function
-) -> ReturnInst!LLVMValueError {
+) -> ReturnInst raise LLVMValueError {
   let vty = match retVal {
     Some(val) => val.getType()
     None => parent.getContext().getVoidTy()
@@ -1429,7 +1429,7 @@ fn BranchInst::newConditional(
   trueBlock : BasicBlock,
   falseBlock : BasicBlock,
   parent : Function
-) -> BranchInst!LLVMValueError {
+) -> BranchInst raise LLVMValueError {
   guard condition.getType().tryAsIntegerTypeEnum() is Some(intTy) else {
     raise BranchInstConditionNotBoolean(condition.getType())
   }
@@ -1575,7 +1575,7 @@ fn SwitchInst::new(
   cond : &Value,
   defaultDest : BasicBlock,
   parent : Function
-) -> SwitchInst!LLVMValueError {
+) -> SwitchInst raise LLVMValueError {
   guard cond.getType().tryAsIntegerTypeEnum() is Some(_) else {
     raise SwitchInstConditionNotInteger(cond.getType())
   }
@@ -1625,7 +1625,7 @@ pub fn SwitchInst::addCase(
   self : Self,
   cond : ConstantInt,
   dest : BasicBlock
-) -> Unit!LLVMValueError {
+) -> Unit raise LLVMValueError {
   guard self.getCondition().getType().tryAsIntegerTypeEnum() is Some(intTy)
   guard cond.getType().tryAsIntegerTypeEnum() is Some(case_cond_ty)
   guard intTy == case_cond_ty else {
@@ -1800,7 +1800,7 @@ pub fn PHINode::addIncoming(
   self : PHINode,
   value : &Value,
   block : BasicBlock
-) -> Unit!LLVMValueError {
+) -> Unit raise LLVMValueError {
   guard value.getType() == self.getType() else {
     raise PHINodeIncomingValueTypeMismatch(value.getType(), self.getType())
   }
@@ -1907,18 +1907,18 @@ fn CallInst::new(
   args : Array[&Value],
   parent : Function,
   name : String
-) -> CallInst!LLVMValueError {
+) -> CallInst raise LLVMValueError {
   let fty = callee.getFunctionType()
   let expected_params = fty.getNumParams().reinterpret_as_int()
   guard args.length() == expected_params else {
     raise CallInstArgCountMismatch(expected_params, args.length())
   }
-  let argTys = args.map(fn { arg => arg.getType() })
+  let argTys = args.map(arg => arg.getType())
   let paramTys = callee.getParamTypes()
   let arg_param_type_match = argTys
     .zip(paramTys)
     .iter()
-    .all(fn { (arg_ty, param_ty) => arg_ty == param_ty })
+    .all(arg_param => {let (arg_ty, param_ty) = arg_param ; arg_ty == param_ty})
   guard arg_param_type_match else {
     raise CallInstArgTypeMismatchParamType(argTys, paramTys)
   }
@@ -1933,7 +1933,7 @@ fn CallInst::new(
   let user_base = UserBase::new(name)
   let inst_base = InstBase::new(parent)
   user_base.operands.push(callee)
-  args.each(fn { arg => user_base.operands.push(arg) })
+  args.each(arg => user_base.operands.push(arg))
   CallInst::{ base, user_base, inst_base, callee, tailCallKind: NoTail }
 }
 
@@ -2101,7 +2101,7 @@ fn ExtractValueInst::new(
   indices : Array[Int],
   parent : Function,
   name : String
-) -> ExtractValueInst!LLVMValueError {
+) -> ExtractValueInst raise LLVMValueError {
   guard not(indices.is_empty()) else {
     raise ExtractValueInstRequiresNonEmptyIndices
   }
@@ -2182,7 +2182,7 @@ pub impl Show for ExtractValueInst with output(self, logger) {
     None if agg.tryAsConstant() is Some(c) => c.valstr()
     _ => "<badref>"
   }
-  let indices_str = self.indices.iter().map(fn { i => "\{i}" }).join(", ")
+  let indices_str = self.indices.iter().map(i => "\{i}").join(", ")
   logger.write_string(
     "  %\{prefix} = extractvalue \{agg_ty} \{agg_str}, \{indices_str}",
   )
@@ -2207,7 +2207,7 @@ fn InsertValueInst::new(
   indices : Array[Int],
   parent : Function,
   name : String
-) -> InsertValueInst!LLVMValueError {
+) -> InsertValueInst raise LLVMValueError {
   guard not(indices.is_empty()) else {
     raise InsertValueInstRequiresNonEmptyIndices
   }
@@ -2299,7 +2299,7 @@ pub impl Show for InsertValueInst with output(self, logger) {
     None if val.tryAsConstant() is Some(c) => c.valstr()
     _ => "<badref>"
   }
-  let indices_str = self.indices.iter().map(fn { i => "\{i}" }).join(", ")
+  let indices_str = self.indices.iter().map(i => "\{i}").join(", ")
   logger.write_string(
     "  %\{prefix} = insertvalue \{agg_ty} \{agg_str}, \{val_ty} \{val_str}, \{indices_str}",
   )

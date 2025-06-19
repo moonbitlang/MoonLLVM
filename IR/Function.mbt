@@ -71,7 +71,10 @@ pub fn Argument::getName(self : Argument) -> String? {
 ///   assert_true({try? arg1.setName("lhs")} is Err(_))
 /// }
 /// ```
-pub fn Argument::setName(self : Argument, name : String) -> Unit raise LLVMValueError {
+pub fn Argument::setName(
+  self : Argument,
+  name : String
+) -> Unit raise LLVMValueError {
   guard self.getName() != Some(name) else { return }
   let symbols = self.parent.symbols
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
@@ -217,6 +220,7 @@ fn Function::new(
 }
 
 // TODO: Not fully implemented.
+
 ///|
 fn Function::isValidFunctionName(name : String) -> Bool {
   match name {
@@ -366,6 +370,7 @@ pub impl GlobalValue for Function with asGlobalValueEnum(self) {
 }
 
 // TODO: This only implemented empty body.
+
 ///|
 pub impl Show for Function with output(self, logger) {
   let hasBody = self.hasBody()

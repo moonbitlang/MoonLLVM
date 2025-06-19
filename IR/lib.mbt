@@ -229,20 +229,20 @@ enum NumberArrayEnum {
 } derive(Eq, Hash, Show)
 
 ///|
-fn NumberArrayEnum::length(self : NumberArrayEnum) -> Int {
-  match self {
-    Int8Array(arr) => arr.length()
-    Int16Array(arr) => arr.length()
-    Int32Array(arr) => arr.length()
-    Int64Array(arr) => arr.length()
-    UInt8Array(arr) => arr.length()
-    UInt16Array(arr) => arr.length()
-    UInt32Array(arr) => arr.length()
-    UInt64Array(arr) => arr.length()
-    FloatArray(arr) => arr.length()
-    DoubleArray(arr) => arr.length()
-  }
-}
+//fn NumberArrayEnum::length(self : NumberArrayEnum) -> Int {
+//  match self {
+//    Int8Array(arr) => arr.length()
+//    Int16Array(arr) => arr.length()
+//    Int32Array(arr) => arr.length()
+//    Int64Array(arr) => arr.length()
+//    UInt8Array(arr) => arr.length()
+//    UInt16Array(arr) => arr.length()
+//    UInt32Array(arr) => arr.length()
+//    UInt64Array(arr) => arr.length()
+//    FloatArray(arr) => arr.length()
+//    DoubleArray(arr) => arr.length()
+//  }
+//}
 
 ///|
 pub trait NumberArray: Show {

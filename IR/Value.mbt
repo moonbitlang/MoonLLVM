@@ -156,7 +156,7 @@ pub trait Value: Show {
   /// ** Parameters **
   ///
   /// - `name`: The new name; if name is "", the value's name will be removed.
-  //setName(Self, name: String) -> Unit!LLVMValueError = _
+  //setName(Self, name: String) -> Unit raise LLVMValueError = _
 
   /// Change all uses of this to point to a new Value.
   ///

@@ -14,6 +14,7 @@ pub enum MetadataEnum {
 // =================================================
 
 // Only Context has ability to create MDString instances.
+
 ///|
 pub struct MDString {
 
@@ -49,7 +50,7 @@ pub impl Metadata for MDNode with asMetadataEnum(self) {
 
 ///|
 pub impl Show for MDNode with output(self, logger) {
-  let metadata_strs = self.metadata.map(fn { m => m.to_string() })
+  let metadata_strs = self.metadata.map(m => m.to_string())
   let metadata_joined = metadata_strs.join(", ")
   logger.write_string("!{\{metadata_joined}}")
 }

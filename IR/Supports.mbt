@@ -1,5 +1,5 @@
 ///|
-fn[T] unreachable(msg : String) -> T {
+fn[T] llvm_unreachable(msg : String) -> T {
   println(msg)
   abort(msg)
 }

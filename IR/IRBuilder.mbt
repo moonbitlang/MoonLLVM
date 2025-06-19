@@ -119,53 +119,51 @@ pub fn IRBuilder::createAlloca(
 /// If an overflow occurs, the behavior is undefined.
 ///
 /// ```moonbit
-/// test "IRBuilder::createAdd" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
-///   let fval = prog.addFunction(fty, "add")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let i32ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+/// let fval = prog.addFunction(fty, "add")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let arg0 = fval.getArg(0).unwrap()
-///   let arg1 = fval.getArg(1).unwrap()
+/// let arg0 = fval.getArg(0).unwrap()
+/// let arg1 = fval.getArg(1).unwrap()
 ///
-///   // Test regular addition with nsw and nuw flags
-///   let nsw_add = builder.createAdd(arg0, arg1, has_nsw=true)
-///   let nuw_add = builder.createAdd(arg0, arg1, has_nuw=true)
-///   
-///   // Test constant folding
-///   let const_42 = ctx.getConstInt32(42)
-///   let const_33 = ctx.getConstInt32(33)
-///   let const_sum = builder.createAdd(const_42, const_33) // Should fold to 75
-///   
-///   // Combine results with both nsw and nuw flags
-///   let final_add = builder.createAdd(
-///     nsw_add, nuw_add, has_nsw=true, has_nuw=true
-///   )
-///   let result = builder.createAdd(final_add, const_sum)
-///   let _ = builder.createRet(result)
+/// // Test regular addition with nsw and nuw flags
+/// let nsw_add = builder.createAdd(arg0, arg1, has_nsw=true)
+/// let nuw_add = builder.createAdd(arg0, arg1, has_nuw=true)
+/// 
+/// // Test constant folding
+/// let const_42 = ctx.getConstInt32(42)
+/// let const_33 = ctx.getConstInt32(33)
+/// let const_sum = builder.createAdd(const_42, const_33) // Should fold to 75
+/// 
+/// // Combine results with both nsw and nuw flags
+/// let final_add = builder.createAdd(
+///   nsw_add, nuw_add, has_nsw=true, has_nuw=true
+/// )
+/// let result = builder.createAdd(final_add, const_sum)
+/// let _ = builder.createRet(result)
 ///
-///   // Verify constant folding worked
-///   inspect(const_sum, content = "i32 75")
-///   
-///   inspect(
-///     fval,
-///     content = 
-///     #|define i32 @add(i32 %0, i32 %1) {
-///     #|entry:
-///     #|  %2 = add nsw i32 %0, %1
-///     #|  %3 = add nuw i32 %0, %1
-///     #|  %4 = add nuw nsw i32 %2, %3
-///     #|  %5 = add i32 %4, 75
-///     #|  ret i32 %5
-///     #|}
-///     ,
-///   )
-/// }
+/// // Verify constant folding worked
+/// inspect(const_sum, content = "i32 75")
+/// 
+/// inspect(
+///   fval,
+///   content = 
+///   #|define i32 @add(i32 %0, i32 %1) {
+///   #|entry:
+///   #|  %2 = add nsw i32 %0, %1
+///   #|  %3 = add nuw i32 %0, %1
+///   #|  %4 = add nuw nsw i32 %2, %3
+///   #|  %5 = add i32 %4, 75
+///   #|  ret i32 %5
+///   #|}
+///   ,
+/// )
 /// ```
 pub fn IRBuilder::createAdd(
   self : IRBuilder,
@@ -211,7 +209,6 @@ pub fn IRBuilder::createAdd(
 /// If an overflow occurs, the behavior is undefined.
 ///
 /// ```moonbit
-/// test "IRBuilder::createNSWAdd" {
 ///   let ctx = LLVMContext::new()
 ///   let prog = ctx.addProgram("demo")
 ///   let builder = IRBuilder::new()
@@ -250,7 +247,6 @@ pub fn IRBuilder::createAdd(
 ///     #|}
 ///     ,
 ///   )
-/// }
 /// ```
 pub fn IRBuilder::createNSWAdd(
   self : IRBuilder,
@@ -273,7 +269,6 @@ pub fn IRBuilder::createNSWAdd(
 /// If an overflow occurs, the behavior is undefined.
 ///
 /// ```moonbit
-/// test "IRBuilder::createNUWAdd" {
 ///   let ctx = LLVMContext::new()
 ///   let prog = ctx.addProgram("demo")
 ///   let builder = IRBuilder::new()
@@ -312,7 +307,6 @@ pub fn IRBuilder::createNSWAdd(
 ///     #|}
 ///     ,
 ///   )
-/// }
 /// ```
 pub fn IRBuilder::createNUWAdd(
   self : IRBuilder,
@@ -339,7 +333,6 @@ pub fn IRBuilder::createNUWAdd(
 /// If an overflow occurs, the behavior is undefined.
 ///
 /// ```moonbit
-/// test "IRBuilder::createSub" {
 ///   let ctx = LLVMContext::new()
 ///   let prog = ctx.addProgram("demo")
 ///   let builder = IRBuilder::new()
@@ -385,7 +378,6 @@ pub fn IRBuilder::createNUWAdd(
 ///     #|}
 ///     ,
 ///   )
-/// }
 /// ```
 pub fn IRBuilder::createSub(
   self : IRBuilder,
@@ -431,7 +423,6 @@ pub fn IRBuilder::createSub(
 /// If an overflow occurs, the behavior is undefined.
 ///
 /// ```moonbit
-/// test "IRBuilder::createNSWSub" {
 ///   let ctx = LLVMContext::new()
 ///   let prog = ctx.addProgram("demo")
 ///   let builder = IRBuilder::new()
@@ -470,7 +461,6 @@ pub fn IRBuilder::createSub(
 ///     #|}
 ///     ,
 ///   )
-/// }
 /// ```
 pub fn IRBuilder::createNSWSub(
   self : IRBuilder,
@@ -488,7 +478,6 @@ pub fn IRBuilder::createNSWSub(
 /// If an overflow occurs, the behavior is undefined.
 ///
 /// ```moonbit
-/// test "IRBuilder::createNUWSub" {
 ///   let ctx = LLVMContext::new()
 ///   let prog = ctx.addProgram("demo")
 ///   let builder = IRBuilder::new()
@@ -515,13 +504,11 @@ pub fn IRBuilder::createNSWSub(
 ///     #|}
 ///     ,
 ///   )
-/// }
 /// ```
 ///
 /// ## Constant Folding
 ///
 /// ```moonbit
-/// test "IRBuilder::createNSWSub with constant folding" {
 ///   let ctx = LLVMContext::new()
 ///   let prog = ctx.addProgram("demo")
 ///   let builder = IRBuilder::new()
@@ -548,7 +535,6 @@ pub fn IRBuilder::createNSWSub(
 ///     #|}
 ///     ,
 ///   )
-/// }
 /// ```
 pub fn IRBuilder::createNUWSub(
   self : IRBuilder,
@@ -575,7 +561,6 @@ pub fn IRBuilder::createNUWSub(
 /// If an overflow occurs, the behavior is undefined.
 ///
 /// ```moonbit
-/// test "IRBuilder::createMul" {
 ///   let ctx = LLVMContext::new()
 ///   let prog = ctx.addProgram("demo")
 ///   let builder = IRBuilder::new()
@@ -621,7 +606,6 @@ pub fn IRBuilder::createNUWSub(
 ///     #|}
 ///     ,
 ///   )
-/// }
 /// ```
 pub fn IRBuilder::createMul(
   self : IRBuilder,
@@ -667,7 +651,6 @@ pub fn IRBuilder::createMul(
 /// If an overflow occurs, the behavior is undefined.
 ///
 /// ```moonbit
-/// test "IRBuilder::createNSWMul" {
 ///   let ctx = LLVMContext::new()
 ///   let prog = ctx.addProgram("demo")
 ///   let builder = IRBuilder::new()
@@ -706,7 +689,6 @@ pub fn IRBuilder::createMul(
 ///     #|}
 ///     ,
 ///   )
-/// }
 /// ```
 pub fn IRBuilder::createNSWMul(
   self : IRBuilder,
@@ -729,7 +711,6 @@ pub fn IRBuilder::createNSWMul(
 /// If an overflow occurs, the behavior is undefined.
 ///
 /// ```moonbit
-/// test "IRBuilder::createNUWMul" {
 ///   let ctx = LLVMContext::new()
 ///   let prog = ctx.addProgram("demo")
 ///   let builder = IRBuilder::new()
@@ -768,7 +749,6 @@ pub fn IRBuilder::createNSWMul(
 ///     #|}
 ///     ,
 ///   )
-/// }
 /// ```
 pub fn IRBuilder::createNUWMul(
   self : IRBuilder,
@@ -789,7 +769,6 @@ pub fn IRBuilder::createNUWMul(
 /// - If the divisor is zero, or if the division overflows (e.g., `INT_MIN / -1`), the behavior is undefined.
 ///
 /// ```moonbit
-/// test "IRBuilder::createSDiv" {
 ///   let ctx = LLVMContext::new()
 ///   let prog = ctx.addProgram("demo")
 ///   let builder = IRBuilder::new()
@@ -816,7 +795,6 @@ pub fn IRBuilder::createNUWMul(
 ///     #|}
 ///     ,
 ///   )
-/// }
 /// ```
 pub fn IRBuilder::createSDiv(
   self : IRBuilder,
@@ -861,7 +839,6 @@ pub fn IRBuilder::createSDiv(
 /// Therefore, this function will generate a standard `sdiv` instruction without the `exact` property being enforced at the IR level by this constructor.
 ///
 /// ```moonbit
-/// test "IRBuilder::createExactSDiv" {
 ///   let ctx = LLVMContext::new()
 ///   let prog = ctx.addProgram("demo")
 ///   let builder = IRBuilder::new()
@@ -888,7 +865,6 @@ pub fn IRBuilder::createSDiv(
 ///     #|}
 ///     ,
 ///   )
-/// }
 /// ```
 pub fn IRBuilder::createExactSDiv(
   self : IRBuilder,
@@ -909,7 +885,6 @@ pub fn IRBuilder::createExactSDiv(
 /// - If the divisor is zero, the behavior is undefined.
 ///
 /// ```moonbit
-/// test "IRBuilder::createUDiv" {
 ///   let ctx = LLVMContext::new()
 ///   let prog = ctx.addProgram("demo")
 ///   let builder = IRBuilder::new()
@@ -936,7 +911,6 @@ pub fn IRBuilder::createExactSDiv(
 ///     #|}
 ///     ,
 ///   )
-/// }
 /// ```
 pub fn IRBuilder::createUDiv(
   self : IRBuilder,
@@ -982,7 +956,6 @@ pub fn IRBuilder::createUDiv(
 /// Therefore, this function will generate a standard `udiv` instruction without the `exact` property being enforced at the IR level by this constructor.
 ///
 /// ```moonbit
-/// test "IRBuilder::createExactUDiv" {
 ///   let ctx = LLVMContext::new()
 ///   let prog = ctx.addProgram("demo")
 ///   let builder = IRBuilder::new()
@@ -1009,7 +982,6 @@ pub fn IRBuilder::createUDiv(
 ///     #|}
 ///     ,
 ///   )
-/// }
 /// ```
 pub fn IRBuilder::createExactUDiv(
   self : IRBuilder,
@@ -1030,10 +1002,9 @@ pub fn IRBuilder::createExactUDiv(
 /// - If the divisor is zero, the behavior is undefined.
 ///
 /// - **Limitation**: The underlying `BinaryInstruction::newStandardOp` explicitly prevents the use of `BinaryOps::SRem`.
-/// Attempting to create this instruction using it will result in an `unreachable` error.
+/// Attempting to create this instruction using it will result in an `llvm_unreachable` error.
 ///
 /// ```moonbit
-/// test "IRBuilder::createSRem" {
 ///   let ctx = LLVMContext::new()
 ///   let prog = ctx.addProgram("demo")
 ///   let builder = IRBuilder::new()
@@ -1060,7 +1031,6 @@ pub fn IRBuilder::createExactUDiv(
 ///     #|}
 ///     ,
 ///   )
-/// }
 /// ```
 pub fn IRBuilder::createSRem(
   self : IRBuilder,
@@ -1098,34 +1068,32 @@ pub fn IRBuilder::createSRem(
 /// - If the divisor is zero, the behavior is undefined.
 ///
 /// ```moonbit
-/// test "IRBuilder::createURem" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let i32ty = ctx.getInt32Ty() // Using i32 for unsigned operations as well
-///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
-///   let fval = prog.addFunction(fty, "urem_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let i32ty = ctx.getInt32Ty() // Using i32 for unsigned operations as well
+/// let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+/// let fval = prog.addFunction(fty, "urem_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let arg0 = fval.getArg(0).unwrap()
-///   let arg1 = fval.getArg(1).unwrap()
+/// let arg0 = fval.getArg(0).unwrap()
+/// let arg1 = fval.getArg(1).unwrap()
 ///
-///   let rem = builder.createURem(arg0, arg1)
-///   let _ = builder.createRet(rem)
+/// let rem = builder.createURem(arg0, arg1)
+/// let _ = builder.createRet(rem)
 ///
-///   inspect(
-///     fval,
-///     content = 
-///     #|define i32 @urem_func(i32 %0, i32 %1) {
-///     #|entry:
-///     #|  %2 = urem i32 %0, %1
-///     #|  ret i32 %2
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(
+///   fval,
+///   content = 
+///   #|define i32 @urem_func(i32 %0, i32 %1) {
+///   #|entry:
+///   #|  %2 = urem i32 %0, %1
+///   #|  ret i32 %2
+///   #|}
+///   ,
+/// )
 /// ```
 pub fn IRBuilder::createURem(
   self : IRBuilder,
@@ -1156,34 +1124,32 @@ pub fn IRBuilder::createURem(
 ///| Create FAdd (floating-point addition) Instruction.
 ///
 /// ```moonbit
-/// test "IRBuilder::createFAdd" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let f32ty = ctx.getFloatTy()
-///   let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
-///   let fval = prog.addFunction(fty, "fadd_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let f32ty = ctx.getFloatTy()
+/// let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
+/// let fval = prog.addFunction(fty, "fadd_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let arg0 = fval.getArg(0).unwrap()
-///   let arg1 = fval.getArg(1).unwrap()
+/// let arg0 = fval.getArg(0).unwrap()
+/// let arg1 = fval.getArg(1).unwrap()
 ///
-///   let sum = builder.createFAdd(arg0, arg1)
-///   let _ = builder.createRet(sum)
+/// let sum = builder.createFAdd(arg0, arg1)
+/// let _ = builder.createRet(sum)
 ///
-///   inspect(
-///     fval,
-///     content =
-///     #|define float @fadd_func(float %0, float %1) {
-///     #|entry:
-///     #|  %2 = fadd float %0, %1
-///     #|  ret float %2
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(
+///   fval,
+///   content =
+///   #|define float @fadd_func(float %0, float %1) {
+///   #|entry:
+///   #|  %2 = fadd float %0, %1
+///   #|  ret float %2
+///   #|}
+///   ,
+/// )
 /// ```
 ///
 /// ## Fast Math Flags
@@ -1192,35 +1158,33 @@ pub fn IRBuilder::createURem(
 /// optimize floating-point operations.
 ///
 /// ```moonbit
-/// test "IRBuilder::createFAdd" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let f32ty = ctx.getFloatTy()
-///   let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
-///   let fval = prog.addFunction(fty, "fadd_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let f32ty = ctx.getFloatTy()
+/// let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
+/// let fval = prog.addFunction(fty, "fadd_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let arg0 = fval.getArg(0).unwrap()
-///   let arg1 = fval.getArg(1).unwrap()
+/// let arg0 = fval.getArg(0).unwrap()
+/// let arg1 = fval.getArg(1).unwrap()
 ///
-///   let fast_math_flags = Set::of([FastMathFlag::NoNaNs])
-///   let sum = builder.createFAdd(arg0, arg1, fast_math_flags~)
-///   let _ = builder.createRet(sum)
+/// let fast_math_flags = Set::of([FastMathFlag::NoNaNs])
+/// let sum = builder.createFAdd(arg0, arg1, fast_math_flags~)
+/// let _ = builder.createRet(sum)
 ///
-///   inspect(
-///     fval,
-///     content =
-///     #|define float @fadd_func(float %0, float %1) {
-///     #|entry:
-///     #|  %2 = fadd nnan float %0, %1
-///     #|  ret float %2
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(
+///   fval,
+///   content =
+///   #|define float @fadd_func(float %0, float %1) {
+///   #|entry:
+///   #|  %2 = fadd nnan float %0, %1
+///   #|  ret float %2
+///   #|}
+///   ,
+/// )
 /// ```
 pub fn IRBuilder::createFAdd(
   self : IRBuilder,
@@ -1245,34 +1209,32 @@ pub fn IRBuilder::createFAdd(
 ///| Create FSub (floating-point subtraction) Instruction.
 ///
 /// ```moonbit
-/// test "IRBuilder::createFSub" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let f32ty = ctx.getFloatTy()
-///   let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
-///   let fval = prog.addFunction(fty, "fsub_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let f32ty = ctx.getFloatTy()
+/// let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
+/// let fval = prog.addFunction(fty, "fsub_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let arg0 = fval.getArg(0).unwrap()
-///   let arg1 = fval.getArg(1).unwrap()
+/// let arg0 = fval.getArg(0).unwrap()
+/// let arg1 = fval.getArg(1).unwrap()
 ///
-///   let diff = builder.createFSub(arg0, arg1)
-///   let _ = builder.createRet(diff)
+/// let diff = builder.createFSub(arg0, arg1)
+/// let _ = builder.createRet(diff)
 ///
-///   inspect(
-///     fval,
-///     content =
-///     #|define float @fsub_func(float %0, float %1) {
-///     #|entry:
-///     #|  %2 = fsub float %0, %1
-///     #|  ret float %2
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(
+///   fval,
+///   content =
+///   #|define float @fsub_func(float %0, float %1) {
+///   #|entry:
+///   #|  %2 = fsub float %0, %1
+///   #|  ret float %2
+///   #|}
+///   ,
+/// )
 /// ```
 ///
 /// ## Fast Math Flags
@@ -1281,35 +1243,33 @@ pub fn IRBuilder::createFAdd(
 /// optimize floating-point operations.
 ///
 /// ```moonbit
-/// test "IRBuilder::createFSub with fast math flags" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let f32ty = ctx.getFloatTy()
-///   let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
-///   let fval = prog.addFunction(fty, "fsub_func_fast")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let f32ty = ctx.getFloatTy()
+/// let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
+/// let fval = prog.addFunction(fty, "fsub_func_fast")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let arg0 = fval.getArg(0).unwrap()
-///   let arg1 = fval.getArg(1).unwrap()
+/// let arg0 = fval.getArg(0).unwrap()
+/// let arg1 = fval.getArg(1).unwrap()
 ///
-///   let fast_math_flags = Set::of([FastMathFlag::NoInfs])
-///   let diff = builder.createFSub(arg0, arg1, fast_math_flags~)
-///   let _ = builder.createRet(diff)
+/// let fast_math_flags = Set::of([FastMathFlag::NoInfs])
+/// let diff = builder.createFSub(arg0, arg1, fast_math_flags~)
+/// let _ = builder.createRet(diff)
 ///
-///   inspect(
-///     fval,
-///     content =
-///     #|define float @fsub_func_fast(float %0, float %1) {
-///     #|entry:
-///     #|  %2 = fsub ninf float %0, %1
-///     #|  ret float %2
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(
+///   fval,
+///   content =
+///   #|define float @fsub_func_fast(float %0, float %1) {
+///   #|entry:
+///   #|  %2 = fsub ninf float %0, %1
+///   #|  ret float %2
+///   #|}
+///   ,
+/// )
 /// ```
 pub fn IRBuilder::createFSub(
   self : IRBuilder,
@@ -1334,34 +1294,32 @@ pub fn IRBuilder::createFSub(
 ///| Create FMul (floating-point multiplication) Instruction.
 ///
 /// ```moonbit
-/// test "IRBuilder::createFMul" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let f32ty = ctx.getFloatTy()
-///   let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
-///   let fval = prog.addFunction(fty, "fmul_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let f32ty = ctx.getFloatTy()
+/// let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
+/// let fval = prog.addFunction(fty, "fmul_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let arg0 = fval.getArg(0).unwrap()
-///   let arg1 = fval.getArg(1).unwrap()
+/// let arg0 = fval.getArg(0).unwrap()
+/// let arg1 = fval.getArg(1).unwrap()
 ///
-///   let prod = builder.createFMul(arg0, arg1)
-///   let _ = builder.createRet(prod)
+/// let prod = builder.createFMul(arg0, arg1)
+/// let _ = builder.createRet(prod)
 ///
-///   inspect(
-///     fval,
-///     content =
-///     #|define float @fmul_func(float %0, float %1) {
-///     #|entry:
-///     #|  %2 = fmul float %0, %1
-///     #|  ret float %2
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(
+///   fval,
+///   content =
+///   #|define float @fmul_func(float %0, float %1) {
+///   #|entry:
+///   #|  %2 = fmul float %0, %1
+///   #|  ret float %2
+///   #|}
+///   ,
+/// )
 /// ```
 ///
 /// ## Fast Math Flags
@@ -1370,35 +1328,33 @@ pub fn IRBuilder::createFSub(
 /// optimize floating-point operations.
 ///
 /// ```moonbit
-/// test "IRBuilder::createFMul with fast math flags" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let f32ty = ctx.getFloatTy()
-///   let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
-///   let fval = prog.addFunction(fty, "fmul_func_fast")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let f32ty = ctx.getFloatTy()
+/// let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
+/// let fval = prog.addFunction(fty, "fmul_func_fast")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let arg0 = fval.getArg(0).unwrap()
-///   let arg1 = fval.getArg(1).unwrap()
+/// let arg0 = fval.getArg(0).unwrap()
+/// let arg1 = fval.getArg(1).unwrap()
 ///
-///   let fast_math_flags = Set::of([FastMathFlag::NoSignedZeros])
-///   let prod = builder.createFMul(arg0, arg1, fast_math_flags~)
-///   let _ = builder.createRet(prod)
+/// let fast_math_flags = Set::of([FastMathFlag::NoSignedZeros])
+/// let prod = builder.createFMul(arg0, arg1, fast_math_flags~)
+/// let _ = builder.createRet(prod)
 ///
-///   inspect(
-///     fval,
-///     content =
-///     #|define float @fmul_func_fast(float %0, float %1) {
-///     #|entry:
-///     #|  %2 = fmul nsz float %0, %1
-///     #|  ret float %2
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(
+///   fval,
+///   content =
+///   #|define float @fmul_func_fast(float %0, float %1) {
+///   #|entry:
+///   #|  %2 = fmul nsz float %0, %1
+///   #|  ret float %2
+///   #|}
+///   ,
+/// )
 /// ```
 pub fn IRBuilder::createFMul(
   self : IRBuilder,
@@ -1423,34 +1379,32 @@ pub fn IRBuilder::createFMul(
 ///| Create FDiv (floating-point division) Instruction.
 ///
 /// ```moonbit
-/// test "IRBuilder::createFDiv" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let f32ty = ctx.getFloatTy()
-///   let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
-///   let fval = prog.addFunction(fty, "fdiv_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let f32ty = ctx.getFloatTy()
+/// let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
+/// let fval = prog.addFunction(fty, "fdiv_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let arg0 = fval.getArg(0).unwrap()
-///   let arg1 = fval.getArg(1).unwrap()
+/// let arg0 = fval.getArg(0).unwrap()
+/// let arg1 = fval.getArg(1).unwrap()
 ///
-///   let quot = builder.createFDiv(arg0, arg1)
-///   let _ = builder.createRet(quot)
+/// let quot = builder.createFDiv(arg0, arg1)
+/// let _ = builder.createRet(quot)
 ///
-///   inspect(
-///     fval,
-///     content =
-///     #|define float @fdiv_func(float %0, float %1) {
-///     #|entry:
-///     #|  %2 = fdiv float %0, %1
-///     #|  ret float %2
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(
+///   fval,
+///   content =
+///   #|define float @fdiv_func(float %0, float %1) {
+///   #|entry:
+///   #|  %2 = fdiv float %0, %1
+///   #|  ret float %2
+///   #|}
+///   ,
+/// )
 /// ```
 ///
 /// ## Fast Math Flags
@@ -1459,35 +1413,33 @@ pub fn IRBuilder::createFMul(
 /// optimize floating-point operations.
 ///
 /// ```moonbit
-/// test "IRBuilder::createFDiv with fast math flags" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let f32ty = ctx.getFloatTy()
-///   let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
-///   let fval = prog.addFunction(fty, "fdiv_func_fast")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let f32ty = ctx.getFloatTy()
+/// let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
+/// let fval = prog.addFunction(fty, "fdiv_func_fast")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let arg0 = fval.getArg(0).unwrap()
-///   let arg1 = fval.getArg(1).unwrap()
+/// let arg0 = fval.getArg(0).unwrap()
+/// let arg1 = fval.getArg(1).unwrap()
 ///
-///   let fast_math_flags = Set::of([FastMathFlag::AllowReciprocal])
-///   let quot = builder.createFDiv(arg0, arg1, fast_math_flags~)
-///   let _ = builder.createRet(quot)
+/// let fast_math_flags = Set::of([FastMathFlag::AllowReciprocal])
+/// let quot = builder.createFDiv(arg0, arg1, fast_math_flags~)
+/// let _ = builder.createRet(quot)
 ///
-///   inspect(
-///     fval,
-///     content =
-///     #|define float @fdiv_func_fast(float %0, float %1) {
-///     #|entry:
-///     #|  %2 = fdiv arcp float %0, %1
-///     #|  ret float %2
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(
+///   fval,
+///   content =
+///   #|define float @fdiv_func_fast(float %0, float %1) {
+///   #|entry:
+///   #|  %2 = fdiv arcp float %0, %1
+///   #|  ret float %2
+///   #|}
+///   ,
+/// )
 /// ```
 pub fn IRBuilder::createFDiv(
   self : IRBuilder,
@@ -1512,34 +1464,32 @@ pub fn IRBuilder::createFDiv(
 ///| Create FRem (floating-point remainder) Instruction.
 ///
 /// ```moonbit
-/// test "IRBuilder::createFRem" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let f32ty = ctx.getFloatTy()
-///   let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
-///   let fval = prog.addFunction(fty, "frem_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let f32ty = ctx.getFloatTy()
+/// let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
+/// let fval = prog.addFunction(fty, "frem_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let arg0 = fval.getArg(0).unwrap()
-///   let arg1 = fval.getArg(1).unwrap()
+/// let arg0 = fval.getArg(0).unwrap()
+/// let arg1 = fval.getArg(1).unwrap()
 ///
-///   let rem = builder.createFRem(arg0, arg1)
-///   let _ = builder.createRet(rem)
+/// let rem = builder.createFRem(arg0, arg1)
+/// let _ = builder.createRet(rem)
 ///
-///   inspect(
-///     fval,
-///     content =
-///     #|define float @frem_func(float %0, float %1) {
-///     #|entry:
-///     #|  %2 = frem float %0, %1
-///     #|  ret float %2
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(
+///   fval,
+///   content =
+///   #|define float @frem_func(float %0, float %1) {
+///   #|entry:
+///   #|  %2 = frem float %0, %1
+///   #|  ret float %2
+///   #|}
+///   ,
+/// )
 /// ```
 ///
 /// ## Fast Math Flags
@@ -1548,35 +1498,33 @@ pub fn IRBuilder::createFDiv(
 /// optimize floating-point operations.
 ///
 /// ```moonbit
-/// test "IRBuilder::createFRem with fast math flags" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let f32ty = ctx.getFloatTy()
-///   let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
-///   let fval = prog.addFunction(fty, "frem_func_fast")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let f32ty = ctx.getFloatTy()
+/// let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
+/// let fval = prog.addFunction(fty, "frem_func_fast")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let arg0 = fval.getArg(0).unwrap()
-///   let arg1 = fval.getArg(1).unwrap()
+/// let arg0 = fval.getArg(0).unwrap()
+/// let arg1 = fval.getArg(1).unwrap()
 ///
-///   let fast_math_flags = Set::of([FastMathFlag::AllowContract])
-///   let rem = builder.createFRem(arg0, arg1, fast_math_flags~)
-///   let _ = builder.createRet(rem)
+/// let fast_math_flags = Set::of([FastMathFlag::AllowContract])
+/// let rem = builder.createFRem(arg0, arg1, fast_math_flags~)
+/// let _ = builder.createRet(rem)
 ///
-///   inspect(
-///     fval,
-///     content =
-///     #|define float @frem_func_fast(float %0, float %1) {
-///     #|entry:
-///     #|  %2 = frem contract float %0, %1
-///     #|  ret float %2
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(
+///   fval,
+///   content =
+///   #|define float @frem_func_fast(float %0, float %1) {
+///   #|entry:
+///   #|  %2 = frem contract float %0, %1
+///   #|  ret float %2
+///   #|}
+///   ,
+/// )
 /// ```
 pub fn IRBuilder::createFRem(
   self : IRBuilder,
@@ -1606,45 +1554,43 @@ pub fn IRBuilder::createFRem(
 /// evaluated at compile time and the result is returned as a constant value.
 ///
 /// ```moonbit
-/// test "IRBuilder::createAnd" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
-///   let fval = prog.addFunction(fty, "and_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let i32ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+/// let fval = prog.addFunction(fty, "and_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let arg0 = fval.getArg(0).unwrap()
-///   let arg1 = fval.getArg(1).unwrap()
+/// let arg0 = fval.getArg(0).unwrap()
+/// let arg1 = fval.getArg(1).unwrap()
 ///
-///   // Test regular and with variables
-///   let and_vars = builder.createAnd(arg0, arg1)
-///   
-///   // Test constant folding with two constants
-///   let const6 = ctx.getConstInt32(6) // 0b0110
-///   let const3 = ctx.getConstInt32(3) // 0b0011
-///   let and_consts = builder.createAnd(const6, const3) // Should fold to 2 (0b0010)
-///   
-///   // Test mixed: one constant, one variable
-///   let and_mixed = builder.createAnd(and_vars , and_consts)
-///   
-///   let _ = builder.createRet(and_mixed )
+/// // Test regular and with variables
+/// let and_vars = builder.createAnd(arg0, arg1)
+/// 
+/// // Test constant folding with two constants
+/// let const6 = ctx.getConstInt32(6) // 0b0110
+/// let const3 = ctx.getConstInt32(3) // 0b0011
+/// let and_consts = builder.createAnd(const6, const3) // Should fold to 2 (0b0010)
+/// 
+/// // Test mixed: one constant, one variable
+/// let and_mixed = builder.createAnd(and_vars , and_consts)
+/// 
+/// let _ = builder.createRet(and_mixed )
 ///
-///   inspect(
-///     fval,
-///     content =
-///     #|define i32 @and_func(i32 %0, i32 %1) {
-///     #|entry:
-///     #|  %2 = and i32 %0, %1
-///     #|  %3 = and i32 %2, 2
-///     #|  ret i32 %3
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(
+///   fval,
+///   content =
+///   #|define i32 @and_func(i32 %0, i32 %1) {
+///   #|entry:
+///   #|  %2 = and i32 %0, %1
+///   #|  %3 = and i32 %2, 2
+///   #|  ret i32 %3
+///   #|}
+///   ,
+/// )
 /// ```
 pub fn IRBuilder::createAnd(
   self : IRBuilder,
@@ -1654,7 +1600,7 @@ pub fn IRBuilder::createAnd(
 ) -> &Value raise Error {
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
     (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) =>
-      return lhs_ci.and(rhs_ci)
+      return lhs_ci.compute_and(rhs_ci)
     _ => ()
   }
   let parent = self.getInsertFunction()
@@ -1678,45 +1624,43 @@ pub fn IRBuilder::createAnd(
 /// evaluated at compile time and the result is returned as a constant value.
 ///
 /// ```moonbit
-/// test "IRBuilder::createOr" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
-///   let fval = prog.addFunction(fty, "or_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let i32ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+/// let fval = prog.addFunction(fty, "or_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let arg0 = fval.getArg(0).unwrap()
-///   let arg1 = fval.getArg(1).unwrap()
+/// let arg0 = fval.getArg(0).unwrap()
+/// let arg1 = fval.getArg(1).unwrap()
 ///
-///   // Test regular or with variables
-///   let or_vars = builder.createOr(arg0, arg1)
-///   
-///   // Test constant folding with two constants
-///   let const6 = ctx.getConstInt32(6) // 0b0110
-///   let const3 = ctx.getConstInt32(3) // 0b0011
-///   let or_consts = builder.createOr(const6, const3) // Should fold to 7 (0b0111)
-///   
-///   // Test mixed: one constant, one variable
-///   let or_mixed = builder.createOr(or_vars, or_consts)
-///   
-///   let _ = builder.createRet(or_mixed)
+/// // Test regular or with variables
+/// let or_vars = builder.createOr(arg0, arg1)
+/// 
+/// // Test constant folding with two constants
+/// let const6 = ctx.getConstInt32(6) // 0b0110
+/// let const3 = ctx.getConstInt32(3) // 0b0011
+/// let or_consts = builder.createOr(const6, const3) // Should fold to 7 (0b0111)
+/// 
+/// // Test mixed: one constant, one variable
+/// let or_mixed = builder.createOr(or_vars, or_consts)
+/// 
+/// let _ = builder.createRet(or_mixed)
 ///
-///   inspect(
-///     fval,
-///     content =
-///     #|define i32 @or_func(i32 %0, i32 %1) {
-///     #|entry:
-///     #|  %2 = or i32 %0, %1
-///     #|  %3 = or i32 %2, 7
-///     #|  ret i32 %3
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(
+///   fval,
+///   content =
+///   #|define i32 @or_func(i32 %0, i32 %1) {
+///   #|entry:
+///   #|  %2 = or i32 %0, %1
+///   #|  %3 = or i32 %2, 7
+///   #|  ret i32 %3
+///   #|}
+///   ,
+/// )
 /// ```
 pub fn IRBuilder::createOr(
   self : IRBuilder,
@@ -1750,45 +1694,43 @@ pub fn IRBuilder::createOr(
 /// evaluated at compile time and the result is returned as a constant value.
 ///
 /// ```moonbit
-/// test "IRBuilder::createXor" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
-///   let fval = prog.addFunction(fty, "xor_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let i32ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+/// let fval = prog.addFunction(fty, "xor_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let arg0 = fval.getArg(0).unwrap()
-///   let arg1 = fval.getArg(1).unwrap()
+/// let arg0 = fval.getArg(0).unwrap()
+/// let arg1 = fval.getArg(1).unwrap()
 ///
-///   // Test regular xor with variables
-///   let xor_vars = builder.createXor(arg0, arg1)
-///   
-///   // Test constant folding with two constants
-///   let const6 = ctx.getConstInt32(6) // 0b0110
-///   let const3 = ctx.getConstInt32(3) // 0b0011
-///   let xor_consts = builder.createXor(const6, const3) // Should fold to 5 (0b0101)
-///   
-///   // Test mixed: one constant, one variable
-///   let xor_mixed = builder.createXor(xor_vars, xor_consts)
-///   
-///   let _ = builder.createRet(xor_mixed)
+/// // Test regular xor with variables
+/// let xor_vars = builder.createXor(arg0, arg1)
+/// 
+/// // Test constant folding with two constants
+/// let const6 = ctx.getConstInt32(6) // 0b0110
+/// let const3 = ctx.getConstInt32(3) // 0b0011
+/// let xor_consts = builder.createXor(const6, const3) // Should fold to 5 (0b0101)
+/// 
+/// // Test mixed: one constant, one variable
+/// let xor_mixed = builder.createXor(xor_vars, xor_consts)
+/// 
+/// let _ = builder.createRet(xor_mixed)
 ///
-///   inspect(
-///     fval,
-///     content =
-///     #|define i32 @xor_func(i32 %0, i32 %1) {
-///     #|entry:
-///     #|  %2 = xor i32 %0, %1
-///     #|  %3 = xor i32 %2, 5
-///     #|  ret i32 %3
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(
+///   fval,
+///   content =
+///   #|define i32 @xor_func(i32 %0, i32 %1) {
+///   #|entry:
+///   #|  %2 = xor i32 %0, %1
+///   #|  %3 = xor i32 %2, 5
+///   #|  ret i32 %3
+///   #|}
+///   ,
+/// )
 /// ```
 pub fn IRBuilder::createXor(
   self : IRBuilder,
@@ -1824,47 +1766,45 @@ pub fn IRBuilder::createXor(
 /// - `nuw` stands for "no unsigned wrap". If an overflow occurs, the behavior is undefined.
 ///
 /// ```moonbit
-/// test "IRBuilder::createShl" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
-///   let fval = prog.addFunction(fty, "shl_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let i32ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+/// let fval = prog.addFunction(fty, "shl_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let arg0 = fval.getArg(0).unwrap()
-///   let arg1 = fval.getArg(1).unwrap() // Shift amount
+/// let arg0 = fval.getArg(0).unwrap()
+/// let arg1 = fval.getArg(1).unwrap() // Shift amount
 ///
-///   // Test regular shl with variables
-///   let shl_vars = builder.createShl(arg0, arg1)
-///   
-///   // Test constant folding
-///   let const_val = ctx.getConstInt32(1) // 0b0001
-///   let const_shift = ctx.getConstInt32(1) // shift by 1
-///   let shl_consts = builder.createShl(const_val, const_shift) // Should fold to 2 (0b0010)
-///   
-///   // Test with flags
-///   let shl_nsw = builder.createShl(shl_vars, shl_consts , has_nsw=true)
-///   let shl_nuw = builder.createShl(shl_nsw , shl_consts , has_nuw=true)
-///   
-///   let _ = builder.createRet(shl_nuw)
+/// // Test regular shl with variables
+/// let shl_vars = builder.createShl(arg0, arg1)
+/// 
+/// // Test constant folding
+/// let const_val = ctx.getConstInt32(1) // 0b0001
+/// let const_shift = ctx.getConstInt32(1) // shift by 1
+/// let shl_consts = builder.createShl(const_val, const_shift) // Should fold to 2 (0b0010)
+/// 
+/// // Test with flags
+/// let shl_nsw = builder.createShl(shl_vars, shl_consts , has_nsw=true)
+/// let shl_nuw = builder.createShl(shl_nsw , shl_consts , has_nuw=true)
+/// 
+/// let _ = builder.createRet(shl_nuw)
 ///
-///   inspect(
-///     fval,
-///     content =
-///     #|define i32 @shl_func(i32 %0, i32 %1) {
-///     #|entry:
-///     #|  %2 = shl i32 %0, %1
-///     #|  %3 = shl nsw i32 %2, 2
-///     #|  %4 = shl nuw i32 %3, 2
-///     #|  ret i32 %4
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(
+///   fval,
+///   content =
+///   #|define i32 @shl_func(i32 %0, i32 %1) {
+///   #|entry:
+///   #|  %2 = shl i32 %0, %1
+///   #|  %3 = shl nsw i32 %2, 2
+///   #|  %4 = shl nuw i32 %3, 2
+///   #|  ret i32 %4
+///   #|}
+///   ,
+/// )
 /// ```
 pub fn IRBuilder::createShl(
   self : IRBuilder,
@@ -1876,7 +1816,7 @@ pub fn IRBuilder::createShl(
 ) -> &Value raise Error {
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
     (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) =>
-      return lhs_ci.shl(rhs_ci)
+      return lhs_ci.compute_shl(rhs_ci)
     _ => ()
   }
   let parent = self.getInsertFunction()
@@ -1909,48 +1849,46 @@ pub fn IRBuilder::createShl(
 /// If any ones are shifted out, the behavior is undefined.
 ///
 /// ```moonbit
-/// test "IRBuilder::createLShr" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
-///   let fval = prog.addFunction(fty, "lshr_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let i32ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+/// let fval = prog.addFunction(fty, "lshr_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let arg0 = fval.getArg(0).unwrap()
-///   let arg1 = fval.getArg(1).unwrap() // Shift amount
+/// let arg0 = fval.getArg(0).unwrap()
+/// let arg1 = fval.getArg(1).unwrap() // Shift amount
 ///
-///   // Test regular lshr with variables
-///   let lshr_vars = builder.createLShr(arg0, arg1)
-///   
-///   // Test constant folding
-///   let const_val = ctx.getConstInt32(20) // 0b10100
-///   let const_shift = ctx.getConstInt32(2) // shift by 2
-///   let lshr_consts = builder.createLShr(const_val, const_shift) // Should fold to 5 (0b00101)
-///   
-///   // Test with exact flag
-///   let lshr_exact = builder.createLShr(lshr_vars, lshr_consts, is_exact=true)
-///   
-///   let _ = builder.createRet(lshr_exact)
+/// // Test regular lshr with variables
+/// let lshr_vars = builder.createLShr(arg0, arg1)
+/// 
+/// // Test constant folding
+/// let const_val = ctx.getConstInt32(20) // 0b10100
+/// let const_shift = ctx.getConstInt32(2) // shift by 2
+/// let lshr_consts = builder.createLShr(const_val, const_shift) // Should fold to 5 (0b00101)
+/// 
+/// // Test with exact flag
+/// let lshr_exact = builder.createLShr(lshr_vars, lshr_consts, is_exact=true)
+/// 
+/// let _ = builder.createRet(lshr_exact)
 ///
-///   // Verify constant folding worked
-///   inspect(lshr_consts, content = "i32 5")
-///   
-///   inspect(
-///     fval,
-///     content =
-///     #|define i32 @lshr_func(i32 %0, i32 %1) {
-///     #|entry:
-///     #|  %2 = lshr i32 %0, %1
-///     #|  %3 = lshr exact i32 %2, 5
-///     #|  ret i32 %3
-///     #|}
-///     ,
-///   )
-/// }
+/// // Verify constant folding worked
+/// inspect(lshr_consts, content = "i32 5")
+/// 
+/// inspect(
+///   fval,
+///   content =
+///   #|define i32 @lshr_func(i32 %0, i32 %1) {
+///   #|entry:
+///   #|  %2 = lshr i32 %0, %1
+///   #|  %3 = lshr exact i32 %2, 5
+///   #|  ret i32 %3
+///   #|}
+///   ,
+/// )
 /// ```
 pub fn IRBuilder::createLShr(
   self : IRBuilder,
@@ -1991,48 +1929,46 @@ pub fn IRBuilder::createLShr(
 /// If any ones are shifted out that differ from the original sign bit, the behavior is undefined.
 ///
 /// ```moonbit
-/// test "IRBuilder::createAShr" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
-///   let fval = prog.addFunction(fty, "ashr_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let i32ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+/// let fval = prog.addFunction(fty, "ashr_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let arg0 = fval.getArg(0).unwrap()
-///   let arg1 = fval.getArg(1).unwrap() // Shift amount
+/// let arg0 = fval.getArg(0).unwrap()
+/// let arg1 = fval.getArg(1).unwrap() // Shift amount
 ///
-///   // Test regular ashr with variables
-///   let ashr_vars = builder.createAShr(arg0, arg1)
-///   
-///   // Test constant folding with negative number
-///   let const_val_neg = ctx.getConstInt32(-20) // 0xFFFFFFEC (i32)
-///   let const_shift = ctx.getConstInt32(2) // shift by 2
-///   let ashr_consts = builder.createAShr(const_val_neg, const_shift) // Should fold to -5
-///   
-///   // Test with exact flag
-///   let ashr_exact = builder.createAShr(ashr_vars, ashr_consts, is_exact=true)
-///   
-///   let _ = builder.createRet(ashr_exact)
+/// // Test regular ashr with variables
+/// let ashr_vars = builder.createAShr(arg0, arg1)
+/// 
+/// // Test constant folding with negative number
+/// let const_val_neg = ctx.getConstInt32(-20) // 0xFFFFFFEC (i32)
+/// let const_shift = ctx.getConstInt32(2) // shift by 2
+/// let ashr_consts = builder.createAShr(const_val_neg, const_shift) // Should fold to -5
+/// 
+/// // Test with exact flag
+/// let ashr_exact = builder.createAShr(ashr_vars, ashr_consts, is_exact=true)
+/// 
+/// let _ = builder.createRet(ashr_exact)
 ///
-///   // Verify constant folding worked
-///   inspect(ashr_consts, content = "i32 -5")
-///   
-///   inspect(
-///     fval,
-///     content =
-///     #|define i32 @ashr_func(i32 %0, i32 %1) {
-///     #|entry:
-///     #|  %2 = ashr i32 %0, %1
-///     #|  %3 = ashr exact i32 %2, -5
-///     #|  ret i32 %3
-///     #|}
-///     ,
-///   )
-/// }
+/// // Verify constant folding worked
+/// inspect(ashr_consts, content = "i32 -5")
+/// 
+/// inspect(
+///   fval,
+///   content =
+///   #|define i32 @ashr_func(i32 %0, i32 %1) {
+///   #|entry:
+///   #|  %2 = ashr i32 %0, %1
+///   #|  %3 = ashr exact i32 %2, -5
+///   #|  ret i32 %3
+///   #|}
+///   ,
+/// )
 /// ```
 pub fn IRBuilder::createAShr(
   self : IRBuilder,
@@ -2077,139 +2013,131 @@ pub fn IRBuilder::createAShr(
 ///   (OEQ, OGT, OGE, OLT, OLE, ONE, ORD, UNO, UEQ, UGT, UGE, ULT, ULE, UNE, TRUE, FALSE).
 ///
 /// ```moonbit
-/// test "IRBuilder::createCmp with integers" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let i32ty = ctx.getInt32Ty()
-///   let i1ty = ctx.getInt1Ty()
-///   let fty = ctx.getFunctionType(i1ty, [i32ty, i32ty])
-///   let fval = prog.addFunction(fty, "cmp_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let i32ty = ctx.getInt32Ty()
+/// let i1ty = ctx.getInt1Ty()
+/// let fty = ctx.getFunctionType(i1ty, [i32ty, i32ty])
+/// let fval = prog.addFunction(fty, "cmp_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let arg0 = fval.getArg(0).unwrap()
-///   let arg1 = fval.getArg(1).unwrap()
+/// let arg0 = fval.getArg(0).unwrap()
+/// let arg1 = fval.getArg(1).unwrap()
 ///
-///   // Test signed greater than
-///   let cmp_sgt = builder.createCmp(ICMP_SGT, arg0, arg1)
-///   let _ = builder.createRet(cmp_sgt)
+/// // Test signed greater than
+/// let cmp_sgt = builder.createCmp(ICMP_SGT, arg0, arg1)
+/// let _ = builder.createRet(cmp_sgt)
 ///
-///   inspect(
-///     fval,
-///     content =
-///     #|define i1 @cmp_func(i32 %0, i32 %1) {
-///     #|entry:
-///     #|  %2 = icmp sgt i32 %0, %1
-///     #|  ret i1 %2
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(
+///   fval,
+///   content =
+///   #|define i1 @cmp_func(i32 %0, i32 %1) {
+///   #|entry:
+///   #|  %2 = icmp sgt i32 %0, %1
+///   #|  ret i1 %2
+///   #|}
+///   ,
+/// )
 /// ```
 ///
 /// ```moonbit
-/// test "IRBuilder::createCmp with floating-point" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let floatty = ctx.getFloatTy()
-///   let i1ty = ctx.getInt1Ty()
-///   let fty = ctx.getFunctionType(i1ty, [floatty, floatty])
-///   let fval = prog.addFunction(fty, "fcmp_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let floatty = ctx.getFloatTy()
+/// let i1ty = ctx.getInt1Ty()
+/// let fty = ctx.getFunctionType(i1ty, [floatty, floatty])
+/// let fval = prog.addFunction(fty, "fcmp_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let arg0 = fval.getArg(0).unwrap()
-///   let arg1 = fval.getArg(1).unwrap()
+/// let arg0 = fval.getArg(0).unwrap()
+/// let arg1 = fval.getArg(1).unwrap()
 ///
-///   // Test ordered equal
-///   let fcmp_oeq = builder.createCmp(FCMP_OEQ, arg0, arg1)
-///   let _ = builder.createRet(fcmp_oeq)
+/// // Test ordered equal
+/// let fcmp_oeq = builder.createCmp(FCMP_OEQ, arg0, arg1)
+/// let _ = builder.createRet(fcmp_oeq)
 ///
-///   inspect(
-///     fval,
-///     content =
-///     #|define i1 @fcmp_func(float %0, float %1) {
-///     #|entry:
-///     #|  %2 = fcmp oeq float %0, %1
-///     #|  ret i1 %2
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(
+///   fval,
+///   content =
+///   #|define i1 @fcmp_func(float %0, float %1) {
+///   #|entry:
+///   #|  %2 = fcmp oeq float %0, %1
+///   #|  ret i1 %2
+///   #|}
+///   ,
+/// )
 /// ```
 ///
 /// ## Constant Folding
 ///
 /// ```moonbit
-/// test "IRBuilder::createCmp with constant folding - integers" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let i1ty = ctx.getInt1Ty()
-///   let fty = ctx.getFunctionType(i1ty, [])
+/// let i1ty = ctx.getInt1Ty()
+/// let fty = ctx.getFunctionType(i1ty, [])
 ///
-///   // Test integer constant comparison
-///   let fval_int = prog.addFunction(fty, "icmp_const_func")
-///   let entryBB_int = fval_int.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB_int)
-///   
-///   let const_5 = ctx.getConstInt32(5)
-///   let const_10 = ctx.getConstInt32(10)
-///   
-///   // 5 < 10 should be true
-///   let cmp_result = builder.createCmp(ICMP_SLT, const_5, const_10)
-///   let _ = builder.createRet(cmp_result)
-///   
-///   inspect(cmp_result, content="i1 true")
-///   inspect(
-///     fval_int,
-///     content =
-///     #|define i1 @icmp_const_func() {
-///     #|entry:
-///     #|  ret i1 true
-///     #|}
-///     ,
-///   )
-/// }
+/// // Test integer constant comparison
+/// let fval_int = prog.addFunction(fty, "icmp_const_func")
+/// let entryBB_int = fval_int.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB_int)
+/// 
+/// let const_5 = ctx.getConstInt32(5)
+/// let const_10 = ctx.getConstInt32(10)
+/// 
+/// // 5 < 10 should be true
+/// let cmp_result = builder.createCmp(ICMP_SLT, const_5, const_10)
+/// let _ = builder.createRet(cmp_result)
+/// 
+/// inspect(cmp_result, content="i1 true")
+/// inspect(
+///   fval_int,
+///   content =
+///   #|define i1 @icmp_const_func() {
+///   #|entry:
+///   #|  ret i1 true
+///   #|}
+///   ,
+/// )
 /// ```
 ///
 /// ```moonbit
-/// test "IRBuilder::createCmp with constant folding - floating-point" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let i1ty = ctx.getInt1Ty()
-///   let fty = ctx.getFunctionType(i1ty, [])
+/// let i1ty = ctx.getInt1Ty()
+/// let fty = ctx.getFunctionType(i1ty, [])
 ///
-///   // Test floating-point constant comparison
-///   let fval_fp = prog.addFunction(fty, "fcmp_const_func")
-///   let entryBB_fp = fval_fp.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB_fp)
-///   
-///   let const_1_5 = ctx.getConstFloat(1.5)
-///   let const_2_5 = ctx.getConstFloat(2.5)
-///   
-///   // 1.5 < 2.5 should be true (ordered less than)
-///   let fcmp_result = builder.createCmp(FCMP_OLT, const_1_5, const_2_5)
-///   let _ = builder.createRet(fcmp_result)
-///   
-///   inspect(fcmp_result, content="i1 true")
-///   inspect(
-///     fval_fp,
-///     content =
-///     #|define i1 @fcmp_const_func() {
-///     #|entry:
-///     #|  ret i1 true
-///     #|}
-///     ,
-///   )
-/// }
+/// // Test floating-point constant comparison
+/// let fval_fp = prog.addFunction(fty, "fcmp_const_func")
+/// let entryBB_fp = fval_fp.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB_fp)
+/// 
+/// let const_1_5 = ctx.getConstFloat(1.5)
+/// let const_2_5 = ctx.getConstFloat(2.5)
+/// 
+/// // 1.5 < 2.5 should be true (ordered less than)
+/// let fcmp_result = builder.createCmp(FCMP_OLT, const_1_5, const_2_5)
+/// let _ = builder.createRet(fcmp_result)
+/// 
+/// inspect(fcmp_result, content="i1 true")
+/// inspect(
+///   fval_fp,
+///   content =
+///   #|define i1 @fcmp_const_func() {
+///   #|entry:
+///   #|  ret i1 true
+///   #|}
+///   ,
+/// )
 /// ```
 pub fn IRBuilder::createCmp(
   self : IRBuilder,
@@ -2529,43 +2457,41 @@ pub fn IRBuilder::createFCmpUNE(
 /// - The source type bit width must be greater than the destination type bit width.
 ///
 /// ```moonbit
-/// test "IRBuilder::createTrunc" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let i32ty = ctx.getInt32Ty()
-///   let i16ty = ctx.getInt16Ty()
-///   let fty = ctx.getFunctionType(i16ty, [i32ty])
-///   let fval = prog.addFunction(fty, "trunc_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let i32ty = ctx.getInt32Ty()
+/// let i16ty = ctx.getInt16Ty()
+/// let fty = ctx.getFunctionType(i16ty, [i32ty])
+/// let fval = prog.addFunction(fty, "trunc_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let arg0 = fval.getArg(0).unwrap()
-///   
-///   // Test regular trunc with variable
-///   let trunc_var = builder.createTrunc(arg0, i16ty)
-///   
-///   // Test constant folding
-///   let const_val = ctx.getConstInt32(0x12345) // 74565
-///   let trunc_const = builder.createTrunc(const_val, i16ty) // Should fold to 0x2345 = 9029
-///   
-///   let _ = builder.createRet(trunc_var)
+/// let arg0 = fval.getArg(0).unwrap()
+/// 
+/// // Test regular trunc with variable
+/// let trunc_var = builder.createTrunc(arg0, i16ty)
+/// 
+/// // Test constant folding
+/// let const_val = ctx.getConstInt32(0x12345) // 74565
+/// let trunc_const = builder.createTrunc(const_val, i16ty) // Should fold to 0x2345 = 9029
+/// 
+/// let _ = builder.createRet(trunc_var)
 ///
-///   // Verify constant folding worked
-///   inspect(trunc_const, content="i16 9029")
-///   
-///   inspect(
-///     fval,
-///     content =
-///     #|define i16 @trunc_func(i32 %0) {
-///     #|entry:
-///     #|  %1 = trunc i32 %0
-///     #|  ret i16 %1
-///     #|}
-///     ,
-///   )
-/// }
+/// // Verify constant folding worked
+/// inspect(trunc_const, content="i16 9029")
+/// 
+/// inspect(
+///   fval,
+///   content =
+///   #|define i16 @trunc_func(i32 %0) {
+///   #|entry:
+///   #|  %1 = trunc i32 %0
+///   #|  ret i16 %1
+///   #|}
+///   ,
+/// )
 /// ```
 pub fn IRBuilder::createTrunc(
   self : IRBuilder,
@@ -2593,43 +2519,41 @@ pub fn IRBuilder::createTrunc(
 /// - The source type bit width must be less than the destination type bit width.
 ///
 /// ```moonbit
-/// test "IRBuilder::createZExt" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let i16ty = ctx.getInt16Ty()
-///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType(i32ty, [i16ty])
-///   let fval = prog.addFunction(fty, "zext_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let i16ty = ctx.getInt16Ty()
+/// let i32ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32ty, [i16ty])
+/// let fval = prog.addFunction(fty, "zext_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let arg0 = fval.getArg(0).unwrap()
-///   
-///   // Test regular zext with variable
-///   let zext_var = builder.createZExt(arg0, i32ty)
-///   
-///   // Test constant folding
-///   let const_val = ctx.getConstInt16(-1) // 0xFFFF as i16
-///   let zext_const = builder.createZExt(const_val, i32ty) // Should fold to 0x0000FFFF = 65535
-///   
-///   let _ = builder.createRet(zext_var)
+/// let arg0 = fval.getArg(0).unwrap()
+/// 
+/// // Test regular zext with variable
+/// let zext_var = builder.createZExt(arg0, i32ty)
+/// 
+/// // Test constant folding
+/// let const_val = ctx.getConstInt16(-1) // 0xFFFF as i16
+/// let zext_const = builder.createZExt(const_val, i32ty) // Should fold to 0x0000FFFF = 65535
+/// 
+/// let _ = builder.createRet(zext_var)
 ///
-///   // Verify constant folding worked
-///   inspect(zext_const, content="i32 65535")
-///   
-///   inspect(
-///     fval,
-///     content =
-///     #|define i32 @zext_func(i16 %0) {
-///     #|entry:
-///     #|  %1 = zext i16 %0
-///     #|  ret i32 %1
-///     #|}
-///     ,
-///   )
-/// }
+/// // Verify constant folding worked
+/// inspect(zext_const, content="i32 65535")
+/// 
+/// inspect(
+///   fval,
+///   content =
+///   #|define i32 @zext_func(i16 %0) {
+///   #|entry:
+///   #|  %1 = zext i16 %0
+///   #|  ret i32 %1
+///   #|}
+///   ,
+/// )
 /// ```
 pub fn IRBuilder::createZExt(
   self : IRBuilder,
@@ -2657,43 +2581,41 @@ pub fn IRBuilder::createZExt(
 /// - The source type bit width must be less than the destination type bit width.
 ///
 /// ```moonbit
-/// test "IRBuilder::createSExt" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let i16ty = ctx.getInt16Ty()
-///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType(i32ty, [i16ty])
-///   let fval = prog.addFunction(fty, "sext_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let i16ty = ctx.getInt16Ty()
+/// let i32ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32ty, [i16ty])
+/// let fval = prog.addFunction(fty, "sext_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let arg0 = fval.getArg(0).unwrap()
-///   
-///   // Test regular sext with variable
-///   let sext_var = builder.createSExt(arg0, i32ty)
-///   
-///   // Test constant folding
-///   let const_val = ctx.getConstInt16(-1) // 0xFFFF as i16
-///   let sext_const = builder.createSExt(const_val, i32ty) // Should fold to 0xFFFFFFFF = -1
-///   
-///   let _ = builder.createRet(sext_var)
+/// let arg0 = fval.getArg(0).unwrap()
+/// 
+/// // Test regular sext with variable
+/// let sext_var = builder.createSExt(arg0, i32ty)
+/// 
+/// // Test constant folding
+/// let const_val = ctx.getConstInt16(-1) // 0xFFFF as i16
+/// let sext_const = builder.createSExt(const_val, i32ty) // Should fold to 0xFFFFFFFF = -1
+/// 
+/// let _ = builder.createRet(sext_var)
 ///
-///   // Verify constant folding worked
-///   inspect(sext_const, content="i32 -1")
-///   
-///   inspect(
-///     fval,
-///     content =
-///     #|define i32 @sext_func(i16 %0) {
-///     #|entry:
-///     #|  %1 = sext i16 %0
-///     #|  ret i32 %1
-///     #|}
-///     ,
-///   )
-/// }
+/// // Verify constant folding worked
+/// inspect(sext_const, content="i32 -1")
+/// 
+/// inspect(
+///   fval,
+///   content =
+///   #|define i32 @sext_func(i16 %0) {
+///   #|entry:
+///   #|  %1 = sext i16 %0
+///   #|  ret i32 %1
+///   #|}
+///   ,
+/// )
 /// ```
 pub fn IRBuilder::createSExt(
   self : IRBuilder,
@@ -2721,56 +2643,52 @@ pub fn IRBuilder::createSExt(
 /// - The source type bit width must be greater than the destination type bit width.
 ///
 /// ```moonbit
-/// test "IRBuilder::createFPTrunc" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let f64ty = ctx.getDoubleTy()
-///   let f32ty = ctx.getFloatTy()
-///   let fty = ctx.getFunctionType(f32ty, [f64ty])
-///   let fval = prog.addFunction(fty, "fptrunc_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let f64ty = ctx.getDoubleTy()
+/// let f32ty = ctx.getFloatTy()
+/// let fty = ctx.getFunctionType(f32ty, [f64ty])
+/// let fval = prog.addFunction(fty, "fptrunc_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let arg0 = fval.getArg(0).unwrap()
-///   let fptrunc_val = builder.createFPTrunc(arg0, f32ty)
-///   let _ = builder.createRet(fptrunc_val)
+/// let arg0 = fval.getArg(0).unwrap()
+/// let fptrunc_val = builder.createFPTrunc(arg0, f32ty)
+/// let _ = builder.createRet(fptrunc_val)
 ///
-///   inspect(
-///     fval,
-///     content =
-///     #|define float @fptrunc_func(double %0) {
-///     #|entry:
-///     #|  %1 = fptrunc double %0
-///     #|  ret float %1
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(
+///   fval,
+///   content =
+///   #|define float @fptrunc_func(double %0) {
+///   #|entry:
+///   #|  %1 = fptrunc double %0
+///   #|  ret float %1
+///   #|}
+///   ,
+/// )
 /// ```
 ///
 /// ## Constant Folding
 ///
 /// ```moonbit
-/// test "IRBuilder::createFPTrunc with constant folding" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let f32ty = ctx.getFloatTy()
-///   let fty = ctx.getFunctionType(f32ty, [])
-///   let fval = prog.addFunction(fty, "fptrunc_const_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let f32ty = ctx.getFloatTy()
+/// let fty = ctx.getFunctionType(f32ty, [])
+/// let fval = prog.addFunction(fty, "fptrunc_const_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let const_val = ctx.getConstDouble(3.14159)
-///   let fptrunc_result = builder.createFPTrunc(const_val, f32ty)
-///   let _ = builder.createRet(fptrunc_result)
+/// let const_val = ctx.getConstDouble(3.14159)
+/// let fptrunc_result = builder.createFPTrunc(const_val, f32ty)
+/// let _ = builder.createRet(fptrunc_result)
 ///
-///   // Test that constant folding worked - result should be a constant
-///   assert_true(fptrunc_result.tryAsConstant() is Some(_))
-/// }
+/// // Test that constant folding worked - result should be a constant
+/// assert_true(fptrunc_result.tryAsConstant() is Some(_))
 /// ```
 pub fn IRBuilder::createFPTrunc(
   self : IRBuilder,
@@ -2798,56 +2716,52 @@ pub fn IRBuilder::createFPTrunc(
 /// - The source type bit width must be less than the destination type bit width.
 ///
 /// ```moonbit
-/// test "IRBuilder::createFPExt" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let f32ty = ctx.getFloatTy()
-///   let f64ty = ctx.getDoubleTy()
-///   let fty = ctx.getFunctionType(f64ty, [f32ty])
-///   let fval = prog.addFunction(fty, "fpext_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let f32ty = ctx.getFloatTy()
+/// let f64ty = ctx.getDoubleTy()
+/// let fty = ctx.getFunctionType(f64ty, [f32ty])
+/// let fval = prog.addFunction(fty, "fpext_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let arg0 = fval.getArg(0).unwrap()
-///   let fpext_val = builder.createFPExt(arg0, f64ty)
-///   let _ = builder.createRet(fpext_val)
+/// let arg0 = fval.getArg(0).unwrap()
+/// let fpext_val = builder.createFPExt(arg0, f64ty)
+/// let _ = builder.createRet(fpext_val)
 ///
-///   inspect(
-///     fval,
-///     content =
-///     #|define double @fpext_func(float %0) {
-///     #|entry:
-///     #|  %1 = fpext float %0
-///     #|  ret double %1
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(
+///   fval,
+///   content =
+///   #|define double @fpext_func(float %0) {
+///   #|entry:
+///   #|  %1 = fpext float %0
+///   #|  ret double %1
+///   #|}
+///   ,
+/// )
 /// ```
 ///
 /// ## Constant Folding
 ///
 /// ```moonbit
-/// test "IRBuilder::createFPExt with constant folding" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let f64ty = ctx.getDoubleTy()
-///   let fty = ctx.getFunctionType(f64ty, [])
-///   let fval = prog.addFunction(fty, "fpext_const_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let f64ty = ctx.getDoubleTy()
+/// let fty = ctx.getFunctionType(f64ty, [])
+/// let fval = prog.addFunction(fty, "fpext_const_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let const_val = ctx.getConstFloat(3.14159)
-///   let fpext_result = builder.createFPExt(const_val, f64ty)
-///   let _ = builder.createRet(fpext_result)
+/// let const_val = ctx.getConstFloat(3.14159)
+/// let fpext_result = builder.createFPExt(const_val, f64ty)
+/// let _ = builder.createRet(fpext_result)
 ///
-///   // Test that constant folding worked - result should be a constant
-///   assert_true(fpext_result.tryAsConstant() is Some(_))
-/// }
+/// // Test that constant folding worked - result should be a constant
+/// assert_true(fpext_result.tryAsConstant() is Some(_))
 /// ```
 pub fn IRBuilder::createFPExt(
   self : IRBuilder,
@@ -2875,56 +2789,52 @@ pub fn IRBuilder::createFPExt(
 /// - The integer value is interpreted as unsigned regardless of its sign bit.
 ///
 /// ```moonbit
-/// test "IRBuilder::createUIToFP" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let i32ty = ctx.getInt32Ty()
-///   let f32ty = ctx.getFloatTy()
-///   let fty = ctx.getFunctionType(f32ty, [i32ty])
-///   let fval = prog.addFunction(fty, "uitofp_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let i32ty = ctx.getInt32Ty()
+/// let f32ty = ctx.getFloatTy()
+/// let fty = ctx.getFunctionType(f32ty, [i32ty])
+/// let fval = prog.addFunction(fty, "uitofp_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let arg0 = fval.getArg(0).unwrap()
-///   let uitofp_val = builder.createUIToFP(arg0, f32ty)
-///   let _ = builder.createRet(uitofp_val)
+/// let arg0 = fval.getArg(0).unwrap()
+/// let uitofp_val = builder.createUIToFP(arg0, f32ty)
+/// let _ = builder.createRet(uitofp_val)
 ///
-///   inspect(
-///     fval,
-///     content =
-///     #|define float @uitofp_func(i32 %0) {
-///     #|entry:
-///     #|  %1 = uitofp i32 %0
-///     #|  ret float %1
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(
+///   fval,
+///   content =
+///   #|define float @uitofp_func(i32 %0) {
+///   #|entry:
+///   #|  %1 = uitofp i32 %0
+///   #|  ret float %1
+///   #|}
+///   ,
+/// )
 /// ```
 ///
 /// ## Constant Folding
 ///
 /// ```moonbit
-/// test "IRBuilder::createUIToFP with constant folding" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let f32ty = ctx.getFloatTy()
-///   let fty = ctx.getFunctionType(f32ty, [])
-///   let fval = prog.addFunction(fty, "uitofp_const_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let f32ty = ctx.getFloatTy()
+/// let fty = ctx.getFunctionType(f32ty, [])
+/// let fval = prog.addFunction(fty, "uitofp_const_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let const_val = ctx.getConstInt32(42)
-///   let uitofp_result = builder.createUIToFP(const_val, f32ty)
-///   let _ = builder.createRet(uitofp_result)
+/// let const_val = ctx.getConstInt32(42)
+/// let uitofp_result = builder.createUIToFP(const_val, f32ty)
+/// let _ = builder.createRet(uitofp_result)
 ///
-///   // Test that constant folding worked - result should be a constant
-///   assert_true(uitofp_result.tryAsConstant() is Some(_))
-/// }
+/// // Test that constant folding worked - result should be a constant
+/// assert_true(uitofp_result.tryAsConstant() is Some(_))
 /// ```
 pub fn IRBuilder::createUIToFP(
   self : IRBuilder,
@@ -2952,64 +2862,60 @@ pub fn IRBuilder::createUIToFP(
 /// - The floating-point value is truncated towards zero and interpreted as unsigned.
 ///
 /// ```moonbit
-/// test "IRBuilder::createFPToUI" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let f32ty = ctx.getFloatTy()
-///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType(i32ty, [f32ty])
-///   let fval = prog.addFunction(fty, "fptoui_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let f32ty = ctx.getFloatTy()
+/// let i32ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32ty, [f32ty])
+/// let fval = prog.addFunction(fty, "fptoui_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let arg0 = fval.getArg(0).unwrap()
-///   let fptoui_val = builder.createFPToUI(arg0, i32ty)
-///   let _ = builder.createRet(fptoui_val)
+/// let arg0 = fval.getArg(0).unwrap()
+/// let fptoui_val = builder.createFPToUI(arg0, i32ty)
+/// let _ = builder.createRet(fptoui_val)
 ///
-///   inspect(
-///     fval,
-///     content =
-///     #|define i32 @fptoui_func(float %0) {
-///     #|entry:
-///     #|  %1 = fptoui float %0
-///     #|  ret i32 %1
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(
+///   fval,
+///   content =
+///   #|define i32 @fptoui_func(float %0) {
+///   #|entry:
+///   #|  %1 = fptoui float %0
+///   #|  ret i32 %1
+///   #|}
+///   ,
+/// )
 /// ```
 ///
 /// ## Constant Folding
 ///
 /// ```moonbit
-/// test "IRBuilder::createFPToUI with constant folding" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType(i32ty, [])
-///   let fval = prog.addFunction(fty, "fptoui_const_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let i32ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32ty, [])
+/// let fval = prog.addFunction(fty, "fptoui_const_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let const_val = ctx.getConstFloat(42.7)
-///   let fptoui_result = builder.createFPToUI(const_val, i32ty)
-///   let _ = builder.createRet(fptoui_result)
+/// let const_val = ctx.getConstFloat(42.7)
+/// let fptoui_result = builder.createFPToUI(const_val, i32ty)
+/// let _ = builder.createRet(fptoui_result)
 ///
-///   inspect(fptoui_result, content="i32 42")
-///   inspect(
-///     fval,
-///     content =
-///     #|define i32 @fptoui_const_func() {
-///     #|entry:
-///     #|  ret i32 42
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(fptoui_result, content="i32 42")
+/// inspect(
+///   fval,
+///   content =
+///   #|define i32 @fptoui_const_func() {
+///   #|entry:
+///   #|  ret i32 42
+///   #|}
+///   ,
+/// )
 /// ```
 pub fn IRBuilder::createFPToUI(
   self : IRBuilder,
@@ -3037,56 +2943,52 @@ pub fn IRBuilder::createFPToUI(
 /// - The integer value is interpreted as signed.
 ///
 /// ```moonbit
-/// test "IRBuilder::createSIToFP" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let i32ty = ctx.getInt32Ty()
-///   let f32ty = ctx.getFloatTy()
-///   let fty = ctx.getFunctionType(f32ty, [i32ty])
-///   let fval = prog.addFunction(fty, "sitofp_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let i32ty = ctx.getInt32Ty()
+/// let f32ty = ctx.getFloatTy()
+/// let fty = ctx.getFunctionType(f32ty, [i32ty])
+/// let fval = prog.addFunction(fty, "sitofp_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let arg0 = fval.getArg(0).unwrap()
-///   let sitofp_val = builder.createSIToFP(arg0, f32ty)
-///   let _ = builder.createRet(sitofp_val)
+/// let arg0 = fval.getArg(0).unwrap()
+/// let sitofp_val = builder.createSIToFP(arg0, f32ty)
+/// let _ = builder.createRet(sitofp_val)
 ///
-///   inspect(
-///     fval,
-///     content =
-///     #|define float @sitofp_func(i32 %0) {
-///     #|entry:
-///     #|  %1 = sitofp i32 %0
-///     #|  ret float %1
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(
+///   fval,
+///   content =
+///   #|define float @sitofp_func(i32 %0) {
+///   #|entry:
+///   #|  %1 = sitofp i32 %0
+///   #|  ret float %1
+///   #|}
+///   ,
+/// )
 /// ```
 ///
 /// ## Constant Folding
 ///
 /// ```moonbit
-/// test "IRBuilder::createSIToFP with constant folding" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let f32ty = ctx.getFloatTy()
-///   let fty = ctx.getFunctionType(f32ty, [])
-///   let fval = prog.addFunction(fty, "sitofp_const_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let f32ty = ctx.getFloatTy()
+/// let fty = ctx.getFunctionType(f32ty, [])
+/// let fval = prog.addFunction(fty, "sitofp_const_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let const_val = ctx.getConstInt32(-42)
-///   let sitofp_result = builder.createSIToFP(const_val, f32ty)
-///   let _ = builder.createRet(sitofp_result)
+/// let const_val = ctx.getConstInt32(-42)
+/// let sitofp_result = builder.createSIToFP(const_val, f32ty)
+/// let _ = builder.createRet(sitofp_result)
 ///
-///   // Test that constant folding worked - result should be a constant
-///   assert_true(sitofp_result.tryAsConstant() is Some(_))
-/// }
+/// // Test that constant folding worked - result should be a constant
+/// assert_true(sitofp_result.tryAsConstant() is Some(_))
 /// ```
 pub fn IRBuilder::createSIToFP(
   self : IRBuilder,
@@ -3114,64 +3016,60 @@ pub fn IRBuilder::createSIToFP(
 /// - The floating-point value is truncated towards zero and interpreted as signed.
 ///
 /// ```moonbit
-/// test "IRBuilder::createFPToSI" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let f32ty = ctx.getFloatTy()
-///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType(i32ty, [f32ty])
-///   let fval = prog.addFunction(fty, "fptosi_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let f32ty = ctx.getFloatTy()
+/// let i32ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32ty, [f32ty])
+/// let fval = prog.addFunction(fty, "fptosi_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let arg0 = fval.getArg(0).unwrap()
-///   let fptosi_val = builder.createFPToSI(arg0, i32ty)
-///   let _ = builder.createRet(fptosi_val)
+/// let arg0 = fval.getArg(0).unwrap()
+/// let fptosi_val = builder.createFPToSI(arg0, i32ty)
+/// let _ = builder.createRet(fptosi_val)
 ///
-///   inspect(
-///     fval,
-///     content =
-///     #|define i32 @fptosi_func(float %0) {
-///     #|entry:
-///     #|  %1 = fptosi float %0
-///     #|  ret i32 %1
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(
+///   fval,
+///   content =
+///   #|define i32 @fptosi_func(float %0) {
+///   #|entry:
+///   #|  %1 = fptosi float %0
+///   #|  ret i32 %1
+///   #|}
+///   ,
+/// )
 /// ```
 ///
 /// ## Constant Folding
 ///
 /// ```moonbit
-/// test "IRBuilder::createFPToSI with constant folding" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType(i32ty, [])
-///   let fval = prog.addFunction(fty, "fptosi_const_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let i32ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32ty, [])
+/// let fval = prog.addFunction(fty, "fptosi_const_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let const_val = ctx.getConstFloat(-42.7)
-///   let fptosi_result = builder.createFPToSI(const_val, i32ty)
-///   let _ = builder.createRet(fptosi_result)
+/// let const_val = ctx.getConstFloat(-42.7)
+/// let fptosi_result = builder.createFPToSI(const_val, i32ty)
+/// let _ = builder.createRet(fptosi_result)
 ///
-///   inspect(fptosi_result, content="i32 -42")
-///   inspect(
-///     fval,
-///     content =
-///     #|define i32 @fptosi_const_func() {
-///     #|entry:
-///     #|  ret i32 -42
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(fptosi_result, content="i32 -42")
+/// inspect(
+///   fval,
+///   content =
+///   #|define i32 @fptosi_const_func() {
+///   #|entry:
+///   #|  ret i32 -42
+///   #|}
+///   ,
+/// )
 /// ```
 pub fn IRBuilder::createFPToSI(
   self : IRBuilder,
@@ -3200,64 +3098,60 @@ pub fn IRBuilder::createFPToSI(
 ///   meaningful pointer constants from integer values at compile time.
 ///
 /// ```moonbit
-/// test "IRBuilder::createIntToPtr" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let i64ty = ctx.getInt64Ty()
-///   let ptrty = ctx.getPtrTy()
-///   let fty = ctx.getFunctionType(ptrty, [i64ty])
-///   let fval = prog.addFunction(fty, "inttoptr_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let i64ty = ctx.getInt64Ty()
+/// let ptrty = ctx.getPtrTy()
+/// let fty = ctx.getFunctionType(ptrty, [i64ty])
+/// let fval = prog.addFunction(fty, "inttoptr_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let arg0 = fval.getArg(0).unwrap()
-///   let inttoptr_val = builder.createIntToPtr(arg0)
-///   let _ = builder.createRet(inttoptr_val)
+/// let arg0 = fval.getArg(0).unwrap()
+/// let inttoptr_val = builder.createIntToPtr(arg0)
+/// let _ = builder.createRet(inttoptr_val)
 ///
-///   inspect(
-///     fval,
-///     content =
-///     #|define ptr @inttoptr_func(i64 %0) {
-///     #|entry:
-///     #|  %1 = inttoptr i64 %0
-///     #|  ret ptr %1
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(
+///   fval,
+///   content =
+///   #|define ptr @inttoptr_func(i64 %0) {
+///   #|entry:
+///   #|  %1 = inttoptr i64 %0
+///   #|  ret ptr %1
+///   #|}
+///   ,
+/// )
 /// ```
 ///
 /// ## Constant Folding
 ///
 /// ```moonbit
-/// test "IRBuilder::createIntToPtr with constant folding" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let ptrty = ctx.getPtrTy()
-///   let fty = ctx.getFunctionType(ptrty, [])
-///   let fval = prog.addFunction(fty, "inttoptr_const_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let ptrty = ctx.getPtrTy()
+/// let fty = ctx.getFunctionType(ptrty, [])
+/// let fval = prog.addFunction(fty, "inttoptr_const_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let const_val = ctx.getConstInt64(0x12345678)
-///   let inttoptr_result = builder.createIntToPtr(const_val)
-///   let _ = builder.createRet(inttoptr_result)
+/// let const_val = ctx.getConstInt64(0x12345678)
+/// let inttoptr_result = builder.createIntToPtr(const_val)
+/// let _ = builder.createRet(inttoptr_result)
 ///
-///   inspect(inttoptr_result, content="ptr null")
-///   inspect(
-///     fval,
-///     content =
-///     #|define ptr @inttoptr_const_func() {
-///     #|entry:
-///     #|  ret ptr null
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(inttoptr_result, content="ptr null")
+/// inspect(
+///   fval,
+///   content =
+///   #|define ptr @inttoptr_const_func() {
+///   #|entry:
+///   #|  ret ptr null
+///   #|}
+///   ,
+/// )
 /// ```
 pub fn IRBuilder::createIntToPtr(
   self : IRBuilder,
@@ -3283,33 +3177,31 @@ pub fn IRBuilder::createIntToPtr(
 /// - No constant folding is performed for this instruction.
 ///
 /// ```moonbit
-/// test "IRBuilder::createPtrToInt" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let ptrty = ctx.getPtrTy()
-///   let i64ty = ctx.getInt64Ty()
-///   let fty = ctx.getFunctionType(i64ty, [ptrty])
-///   let fval = prog.addFunction(fty, "ptrtoint_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let ptrty = ctx.getPtrTy()
+/// let i64ty = ctx.getInt64Ty()
+/// let fty = ctx.getFunctionType(i64ty, [ptrty])
+/// let fval = prog.addFunction(fty, "ptrtoint_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let arg0 = fval.getArg(0).unwrap()
-///   let ptrtoint_val = builder.createPtrToInt(arg0, i64ty)
-///   let _ = builder.createRet(ptrtoint_val)
+/// let arg0 = fval.getArg(0).unwrap()
+/// let ptrtoint_val = builder.createPtrToInt(arg0, i64ty)
+/// let _ = builder.createRet(ptrtoint_val)
 ///
-///   inspect(
-///     fval,
-///     content =
-///     #|define i64 @ptrtoint_func(ptr %0) {
-///     #|entry:
-///     #|  %1 = ptrtoint ptr %0
-///     #|  ret i64 %1
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(
+///   fval,
+///   content =
+///   #|define i64 @ptrtoint_func(ptr %0) {
+///   #|entry:
+///   #|  %1 = ptrtoint ptr %0
+///   #|  ret i64 %1
+///   #|}
+///   ,
+/// )
 /// ```
 pub fn IRBuilder::createPtrToInt(
   self : IRBuilder,
@@ -3335,77 +3227,71 @@ pub fn IRBuilder::createPtrToInt(
 /// - Currently only supports primitive types.
 ///
 /// ```moonbit
-/// test "IRBuilder::createBitCast" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let i32ty = ctx.getInt32Ty()
-///   let f32ty = ctx.getFloatTy()
-///   let fty = ctx.getFunctionType(f32ty, [i32ty])
-///   let fval = prog.addFunction(fty, "bitcast_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let i32ty = ctx.getInt32Ty()
+/// let f32ty = ctx.getFloatTy()
+/// let fty = ctx.getFunctionType(f32ty, [i32ty])
+/// let fval = prog.addFunction(fty, "bitcast_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let arg0 = fval.getArg(0).unwrap()
-///   let bitcast_val = builder.createBitCast(arg0, f32ty)
-///   let _ = builder.createRet(bitcast_val)
+/// let arg0 = fval.getArg(0).unwrap()
+/// let bitcast_val = builder.createBitCast(arg0, f32ty)
+/// let _ = builder.createRet(bitcast_val)
 ///
-///   inspect(
-///     fval,
-///     content =
-///     #|define float @bitcast_func(i32 %0) {
-///     #|entry:
-///     #|  %1 = bitcast i32 %0
-///     #|  ret float %1
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(
+///   fval,
+///   content =
+///   #|define float @bitcast_func(i32 %0) {
+///   #|entry:
+///   #|  %1 = bitcast i32 %0
+///   #|  ret float %1
+///   #|}
+///   ,
+/// )
 /// ```
 ///
 /// ## Constant Folding
 ///
 /// ```moonbit
-/// test "IRBuilder::createBitCast with constant folding - int to float" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let f32ty = ctx.getFloatTy()
-///   let fty = ctx.getFunctionType(f32ty, [])
-///   let fval = prog.addFunction(fty, "bitcast_const_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let f32ty = ctx.getFloatTy()
+/// let fty = ctx.getFunctionType(f32ty, [])
+/// let fval = prog.addFunction(fty, "bitcast_const_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let const_val = ctx.getConstInt32(0x40000000) // 2.0f bit pattern
-///   let bitcast_result = builder.createBitCast(const_val, f32ty)
-///   let _ = builder.createRet(bitcast_result)
+/// let const_val = ctx.getConstInt32(0x40000000) // 2.0f bit pattern
+/// let bitcast_result = builder.createBitCast(const_val, f32ty)
+/// let _ = builder.createRet(bitcast_result)
 ///
-///   // Test that constant folding worked - result should be a constant
-///   assert_true(bitcast_result.tryAsConstant() is Some(_))
-/// }
+/// // Test that constant folding worked - result should be a constant
+/// assert_true(bitcast_result.tryAsConstant() is Some(_))
 /// ```
 ///
 /// ```moonbit
-/// test "IRBuilder::createBitCast with constant folding - float to int" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType(i32ty, [])
-///   let fval = prog.addFunction(fty, "bitcast_fp_const_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let i32ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32ty, [])
+/// let fval = prog.addFunction(fty, "bitcast_fp_const_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let const_val = ctx.getConstFloat(2.0)
-///   let bitcast_result = builder.createBitCast(const_val, i32ty)
-///   let _ = builder.createRet(bitcast_result)
+/// let const_val = ctx.getConstFloat(2.0)
+/// let bitcast_result = builder.createBitCast(const_val, i32ty)
+/// let _ = builder.createRet(bitcast_result)
 ///
-///   // Test that constant folding worked - result should be a constant
-///   assert_true(bitcast_result.tryAsConstant() is Some(_))
-/// }
+/// // Test that constant folding worked - result should be a constant
+/// assert_true(bitcast_result.tryAsConstant() is Some(_))
 /// ```
 pub fn IRBuilder::createBitCast(
   self : IRBuilder,
@@ -3436,45 +3322,43 @@ pub fn IRBuilder::createBitCast(
 /// - No constant folding is performed for this instruction
 ///
 /// ```moonbit
-/// test "IRBuilder::createGEP" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let i32ty = ctx.getInt32Ty()
-///   let ptrty = ctx.getPtrTy()
-///   let fty = ctx.getFunctionType(ptrty, [ptrty, i32ty, i32ty])
-///   let fval = prog.addFunction(fty, "gep_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let i32ty = ctx.getInt32Ty()
+/// let ptrty = ctx.getPtrTy()
+/// let fty = ctx.getFunctionType(ptrty, [ptrty, i32ty, i32ty])
+/// let fval = prog.addFunction(fty, "gep_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let arg0 = fval.getArg(0).unwrap() // ptr
-///   let arg1 = fval.getArg(1).unwrap() // index1
-///   let arg2 = fval.getArg(2).unwrap() // index2
-///   let const0 = ctx.getConstInt32(0)
-///   let const5 = ctx.getConstInt32(5)
+/// let arg0 = fval.getArg(0).unwrap() // ptr
+/// let arg1 = fval.getArg(1).unwrap() // index1
+/// let arg2 = fval.getArg(2).unwrap() // index2
+/// let const0 = ctx.getConstInt32(0)
+/// let const5 = ctx.getConstInt32(5)
 ///
-///   // Basic GEP with single index
-///   let gep1 = builder.createGEP(arg0, i32ty, [arg1])
-///   // GEP with inbounds flag and multiple indices
-///   let gep2 = builder.createGEP(gep1, i32ty, [arg1, arg2], inbounds=true)
-///   // GEP with constant indices
-///   let gep3 = builder.createGEP(gep2, i32ty, [const0, const5])
-///   let _ = builder.createRet(gep3)
+/// // Basic GEP with single index
+/// let gep1 = builder.createGEP(arg0, i32ty, [arg1])
+/// // GEP with inbounds flag and multiple indices
+/// let gep2 = builder.createGEP(gep1, i32ty, [arg1, arg2], inbounds=true)
+/// // GEP with constant indices
+/// let gep3 = builder.createGEP(gep2, i32ty, [const0, const5])
+/// let _ = builder.createRet(gep3)
 ///
-///   inspect(
-///     fval,
-///     content =
-///     #|define ptr @gep_func(ptr %0, i32 %1, i32 %2) {
-///     #|entry:
-///     #|  %3 = getelementptr i32, ptr %0, i32 %1
-///     #|  %4 = getelementptr inbounds i32, ptr %3, i32 %1, i32 %2
-///     #|  %5 = getelementptr i32, ptr %4, i32 0, i32 5
-///     #|  ret ptr %5
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(
+///   fval,
+///   content =
+///   #|define ptr @gep_func(ptr %0, i32 %1, i32 %2) {
+///   #|entry:
+///   #|  %3 = getelementptr i32, ptr %0, i32 %1
+///   #|  %4 = getelementptr inbounds i32, ptr %3, i32 %1, i32 %2
+///   #|  %5 = getelementptr i32, ptr %4, i32 0, i32 5
+///   #|  ret ptr %5
+///   #|}
+///   ,
+/// )
 /// ```
 pub fn IRBuilder::createGEP(
   self : IRBuilder,
@@ -3508,48 +3392,46 @@ pub fn IRBuilder::createGEP(
 ///   have both volatile and atomic on the same load.
 ///
 /// ```moonbit
-/// test "IRBuilder::createLoad" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let i32ty = ctx.getInt32Ty()
-///   let ptrty = ctx.getPtrTy()
-///   let fty = ctx.getFunctionType(i32ty, [ptrty])
-///   let fval = prog.addFunction(fty, "load_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let i32ty = ctx.getInt32Ty()
+/// let ptrty = ctx.getPtrTy()
+/// let fty = ctx.getFunctionType(i32ty, [ptrty])
+/// let fval = prog.addFunction(fty, "load_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let ptr_arg = fval.getArg(0).unwrap()
-///   
-///   // Test regular load
-///   let loaded_val = builder.createLoad(i32ty, ptr_arg)
-///   
-///   // Test volatile load  
-///   let volatile_load = builder.createLoad(i32ty, ptr_arg, isVolatile=true)
-///   
-///   // Test atomic load with name
-///   let atomic_load = builder.createLoad(i32ty, ptr_arg, atomicOrdering=Acquire)
-///   
-///   let add1 = builder.createAdd(loaded_val, volatile_load)
-///   let add2 = builder.createAdd(add1, atomic_load)
-///   let _ = builder.createRet(add2)
+/// let ptr_arg = fval.getArg(0).unwrap()
+/// 
+/// // Test regular load
+/// let loaded_val = builder.createLoad(i32ty, ptr_arg)
+/// 
+/// // Test volatile load  
+/// let volatile_load = builder.createLoad(i32ty, ptr_arg, isVolatile=true)
+/// 
+/// // Test atomic load with name
+/// let atomic_load = builder.createLoad(i32ty, ptr_arg, atomicOrdering=Acquire)
+/// 
+/// let add1 = builder.createAdd(loaded_val, volatile_load)
+/// let add2 = builder.createAdd(add1, atomic_load)
+/// let _ = builder.createRet(add2)
 ///
-///   inspect(
-///     fval,
-///     content = 
-///     #|define i32 @load_func(ptr %0) {
-///     #|entry:
-///     #|  %1 = load i32, ptr %0, align 4
-///     #|  %2 = load volatile i32, ptr %0, align 4
-///     #|  %3 = load atomic i32, ptr %0 acquire, align 4
-///     #|  %4 = add i32 %1, %2
-///     #|  %5 = add i32 %4, %3
-///     #|  ret i32 %5
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(
+///   fval,
+///   content = 
+///   #|define i32 @load_func(ptr %0) {
+///   #|entry:
+///   #|  %1 = load i32, ptr %0, align 4
+///   #|  %2 = load volatile i32, ptr %0, align 4
+///   #|  %3 = load atomic i32, ptr %0 acquire, align 4
+///   #|  %4 = add i32 %1, %2
+///   #|  %5 = add i32 %4, %3
+///   #|  ret i32 %5
+///   #|}
+///   ,
+/// )
 /// ```
 pub fn IRBuilder::createLoad(
   self : IRBuilder,
@@ -3583,52 +3465,50 @@ pub fn IRBuilder::createLoad(
 ///   have both volatile and atomic on the same store.
 ///
 /// ```moonbit
-/// test "IRBuilder::createStore" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let i32ty = ctx.getInt32Ty()
-///   let voidty = ctx.getVoidTy()
-///   let fty = ctx.getFunctionType(voidty, [i32ty])
-///   let fval = prog.addFunction(fty, "store_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let i32ty = ctx.getInt32Ty()
+/// let voidty = ctx.getVoidTy()
+/// let fty = ctx.getFunctionType(voidty, [i32ty])
+/// let fval = prog.addFunction(fty, "store_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let val_arg = fval.getArg(0).unwrap()
-///   
-///   // Create multiple allocations
-///   let ptr1 = builder.createAlloca(i32ty, name="ptr1")
-///   let ptr2 = builder.createAlloca(i32ty, name="ptr2") 
-///   let ptr3 = builder.createAlloca(i32ty, name="ptr3")
-///   
-///   // Test regular store
-///   let _ = builder.createStore(val_arg, ptr1)
-///   
-///   // Test volatile store
-///   let _ = builder.createStore(val_arg, ptr2, isVolatile=true)
-///   
-///   // Test atomic store
-///   let _ = builder.createStore(val_arg, ptr3, atomicOrdering=Release)
-///   
-///   let _ = builder.createRetVoid()
+/// let val_arg = fval.getArg(0).unwrap()
+/// 
+/// // Create multiple allocations
+/// let ptr1 = builder.createAlloca(i32ty, name="ptr1")
+/// let ptr2 = builder.createAlloca(i32ty, name="ptr2") 
+/// let ptr3 = builder.createAlloca(i32ty, name="ptr3")
+/// 
+/// // Test regular store
+/// let _ = builder.createStore(val_arg, ptr1)
+/// 
+/// // Test volatile store
+/// let _ = builder.createStore(val_arg, ptr2, isVolatile=true)
+/// 
+/// // Test atomic store
+/// let _ = builder.createStore(val_arg, ptr3, atomicOrdering=Release)
+/// 
+/// let _ = builder.createRetVoid()
 ///
-///   inspect(
-///     fval,
-///     content = 
-///     #|define void @store_func(i32 %0) {
-///     #|entry:
-///     #|  %ptr1 = alloca i32, align 4
-///     #|  %ptr2 = alloca i32, align 4
-///     #|  %ptr3 = alloca i32, align 4
-///     #|  store i32 %0, ptr %ptr1, align 4
-///     #|  store volatile i32 %0, ptr %ptr2, align 4
-///     #|  store atomic i32 %0, ptr %ptr3 release, align 4
-///     #|  ret void
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(
+///   fval,
+///   content = 
+///   #|define void @store_func(i32 %0) {
+///   #|entry:
+///   #|  %ptr1 = alloca i32, align 4
+///   #|  %ptr2 = alloca i32, align 4
+///   #|  %ptr3 = alloca i32, align 4
+///   #|  store i32 %0, ptr %ptr1, align 4
+///   #|  store volatile i32 %0, ptr %ptr2, align 4
+///   #|  store atomic i32 %0, ptr %ptr3 release, align 4
+///   #|  ret void
+///   #|}
+///   ,
+/// )
 /// ```
 pub fn IRBuilder::createStore(
   self : IRBuilder,
@@ -3654,42 +3534,43 @@ pub fn IRBuilder::createStore(
 /// - Control flow will continue at the destination basic block
 ///
 /// ```moonbit
-/// test "IRBuilder::createBr" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType(i32ty, [])
-///   let fval = prog.addFunction(fty, "br_test")
-///   
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   let targetBB = fval.addBasicBlock(name="target")
-///   
-///   // Setup entry block
-///   builder.setInsertPoint(entryBB)
-///   let _ = builder.createBr(targetBB)
-///   
-///   // Setup target block
-///   builder.setInsertPoint(targetBB)
-///   let const_val = ctx.getConstInt32(42)
-///   let _ = builder.createRet(const_val)
+/// let i32ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32ty, [])
+/// let fval = prog.addFunction(fty, "br_test")
+/// 
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// let targetBB = fval.addBasicBlock(name="target")
+/// 
+/// // Setup entry block
+/// builder.setInsertPoint(entryBB)
+/// let _ = builder.createBr(targetBB)
+/// 
+/// // Setup target block
+/// builder.setInsertPoint(targetBB)
+/// let const_val = ctx.getConstInt32(42)
+/// let _ = builder.createRet(const_val)
 ///
-///   inspect(
-///     fval,
-///     content =
-///     #|define i32 @br_test() {
-///     #|entry:
-///     #|  br label %target
-///     #|
-///     #|target:
-///     #|  ret i32 42
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(
+///   fval,
+///   content =
+///   #|define i32 @br_test() {
+///   #|entry:
+///   #|  br label %target
+///   #|
+///   #|target:
+///   #|  ret i32 42
+///   #|}
+///   ,
+/// )
 /// ```
-pub fn IRBuilder::createBr(self : Self, dst : BasicBlock) -> &Instruction raise Error {
+pub fn IRBuilder::createBr(
+  self : Self,
+  dst : BasicBlock
+) -> &Instruction raise Error {
   let parent = self.getInsertFunction()
   let inst = BranchInst::newUnconditional(dst, parent)
   self.insert(inst)
@@ -3706,7 +3587,6 @@ pub fn IRBuilder::createBr(self : Self, dst : BasicBlock) -> &Instruction raise 
 /// - The condition must be of i1 type (boolean)
 ///
 /// ```moonbit
-/// test "IRBuilder::createCondBr" {
 ///  let ctx = @IR.LLVMContext::new()
 ///  let prog = ctx.addProgram("demo")
 ///  let builder = @IR.IRBuilder::new()
@@ -3741,30 +3621,29 @@ pub fn IRBuilder::createBr(self : Self, dst : BasicBlock) -> &Instruction raise 
 ///  let loaded = builder.createLoad(i32ty, alloc)
 ///  let _ = builder.createRet(loaded)
 ///
-///   inspect(
-///     fval,
-///     content =
-///     #|define i32 @foo(i32 %0) {
-///     #|entry:
-///     #|  %1 = alloca i32, align 4
-///     #|  %2 = icmp sgt i32 %0, 0
-///     #|  br i1 %2, label %3, label %4
-///     #|
-///     #|3:
-///     #|  store i32 33, ptr %1, align 4
-///     #|  br label %5
-///     #|
-///     #|4:
-///     #|  store i32 42, ptr %1, align 4
-///     #|  br label %5
-///     #|
-///     #|5:
-///     #|  %6 = load i32, ptr %1, align 4
-///     #|  ret i32 %6
-//      #|}
-///|     ,
-///   )
-/// }
+///  inspect(
+///    fval,
+///    content =
+///    #|define i32 @foo(i32 %0) {
+///    #|entry:
+///    #|  %1 = alloca i32, align 4
+///    #|  %2 = icmp sgt i32 %0, 0
+///    #|  br i1 %2, label %3, label %4
+///    #|
+///    #|3:
+///    #|  store i32 33, ptr %1, align 4
+///    #|  br label %5
+///    #|
+///    #|4:
+///    #|  store i32 42, ptr %1, align 4
+///    #|  br label %5
+///    #|
+///    #|5:
+///    #|  %6 = load i32, ptr %1, align 4
+///    #|  ret i32 %6
+///    #|}
+///    ,
+///  )
 /// ```
 pub fn IRBuilder::createCondBr(
   self : Self,
@@ -3794,40 +3673,38 @@ pub fn IRBuilder::createCondBr(
 /// - (Constant folding) If the condition is a constant, the appropriate operand is returned directly
 ///
 /// ```moonbit
-/// test "IRBuilder::createSelect" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let i1ty = ctx.getInt1Ty()
-///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType(i32ty, [i1ty, i32ty])
-///   let fval = prog.addFunction(fty, "select_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let i1ty = ctx.getInt1Ty()
+/// let i32ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32ty, [i1ty, i32ty])
+/// let fval = prog.addFunction(fty, "select_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let cond = fval.getArg(0).unwrap()
-///   let true_val = fval.getArg(1).unwrap()
-///   
-///   let forty_two = ctx.getConstInt32(42)
-///   let thirty_three = ctx.getConstInt32(33)
-///   let always_true = ctx.getConstTrue()
-///   let false_val = builder.createSelect(always_true, forty_two, thirty_three)
+/// let cond = fval.getArg(0).unwrap()
+/// let true_val = fval.getArg(1).unwrap()
+/// 
+/// let forty_two = ctx.getConstInt32(42)
+/// let thirty_three = ctx.getConstInt32(33)
+/// let always_true = ctx.getConstTrue()
+/// let false_val = builder.createSelect(always_true, forty_two, thirty_three)
 ///
-///   let select_result = builder.createSelect(cond, true_val, false_val)
-///   let _ = builder.createRet(select_result)
+/// let select_result = builder.createSelect(cond, true_val, false_val)
+/// let _ = builder.createRet(select_result)
 ///
-///   inspect(
-///     fval,
-///     content =
-///     #|define i32 @select_func(i1 %0, i32 %1) {
-///     #|entry:
-///     #|  %2 = select i1 %0, i32 %1, i32 42
-///     #|  ret i32 %2
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(
+///   fval,
+///   content =
+///   #|define i32 @select_func(i1 %0, i32 %1) {
+///   #|entry:
+///   #|  %2 = select i1 %0, i32 %1, i32 42
+///   #|  ret i32 %2
+///   #|}
+///   ,
+/// )
 /// ```
 pub fn IRBuilder::createSelect(
   self : IRBuilder,
@@ -3865,77 +3742,75 @@ pub fn IRBuilder::createSelect(
 /// - The switch instruction transfers control to `defaultDest` if no cases match
 ///
 /// ```moonbit
-/// test "IRBuilder::createSwitch" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let i32ty = ctx.getInt32Ty()
-///   let voidty = ctx.getVoidTy()
-///   let fty = ctx.getFunctionType(voidty, [i32ty])
-///   let fval = prog.addFunction(fty, "switch_func")
-///   
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   let case1BB = fval.addBasicBlock(name="case1")
-///   let case2BB = fval.addBasicBlock(name="case2") 
-///   let case3BB = fval.addBasicBlock(name="case3")
-///   let defaultBB = fval.addBasicBlock(name="default")
-///   
-///   builder.setInsertPoint(entryBB)
-///   let arg0 = fval.getArg(0).unwrap()
-///   
-///   // Create switch with default destination
-///   let switch_inst = builder.createSwitch(arg0, defaultBB)
-///   
-///   // Add cases
-///   let case_65 = ctx.getConstInt32(65)
-///   let case_66 = ctx.getConstInt32(66)
-///   let case_67 = ctx.getConstInt32(67)
-///   
-///   switch_inst
-///   ..addCase(case_65, case1BB)
-///   ..addCase(case_66, case2BB)
-///   ..addCase(case_67, case3BB)
-///   
-///   // Setup case blocks
-///   builder.setInsertPoint(case1BB)
-///   let _ = builder.createRetVoid()
-///   
-///   builder.setInsertPoint(case2BB)
-///   let _ = builder.createRetVoid()
-///   
-///   builder.setInsertPoint(case3BB)
-///   let _ = builder.createRetVoid()
-///   
-///   builder.setInsertPoint(defaultBB)
-///   let _ = builder.createRetVoid()
+/// let i32ty = ctx.getInt32Ty()
+/// let voidty = ctx.getVoidTy()
+/// let fty = ctx.getFunctionType(voidty, [i32ty])
+/// let fval = prog.addFunction(fty, "switch_func")
+/// 
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// let case1BB = fval.addBasicBlock(name="case1")
+/// let case2BB = fval.addBasicBlock(name="case2") 
+/// let case3BB = fval.addBasicBlock(name="case3")
+/// let defaultBB = fval.addBasicBlock(name="default")
+/// 
+/// builder.setInsertPoint(entryBB)
+/// let arg0 = fval.getArg(0).unwrap()
+/// 
+/// // Create switch with default destination
+/// let switch_inst = builder.createSwitch(arg0, defaultBB)
+/// 
+/// // Add cases
+/// let case_65 = ctx.getConstInt32(65)
+/// let case_66 = ctx.getConstInt32(66)
+/// let case_67 = ctx.getConstInt32(67)
+/// 
+/// switch_inst
+/// ..addCase(case_65, case1BB)
+/// ..addCase(case_66, case2BB)
+/// ..addCase(case_67, case3BB)
+/// 
+/// // Setup case blocks
+/// builder.setInsertPoint(case1BB)
+/// let _ = builder.createRetVoid()
+/// 
+/// builder.setInsertPoint(case2BB)
+/// let _ = builder.createRetVoid()
+/// 
+/// builder.setInsertPoint(case3BB)
+/// let _ = builder.createRetVoid()
+/// 
+/// builder.setInsertPoint(defaultBB)
+/// let _ = builder.createRetVoid()
 ///
-///   inspect(
-///     fval,
-///     content =
-///     #|define void @switch_func(i32 %0) {
-///     #|entry:
-///     #|  switch i32 %0, label %default [
-///     #|    i32 65, label %case1
-///     #|    i32 66, label %case2
-///     #|    i32 67, label %case3
-///     #|  ]
-///     #|
-///     #|case1:
-///     #|  ret void
-///     #|
-///     #|case2:
-///     #|  ret void
-///     #|
-///     #|case3:
-///     #|  ret void
-///     #|
-///     #|default:
-///     #|  ret void
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(
+///   fval,
+///   content =
+///   #|define void @switch_func(i32 %0) {
+///   #|entry:
+///   #|  switch i32 %0, label %default [
+///   #|    i32 65, label %case1
+///   #|    i32 66, label %case2
+///   #|    i32 67, label %case3
+///   #|  ]
+///   #|
+///   #|case1:
+///   #|  ret void
+///   #|
+///   #|case2:
+///   #|  ret void
+///   #|
+///   #|case3:
+///   #|  ret void
+///   #|
+///   #|default:
+///   #|  ret void
+///   #|}
+///   ,
+/// )
 /// ```
 pub fn IRBuilder::createSwitch(
   self : IRBuilder,
@@ -3964,65 +3839,63 @@ pub fn IRBuilder::createSwitch(
 /// - PHI nodes are typically placed at the beginning of basic blocks that have multiple predecessors
 ///
 /// ```moonbit
-/// test "IRBuilder::createPHI" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType(i32ty, [i32ty])
-///   let fval = prog.addFunction(fty, "phi_func")
-///   
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   let thenBB = fval.addBasicBlock(name="then")
-///   let elseBB = fval.addBasicBlock(name="else") 
-///   let mergeBB = fval.addBasicBlock(name="merge")
-///   
-///   // Entry block: create condition and branch
-///   builder.setInsertPoint(entryBB)
-///   let arg0 = fval.getArg(0).unwrap()
-///   let cond = builder.createCmp(ICMP_SGT, arg0, ctx.getConstInt32(0))
-///   let _ = builder.createCondBr(cond, thenBB, elseBB)
-///   
-///   // Then block: use value 100
-///   builder.setInsertPoint(thenBB)
-///   let then_val = ctx.getConstInt32(100)
-///   let _ = builder.createBr(mergeBB)
-///   
-///   // Else block: use value 200  
-///   builder.setInsertPoint(elseBB)
-///   let else_val = ctx.getConstInt32(200)
-///   let _ = builder.createBr(mergeBB)
-///   
-///   // Merge block: create PHI node to merge values
-///   builder.setInsertPoint(mergeBB)
-///   let phi = builder.createPHI(i32ty, name="result")
-///   phi.addIncoming(then_val, thenBB)
-///   phi.addIncoming(else_val, elseBB)
-///   
-///   let _ = builder.createRet(phi)
+/// let i32ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32ty, [i32ty])
+/// let fval = prog.addFunction(fty, "phi_func")
+/// 
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// let thenBB = fval.addBasicBlock(name="then")
+/// let elseBB = fval.addBasicBlock(name="else") 
+/// let mergeBB = fval.addBasicBlock(name="merge")
+/// 
+/// // Entry block: create condition and branch
+/// builder.setInsertPoint(entryBB)
+/// let arg0 = fval.getArg(0).unwrap()
+/// let cond = builder.createCmp(ICMP_SGT, arg0, ctx.getConstInt32(0))
+/// let _ = builder.createCondBr(cond, thenBB, elseBB)
+/// 
+/// // Then block: use value 100
+/// builder.setInsertPoint(thenBB)
+/// let then_val = ctx.getConstInt32(100)
+/// let _ = builder.createBr(mergeBB)
+/// 
+/// // Else block: use value 200  
+/// builder.setInsertPoint(elseBB)
+/// let else_val = ctx.getConstInt32(200)
+/// let _ = builder.createBr(mergeBB)
+/// 
+/// // Merge block: create PHI node to merge values
+/// builder.setInsertPoint(mergeBB)
+/// let phi = builder.createPHI(i32ty, name="result")
+/// phi.addIncoming(then_val, thenBB)
+/// phi.addIncoming(else_val, elseBB)
+/// 
+/// let _ = builder.createRet(phi)
 ///
-///   inspect(
-///     fval,
-///     content =
-///     #|define i32 @phi_func(i32 %0) {
-///     #|entry:
-///     #|  %1 = icmp sgt i32 %0, 0
-///     #|  br i1 %1, label %then, label %else
-///     #|
-///     #|then:
-///     #|  br label %merge
-///     #|
-///     #|else:
-///     #|  br label %merge
-///     #|
-///     #|merge:
-///     #|  %result = phi i32 [ 100, %then ], [ 200, %else ]
-///     #|  ret i32 %result
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(
+///   fval,
+///   content =
+///   #|define i32 @phi_func(i32 %0) {
+///   #|entry:
+///   #|  %1 = icmp sgt i32 %0, 0
+///   #|  br i1 %1, label %then, label %else
+///   #|
+///   #|then:
+///   #|  br label %merge
+///   #|
+///   #|else:
+///   #|  br label %merge
+///   #|
+///   #|merge:
+///   #|  %result = phi i32 [ 100, %then ], [ 200, %else ]
+///   #|  ret i32 %result
+///   #|}
+///   ,
+/// )
 /// ```
 pub fn IRBuilder::createPHI(
   self : IRBuilder,
@@ -4048,54 +3921,52 @@ pub fn IRBuilder::createPHI(
 /// - For non-void functions, a name can be provided for the return value
 ///
 /// ```moonbit
-/// test "IRBuilder::createCall" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let i32ty = ctx.getInt32Ty()
-///   
-///   // Create two helper functions to be called
-///   let helper1_fty = ctx.getFunctionType(i32ty, [i32ty])
-///   let helper1 = prog.addFunction(helper1_fty, "helper1")
-///   
-///   let helper2_fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
-///   let helper2 = prog.addFunction(helper2_fty, "helper2")
-///   
-///   // Create main function that calls the helpers
-///   let main_fty = ctx.getFunctionType(i32ty, [i32ty, i32ty, i32ty])
-///   let main_func = prog.addFunction(main_fty, "main")
-///   let entryBB = main_func.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let i32ty = ctx.getInt32Ty()
+/// 
+/// // Create two helper functions to be called
+/// let helper1_fty = ctx.getFunctionType(i32ty, [i32ty])
+/// let helper1 = prog.addFunction(helper1_fty, "helper1")
+/// 
+/// let helper2_fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+/// let helper2 = prog.addFunction(helper2_fty, "helper2")
+/// 
+/// // Create main function that calls the helpers
+/// let main_fty = ctx.getFunctionType(i32ty, [i32ty, i32ty, i32ty])
+/// let main_func = prog.addFunction(main_fty, "main")
+/// let entryBB = main_func.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let arg0 = main_func.getArg(0).unwrap()
-///   let arg1 = main_func.getArg(1).unwrap()
-///   let arg2 = main_func.getArg(2).unwrap()
+/// let arg0 = main_func.getArg(0).unwrap()
+/// let arg1 = main_func.getArg(1).unwrap()
+/// let arg2 = main_func.getArg(2).unwrap()
 ///
-///   // Call helper1 with tail call
-///   let call1 = builder.createCall(helper1, [arg0], name="result1")
-///   call1.setTailCallKind(Tail)
-///   
-///   // Call helper2 without tail call
-///   let call2 = builder.createCall(helper2, [arg1, arg2], name="result2")
-///   
-///   // Add the results and return
-///   let sum = builder.createAdd(call1, call2, name="sum")
-///   let _ = builder.createRet(sum)
+/// // Call helper1 with tail call
+/// let call1 = builder.createCall(helper1, [arg0], name="result1")
+/// call1.setTailCallKind(Tail)
+/// 
+/// // Call helper2 without tail call
+/// let call2 = builder.createCall(helper2, [arg1, arg2], name="result2")
+/// 
+/// // Add the results and return
+/// let sum = builder.createAdd(call1, call2, name="sum")
+/// let _ = builder.createRet(sum)
 ///
-///   inspect(
-///     main_func,
-///     content =
-///     #|define i32 @main(i32 %0, i32 %1, i32 %2) {
-///     #|entry:
-///     #|  %result1 = tail call i32 @helper1(i32 %0)
-///     #|  %result2 = call i32 @helper2(i32 %1, i32 %2)
-///     #|  %sum = add i32 %result1, %result2
-///     #|  ret i32 %sum
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(
+///   main_func,
+///   content =
+///   #|define i32 @main(i32 %0, i32 %1, i32 %2) {
+///   #|entry:
+///   #|  %result1 = tail call i32 @helper1(i32 %0)
+///   #|  %result2 = call i32 @helper2(i32 %1, i32 %2)
+///   #|  %sum = add i32 %result1, %result2
+///   #|  ret i32 %sum
+///   #|}
+///   ,
+/// )
 /// ```
 pub fn IRBuilder::createCall(
   self : IRBuilder,
@@ -4122,36 +3993,34 @@ pub fn IRBuilder::createCall(
 /// - The result type is determined by the type of the element at the specified indices
 ///
 /// ```moonbit
-/// test "IRBuilder::createExtractValue" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let i32ty = ctx.getInt32Ty()
-///   let f32ty = ctx.getFloatTy()
-///   let sty = ctx.getStructType([i32ty, f32ty], name="MyStruct")
-///   let fty = ctx.getFunctionType(i32ty, [sty])
-///   let fval = prog.addFunction(fty, "extract_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let i32ty = ctx.getInt32Ty()
+/// let f32ty = ctx.getFloatTy()
+/// let sty = ctx.getStructType([i32ty, f32ty], name="MyStruct")
+/// let fty = ctx.getFunctionType(i32ty, [sty])
+/// let fval = prog.addFunction(fty, "extract_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let struct_arg = fval.getArg(0).unwrap()
-///   
-///   // Extract the first element (i32) from struct
-///   let extracted_val = builder.createExtractValue(struct_arg, [0], name="field0")
-///   let _ = builder.createRet(extracted_val)
+/// let struct_arg = fval.getArg(0).unwrap()
+/// 
+/// // Extract the first element (i32) from struct
+/// let extracted_val = builder.createExtractValue(struct_arg, [0], name="field0")
+/// let _ = builder.createRet(extracted_val)
 ///
-///   inspect(
-///     fval,
-///     content =
-///     #|define i32 @extract_func(%MyStruct %0) {
-///     #|entry:
-///     #|  %field0 = extractvalue %MyStruct %0, 0
-///     #|  ret i32 %field0
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(
+///   fval,
+///   content =
+///   #|define i32 @extract_func(%MyStruct %0) {
+///   #|entry:
+///   #|  %field0 = extractvalue %MyStruct %0, 0
+///   #|  ret i32 %field0
+///   #|}
+///   ,
+/// )
 /// ```
 pub fn IRBuilder::createExtractValue(
   self : IRBuilder,
@@ -4179,37 +4048,35 @@ pub fn IRBuilder::createExtractValue(
 /// - The result type is the same as the aggregate type
 ///
 /// ```moonbit
-/// test "IRBuilder::createInsertValue" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+/// let ctx = LLVMContext::new()
+/// let prog = ctx.addProgram("demo")
+/// let builder = IRBuilder::new()
 ///
-///   let i32ty = ctx.getInt32Ty()
-///   let f32ty = ctx.getFloatTy()
-///   let sty = ctx.getStructType([i32ty, f32ty], name="MyStruct")
-///   let fty = ctx.getFunctionType(sty, [sty, i32ty])
-///   let fval = prog.addFunction(fty, "insert_func")
-///   let entryBB = fval.addBasicBlock(name="entry")
-///   builder.setInsertPoint(entryBB)
+/// let i32ty = ctx.getInt32Ty()
+/// let f32ty = ctx.getFloatTy()
+/// let sty = ctx.getStructType([i32ty, f32ty], name="MyStruct")
+/// let fty = ctx.getFunctionType(sty, [sty, i32ty])
+/// let fval = prog.addFunction(fty, "insert_func")
+/// let entryBB = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(entryBB)
 ///
-///   let struct_arg = fval.getArg(0).unwrap()
-///   let new_val = fval.getArg(1).unwrap()
-///   
-///   // Insert the new value into the first field of the struct
-///   let new_struct = builder.createInsertValue(struct_arg, new_val, [0], name="new_struct")
-///   let _ = builder.createRet(new_struct)
+/// let struct_arg = fval.getArg(0).unwrap()
+/// let new_val = fval.getArg(1).unwrap()
+/// 
+/// // Insert the new value into the first field of the struct
+/// let new_struct = builder.createInsertValue(struct_arg, new_val, [0], name="new_struct")
+/// let _ = builder.createRet(new_struct)
 ///
-///   inspect(
-///     fval,
-///     content =
-///     #|define %MyStruct @insert_func(%MyStruct %0, i32 %1) {
-///     #|entry:
-///     #|  %new_struct = insertvalue %MyStruct %0, i32 %1, 0
-///     #|  ret %MyStruct %new_struct
-///     #|}
-///     ,
-///   )
-/// }
+/// inspect(
+///   fval,
+///   content =
+///   #|define %MyStruct @insert_func(%MyStruct %0, i32 %1) {
+///   #|entry:
+///   #|  %new_struct = insertvalue %MyStruct %0, i32 %1, 0
+///   #|  ret %MyStruct %new_struct
+///   #|}
+///   ,
+/// )
 /// ```
 pub fn IRBuilder::createInsertValue(
   self : IRBuilder,

@@ -2,9 +2,9 @@
 type Align UInt64 derive(Eq)
 
 ///|
-fn Align::new(v : UInt64) -> Align {
+pub fn Align::new(v : UInt64) -> Align {
   guard Align::isPowerOfTwo(v) else {
-    unreachable("Alignment must be a power of two, \{v} is not.")
+    llvm_unreachable("Alignment must be a power of two, \{v} is not.")
   }
   Align(v)
 }
@@ -15,10 +15,10 @@ fn Align::isPowerOfTwo(n : UInt64) -> Bool {
 }
 
 ///|
-fn Align::previous(v : Align) -> Align {
-  let Align(value) = v
-  Align(value >> 1)
-}
+//fn Align::previous(v : Align) -> Align {
+//  let Align(value) = v
+//  Align(value >> 1)
+//}
 
 ///|
 pub impl Show for Align with output(self, logger) {
@@ -48,7 +48,7 @@ pub(all) enum Endian {
 }
 
 ///|
-struct DataLayout {
+pub struct DataLayout {
   endian : Endian
 }
 
@@ -58,7 +58,7 @@ fn DataLayout::new(endian : Endian) -> DataLayout {
 }
 
 ///|
-fn DataLayout::getEndian(self : DataLayout) -> Endian {
+pub fn DataLayout::getEndian(self : DataLayout) -> Endian {
   self.endian
 }
 
@@ -95,11 +95,11 @@ fn DataLayout::getAlignment(self : DataLayout, ty : &Type) -> Align {
     // Architectures, AddressSpace and other factors.
     PointerType(_) => Align(8)
     FixedVectorType(_) =>
-      unreachable("FixedVectorType alignment not implemented")
+      llvm_unreachable("FixedVectorType alignment not implemented")
     ScalableVectorType(_) =>
-      unreachable("ScalableVectorType alignment not implemented")
+      llvm_unreachable("ScalableVectorType alignment not implemented")
     _ as ty =>
-      unreachable(
+      llvm_unreachable(
         "DataLayout::getAlignment: Bad type for getting alignment: \{ty}",
       )
   }

@@ -46,9 +46,9 @@ test "Struct Type Print" {
   let i32ty = ctx.getInt32Ty()
   let f32ty = ctx.getFloatTy()
   let f64ty = ctx.getDoubleTy()
-  let opaque = ctx.getStructType([], name="baz")
-  inspect(opaque, content="%baz")
-  inspect(opaque.full_info(), content="%baz = opaque")
+  let opaque_ty = ctx.getStructType([], name="baz")
+  inspect(opaque_ty, content="%baz")
+  inspect(opaque_ty.full_info(), content="%baz = opaque")
   let literal = ctx.getStructType([i32ty, f32ty, f64ty])
   inspect(literal, content="{ i32, float, double }")
   inspect(literal.full_info(), content="{ i32, float, double }")
@@ -125,12 +125,12 @@ test "Struct Type Functionality Test" {
   let f64ty = ctx.getDoubleTy()
 
   // opaque and anonymous is not allowed
-  assert_true(ctx.getStructType?([]).is_err())
+  assert_true((try? ctx.getStructType([])).is_err())
 
   // opaque
-  let opaque = ctx.getStructType([], name="bar")
-  inspect(opaque.full_info(), content="%bar = opaque")
-  assert_true(opaque.isOpaque())
+  let opaque_ty = ctx.getStructType([], name="bar")
+  inspect(opaque_ty.full_info(), content="%bar = opaque")
+  assert_true(opaque_ty.isOpaque())
 
   // literal
   let literal = ctx.getStructType([i32ty, f32ty, f64ty])
@@ -141,20 +141,20 @@ test "Struct Type Functionality Test" {
   assert_eq(named.getName().unwrap(), "foo")
 
   // setName for literal
-  assert_true(literal.setName?("foo").is_err()) // will raise DuplicateStructName Error
-  assert_true(named.setName?("baz").is_ok())
+  assert_true((try? literal.setName("foo")).is_err()) // will raise DuplicateStructName Error
+  assert_true((try? named.setName("baz")).is_ok())
   assert_eq(named.getName().unwrap(), "baz")
-  assert_true(literal.setName?("foo").is_ok())
+  assert_true((try? literal.setName("foo")).is_ok())
   inspect(literal.full_info(), content="%foo = type { i32, float, double }")
 
   // setBody for opaque
   let elements : Array[&Type] = [f64ty, i32ty, f32ty]
-  assert_true(opaque.setBody?(elements, isPacked=true).is_ok())
-  inspect(opaque.full_info(), content="%bar = type <{ double, i32, float }>")
-  assert_false(opaque.isOpaque())
+  assert_true((try? opaque_ty.setBody(elements, isPacked=true)).is_ok())
+  inspect(opaque_ty.full_info(), content="%bar = type <{ double, i32, float }>")
+  assert_false(opaque_ty.isOpaque())
 
   // Ensure the body will not effect by changing the elements outside.
   elements.push(f32ty)
-  inspect(opaque.full_info(), content="%bar = type <{ double, i32, float }>")
-  assert_false(opaque.setBody?(elements, isPacked=false).is_ok())
+  inspect(opaque_ty.full_info(), content="%bar = type <{ double, i32, float }>")
+  assert_false((try? opaque_ty.setBody(elements, isPacked=false)).is_ok())
 }

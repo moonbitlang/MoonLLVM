@@ -28,7 +28,7 @@ pub fn Program::addFunction(
   name : String,
   linkage~ : LinkageTypes = ExternalLinkage,
   addressSpace~ : AddressSpace = AddressSpace(0)
-) -> Function!LLVMValueError {
+) -> Function raise LLVMValueError {
   guard not(self.functions.contains(name)) else {
     raise DuplicateFunctionName(name)
   }

@@ -157,21 +157,21 @@ enum FloatingEnum {
 } derive(Eq, Hash, Show)
 
 ///|
-fn FloatingEnum::asClass(self : FloatingEnum) -> &Floating {
-  match self {
-    Float(v) => (v : &Floating)
-    Double(v) => v
-  }
-}
+//fn FloatingEnum::asClass(self : FloatingEnum) -> &Floating {
+//  match self {
+//    Float(v) => (v : &Floating)
+//    Double(v) => v
+//  }
+//}
 
 ///|
-fn FloatingEnum::to_float64(self : FloatingEnum) -> Double {
-  match self {
-    //Float(v) => v.to_float64()
-    Float(v) => Floating::to_float64(v)
-    Double(v) => v
-  }
-}
+//fn FloatingEnum::to_float64(self : FloatingEnum) -> Double {
+//  match self {
+//    //Float(v) => v.to_float64()
+//    Float(v) => Floating::to_float64(v)
+//    Double(v) => v
+//  }
+//}
 
 ///|
 pub trait Floating: Show {
@@ -212,14 +212,14 @@ enum SignedEnum {
 } derive(Eq, Hash, Show)
 
 ///|
-fn SignedEnum::convert_to_int64(self : SignedEnum) -> Int64 {
-  match self {
-    Int8(v) => v.to_int64()
-    Int16(v) => v.to_int64()
-    Int32(v) => v.to_int64()
-    Int64(v) => v
-  }
-}
+//fn SignedEnum::convert_to_int64(self : SignedEnum) -> Int64 {
+//  match self {
+//    Int8(v) => v.to_int64()
+//    Int16(v) => v.to_int64()
+//    Int32(v) => v.to_int64()
+//    Int64(v) => v
+//  }
+//}
 
 ///|
 pub trait Signed: Show {
@@ -288,12 +288,7 @@ pub trait UnSigned: Show {
 
 ///|
 impl UnSigned with convert_to_uint64(self) {
-  match self.asEnum() {
-    UnSignedEnum::UInt8(v) => v.to_uint64()
-    UnSignedEnum::UInt16(v) => v.to_int().to_uint64()
-    UnSignedEnum::UInt32(v) => v.to_uint64()
-    UnSignedEnum::UInt64(v) => v
-  }
+  self.asEnum().convert_to_uint64()
 }
 
 ///|
