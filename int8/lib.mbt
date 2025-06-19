@@ -83,42 +83,42 @@ pub impl Show for Int8 with output(self, logger) {
 ///|
 test "Int8" {
   // normal
-  inspect!(Int8::from(0), content="0")
-  inspect!(Int8::from(1), content="1")
-  inspect!(Int8::from(-1), content="-1")
-  inspect!(Int8::from(-2), content="-2")
+  inspect(Int8::from(0), content="0")
+  inspect(Int8::from(1), content="1")
+  inspect(Int8::from(-1), content="-1")
+  inspect(Int8::from(-2), content="-2")
 
   // overflow
-  inspect!(Int8::from(127), content="127")
-  inspect!(Int8::from(128), content="-128")
-  inspect!(Int8::from(-128), content="-128")
-  inspect!(Int8::from(129), content="-127")
-  inspect!(Int8::from(255), content="-1")
+  inspect(Int8::from(127), content="127")
+  inspect(Int8::from(128), content="-128")
+  inspect(Int8::from(-128), content="-128")
+  inspect(Int8::from(129), content="-127")
+  inspect(Int8::from(255), content="-1")
 
   // add
-  inspect!(Int8::from(1) + Int8::from(1), content="2")
-  inspect!(Int8::from(1) + Int8::from(-1), content="0")
-  inspect!(Int8::from(-1) + Int8::from(-1), content="-2")
-  inspect!(Int8::from(127) + Int8::from(1), content="-128")
-  inspect!(Int8::from(127) + Int8::from(-1), content="126")
+  inspect(Int8::from(1) + Int8::from(1), content="2")
+  inspect(Int8::from(1) + Int8::from(-1), content="0")
+  inspect(Int8::from(-1) + Int8::from(-1), content="-2")
+  inspect(Int8::from(127) + Int8::from(1), content="-128")
+  inspect(Int8::from(127) + Int8::from(-1), content="126")
 
   // sub
-  inspect!(Int8::from(1) - Int8::from(1), content="0")
-  inspect!(Int8::from(1) - Int8::from(-1), content="2")
-  inspect!(Int8::from(-1) - Int8::from(-1), content="0")
-  inspect!(Int8::from(127) - Int8::from(1), content="126")
-  inspect!(Int8::from(127) - Int8::from(-1), content="-128")
+  inspect(Int8::from(1) - Int8::from(1), content="0")
+  inspect(Int8::from(1) - Int8::from(-1), content="2")
+  inspect(Int8::from(-1) - Int8::from(-1), content="0")
+  inspect(Int8::from(127) - Int8::from(1), content="126")
+  inspect(Int8::from(127) - Int8::from(-1), content="-128")
 
   // mul
-  inspect!(Int8::from(1) * Int8::from(1), content="1")
-  inspect!(Int8::from(1) * Int8::from(-1), content="-1")
-  inspect!(Int8::from(-1) * Int8::from(-1), content="1")
-  inspect!(Int8::from(127) * Int8::from(1), content="127")
-  inspect!(Int8::from(127) * Int8::from(-1), content="-127")
+  inspect(Int8::from(1) * Int8::from(1), content="1")
+  inspect(Int8::from(1) * Int8::from(-1), content="-1")
+  inspect(Int8::from(-1) * Int8::from(-1), content="1")
+  inspect(Int8::from(127) * Int8::from(1), content="127")
+  inspect(Int8::from(127) * Int8::from(-1), content="-127")
 
   // div
-  inspect!(Int8::from(1) / Int8::from(1), content="1")
-  inspect!(Int8::from(1) / Int8::from(-1), content="-1")
-  inspect!(Int8::from(-1) / Int8::from(-1), content="1")
-  inspect!(Int8::from(127) / Int8::from(1), content="127")
+  inspect(Int8::from(1) / Int8::from(1), content="1")
+  inspect(Int8::from(1) / Int8::from(-1), content="-1")
+  inspect(Int8::from(-1) / Int8::from(-1), content="1")
+  inspect(Int8::from(127) / Int8::from(1), content="127")
 }

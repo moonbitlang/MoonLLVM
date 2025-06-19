@@ -48,11 +48,11 @@ pub fn[T : InsertPoint] IRBuilder::setInsertPoint(
 }
 
 ///|
-fn IRBuilder::insert(self : IRBuilder, inst : &Instruction) -> Unit!Error {
+fn IRBuilder::insert(self : IRBuilder, inst : &Instruction) -> Unit raise Error {
   guard self.bb is Some(_) else { raise UnsetInsertPoint }
   match self.insertPt {
     Some(insertPt) => {
-      inst.insertAfter!(insertPt)
+      inst.insertAfter(insertPt)
       self.insertPt = Some(inst)
     }
     None => {
@@ -71,18 +71,18 @@ fn IRBuilder::getInsertFunction(self : IRBuilder) -> Function {
 pub fn IRBuilder::createRet(
   self : IRBuilder,
   retVal : &Value
-) -> &Instruction!Error {
+) -> &Instruction raise Error {
   let parent = self.getInsertFunction()
   let retInst = ReturnInst::new(Some(retVal), parent)
-  self.insert!(retInst)
+  self.insert(retInst)
   retInst
 }
 
 ///|
-pub fn IRBuilder::createRetVoid(self : IRBuilder) -> &Instruction!Error {
+pub fn IRBuilder::createRetVoid(self : IRBuilder) -> &Instruction raise Error {
   let parent = self.getInsertFunction()
   let retInst = ReturnInst::new(None, parent)
-  self.insert!(retInst)
+  self.insert(retInst)
   retInst
 }
 
@@ -92,14 +92,14 @@ pub fn IRBuilder::createAlloca(
   data_ty : &Type,
   addressSpace~ : AddressSpace = AddressSpace::default(),
   name~ : String = ""
-) -> &Value!Error {
+) -> &Value raise Error {
   let allocaInst = AllocaInst::new(
     data_ty,
     self.getInsertFunction(),
     addressSpace~,
     name,
   )
-  self.insert!(allocaInst)
+  self.insert(allocaInst)
   allocaInst
 }
 
@@ -125,8 +125,8 @@ pub fn IRBuilder::createAlloca(
 ///   let builder = IRBuilder::new()
 ///
 ///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
-///   let fval = prog.addFunction!(fty, "add")
+///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+///   let fval = prog.addFunction(fty, "add")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
@@ -134,20 +134,20 @@ pub fn IRBuilder::createAlloca(
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
 ///   // Test regular addition with nsw and nuw flags
-///   let nsw_add = builder.createAdd!(arg0, arg1, has_nsw=true)
-///   let nuw_add = builder.createAdd!(arg0, arg1, has_nuw=true)
+///   let nsw_add = builder.createAdd(arg0, arg1, has_nsw=true)
+///   let nuw_add = builder.createAdd(arg0, arg1, has_nuw=true)
 ///   
 ///   // Test constant folding
 ///   let const_42 = ctx.getConstInt32(42)
 ///   let const_33 = ctx.getConstInt32(33)
-///   let const_sum = builder.createAdd!(const_42, const_33) // Should fold to 75
+///   let const_sum = builder.createAdd(const_42, const_33) // Should fold to 75
 ///   
 ///   // Combine results with both nsw and nuw flags
-///   let final_add = builder.createAdd!(
+///   let final_add = builder.createAdd(
 ///     nsw_add, nuw_add, has_nsw=true, has_nuw=true
 ///   )
-///   let result = builder.createAdd!(final_add, const_sum)
-///   let _ = builder.createRet!(result)
+///   let result = builder.createAdd(final_add, const_sum)
+///   let _ = builder.createRet(result)
 ///
 ///   // Verify constant folding worked
 ///   inspect(const_sum, content = "i32 75")
@@ -174,9 +174,9 @@ pub fn IRBuilder::createAdd(
   name~ : String = "",
   has_nsw~ : Bool = false,
   has_nuw~ : Bool = false
-) -> &Value!Error {
+) -> &Value raise Error {
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
-    (Some(ConstantInt(lhs)), Some(ConstantInt(rhs))) => return lhs.add!(rhs)
+    (Some(ConstantInt(lhs)), Some(ConstantInt(rhs))) => return lhs.add(rhs)
     _ => ()
   }
   let parent = self.getInsertFunction()
@@ -187,7 +187,7 @@ pub fn IRBuilder::createAdd(
   if has_nsw {
     flags.add(BinaryOpFlags::NoSignedWrap)
   }
-  let inst = BinaryInstruction::newStandardOp!(
+  let inst = BinaryInstruction::newStandardOp(
     BinaryOps::Add,
     lhs,
     rhs,
@@ -195,7 +195,7 @@ pub fn IRBuilder::createAdd(
     name,
     flags,
   )
-  self.insert!(inst)
+  self.insert(inst)
   inst
 }
 
@@ -217,8 +217,8 @@ pub fn IRBuilder::createAdd(
 ///   let builder = IRBuilder::new()
 ///
 ///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
-///   let fval = prog.addFunction!(fty, "add")
+///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+///   let fval = prog.addFunction(fty, "add")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
@@ -226,15 +226,15 @@ pub fn IRBuilder::createAdd(
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
 ///   // Test regular addition with nsw flag
-///   let sum = builder.createNSWAdd!(arg0, arg1)
+///   let sum = builder.createNSWAdd(arg0, arg1)
 ///   
 ///   // Test constant folding
 ///   let const_42 = ctx.getConstInt32(42)
 ///   let const_33 = ctx.getConstInt32(33)
-///   let const_sum = builder.createNSWAdd!(const_42, const_33) // Should fold to 75
+///   let const_sum = builder.createNSWAdd(const_42, const_33) // Should fold to 75
 ///   
-///   let result = builder.createAdd!(sum, const_sum)
-///   let _ = builder.createRet!(result)
+///   let result = builder.createAdd(sum, const_sum)
+///   let _ = builder.createRet(result)
 ///
 ///   // Verify constant folding worked
 ///   inspect(const_sum, content = "i32 75")
@@ -257,7 +257,7 @@ pub fn IRBuilder::createNSWAdd(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
+) -> &Value raise Error {
   self.createAdd(lhs, rhs, name~, has_nsw=true, has_nuw=false)
 }
 
@@ -279,8 +279,8 @@ pub fn IRBuilder::createNSWAdd(
 ///   let builder = IRBuilder::new()
 ///
 ///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
-///   let fval = prog.addFunction!(fty, "add")
+///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+///   let fval = prog.addFunction(fty, "add")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
@@ -288,15 +288,15 @@ pub fn IRBuilder::createNSWAdd(
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
 ///   // Test regular addition with nuw flag
-///   let sum = builder.createNUWAdd!(arg0, arg1)
+///   let sum = builder.createNUWAdd(arg0, arg1)
 ///   
 ///   // Test constant folding
 ///   let const_42 = ctx.getConstInt32(42)
 ///   let const_33 = ctx.getConstInt32(33)
-///   let const_sum = builder.createNUWAdd!(const_42, const_33) // Should fold to 75
+///   let const_sum = builder.createNUWAdd(const_42, const_33) // Should fold to 75
 ///   
-///   let result = builder.createAdd!(sum, const_sum)
-///   let _ = builder.createRet!(result)
+///   let result = builder.createAdd(sum, const_sum)
+///   let _ = builder.createRet(result)
 ///
 ///   // Verify constant folding worked
 ///   inspect(const_sum, content = "i32 75")
@@ -319,7 +319,7 @@ pub fn IRBuilder::createNUWAdd(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
+) -> &Value raise Error {
   self.createAdd(lhs, rhs, name~, has_nsw=false, has_nuw=true)
 }
 
@@ -345,8 +345,8 @@ pub fn IRBuilder::createNUWAdd(
 ///   let builder = IRBuilder::new()
 ///
 ///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
-///   let fval = prog.addFunction!(fty, "sub")
+///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+///   let fval = prog.addFunction(fty, "sub")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
@@ -354,20 +354,20 @@ pub fn IRBuilder::createNUWAdd(
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
 ///   // Test regular subtraction with nsw and nuw flags
-///   let nsw_sub = builder.createSub!(arg0, arg1, has_nsw=true)
-///   let nuw_sub = builder.createSub!(arg0, arg1, has_nuw=true)
+///   let nsw_sub = builder.createSub(arg0, arg1, has_nsw=true)
+///   let nuw_sub = builder.createSub(arg0, arg1, has_nuw=true)
 ///   
 ///   // Test constant folding
 ///   let const_42 = ctx.getConstInt32(42)
 ///   let const_33 = ctx.getConstInt32(33)
-///   let const_diff = builder.createSub!(const_42, const_33) // Should fold to 9
+///   let const_diff = builder.createSub(const_42, const_33) // Should fold to 9
 ///   
 ///   // Combine results with both nsw and nuw flags
-///   let final_sub = builder.createSub!(
+///   let final_sub = builder.createSub(
 ///     nsw_sub, nuw_sub, has_nsw=true, has_nuw=true
 ///   )
-///   let result = builder.createAdd!(final_sub, const_diff)
-///   let _ = builder.createRet!(result)
+///   let result = builder.createAdd(final_sub, const_diff)
+///   let _ = builder.createRet(result)
 ///
 ///   // Verify constant folding worked
 ///   inspect(const_diff, content = "i32 9")
@@ -394,9 +394,9 @@ pub fn IRBuilder::createSub(
   name~ : String = "",
   has_nsw~ : Bool = false,
   has_nuw~ : Bool = false
-) -> &Value!Error {
+) -> &Value raise Error {
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
-    (Some(ConstantInt(lhs)), Some(ConstantInt(rhs))) => return lhs.sub!(rhs)
+    (Some(ConstantInt(lhs)), Some(ConstantInt(rhs))) => return lhs.sub(rhs)
     _ => ()
   }
   let parent = self.getInsertFunction()
@@ -407,7 +407,7 @@ pub fn IRBuilder::createSub(
   if has_nsw {
     flags.add(BinaryOpFlags::NoSignedWrap)
   }
-  let inst = BinaryInstruction::newStandardOp!(
+  let inst = BinaryInstruction::newStandardOp(
     BinaryOps::Sub,
     lhs,
     rhs,
@@ -415,7 +415,7 @@ pub fn IRBuilder::createSub(
     name,
     flags,
   )
-  self.insert!(inst)
+  self.insert(inst)
   inst
 }
 
@@ -437,8 +437,8 @@ pub fn IRBuilder::createSub(
 ///   let builder = IRBuilder::new()
 ///
 ///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
-///   let fval = prog.addFunction!(fty, "sub")
+///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+///   let fval = prog.addFunction(fty, "sub")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
@@ -446,15 +446,15 @@ pub fn IRBuilder::createSub(
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
 ///   // Test regular subtraction with nsw flag
-///   let diff = builder.createNSWSub!(arg0, arg1)
+///   let diff = builder.createNSWSub(arg0, arg1)
 ///   
 ///   // Test constant folding
 ///   let const_42 = ctx.getConstInt32(42)
 ///   let const_33 = ctx.getConstInt32(33)
-///   let const_diff = builder.createNSWSub!(const_42, const_33) // Should fold to 9
+///   let const_diff = builder.createNSWSub(const_42, const_33) // Should fold to 9
 ///   
-///   let result = builder.createAdd!(diff, const_diff)
-///   let _ = builder.createRet!(result)
+///   let result = builder.createAdd(diff, const_diff)
+///   let _ = builder.createRet(result)
 ///
 ///   // Verify constant folding worked
 ///   inspect(const_diff, content = "i32 9")
@@ -477,7 +477,7 @@ pub fn IRBuilder::createNSWSub(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
+) -> &Value raise Error {
   self.createSub(lhs, rhs, name~, has_nsw=true, has_nuw=false)
 }
 
@@ -494,16 +494,16 @@ pub fn IRBuilder::createNSWSub(
 ///   let builder = IRBuilder::new()
 ///
 ///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
-///   let fval = prog.addFunction!(fty, "sub")
+///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+///   let fval = prog.addFunction(fty, "sub")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
 ///   let arg0 = fval.getArg(0).unwrap()
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
-///   let diff = builder.createNUWSub!(arg0, arg1)
-///   let _ = builder.createRet!(diff)
+///   let diff = builder.createNUWSub(arg0, arg1)
+///   let _ = builder.createRet(diff)
 ///
 ///   inspect(
 ///     fval,
@@ -527,16 +527,16 @@ pub fn IRBuilder::createNSWSub(
 ///   let builder = IRBuilder::new()
 ///
 ///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [])
-///   let fval = prog.addFunction!(fty, "sub")
+///   let fty = ctx.getFunctionType(i32ty, [])
+///   let fval = prog.addFunction(fty, "sub")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
 ///   let forty_two = ctx.getConstInt32(42)
 ///   let thirty_three = ctx.getConstInt32(33)
 ///
-///   let diff = builder.createNSWSub!(forty_two, thirty_three)
-///   let _ = builder.createRet!(diff)
+///   let diff = builder.createNSWSub(forty_two, thirty_three)
+///   let _ = builder.createRet(diff)
 ///
 ///   inspect(diff, content = "i32 9")
 ///   inspect(
@@ -555,7 +555,7 @@ pub fn IRBuilder::createNUWSub(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
+) -> &Value raise Error {
   self.createSub(lhs, rhs, name~, has_nsw=false, has_nuw=true)
 }
 
@@ -581,8 +581,8 @@ pub fn IRBuilder::createNUWSub(
 ///   let builder = IRBuilder::new()
 ///
 ///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
-///   let fval = prog.addFunction!(fty, "mul")
+///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+///   let fval = prog.addFunction(fty, "mul")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
@@ -590,20 +590,20 @@ pub fn IRBuilder::createNUWSub(
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
 ///   // Test regular multiplication with nsw and nuw flags
-///   let nsw_mul = builder.createMul!(arg0, arg1, has_nsw=true)
-///   let nuw_mul = builder.createMul!(arg0, arg1, has_nuw=true)
+///   let nsw_mul = builder.createMul(arg0, arg1, has_nsw=true)
+///   let nuw_mul = builder.createMul(arg0, arg1, has_nuw=true)
 ///   
 ///   // Test constant folding
 ///   let const_42 = ctx.getConstInt32(42)
 ///   let const_33 = ctx.getConstInt32(33)
-///   let const_prod = builder.createMul!(const_42, const_33) // Should fold to 1386
+///   let const_prod = builder.createMul(const_42, const_33) // Should fold to 1386
 ///   
 ///   // Combine results with both nsw and nuw flags
-///   let final_mul = builder.createMul!(
+///   let final_mul = builder.createMul(
 ///     nsw_mul, nuw_mul, has_nsw=true, has_nuw=true
 ///   )
-///   let result = builder.createAdd!(final_mul, const_prod)
-///   let _ = builder.createRet!(result)
+///   let result = builder.createAdd(final_mul, const_prod)
+///   let _ = builder.createRet(result)
 ///
 ///   // Verify constant folding worked
 ///   inspect(const_prod, content = "i32 1386")
@@ -630,9 +630,9 @@ pub fn IRBuilder::createMul(
   name~ : String = "",
   has_nsw~ : Bool = false,
   has_nuw~ : Bool = false
-) -> &Value!Error {
+) -> &Value raise Error {
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
-    (Some(ConstantInt(lhs)), Some(ConstantInt(rhs))) => return lhs.mul!(rhs)
+    (Some(ConstantInt(lhs)), Some(ConstantInt(rhs))) => return lhs.mul(rhs)
     _ => ()
   }
   let parent = self.getInsertFunction()
@@ -643,7 +643,7 @@ pub fn IRBuilder::createMul(
   if has_nsw {
     flags.add(BinaryOpFlags::NoSignedWrap)
   }
-  let inst = BinaryInstruction::newStandardOp!(
+  let inst = BinaryInstruction::newStandardOp(
     BinaryOps::Mul,
     lhs,
     rhs,
@@ -651,7 +651,7 @@ pub fn IRBuilder::createMul(
     name,
     flags,
   )
-  self.insert!(inst)
+  self.insert(inst)
   inst
 }
 
@@ -673,8 +673,8 @@ pub fn IRBuilder::createMul(
 ///   let builder = IRBuilder::new()
 ///
 ///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
-///   let fval = prog.addFunction!(fty, "mul")
+///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+///   let fval = prog.addFunction(fty, "mul")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
@@ -682,15 +682,15 @@ pub fn IRBuilder::createMul(
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
 ///   // Test regular multiplication with nsw flag
-///   let prod = builder.createNSWMul!(arg0, arg1)
+///   let prod = builder.createNSWMul(arg0, arg1)
 ///   
 ///   // Test constant folding
 ///   let const_42 = ctx.getConstInt32(42)
 ///   let const_33 = ctx.getConstInt32(33)
-///   let const_prod = builder.createNSWMul!(const_42, const_33) // Should fold to 1386
+///   let const_prod = builder.createNSWMul(const_42, const_33) // Should fold to 1386
 ///   
-///   let result = builder.createAdd!(prod, const_prod)
-///   let _ = builder.createRet!(result)
+///   let result = builder.createAdd(prod, const_prod)
+///   let _ = builder.createRet(result)
 ///
 ///   // Verify constant folding worked
 ///   inspect(const_prod, content = "i32 1386")
@@ -713,7 +713,7 @@ pub fn IRBuilder::createNSWMul(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
+) -> &Value raise Error {
   self.createMul(lhs, rhs, name~, has_nsw=true, has_nuw=false)
 }
 
@@ -735,8 +735,8 @@ pub fn IRBuilder::createNSWMul(
 ///   let builder = IRBuilder::new()
 ///
 ///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
-///   let fval = prog.addFunction!(fty, "mul")
+///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+///   let fval = prog.addFunction(fty, "mul")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
@@ -744,15 +744,15 @@ pub fn IRBuilder::createNSWMul(
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
 ///   // Test regular multiplication with nuw flag
-///   let prod = builder.createNUWMul!(arg0, arg1)
+///   let prod = builder.createNUWMul(arg0, arg1)
 ///   
 ///   // Test constant folding
 ///   let const_42 = ctx.getConstInt32(42)
 ///   let const_33 = ctx.getConstInt32(33)
-///   let const_prod = builder.createNUWMul!(const_42, const_33) // Should fold to 1386
+///   let const_prod = builder.createNUWMul(const_42, const_33) // Should fold to 1386
 ///   
-///   let result = builder.createAdd!(prod, const_prod)
-///   let _ = builder.createRet!(result)
+///   let result = builder.createAdd(prod, const_prod)
+///   let _ = builder.createRet(result)
 ///
 ///   // Verify constant folding worked
 ///   inspect(const_prod, content = "i32 1386")
@@ -775,7 +775,7 @@ pub fn IRBuilder::createNUWMul(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
+) -> &Value raise Error {
   self.createMul(lhs, rhs, name~, has_nsw=false, has_nuw=true)
 }
 
@@ -795,16 +795,16 @@ pub fn IRBuilder::createNUWMul(
 ///   let builder = IRBuilder::new()
 ///
 ///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
-///   let fval = prog.addFunction!(fty, "sdiv_func")
+///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+///   let fval = prog.addFunction(fty, "sdiv_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
 ///   let arg0 = fval.getArg(0).unwrap()
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
-///   let quot = builder.createSDiv!(arg0, arg1)
-///   let _ = builder.createRet!(quot)
+///   let quot = builder.createSDiv(arg0, arg1)
+///   let _ = builder.createRet(quot)
 ///
 ///   inspect(
 ///     fval,
@@ -824,9 +824,9 @@ pub fn IRBuilder::createSDiv(
   rhs : &Value,
   name~ : String = "",
   is_exact~ : Bool = false
-) -> &Value!Error {
+) -> &Value raise Error {
   // match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
-  //   (Some(ConstantInt(c_lhs)), Some(ConstantInt(c_rhs))) => return c_lhs.sdiv!(c_rhs) // Assuming ConstantInt has sdiv!
+  //   (Some(ConstantInt(c_lhs)), Some(ConstantInt(c_rhs))) => return c_lhs.sdiv(c_rhs) // Assuming ConstantInt has sdiv!
   //   _ => ()
   // }
   let parent = self.getInsertFunction()
@@ -834,7 +834,7 @@ pub fn IRBuilder::createSDiv(
   if is_exact {
     flags.add(BinaryOpFlags::Exact)
   }
-  let inst = BinaryInstruction::newStandardOp!(
+  let inst = BinaryInstruction::newStandardOp(
     BinaryOps::SDiv,
     lhs,
     rhs,
@@ -842,7 +842,7 @@ pub fn IRBuilder::createSDiv(
     name,
     flags,
   )
-  self.insert!(inst)
+  self.insert(inst)
   inst
 }
 
@@ -867,16 +867,16 @@ pub fn IRBuilder::createSDiv(
 ///   let builder = IRBuilder::new()
 ///
 ///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
-///   let fval = prog.addFunction!(fty, "exact_sdiv_func")
+///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+///   let fval = prog.addFunction(fty, "exact_sdiv_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
 ///   let arg0 = fval.getArg(0).unwrap()
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
-///   let quot = builder.createExactSDiv!(arg0, arg1)
-///   let _ = builder.createRet!(quot)
+///   let quot = builder.createExactSDiv(arg0, arg1)
+///   let _ = builder.createRet(quot)
 ///
 ///   inspect(
 ///     fval,
@@ -895,7 +895,7 @@ pub fn IRBuilder::createExactSDiv(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
+) -> &Value raise Error {
   self.createSDiv(lhs, rhs, name~, is_exact=true)
 }
 
@@ -915,16 +915,16 @@ pub fn IRBuilder::createExactSDiv(
 ///   let builder = IRBuilder::new()
 ///
 ///   let i32ty = ctx.getInt32Ty() // Using i32 for unsigned operations as well, common in LLVM
-///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
-///   let fval = prog.addFunction!(fty, "udiv_func")
+///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+///   let fval = prog.addFunction(fty, "udiv_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
 ///   let arg0 = fval.getArg(0).unwrap()
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
-///   let quot = builder.createUDiv!(arg0, arg1)
-///   let _ = builder.createRet!(quot)
+///   let quot = builder.createUDiv(arg0, arg1)
+///   let _ = builder.createRet(quot)
 ///
 ///   inspect(
 ///     fval,
@@ -944,9 +944,9 @@ pub fn IRBuilder::createUDiv(
   rhs : &Value,
   name~ : String = "",
   is_exact~ : Bool = false
-) -> &Value!Error {
+) -> &Value raise Error {
   // match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
-  //   (Some(ConstantUInt(c_lhs)), Some(ConstantUInt(c_rhs))) => return c_lhs.udiv!(c_rhs) // Assumed missing
+  //   (Some(ConstantUInt(c_lhs)), Some(ConstantUInt(c_rhs))) => return c_lhs.udiv(c_rhs) // Assumed missing
   //   _ => ()
   // }
   let parent = self.getInsertFunction()
@@ -954,7 +954,7 @@ pub fn IRBuilder::createUDiv(
   if is_exact {
     flags.add(BinaryOpFlags::Exact)
   }
-  let inst = BinaryInstruction::newStandardOp!(
+  let inst = BinaryInstruction::newStandardOp(
     BinaryOps::UDiv,
     lhs,
     rhs,
@@ -962,7 +962,7 @@ pub fn IRBuilder::createUDiv(
     name,
     flags,
   )
-  self.insert!(inst)
+  self.insert(inst)
   inst
 }
 
@@ -988,16 +988,16 @@ pub fn IRBuilder::createUDiv(
 ///   let builder = IRBuilder::new()
 ///
 ///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
-///   let fval = prog.addFunction!(fty, "exact_udiv_func")
+///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+///   let fval = prog.addFunction(fty, "exact_udiv_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
 ///   let arg0 = fval.getArg(0).unwrap()
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
-///   let quot = builder.createExactUDiv!(arg0, arg1)
-///   let _ = builder.createRet!(quot)
+///   let quot = builder.createExactUDiv(arg0, arg1)
+///   let _ = builder.createRet(quot)
 ///
 ///   inspect(
 ///     fval,
@@ -1016,7 +1016,7 @@ pub fn IRBuilder::createExactUDiv(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
+) -> &Value raise Error {
   self.createUDiv(lhs, rhs, name~, is_exact=true)
 }
 
@@ -1039,16 +1039,16 @@ pub fn IRBuilder::createExactUDiv(
 ///   let builder = IRBuilder::new()
 ///
 ///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
-///   let fval = prog.addFunction!(fty, "srem_func")
+///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+///   let fval = prog.addFunction(fty, "srem_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
 ///   let arg0 = fval.getArg(0).unwrap()
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
-///   let rem = builder.createSRem!(arg0, arg1)
-///   let _ = builder.createRet!(rem)
+///   let rem = builder.createSRem(arg0, arg1)
+///   let _ = builder.createRet(rem)
 ///
 ///   inspect(
 ///     fval,
@@ -1067,16 +1067,16 @@ pub fn IRBuilder::createSRem(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
+) -> &Value raise Error {
   // Constant folding for SRem is currently disabled due to assumed missing `ConstantInt::srem!`
   // match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
-  //   (Some(ConstantInt(c_lhs)), Some(ConstantInt(c_rhs))) => return c_lhs.srem!(c_rhs)
+  //   (Some(ConstantInt(c_lhs)), Some(ConstantInt(c_rhs))) => return c_lhs.srem(c_rhs)
   //   _ => ()
   // }
 
   let parent = self.getInsertFunction()
   let flags = Set::new() // nsw, nuw, exact are not applicable to SRem
-  let inst = BinaryInstruction::newStandardOp!(
+  let inst = BinaryInstruction::newStandardOp(
     BinaryOps::SRem,
     lhs,
     rhs,
@@ -1084,7 +1084,7 @@ pub fn IRBuilder::createSRem(
     name,
     flags,
   )
-  self.insert!(inst)
+  self.insert(inst)
   inst
 }
 
@@ -1104,16 +1104,16 @@ pub fn IRBuilder::createSRem(
 ///   let builder = IRBuilder::new()
 ///
 ///   let i32ty = ctx.getInt32Ty() // Using i32 for unsigned operations as well
-///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
-///   let fval = prog.addFunction!(fty, "urem_func")
+///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+///   let fval = prog.addFunction(fty, "urem_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
 ///   let arg0 = fval.getArg(0).unwrap()
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
-///   let rem = builder.createURem!(arg0, arg1)
-///   let _ = builder.createRet!(rem)
+///   let rem = builder.createURem(arg0, arg1)
+///   let _ = builder.createRet(rem)
 ///
 ///   inspect(
 ///     fval,
@@ -1132,16 +1132,16 @@ pub fn IRBuilder::createURem(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
+) -> &Value raise Error {
   // Constant folding for URem is currently disabled due to assumed missing `ConstantUInt::urem!`
   // match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
-  //   (Some(ConstantUInt(c_lhs)), Some(ConstantUInt(c_rhs))) => return c_lhs.urem!(c_rhs)
+  //   (Some(ConstantUInt(c_lhs)), Some(ConstantUInt(c_rhs))) => return c_lhs.urem(c_rhs)
   //   _ => ()
   // }
 
   let parent = self.getInsertFunction()
   let flags = Set::new() // nsw, nuw, exact are not applicable to URem
-  let inst = BinaryInstruction::newStandardOp!(
+  let inst = BinaryInstruction::newStandardOp(
     BinaryOps::URem,
     lhs,
     rhs,
@@ -1149,7 +1149,7 @@ pub fn IRBuilder::createURem(
     name,
     flags,
   )
-  self.insert!(inst)
+  self.insert(inst)
   inst
 }
 
@@ -1162,16 +1162,16 @@ pub fn IRBuilder::createURem(
 ///   let builder = IRBuilder::new()
 ///
 ///   let f32ty = ctx.getFloatTy()
-///   let fty = ctx.getFunctionType!(f32ty, [f32ty, f32ty])
-///   let fval = prog.addFunction!(fty, "fadd_func")
+///   let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
+///   let fval = prog.addFunction(fty, "fadd_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
 ///   let arg0 = fval.getArg(0).unwrap()
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
-///   let sum = builder.createFAdd!(arg0, arg1)
-///   let _ = builder.createRet!(sum)
+///   let sum = builder.createFAdd(arg0, arg1)
+///   let _ = builder.createRet(sum)
 ///
 ///   inspect(
 ///     fval,
@@ -1198,8 +1198,8 @@ pub fn IRBuilder::createURem(
 ///   let builder = IRBuilder::new()
 ///
 ///   let f32ty = ctx.getFloatTy()
-///   let fty = ctx.getFunctionType!(f32ty, [f32ty, f32ty])
-///   let fval = prog.addFunction!(fty, "fadd_func")
+///   let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
+///   let fval = prog.addFunction(fty, "fadd_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
@@ -1207,8 +1207,8 @@ pub fn IRBuilder::createURem(
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
 ///   let fast_math_flags = Set::of([FastMathFlag::NoNaNs])
-///   let sum = builder.createFAdd!(arg0, arg1, fast_math_flags~)
-///   let _ = builder.createRet!(sum)
+///   let sum = builder.createFAdd(arg0, arg1, fast_math_flags~)
+///   let _ = builder.createRet(sum)
 ///
 ///   inspect(
 ///     fval,
@@ -1228,9 +1228,9 @@ pub fn IRBuilder::createFAdd(
   rhs : &Value,
   name~ : String = "",
   fast_math_flags~ : Set[FastMathFlag] = Set::new()
-) -> &Value!Error {
+) -> &Value raise Error {
   let parent = self.getInsertFunction()
-  let inst = BinaryInstruction::newFPMathOp!(
+  let inst = BinaryInstruction::newFPMathOp(
     BinaryOps::FAdd,
     lhs,
     rhs,
@@ -1238,7 +1238,7 @@ pub fn IRBuilder::createFAdd(
     name,
     fast_math_flags,
   )
-  self.insert!(inst)
+  self.insert(inst)
   inst
 }
 
@@ -1251,16 +1251,16 @@ pub fn IRBuilder::createFAdd(
 ///   let builder = IRBuilder::new()
 ///
 ///   let f32ty = ctx.getFloatTy()
-///   let fty = ctx.getFunctionType!(f32ty, [f32ty, f32ty])
-///   let fval = prog.addFunction!(fty, "fsub_func")
+///   let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
+///   let fval = prog.addFunction(fty, "fsub_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
 ///   let arg0 = fval.getArg(0).unwrap()
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
-///   let diff = builder.createFSub!(arg0, arg1)
-///   let _ = builder.createRet!(diff)
+///   let diff = builder.createFSub(arg0, arg1)
+///   let _ = builder.createRet(diff)
 ///
 ///   inspect(
 ///     fval,
@@ -1287,8 +1287,8 @@ pub fn IRBuilder::createFAdd(
 ///   let builder = IRBuilder::new()
 ///
 ///   let f32ty = ctx.getFloatTy()
-///   let fty = ctx.getFunctionType!(f32ty, [f32ty, f32ty])
-///   let fval = prog.addFunction!(fty, "fsub_func_fast")
+///   let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
+///   let fval = prog.addFunction(fty, "fsub_func_fast")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
@@ -1296,8 +1296,8 @@ pub fn IRBuilder::createFAdd(
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
 ///   let fast_math_flags = Set::of([FastMathFlag::NoInfs])
-///   let diff = builder.createFSub!(arg0, arg1, fast_math_flags~)
-///   let _ = builder.createRet!(diff)
+///   let diff = builder.createFSub(arg0, arg1, fast_math_flags~)
+///   let _ = builder.createRet(diff)
 ///
 ///   inspect(
 ///     fval,
@@ -1317,9 +1317,9 @@ pub fn IRBuilder::createFSub(
   rhs : &Value,
   name~ : String = "",
   fast_math_flags~ : Set[FastMathFlag] = Set::new()
-) -> &Value!Error {
+) -> &Value raise Error {
   let parent = self.getInsertFunction()
-  let inst = BinaryInstruction::newFPMathOp!(
+  let inst = BinaryInstruction::newFPMathOp(
     BinaryOps::FSub,
     lhs,
     rhs,
@@ -1327,7 +1327,7 @@ pub fn IRBuilder::createFSub(
     name,
     fast_math_flags,
   )
-  self.insert!(inst)
+  self.insert(inst)
   inst
 }
 
@@ -1340,16 +1340,16 @@ pub fn IRBuilder::createFSub(
 ///   let builder = IRBuilder::new()
 ///
 ///   let f32ty = ctx.getFloatTy()
-///   let fty = ctx.getFunctionType!(f32ty, [f32ty, f32ty])
-///   let fval = prog.addFunction!(fty, "fmul_func")
+///   let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
+///   let fval = prog.addFunction(fty, "fmul_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
 ///   let arg0 = fval.getArg(0).unwrap()
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
-///   let prod = builder.createFMul!(arg0, arg1)
-///   let _ = builder.createRet!(prod)
+///   let prod = builder.createFMul(arg0, arg1)
+///   let _ = builder.createRet(prod)
 ///
 ///   inspect(
 ///     fval,
@@ -1376,8 +1376,8 @@ pub fn IRBuilder::createFSub(
 ///   let builder = IRBuilder::new()
 ///
 ///   let f32ty = ctx.getFloatTy()
-///   let fty = ctx.getFunctionType!(f32ty, [f32ty, f32ty])
-///   let fval = prog.addFunction!(fty, "fmul_func_fast")
+///   let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
+///   let fval = prog.addFunction(fty, "fmul_func_fast")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
@@ -1385,8 +1385,8 @@ pub fn IRBuilder::createFSub(
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
 ///   let fast_math_flags = Set::of([FastMathFlag::NoSignedZeros])
-///   let prod = builder.createFMul!(arg0, arg1, fast_math_flags~)
-///   let _ = builder.createRet!(prod)
+///   let prod = builder.createFMul(arg0, arg1, fast_math_flags~)
+///   let _ = builder.createRet(prod)
 ///
 ///   inspect(
 ///     fval,
@@ -1406,9 +1406,9 @@ pub fn IRBuilder::createFMul(
   rhs : &Value,
   name~ : String = "",
   fast_math_flags~ : Set[FastMathFlag] = Set::new()
-) -> &Value!Error {
+) -> &Value raise Error {
   let parent = self.getInsertFunction()
-  let inst = BinaryInstruction::newFPMathOp!(
+  let inst = BinaryInstruction::newFPMathOp(
     BinaryOps::FMul,
     lhs,
     rhs,
@@ -1416,7 +1416,7 @@ pub fn IRBuilder::createFMul(
     name,
     fast_math_flags,
   )
-  self.insert!(inst)
+  self.insert(inst)
   inst
 }
 
@@ -1429,16 +1429,16 @@ pub fn IRBuilder::createFMul(
 ///   let builder = IRBuilder::new()
 ///
 ///   let f32ty = ctx.getFloatTy()
-///   let fty = ctx.getFunctionType!(f32ty, [f32ty, f32ty])
-///   let fval = prog.addFunction!(fty, "fdiv_func")
+///   let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
+///   let fval = prog.addFunction(fty, "fdiv_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
 ///   let arg0 = fval.getArg(0).unwrap()
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
-///   let quot = builder.createFDiv!(arg0, arg1)
-///   let _ = builder.createRet!(quot)
+///   let quot = builder.createFDiv(arg0, arg1)
+///   let _ = builder.createRet(quot)
 ///
 ///   inspect(
 ///     fval,
@@ -1465,8 +1465,8 @@ pub fn IRBuilder::createFMul(
 ///   let builder = IRBuilder::new()
 ///
 ///   let f32ty = ctx.getFloatTy()
-///   let fty = ctx.getFunctionType!(f32ty, [f32ty, f32ty])
-///   let fval = prog.addFunction!(fty, "fdiv_func_fast")
+///   let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
+///   let fval = prog.addFunction(fty, "fdiv_func_fast")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
@@ -1474,8 +1474,8 @@ pub fn IRBuilder::createFMul(
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
 ///   let fast_math_flags = Set::of([FastMathFlag::AllowReciprocal])
-///   let quot = builder.createFDiv!(arg0, arg1, fast_math_flags~)
-///   let _ = builder.createRet!(quot)
+///   let quot = builder.createFDiv(arg0, arg1, fast_math_flags~)
+///   let _ = builder.createRet(quot)
 ///
 ///   inspect(
 ///     fval,
@@ -1495,9 +1495,9 @@ pub fn IRBuilder::createFDiv(
   rhs : &Value,
   name~ : String = "",
   fast_math_flags~ : Set[FastMathFlag] = Set::new()
-) -> &Value!Error {
+) -> &Value raise Error {
   let parent = self.getInsertFunction()
-  let inst = BinaryInstruction::newFPMathOp!(
+  let inst = BinaryInstruction::newFPMathOp(
     BinaryOps::FDiv,
     lhs,
     rhs,
@@ -1505,7 +1505,7 @@ pub fn IRBuilder::createFDiv(
     name,
     fast_math_flags,
   )
-  self.insert!(inst)
+  self.insert(inst)
   inst
 }
 
@@ -1518,16 +1518,16 @@ pub fn IRBuilder::createFDiv(
 ///   let builder = IRBuilder::new()
 ///
 ///   let f32ty = ctx.getFloatTy()
-///   let fty = ctx.getFunctionType!(f32ty, [f32ty, f32ty])
-///   let fval = prog.addFunction!(fty, "frem_func")
+///   let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
+///   let fval = prog.addFunction(fty, "frem_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
 ///   let arg0 = fval.getArg(0).unwrap()
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
-///   let rem = builder.createFRem!(arg0, arg1)
-///   let _ = builder.createRet!(rem)
+///   let rem = builder.createFRem(arg0, arg1)
+///   let _ = builder.createRet(rem)
 ///
 ///   inspect(
 ///     fval,
@@ -1554,8 +1554,8 @@ pub fn IRBuilder::createFDiv(
 ///   let builder = IRBuilder::new()
 ///
 ///   let f32ty = ctx.getFloatTy()
-///   let fty = ctx.getFunctionType!(f32ty, [f32ty, f32ty])
-///   let fval = prog.addFunction!(fty, "frem_func_fast")
+///   let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
+///   let fval = prog.addFunction(fty, "frem_func_fast")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
@@ -1563,8 +1563,8 @@ pub fn IRBuilder::createFDiv(
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
 ///   let fast_math_flags = Set::of([FastMathFlag::AllowContract])
-///   let rem = builder.createFRem!(arg0, arg1, fast_math_flags~)
-///   let _ = builder.createRet!(rem)
+///   let rem = builder.createFRem(arg0, arg1, fast_math_flags~)
+///   let _ = builder.createRet(rem)
 ///
 ///   inspect(
 ///     fval,
@@ -1584,9 +1584,9 @@ pub fn IRBuilder::createFRem(
   rhs : &Value,
   name~ : String = "",
   fast_math_flags~ : Set[FastMathFlag] = Set::new()
-) -> &Value!Error {
+) -> &Value raise Error {
   let parent = self.getInsertFunction()
-  let inst = BinaryInstruction::newFPMathOp!(
+  let inst = BinaryInstruction::newFPMathOp(
     BinaryOps::FRem,
     lhs,
     rhs,
@@ -1594,7 +1594,7 @@ pub fn IRBuilder::createFRem(
     name,
     fast_math_flags,
   )
-  self.insert!(inst)
+  self.insert(inst)
   inst
 }
 
@@ -1612,8 +1612,8 @@ pub fn IRBuilder::createFRem(
 ///   let builder = IRBuilder::new()
 ///
 ///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
-///   let fval = prog.addFunction!(fty, "and_func")
+///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+///   let fval = prog.addFunction(fty, "and_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
@@ -1621,17 +1621,17 @@ pub fn IRBuilder::createFRem(
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
 ///   // Test regular and with variables
-///   let and_vars = builder.createAnd!(arg0, arg1)
+///   let and_vars = builder.createAnd(arg0, arg1)
 ///   
 ///   // Test constant folding with two constants
 ///   let const6 = ctx.getConstInt32(6) // 0b0110
 ///   let const3 = ctx.getConstInt32(3) // 0b0011
-///   let and_consts = builder.createAnd!(const6, const3) // Should fold to 2 (0b0010)
+///   let and_consts = builder.createAnd(const6, const3) // Should fold to 2 (0b0010)
 ///   
 ///   // Test mixed: one constant, one variable
-///   let and_mixed = builder.createAnd!(and_vars , and_consts)
+///   let and_mixed = builder.createAnd(and_vars , and_consts)
 ///   
-///   let _ = builder.createRet!(and_mixed )
+///   let _ = builder.createRet(and_mixed )
 ///
 ///   inspect(
 ///     fval,
@@ -1651,14 +1651,14 @@ pub fn IRBuilder::createAnd(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
+) -> &Value raise Error {
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
     (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) =>
-      return lhs_ci.and!(rhs_ci)
+      return lhs_ci.and(rhs_ci)
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = BinaryInstruction::newStandardOp!(
+  let inst = BinaryInstruction::newStandardOp(
     BinaryOps::And,
     lhs,
     rhs,
@@ -1666,7 +1666,7 @@ pub fn IRBuilder::createAnd(
     name,
     Set::new(),
   )
-  self.insert!(inst)
+  self.insert(inst)
   inst
 }
 
@@ -1684,8 +1684,8 @@ pub fn IRBuilder::createAnd(
 ///   let builder = IRBuilder::new()
 ///
 ///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
-///   let fval = prog.addFunction!(fty, "or_func")
+///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+///   let fval = prog.addFunction(fty, "or_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
@@ -1693,17 +1693,17 @@ pub fn IRBuilder::createAnd(
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
 ///   // Test regular or with variables
-///   let or_vars = builder.createOr!(arg0, arg1)
+///   let or_vars = builder.createOr(arg0, arg1)
 ///   
 ///   // Test constant folding with two constants
 ///   let const6 = ctx.getConstInt32(6) // 0b0110
 ///   let const3 = ctx.getConstInt32(3) // 0b0011
-///   let or_consts = builder.createOr!(const6, const3) // Should fold to 7 (0b0111)
+///   let or_consts = builder.createOr(const6, const3) // Should fold to 7 (0b0111)
 ///   
 ///   // Test mixed: one constant, one variable
-///   let or_mixed = builder.createOr!(or_vars, or_consts)
+///   let or_mixed = builder.createOr(or_vars, or_consts)
 ///   
-///   let _ = builder.createRet!(or_mixed)
+///   let _ = builder.createRet(or_mixed)
 ///
 ///   inspect(
 ///     fval,
@@ -1723,14 +1723,14 @@ pub fn IRBuilder::createOr(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
+) -> &Value raise Error {
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
     (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) =>
-      return lhs_ci.or!(rhs_ci)
+      return lhs_ci.or(rhs_ci)
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = BinaryInstruction::newStandardOp!(
+  let inst = BinaryInstruction::newStandardOp(
     BinaryOps::Or,
     lhs,
     rhs,
@@ -1738,7 +1738,7 @@ pub fn IRBuilder::createOr(
     name,
     Set::new(),
   )
-  self.insert!(inst)
+  self.insert(inst)
   inst
 }
 
@@ -1756,8 +1756,8 @@ pub fn IRBuilder::createOr(
 ///   let builder = IRBuilder::new()
 ///
 ///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
-///   let fval = prog.addFunction!(fty, "xor_func")
+///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+///   let fval = prog.addFunction(fty, "xor_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
@@ -1765,17 +1765,17 @@ pub fn IRBuilder::createOr(
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
 ///   // Test regular xor with variables
-///   let xor_vars = builder.createXor!(arg0, arg1)
+///   let xor_vars = builder.createXor(arg0, arg1)
 ///   
 ///   // Test constant folding with two constants
 ///   let const6 = ctx.getConstInt32(6) // 0b0110
 ///   let const3 = ctx.getConstInt32(3) // 0b0011
-///   let xor_consts = builder.createXor!(const6, const3) // Should fold to 5 (0b0101)
+///   let xor_consts = builder.createXor(const6, const3) // Should fold to 5 (0b0101)
 ///   
 ///   // Test mixed: one constant, one variable
-///   let xor_mixed = builder.createXor!(xor_vars, xor_consts)
+///   let xor_mixed = builder.createXor(xor_vars, xor_consts)
 ///   
-///   let _ = builder.createRet!(xor_mixed)
+///   let _ = builder.createRet(xor_mixed)
 ///
 ///   inspect(
 ///     fval,
@@ -1795,14 +1795,14 @@ pub fn IRBuilder::createXor(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
+) -> &Value raise Error {
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
     (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) =>
-      return lhs_ci.xor!(rhs_ci)
+      return lhs_ci.xor(rhs_ci)
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = BinaryInstruction::newStandardOp!(
+  let inst = BinaryInstruction::newStandardOp(
     BinaryOps::Xor,
     lhs,
     rhs,
@@ -1810,7 +1810,7 @@ pub fn IRBuilder::createXor(
     name,
     Set::new(),
   )
-  self.insert!(inst)
+  self.insert(inst)
   inst
 }
 
@@ -1830,8 +1830,8 @@ pub fn IRBuilder::createXor(
 ///   let builder = IRBuilder::new()
 ///
 ///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
-///   let fval = prog.addFunction!(fty, "shl_func")
+///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+///   let fval = prog.addFunction(fty, "shl_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
@@ -1839,18 +1839,18 @@ pub fn IRBuilder::createXor(
 ///   let arg1 = fval.getArg(1).unwrap() // Shift amount
 ///
 ///   // Test regular shl with variables
-///   let shl_vars = builder.createShl!(arg0, arg1)
+///   let shl_vars = builder.createShl(arg0, arg1)
 ///   
 ///   // Test constant folding
 ///   let const_val = ctx.getConstInt32(1) // 0b0001
 ///   let const_shift = ctx.getConstInt32(1) // shift by 1
-///   let shl_consts = builder.createShl!(const_val, const_shift) // Should fold to 2 (0b0010)
+///   let shl_consts = builder.createShl(const_val, const_shift) // Should fold to 2 (0b0010)
 ///   
 ///   // Test with flags
-///   let shl_nsw = builder.createShl!(shl_vars, shl_consts , has_nsw=true)
-///   let shl_nuw = builder.createShl!(shl_nsw , shl_consts , has_nuw=true)
+///   let shl_nsw = builder.createShl(shl_vars, shl_consts , has_nsw=true)
+///   let shl_nuw = builder.createShl(shl_nsw , shl_consts , has_nuw=true)
 ///   
-///   let _ = builder.createRet!(shl_nuw)
+///   let _ = builder.createRet(shl_nuw)
 ///
 ///   inspect(
 ///     fval,
@@ -1873,10 +1873,10 @@ pub fn IRBuilder::createShl(
   name~ : String = "",
   has_nsw~ : Bool = false,
   has_nuw~ : Bool = false
-) -> &Value!Error {
+) -> &Value raise Error {
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
     (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) =>
-      return lhs_ci.shl!(rhs_ci)
+      return lhs_ci.shl(rhs_ci)
     _ => ()
   }
   let parent = self.getInsertFunction()
@@ -1887,7 +1887,7 @@ pub fn IRBuilder::createShl(
   if has_nsw {
     flags.add(BinaryOpFlags::NoSignedWrap)
   }
-  let inst = BinaryInstruction::newStandardOp!(
+  let inst = BinaryInstruction::newStandardOp(
     BinaryOps::Shl,
     lhs,
     rhs,
@@ -1895,7 +1895,7 @@ pub fn IRBuilder::createShl(
     name,
     flags,
   )
-  self.insert!(inst)
+  self.insert(inst)
   inst
 }
 
@@ -1915,8 +1915,8 @@ pub fn IRBuilder::createShl(
 ///   let builder = IRBuilder::new()
 ///
 ///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
-///   let fval = prog.addFunction!(fty, "lshr_func")
+///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+///   let fval = prog.addFunction(fty, "lshr_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
@@ -1924,17 +1924,17 @@ pub fn IRBuilder::createShl(
 ///   let arg1 = fval.getArg(1).unwrap() // Shift amount
 ///
 ///   // Test regular lshr with variables
-///   let lshr_vars = builder.createLShr!(arg0, arg1)
+///   let lshr_vars = builder.createLShr(arg0, arg1)
 ///   
 ///   // Test constant folding
 ///   let const_val = ctx.getConstInt32(20) // 0b10100
 ///   let const_shift = ctx.getConstInt32(2) // shift by 2
-///   let lshr_consts = builder.createLShr!(const_val, const_shift) // Should fold to 5 (0b00101)
+///   let lshr_consts = builder.createLShr(const_val, const_shift) // Should fold to 5 (0b00101)
 ///   
 ///   // Test with exact flag
-///   let lshr_exact = builder.createLShr!(lshr_vars, lshr_consts, is_exact=true)
+///   let lshr_exact = builder.createLShr(lshr_vars, lshr_consts, is_exact=true)
 ///   
-///   let _ = builder.createRet!(lshr_exact)
+///   let _ = builder.createRet(lshr_exact)
 ///
 ///   // Verify constant folding worked
 ///   inspect(lshr_consts, content = "i32 5")
@@ -1958,10 +1958,10 @@ pub fn IRBuilder::createLShr(
   rhs : &Value,
   name~ : String = "",
   is_exact~ : Bool = false
-) -> &Value!Error {
+) -> &Value raise Error {
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
     (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) =>
-      return lhs_ci.lshr!(rhs_ci)
+      return lhs_ci.lshr(rhs_ci)
     _ => ()
   }
   let parent = self.getInsertFunction()
@@ -1969,7 +1969,7 @@ pub fn IRBuilder::createLShr(
   if is_exact {
     flags.add(BinaryOpFlags::Exact)
   }
-  let inst = BinaryInstruction::newStandardOp!(
+  let inst = BinaryInstruction::newStandardOp(
     BinaryOps::LShr,
     lhs,
     rhs,
@@ -1977,7 +1977,7 @@ pub fn IRBuilder::createLShr(
     name,
     flags,
   )
-  self.insert!(inst)
+  self.insert(inst)
   inst
 }
 
@@ -1997,8 +1997,8 @@ pub fn IRBuilder::createLShr(
 ///   let builder = IRBuilder::new()
 ///
 ///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
-///   let fval = prog.addFunction!(fty, "ashr_func")
+///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+///   let fval = prog.addFunction(fty, "ashr_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
@@ -2006,17 +2006,17 @@ pub fn IRBuilder::createLShr(
 ///   let arg1 = fval.getArg(1).unwrap() // Shift amount
 ///
 ///   // Test regular ashr with variables
-///   let ashr_vars = builder.createAShr!(arg0, arg1)
+///   let ashr_vars = builder.createAShr(arg0, arg1)
 ///   
 ///   // Test constant folding with negative number
 ///   let const_val_neg = ctx.getConstInt32(-20) // 0xFFFFFFEC (i32)
 ///   let const_shift = ctx.getConstInt32(2) // shift by 2
-///   let ashr_consts = builder.createAShr!(const_val_neg, const_shift) // Should fold to -5
+///   let ashr_consts = builder.createAShr(const_val_neg, const_shift) // Should fold to -5
 ///   
 ///   // Test with exact flag
-///   let ashr_exact = builder.createAShr!(ashr_vars, ashr_consts, is_exact=true)
+///   let ashr_exact = builder.createAShr(ashr_vars, ashr_consts, is_exact=true)
 ///   
-///   let _ = builder.createRet!(ashr_exact)
+///   let _ = builder.createRet(ashr_exact)
 ///
 ///   // Verify constant folding worked
 ///   inspect(ashr_consts, content = "i32 -5")
@@ -2040,10 +2040,10 @@ pub fn IRBuilder::createAShr(
   rhs : &Value,
   name~ : String = "",
   is_exact~ : Bool = false
-) -> &Value!Error {
+) -> &Value raise Error {
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
     (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) =>
-      return lhs_ci.ashr!(rhs_ci)
+      return lhs_ci.ashr(rhs_ci)
     _ => ()
   }
   let parent = self.getInsertFunction()
@@ -2051,7 +2051,7 @@ pub fn IRBuilder::createAShr(
   if is_exact {
     flags.add(BinaryOpFlags::Exact)
   }
-  let inst = BinaryInstruction::newStandardOp!(
+  let inst = BinaryInstruction::newStandardOp(
     BinaryOps::AShr,
     lhs,
     rhs,
@@ -2059,7 +2059,7 @@ pub fn IRBuilder::createAShr(
     name,
     flags,
   )
-  self.insert!(inst)
+  self.insert(inst)
   inst
 }
 
@@ -2084,8 +2084,8 @@ pub fn IRBuilder::createAShr(
 ///
 ///   let i32ty = ctx.getInt32Ty()
 ///   let i1ty = ctx.getInt1Ty()
-///   let fty = ctx.getFunctionType!(i1ty, [i32ty, i32ty])
-///   let fval = prog.addFunction!(fty, "cmp_func")
+///   let fty = ctx.getFunctionType(i1ty, [i32ty, i32ty])
+///   let fval = prog.addFunction(fty, "cmp_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
@@ -2093,8 +2093,8 @@ pub fn IRBuilder::createAShr(
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
 ///   // Test signed greater than
-///   let cmp_sgt = builder.createCmp!(ICMP_SGT, arg0, arg1)
-///   let _ = builder.createRet!(cmp_sgt)
+///   let cmp_sgt = builder.createCmp(ICMP_SGT, arg0, arg1)
+///   let _ = builder.createRet(cmp_sgt)
 ///
 ///   inspect(
 ///     fval,
@@ -2117,8 +2117,8 @@ pub fn IRBuilder::createAShr(
 ///
 ///   let floatty = ctx.getFloatTy()
 ///   let i1ty = ctx.getInt1Ty()
-///   let fty = ctx.getFunctionType!(i1ty, [floatty, floatty])
-///   let fval = prog.addFunction!(fty, "fcmp_func")
+///   let fty = ctx.getFunctionType(i1ty, [floatty, floatty])
+///   let fval = prog.addFunction(fty, "fcmp_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
@@ -2126,8 +2126,8 @@ pub fn IRBuilder::createAShr(
 ///   let arg1 = fval.getArg(1).unwrap()
 ///
 ///   // Test ordered equal
-///   let fcmp_oeq = builder.createCmp!(FCMP_OEQ, arg0, arg1)
-///   let _ = builder.createRet!(fcmp_oeq)
+///   let fcmp_oeq = builder.createCmp(FCMP_OEQ, arg0, arg1)
+///   let _ = builder.createRet(fcmp_oeq)
 ///
 ///   inspect(
 ///     fval,
@@ -2151,10 +2151,10 @@ pub fn IRBuilder::createAShr(
 ///   let builder = IRBuilder::new()
 ///
 ///   let i1ty = ctx.getInt1Ty()
-///   let fty = ctx.getFunctionType!(i1ty, [])
+///   let fty = ctx.getFunctionType(i1ty, [])
 ///
 ///   // Test integer constant comparison
-///   let fval_int = prog.addFunction!(fty, "icmp_const_func")
+///   let fval_int = prog.addFunction(fty, "icmp_const_func")
 ///   let entryBB_int = fval_int.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB_int)
 ///   
@@ -2162,8 +2162,8 @@ pub fn IRBuilder::createAShr(
 ///   let const_10 = ctx.getConstInt32(10)
 ///   
 ///   // 5 < 10 should be true
-///   let cmp_result = builder.createCmp!(ICMP_SLT, const_5, const_10)
-///   let _ = builder.createRet!(cmp_result)
+///   let cmp_result = builder.createCmp(ICMP_SLT, const_5, const_10)
+///   let _ = builder.createRet(cmp_result)
 ///   
 ///   inspect(cmp_result, content="i1 true")
 ///   inspect(
@@ -2185,10 +2185,10 @@ pub fn IRBuilder::createAShr(
 ///   let builder = IRBuilder::new()
 ///
 ///   let i1ty = ctx.getInt1Ty()
-///   let fty = ctx.getFunctionType!(i1ty, [])
+///   let fty = ctx.getFunctionType(i1ty, [])
 ///
 ///   // Test floating-point constant comparison
-///   let fval_fp = prog.addFunction!(fty, "fcmp_const_func")
+///   let fval_fp = prog.addFunction(fty, "fcmp_const_func")
 ///   let entryBB_fp = fval_fp.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB_fp)
 ///   
@@ -2196,8 +2196,8 @@ pub fn IRBuilder::createAShr(
 ///   let const_2_5 = ctx.getConstFloat(2.5)
 ///   
 ///   // 1.5 < 2.5 should be true (ordered less than)
-///   let fcmp_result = builder.createCmp!(FCMP_OLT, const_1_5, const_2_5)
-///   let _ = builder.createRet!(fcmp_result)
+///   let fcmp_result = builder.createCmp(FCMP_OLT, const_1_5, const_2_5)
+///   let _ = builder.createRet(fcmp_result)
 ///   
 ///   inspect(fcmp_result, content="i1 true")
 ///   inspect(
@@ -2217,17 +2217,17 @@ pub fn IRBuilder::createCmp(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
+) -> &Value raise Error {
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
     (Some(ConstantInt(lhs)), Some(ConstantInt(rhs))) =>
-      return lhs.compare!(pred, rhs)
+      return lhs.compare(pred, rhs)
     (Some(ConstantFP(lhs)), Some(ConstantFP(rhs))) =>
-      return lhs.compare!(pred, rhs)
+      return lhs.compare(pred, rhs)
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CmpInst::new!(pred, lhs, rhs, parent, name)
-  self.insert!(inst)
+  let inst = CmpInst::new(pred, lhs, rhs, parent, name)
+  self.insert(inst)
   inst
 }
 
@@ -2239,8 +2239,8 @@ pub fn IRBuilder::createICmpEQ(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
-  self.createCmp!(ICMP_EQ, lhs, rhs, name~)
+) -> &Value raise Error {
+  self.createCmp(ICMP_EQ, lhs, rhs, name~)
 }
 
 ///| Create Ne (Not Equal) Comparison Instruction.
@@ -2251,8 +2251,8 @@ pub fn IRBuilder::createICmpNE(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
-  self.createCmp!(ICMP_NE, lhs, rhs, name~)
+) -> &Value raise Error {
+  self.createCmp(ICMP_NE, lhs, rhs, name~)
 }
 
 ///| Create UGT (Unsigned Greater Than) Comparison Instruction.
@@ -2263,8 +2263,8 @@ pub fn IRBuilder::createICmpUGT(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
-  self.createCmp!(ICMP_UGT, lhs, rhs, name~)
+) -> &Value raise Error {
+  self.createCmp(ICMP_UGT, lhs, rhs, name~)
 }
 
 ///| Create UGE (Unsigned Greater Than or Equal) Comparison Instruction.
@@ -2275,8 +2275,8 @@ pub fn IRBuilder::createICmpUGE(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
-  self.createCmp!(ICMP_UGE, lhs, rhs, name~)
+) -> &Value raise Error {
+  self.createCmp(ICMP_UGE, lhs, rhs, name~)
 }
 
 ///| Create ULT (Unsigned Less Than) Comparison Instruction.
@@ -2287,8 +2287,8 @@ pub fn IRBuilder::createICmpULT(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
-  self.createCmp!(ICMP_ULT, lhs, rhs, name~)
+) -> &Value raise Error {
+  self.createCmp(ICMP_ULT, lhs, rhs, name~)
 }
 
 ///| Create ULE (Unsigned Less Than or Equal) Comparison Instruction.
@@ -2299,8 +2299,8 @@ pub fn IRBuilder::createICmpULE(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
-  self.createCmp!(ICMP_ULE, lhs, rhs, name~)
+) -> &Value raise Error {
+  self.createCmp(ICMP_ULE, lhs, rhs, name~)
 }
 
 ///| Create SGT (Signed Greater Than) Comparison Instruction.
@@ -2311,8 +2311,8 @@ pub fn IRBuilder::createICmpSGT(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
-  self.createCmp!(ICMP_SGT, lhs, rhs, name~)
+) -> &Value raise Error {
+  self.createCmp(ICMP_SGT, lhs, rhs, name~)
 }
 
 ///| Create SGE (Signed Greater Than or Equal) Comparison Instruction.
@@ -2323,8 +2323,8 @@ pub fn IRBuilder::createICmpSGE(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
-  self.createCmp!(ICMP_SGE, lhs, rhs, name~)
+) -> &Value raise Error {
+  self.createCmp(ICMP_SGE, lhs, rhs, name~)
 }
 
 ///| Create SLT (Signed Less Than) Comparison Instruction.
@@ -2335,8 +2335,8 @@ pub fn IRBuilder::createICmpSLT(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
-  self.createCmp!(ICMP_SLT, lhs, rhs, name~)
+) -> &Value raise Error {
+  self.createCmp(ICMP_SLT, lhs, rhs, name~)
 }
 
 ///| Create SLE (Signed Less Than or Equal) Comparison Instruction.
@@ -2347,8 +2347,8 @@ pub fn IRBuilder::createICmpSLE(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
-  self.createCmp!(ICMP_SLE, lhs, rhs, name~)
+) -> &Value raise Error {
+  self.createCmp(ICMP_SLE, lhs, rhs, name~)
 }
 
 ///| Create OEQ (Ordered Equal) Comparison Instruction for floating-point values.
@@ -2359,8 +2359,8 @@ pub fn IRBuilder::createFCmpOEQ(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
-  self.createCmp!(FCMP_OEQ, lhs, rhs, name~)
+) -> &Value raise Error {
+  self.createCmp(FCMP_OEQ, lhs, rhs, name~)
 }
 
 ///| Create OGT (Ordered Greater Than) Comparison Instruction for floating-point values.
@@ -2371,8 +2371,8 @@ pub fn IRBuilder::createFCmpOGT(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
-  self.createCmp!(FCMP_OGT, lhs, rhs, name~)
+) -> &Value raise Error {
+  self.createCmp(FCMP_OGT, lhs, rhs, name~)
 }
 
 ///| Create OGE (Ordered Greater Than or Equal) Comparison Instruction for floating-point values.
@@ -2383,8 +2383,8 @@ pub fn IRBuilder::createFCmpOGE(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
-  self.createCmp!(FCMP_OGE, lhs, rhs, name~)
+) -> &Value raise Error {
+  self.createCmp(FCMP_OGE, lhs, rhs, name~)
 }
 
 ///| Create OLT (Ordered Less Than) Comparison Instruction for floating-point values.
@@ -2395,8 +2395,8 @@ pub fn IRBuilder::createFCmpOLT(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
-  self.createCmp!(FCMP_OLT, lhs, rhs, name~)
+) -> &Value raise Error {
+  self.createCmp(FCMP_OLT, lhs, rhs, name~)
 }
 
 ///| Create OLE (Ordered Less Than or Equal) Comparison Instruction for floating-point values.
@@ -2407,8 +2407,8 @@ pub fn IRBuilder::createFCmpOLE(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
-  self.createCmp!(FCMP_OLE, lhs, rhs, name~)
+) -> &Value raise Error {
+  self.createCmp(FCMP_OLE, lhs, rhs, name~)
 }
 
 ///| Create ONE (Ordered Not Equal) Comparison Instruction for floating-point values.
@@ -2419,8 +2419,8 @@ pub fn IRBuilder::createFCmpONE(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
-  self.createCmp!(FCMP_ONE, lhs, rhs, name~)
+) -> &Value raise Error {
+  self.createCmp(FCMP_ONE, lhs, rhs, name~)
 }
 
 ///| Create ORD (Ordered) Comparison Instruction for floating-point values.
@@ -2431,8 +2431,8 @@ pub fn IRBuilder::createFCmpORD(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
-  self.createCmp!(FCMP_ORD, lhs, rhs, name~)
+) -> &Value raise Error {
+  self.createCmp(FCMP_ORD, lhs, rhs, name~)
 }
 
 ///| Create UNO (Unordered) Comparison Instruction for floating-point values.
@@ -2443,8 +2443,8 @@ pub fn IRBuilder::createFCmpUNO(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
-  self.createCmp!(FCMP_UNO, lhs, rhs, name~)
+) -> &Value raise Error {
+  self.createCmp(FCMP_UNO, lhs, rhs, name~)
 }
 
 ///| Create UEQ (Unordered Equal) Comparison Instruction for floating-point values.
@@ -2455,8 +2455,8 @@ pub fn IRBuilder::createFCmpUEQ(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
-  self.createCmp!(FCMP_UEQ, lhs, rhs, name~)
+) -> &Value raise Error {
+  self.createCmp(FCMP_UEQ, lhs, rhs, name~)
 }
 
 ///| Create UGT (Unordered Greater Than) Comparison Instruction for floating-point values.
@@ -2467,8 +2467,8 @@ pub fn IRBuilder::createFCmpUGT(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
-  self.createCmp!(FCMP_UGT, lhs, rhs, name~)
+) -> &Value raise Error {
+  self.createCmp(FCMP_UGT, lhs, rhs, name~)
 }
 
 ///| Create UGE (Unordered Greater Than or Equal) Comparison Instruction for floating-point values.
@@ -2479,8 +2479,8 @@ pub fn IRBuilder::createFCmpUGE(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
-  self.createCmp!(FCMP_UGE, lhs, rhs, name~)
+) -> &Value raise Error {
+  self.createCmp(FCMP_UGE, lhs, rhs, name~)
 }
 
 ///| Create ULT (Unordered Less Than) Comparison Instruction for floating-point values.
@@ -2491,8 +2491,8 @@ pub fn IRBuilder::createFCmpULT(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
-  self.createCmp!(FCMP_ULT, lhs, rhs, name~)
+) -> &Value raise Error {
+  self.createCmp(FCMP_ULT, lhs, rhs, name~)
 }
 
 ///| Create ULE (Unordered Less Than or Equal) Comparison Instruction for floating-point values.
@@ -2503,8 +2503,8 @@ pub fn IRBuilder::createFCmpULE(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
-  self.createCmp!(FCMP_ULE, lhs, rhs, name~)
+) -> &Value raise Error {
+  self.createCmp(FCMP_ULE, lhs, rhs, name~)
 }
 
 ///| Create UNE (Unordered Not Equal) Comparison Instruction for floating-point values.
@@ -2515,8 +2515,8 @@ pub fn IRBuilder::createFCmpUNE(
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
-) -> &Value!Error {
-  self.createCmp!(FCMP_UNE, lhs, rhs, name~)
+) -> &Value raise Error {
+  self.createCmp(FCMP_UNE, lhs, rhs, name~)
 }
 
 ///| Create Trunc (truncate) Instruction.
@@ -2536,21 +2536,21 @@ pub fn IRBuilder::createFCmpUNE(
 ///
 ///   let i32ty = ctx.getInt32Ty()
 ///   let i16ty = ctx.getInt16Ty()
-///   let fty = ctx.getFunctionType!(i16ty, [i32ty])
-///   let fval = prog.addFunction!(fty, "trunc_func")
+///   let fty = ctx.getFunctionType(i16ty, [i32ty])
+///   let fval = prog.addFunction(fty, "trunc_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
 ///   let arg0 = fval.getArg(0).unwrap()
 ///   
 ///   // Test regular trunc with variable
-///   let trunc_var = builder.createTrunc!(arg0, i16ty)
+///   let trunc_var = builder.createTrunc(arg0, i16ty)
 ///   
 ///   // Test constant folding
 ///   let const_val = ctx.getConstInt32(0x12345) // 74565
-///   let trunc_const = builder.createTrunc!(const_val, i16ty) // Should fold to 0x2345 = 9029
+///   let trunc_const = builder.createTrunc(const_val, i16ty) // Should fold to 0x2345 = 9029
 ///   
-///   let _ = builder.createRet!(trunc_var)
+///   let _ = builder.createRet(trunc_var)
 ///
 ///   // Verify constant folding worked
 ///   inspect(trunc_const, content="i16 9029")
@@ -2572,14 +2572,14 @@ pub fn IRBuilder::createTrunc(
   src_val : &Value,
   dst_ty : &IntegerType,
   name~ : String = ""
-) -> &Value!Error {
+) -> &Value raise Error {
   match src_val.tryAsConstantEnum() {
-    Some(ConstantInt(ci)) => return ci.trunc!(dst_ty)
+    Some(ConstantInt(ci)) => return ci.trunc(dst_ty)
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newTrunc!(src_val, dst_ty, parent, name)
-  self.insert!(inst)
+  let inst = CastInst::newTrunc(src_val, dst_ty, parent, name)
+  self.insert(inst)
   inst
 }
 
@@ -2600,21 +2600,21 @@ pub fn IRBuilder::createTrunc(
 ///
 ///   let i16ty = ctx.getInt16Ty()
 ///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [i16ty])
-///   let fval = prog.addFunction!(fty, "zext_func")
+///   let fty = ctx.getFunctionType(i32ty, [i16ty])
+///   let fval = prog.addFunction(fty, "zext_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
 ///   let arg0 = fval.getArg(0).unwrap()
 ///   
 ///   // Test regular zext with variable
-///   let zext_var = builder.createZExt!(arg0, i32ty)
+///   let zext_var = builder.createZExt(arg0, i32ty)
 ///   
 ///   // Test constant folding
 ///   let const_val = ctx.getConstInt16(-1) // 0xFFFF as i16
-///   let zext_const = builder.createZExt!(const_val, i32ty) // Should fold to 0x0000FFFF = 65535
+///   let zext_const = builder.createZExt(const_val, i32ty) // Should fold to 0x0000FFFF = 65535
 ///   
-///   let _ = builder.createRet!(zext_var)
+///   let _ = builder.createRet(zext_var)
 ///
 ///   // Verify constant folding worked
 ///   inspect(zext_const, content="i32 65535")
@@ -2636,14 +2636,14 @@ pub fn IRBuilder::createZExt(
   src_val : &Value,
   dst_ty : &IntegerType,
   name~ : String = ""
-) -> &Value!Error {
+) -> &Value raise Error {
   match src_val.tryAsConstantEnum() {
-    Some(ConstantInt(ci)) => return ci.zext!(dst_ty)
+    Some(ConstantInt(ci)) => return ci.zext(dst_ty)
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newZExt!(src_val, dst_ty, parent, name)
-  self.insert!(inst)
+  let inst = CastInst::newZExt(src_val, dst_ty, parent, name)
+  self.insert(inst)
   inst
 }
 
@@ -2664,21 +2664,21 @@ pub fn IRBuilder::createZExt(
 ///
 ///   let i16ty = ctx.getInt16Ty()
 ///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [i16ty])
-///   let fval = prog.addFunction!(fty, "sext_func")
+///   let fty = ctx.getFunctionType(i32ty, [i16ty])
+///   let fval = prog.addFunction(fty, "sext_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
 ///   let arg0 = fval.getArg(0).unwrap()
 ///   
 ///   // Test regular sext with variable
-///   let sext_var = builder.createSExt!(arg0, i32ty)
+///   let sext_var = builder.createSExt(arg0, i32ty)
 ///   
 ///   // Test constant folding
 ///   let const_val = ctx.getConstInt16(-1) // 0xFFFF as i16
-///   let sext_const = builder.createSExt!(const_val, i32ty) // Should fold to 0xFFFFFFFF = -1
+///   let sext_const = builder.createSExt(const_val, i32ty) // Should fold to 0xFFFFFFFF = -1
 ///   
-///   let _ = builder.createRet!(sext_var)
+///   let _ = builder.createRet(sext_var)
 ///
 ///   // Verify constant folding worked
 ///   inspect(sext_const, content="i32 -1")
@@ -2700,14 +2700,14 @@ pub fn IRBuilder::createSExt(
   src_val : &Value,
   dst_ty : &IntegerType,
   name~ : String = ""
-) -> &Value!Error {
+) -> &Value raise Error {
   match src_val.tryAsConstantEnum() {
-    Some(ConstantInt(ci)) => return ci.sext!(dst_ty)
+    Some(ConstantInt(ci)) => return ci.sext(dst_ty)
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newSExt!(src_val, dst_ty, parent, name)
-  self.insert!(inst)
+  let inst = CastInst::newSExt(src_val, dst_ty, parent, name)
+  self.insert(inst)
   inst
 }
 
@@ -2728,14 +2728,14 @@ pub fn IRBuilder::createSExt(
 ///
 ///   let f64ty = ctx.getDoubleTy()
 ///   let f32ty = ctx.getFloatTy()
-///   let fty = ctx.getFunctionType!(f32ty, [f64ty])
-///   let fval = prog.addFunction!(fty, "fptrunc_func")
+///   let fty = ctx.getFunctionType(f32ty, [f64ty])
+///   let fval = prog.addFunction(fty, "fptrunc_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
 ///   let arg0 = fval.getArg(0).unwrap()
-///   let fptrunc_val = builder.createFPTrunc!(arg0, f32ty)
-///   let _ = builder.createRet!(fptrunc_val)
+///   let fptrunc_val = builder.createFPTrunc(arg0, f32ty)
+///   let _ = builder.createRet(fptrunc_val)
 ///
 ///   inspect(
 ///     fval,
@@ -2759,17 +2759,17 @@ pub fn IRBuilder::createSExt(
 ///   let builder = IRBuilder::new()
 ///
 ///   let f32ty = ctx.getFloatTy()
-///   let fty = ctx.getFunctionType!(f32ty, [])
-///   let fval = prog.addFunction!(fty, "fptrunc_const_func")
+///   let fty = ctx.getFunctionType(f32ty, [])
+///   let fval = prog.addFunction(fty, "fptrunc_const_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
 ///   let const_val = ctx.getConstDouble(3.14159)
-///   let fptrunc_result = builder.createFPTrunc!(const_val, f32ty)
-///   let _ = builder.createRet!(fptrunc_result)
+///   let fptrunc_result = builder.createFPTrunc(const_val, f32ty)
+///   let _ = builder.createRet(fptrunc_result)
 ///
 ///   // Test that constant folding worked - result should be a constant
-///   assert_true!(fptrunc_result.tryAsConstant() is Some(_))
+///   assert_true(fptrunc_result.tryAsConstant() is Some(_))
 /// }
 /// ```
 pub fn IRBuilder::createFPTrunc(
@@ -2777,14 +2777,14 @@ pub fn IRBuilder::createFPTrunc(
   src_val : &Value,
   dst_ty : &FPType,
   name~ : String = ""
-) -> &Value!Error {
+) -> &Value raise Error {
   match src_val.tryAsConstantEnum() {
-    Some(ConstantFP(cf)) => return cf.fptrunc!(dst_ty)
+    Some(ConstantFP(cf)) => return cf.fptrunc(dst_ty)
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newFPTrunc!(src_val, dst_ty, parent, name)
-  self.insert!(inst)
+  let inst = CastInst::newFPTrunc(src_val, dst_ty, parent, name)
+  self.insert(inst)
   inst
 }
 
@@ -2805,14 +2805,14 @@ pub fn IRBuilder::createFPTrunc(
 ///
 ///   let f32ty = ctx.getFloatTy()
 ///   let f64ty = ctx.getDoubleTy()
-///   let fty = ctx.getFunctionType!(f64ty, [f32ty])
-///   let fval = prog.addFunction!(fty, "fpext_func")
+///   let fty = ctx.getFunctionType(f64ty, [f32ty])
+///   let fval = prog.addFunction(fty, "fpext_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
 ///   let arg0 = fval.getArg(0).unwrap()
-///   let fpext_val = builder.createFPExt!(arg0, f64ty)
-///   let _ = builder.createRet!(fpext_val)
+///   let fpext_val = builder.createFPExt(arg0, f64ty)
+///   let _ = builder.createRet(fpext_val)
 ///
 ///   inspect(
 ///     fval,
@@ -2836,17 +2836,17 @@ pub fn IRBuilder::createFPTrunc(
 ///   let builder = IRBuilder::new()
 ///
 ///   let f64ty = ctx.getDoubleTy()
-///   let fty = ctx.getFunctionType!(f64ty, [])
-///   let fval = prog.addFunction!(fty, "fpext_const_func")
+///   let fty = ctx.getFunctionType(f64ty, [])
+///   let fval = prog.addFunction(fty, "fpext_const_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
 ///   let const_val = ctx.getConstFloat(3.14159)
-///   let fpext_result = builder.createFPExt!(const_val, f64ty)
-///   let _ = builder.createRet!(fpext_result)
+///   let fpext_result = builder.createFPExt(const_val, f64ty)
+///   let _ = builder.createRet(fpext_result)
 ///
 ///   // Test that constant folding worked - result should be a constant
-///   assert_true!(fpext_result.tryAsConstant() is Some(_))
+///   assert_true(fpext_result.tryAsConstant() is Some(_))
 /// }
 /// ```
 pub fn IRBuilder::createFPExt(
@@ -2854,14 +2854,14 @@ pub fn IRBuilder::createFPExt(
   src_val : &Value,
   dst_ty : &FPType,
   name~ : String = ""
-) -> &Value!Error {
+) -> &Value raise Error {
   match src_val.tryAsConstantEnum() {
-    Some(ConstantFP(cf)) => return cf.fpext!(dst_ty)
+    Some(ConstantFP(cf)) => return cf.fpext(dst_ty)
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newFPExt!(src_val, dst_ty, parent, name)
-  self.insert!(inst)
+  let inst = CastInst::newFPExt(src_val, dst_ty, parent, name)
+  self.insert(inst)
   inst
 }
 
@@ -2882,14 +2882,14 @@ pub fn IRBuilder::createFPExt(
 ///
 ///   let i32ty = ctx.getInt32Ty()
 ///   let f32ty = ctx.getFloatTy()
-///   let fty = ctx.getFunctionType!(f32ty, [i32ty])
-///   let fval = prog.addFunction!(fty, "uitofp_func")
+///   let fty = ctx.getFunctionType(f32ty, [i32ty])
+///   let fval = prog.addFunction(fty, "uitofp_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
 ///   let arg0 = fval.getArg(0).unwrap()
-///   let uitofp_val = builder.createUIToFP!(arg0, f32ty)
-///   let _ = builder.createRet!(uitofp_val)
+///   let uitofp_val = builder.createUIToFP(arg0, f32ty)
+///   let _ = builder.createRet(uitofp_val)
 ///
 ///   inspect(
 ///     fval,
@@ -2913,17 +2913,17 @@ pub fn IRBuilder::createFPExt(
 ///   let builder = IRBuilder::new()
 ///
 ///   let f32ty = ctx.getFloatTy()
-///   let fty = ctx.getFunctionType!(f32ty, [])
-///   let fval = prog.addFunction!(fty, "uitofp_const_func")
+///   let fty = ctx.getFunctionType(f32ty, [])
+///   let fval = prog.addFunction(fty, "uitofp_const_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
 ///   let const_val = ctx.getConstInt32(42)
-///   let uitofp_result = builder.createUIToFP!(const_val, f32ty)
-///   let _ = builder.createRet!(uitofp_result)
+///   let uitofp_result = builder.createUIToFP(const_val, f32ty)
+///   let _ = builder.createRet(uitofp_result)
 ///
 ///   // Test that constant folding worked - result should be a constant
-///   assert_true!(uitofp_result.tryAsConstant() is Some(_))
+///   assert_true(uitofp_result.tryAsConstant() is Some(_))
 /// }
 /// ```
 pub fn IRBuilder::createUIToFP(
@@ -2931,14 +2931,14 @@ pub fn IRBuilder::createUIToFP(
   src_val : &Value,
   dst_ty : &FPType,
   name~ : String = ""
-) -> &Value!Error {
+) -> &Value raise Error {
   match src_val.tryAsConstantEnum() {
-    Some(ConstantInt(ci)) => return ci.uitofp!(dst_ty)
+    Some(ConstantInt(ci)) => return ci.uitofp(dst_ty)
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newUIToFP!(src_val, dst_ty, parent, name)
-  self.insert!(inst)
+  let inst = CastInst::newUIToFP(src_val, dst_ty, parent, name)
+  self.insert(inst)
   inst
 }
 
@@ -2959,14 +2959,14 @@ pub fn IRBuilder::createUIToFP(
 ///
 ///   let f32ty = ctx.getFloatTy()
 ///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [f32ty])
-///   let fval = prog.addFunction!(fty, "fptoui_func")
+///   let fty = ctx.getFunctionType(i32ty, [f32ty])
+///   let fval = prog.addFunction(fty, "fptoui_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
 ///   let arg0 = fval.getArg(0).unwrap()
-///   let fptoui_val = builder.createFPToUI!(arg0, i32ty)
-///   let _ = builder.createRet!(fptoui_val)
+///   let fptoui_val = builder.createFPToUI(arg0, i32ty)
+///   let _ = builder.createRet(fptoui_val)
 ///
 ///   inspect(
 ///     fval,
@@ -2990,14 +2990,14 @@ pub fn IRBuilder::createUIToFP(
 ///   let builder = IRBuilder::new()
 ///
 ///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [])
-///   let fval = prog.addFunction!(fty, "fptoui_const_func")
+///   let fty = ctx.getFunctionType(i32ty, [])
+///   let fval = prog.addFunction(fty, "fptoui_const_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
 ///   let const_val = ctx.getConstFloat(42.7)
-///   let fptoui_result = builder.createFPToUI!(const_val, i32ty)
-///   let _ = builder.createRet!(fptoui_result)
+///   let fptoui_result = builder.createFPToUI(const_val, i32ty)
+///   let _ = builder.createRet(fptoui_result)
 ///
 ///   inspect(fptoui_result, content="i32 42")
 ///   inspect(
@@ -3016,14 +3016,14 @@ pub fn IRBuilder::createFPToUI(
   src_val : &Value,
   dst_ty : &IntegerType,
   name~ : String = ""
-) -> &Value!Error {
+) -> &Value raise Error {
   match src_val.tryAsConstantEnum() {
-    Some(ConstantFP(cf)) => return cf.fptoui!(dst_ty)
+    Some(ConstantFP(cf)) => return cf.fptoui(dst_ty)
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newFPToUI!(src_val, dst_ty, parent, name)
-  self.insert!(inst)
+  let inst = CastInst::newFPToUI(src_val, dst_ty, parent, name)
+  self.insert(inst)
   inst
 }
 
@@ -3044,14 +3044,14 @@ pub fn IRBuilder::createFPToUI(
 ///
 ///   let i32ty = ctx.getInt32Ty()
 ///   let f32ty = ctx.getFloatTy()
-///   let fty = ctx.getFunctionType!(f32ty, [i32ty])
-///   let fval = prog.addFunction!(fty, "sitofp_func")
+///   let fty = ctx.getFunctionType(f32ty, [i32ty])
+///   let fval = prog.addFunction(fty, "sitofp_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
 ///   let arg0 = fval.getArg(0).unwrap()
-///   let sitofp_val = builder.createSIToFP!(arg0, f32ty)
-///   let _ = builder.createRet!(sitofp_val)
+///   let sitofp_val = builder.createSIToFP(arg0, f32ty)
+///   let _ = builder.createRet(sitofp_val)
 ///
 ///   inspect(
 ///     fval,
@@ -3075,17 +3075,17 @@ pub fn IRBuilder::createFPToUI(
 ///   let builder = IRBuilder::new()
 ///
 ///   let f32ty = ctx.getFloatTy()
-///   let fty = ctx.getFunctionType!(f32ty, [])
-///   let fval = prog.addFunction!(fty, "sitofp_const_func")
+///   let fty = ctx.getFunctionType(f32ty, [])
+///   let fval = prog.addFunction(fty, "sitofp_const_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
 ///   let const_val = ctx.getConstInt32(-42)
-///   let sitofp_result = builder.createSIToFP!(const_val, f32ty)
-///   let _ = builder.createRet!(sitofp_result)
+///   let sitofp_result = builder.createSIToFP(const_val, f32ty)
+///   let _ = builder.createRet(sitofp_result)
 ///
 ///   // Test that constant folding worked - result should be a constant
-///   assert_true!(sitofp_result.tryAsConstant() is Some(_))
+///   assert_true(sitofp_result.tryAsConstant() is Some(_))
 /// }
 /// ```
 pub fn IRBuilder::createSIToFP(
@@ -3093,14 +3093,14 @@ pub fn IRBuilder::createSIToFP(
   src_val : &Value,
   dst_ty : &FPType,
   name~ : String = ""
-) -> &Value!Error {
+) -> &Value raise Error {
   match src_val.tryAsConstantEnum() {
-    Some(ConstantInt(ci)) => return ci.sitofp!(dst_ty)
+    Some(ConstantInt(ci)) => return ci.sitofp(dst_ty)
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newSIToFP!(src_val, dst_ty, parent, name)
-  self.insert!(inst)
+  let inst = CastInst::newSIToFP(src_val, dst_ty, parent, name)
+  self.insert(inst)
   inst
 }
 
@@ -3121,14 +3121,14 @@ pub fn IRBuilder::createSIToFP(
 ///
 ///   let f32ty = ctx.getFloatTy()
 ///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [f32ty])
-///   let fval = prog.addFunction!(fty, "fptosi_func")
+///   let fty = ctx.getFunctionType(i32ty, [f32ty])
+///   let fval = prog.addFunction(fty, "fptosi_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
 ///   let arg0 = fval.getArg(0).unwrap()
-///   let fptosi_val = builder.createFPToSI!(arg0, i32ty)
-///   let _ = builder.createRet!(fptosi_val)
+///   let fptosi_val = builder.createFPToSI(arg0, i32ty)
+///   let _ = builder.createRet(fptosi_val)
 ///
 ///   inspect(
 ///     fval,
@@ -3152,14 +3152,14 @@ pub fn IRBuilder::createSIToFP(
 ///   let builder = IRBuilder::new()
 ///
 ///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [])
-///   let fval = prog.addFunction!(fty, "fptosi_const_func")
+///   let fty = ctx.getFunctionType(i32ty, [])
+///   let fval = prog.addFunction(fty, "fptosi_const_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
 ///   let const_val = ctx.getConstFloat(-42.7)
-///   let fptosi_result = builder.createFPToSI!(const_val, i32ty)
-///   let _ = builder.createRet!(fptosi_result)
+///   let fptosi_result = builder.createFPToSI(const_val, i32ty)
+///   let _ = builder.createRet(fptosi_result)
 ///
 ///   inspect(fptosi_result, content="i32 -42")
 ///   inspect(
@@ -3178,14 +3178,14 @@ pub fn IRBuilder::createFPToSI(
   src_val : &Value,
   dst_ty : &IntegerType,
   name~ : String = ""
-) -> &Value!Error {
+) -> &Value raise Error {
   match src_val.tryAsConstantEnum() {
-    Some(ConstantFP(cf)) => return cf.fptosi!(dst_ty)
+    Some(ConstantFP(cf)) => return cf.fptosi(dst_ty)
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newFPToSI!(src_val, dst_ty, parent, name)
-  self.insert!(inst)
+  let inst = CastInst::newFPToSI(src_val, dst_ty, parent, name)
+  self.insert(inst)
   inst
 }
 
@@ -3207,14 +3207,14 @@ pub fn IRBuilder::createFPToSI(
 ///
 ///   let i64ty = ctx.getInt64Ty()
 ///   let ptrty = ctx.getPtrTy()
-///   let fty = ctx.getFunctionType!(ptrty, [i64ty])
-///   let fval = prog.addFunction!(fty, "inttoptr_func")
+///   let fty = ctx.getFunctionType(ptrty, [i64ty])
+///   let fval = prog.addFunction(fty, "inttoptr_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
 ///   let arg0 = fval.getArg(0).unwrap()
-///   let inttoptr_val = builder.createIntToPtr!(arg0)
-///   let _ = builder.createRet!(inttoptr_val)
+///   let inttoptr_val = builder.createIntToPtr(arg0)
+///   let _ = builder.createRet(inttoptr_val)
 ///
 ///   inspect(
 ///     fval,
@@ -3238,14 +3238,14 @@ pub fn IRBuilder::createFPToSI(
 ///   let builder = IRBuilder::new()
 ///
 ///   let ptrty = ctx.getPtrTy()
-///   let fty = ctx.getFunctionType!(ptrty, [])
-///   let fval = prog.addFunction!(fty, "inttoptr_const_func")
+///   let fty = ctx.getFunctionType(ptrty, [])
+///   let fval = prog.addFunction(fty, "inttoptr_const_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
 ///   let const_val = ctx.getConstInt64(0x12345678)
-///   let inttoptr_result = builder.createIntToPtr!(const_val)
-///   let _ = builder.createRet!(inttoptr_result)
+///   let inttoptr_result = builder.createIntToPtr(const_val)
+///   let _ = builder.createRet(inttoptr_result)
 ///
 ///   inspect(inttoptr_result, content="ptr null")
 ///   inspect(
@@ -3263,14 +3263,14 @@ pub fn IRBuilder::createIntToPtr(
   self : IRBuilder,
   src_val : &Value,
   name~ : String = ""
-) -> &Value!Error {
+) -> &Value raise Error {
   match src_val.tryAsConstantEnum() {
-    Some(ConstantInt(ci)) => return ci.inttoptr!()
+    Some(ConstantInt(ci)) => return ci.inttoptr()
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newIntToPtr!(src_val, parent, name)
-  self.insert!(inst)
+  let inst = CastInst::newIntToPtr(src_val, parent, name)
+  self.insert(inst)
   inst
 }
 
@@ -3290,14 +3290,14 @@ pub fn IRBuilder::createIntToPtr(
 ///
 ///   let ptrty = ctx.getPtrTy()
 ///   let i64ty = ctx.getInt64Ty()
-///   let fty = ctx.getFunctionType!(i64ty, [ptrty])
-///   let fval = prog.addFunction!(fty, "ptrtoint_func")
+///   let fty = ctx.getFunctionType(i64ty, [ptrty])
+///   let fval = prog.addFunction(fty, "ptrtoint_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
 ///   let arg0 = fval.getArg(0).unwrap()
-///   let ptrtoint_val = builder.createPtrToInt!(arg0, i64ty)
-///   let _ = builder.createRet!(ptrtoint_val)
+///   let ptrtoint_val = builder.createPtrToInt(arg0, i64ty)
+///   let _ = builder.createRet(ptrtoint_val)
 ///
 ///   inspect(
 ///     fval,
@@ -3316,11 +3316,11 @@ pub fn IRBuilder::createPtrToInt(
   src_val : &Value,
   dst_ty : &IntegerType,
   name~ : String = ""
-) -> &Value!Error {
+) -> &Value raise Error {
   // No constant folding for PtrToInt as pointer constants are complex
   let parent = self.getInsertFunction()
-  let inst = CastInst::newPtrToInt!(src_val, dst_ty, parent, name)
-  self.insert!(inst)
+  let inst = CastInst::newPtrToInt(src_val, dst_ty, parent, name)
+  self.insert(inst)
   inst
 }
 
@@ -3342,14 +3342,14 @@ pub fn IRBuilder::createPtrToInt(
 ///
 ///   let i32ty = ctx.getInt32Ty()
 ///   let f32ty = ctx.getFloatTy()
-///   let fty = ctx.getFunctionType!(f32ty, [i32ty])
-///   let fval = prog.addFunction!(fty, "bitcast_func")
+///   let fty = ctx.getFunctionType(f32ty, [i32ty])
+///   let fval = prog.addFunction(fty, "bitcast_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
 ///   let arg0 = fval.getArg(0).unwrap()
-///   let bitcast_val = builder.createBitCast!(arg0, f32ty)
-///   let _ = builder.createRet!(bitcast_val)
+///   let bitcast_val = builder.createBitCast(arg0, f32ty)
+///   let _ = builder.createRet(bitcast_val)
 ///
 ///   inspect(
 ///     fval,
@@ -3373,17 +3373,17 @@ pub fn IRBuilder::createPtrToInt(
 ///   let builder = IRBuilder::new()
 ///
 ///   let f32ty = ctx.getFloatTy()
-///   let fty = ctx.getFunctionType!(f32ty, [])
-///   let fval = prog.addFunction!(fty, "bitcast_const_func")
+///   let fty = ctx.getFunctionType(f32ty, [])
+///   let fval = prog.addFunction(fty, "bitcast_const_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
 ///   let const_val = ctx.getConstInt32(0x40000000) // 2.0f bit pattern
-///   let bitcast_result = builder.createBitCast!(const_val, f32ty)
-///   let _ = builder.createRet!(bitcast_result)
+///   let bitcast_result = builder.createBitCast(const_val, f32ty)
+///   let _ = builder.createRet(bitcast_result)
 ///
 ///   // Test that constant folding worked - result should be a constant
-///   assert_true!(bitcast_result.tryAsConstant() is Some(_))
+///   assert_true(bitcast_result.tryAsConstant() is Some(_))
 /// }
 /// ```
 ///
@@ -3394,17 +3394,17 @@ pub fn IRBuilder::createPtrToInt(
 ///   let builder = IRBuilder::new()
 ///
 ///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [])
-///   let fval = prog.addFunction!(fty, "bitcast_fp_const_func")
+///   let fty = ctx.getFunctionType(i32ty, [])
+///   let fval = prog.addFunction(fty, "bitcast_fp_const_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
 ///   let const_val = ctx.getConstFloat(2.0)
-///   let bitcast_result = builder.createBitCast!(const_val, i32ty)
-///   let _ = builder.createRet!(bitcast_result)
+///   let bitcast_result = builder.createBitCast(const_val, i32ty)
+///   let _ = builder.createRet(bitcast_result)
 ///
 ///   // Test that constant folding worked - result should be a constant
-///   assert_true!(bitcast_result.tryAsConstant() is Some(_))
+///   assert_true(bitcast_result.tryAsConstant() is Some(_))
 /// }
 /// ```
 pub fn IRBuilder::createBitCast(
@@ -3412,15 +3412,15 @@ pub fn IRBuilder::createBitCast(
   src_val : &Value,
   dst_ty : &PrimitiveType,
   name~ : String = ""
-) -> &Value!Error {
+) -> &Value raise Error {
   match src_val.tryAsConstantEnum() {
-    Some(ConstantInt(ci)) => return ci.bitcast!(dst_ty)
-    Some(ConstantFP(cf)) => return cf.bitcast!(dst_ty)
+    Some(ConstantInt(ci)) => return ci.bitcast(dst_ty)
+    Some(ConstantFP(cf)) => return cf.bitcast(dst_ty)
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newBitCast!(src_val, dst_ty, parent, name)
-  self.insert!(inst)
+  let inst = CastInst::newBitCast(src_val, dst_ty, parent, name)
+  self.insert(inst)
   inst
 }
 
@@ -3443,8 +3443,8 @@ pub fn IRBuilder::createBitCast(
 ///
 ///   let i32ty = ctx.getInt32Ty()
 ///   let ptrty = ctx.getPtrTy()
-///   let fty = ctx.getFunctionType!(ptrty, [ptrty, i32ty, i32ty])
-///   let fval = prog.addFunction!(fty, "gep_func")
+///   let fty = ctx.getFunctionType(ptrty, [ptrty, i32ty, i32ty])
+///   let fval = prog.addFunction(fty, "gep_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
@@ -3455,12 +3455,12 @@ pub fn IRBuilder::createBitCast(
 ///   let const5 = ctx.getConstInt32(5)
 ///
 ///   // Basic GEP with single index
-///   let gep1 = builder.createGEP!(arg0, i32ty, [arg1])
+///   let gep1 = builder.createGEP(arg0, i32ty, [arg1])
 ///   // GEP with inbounds flag and multiple indices
-///   let gep2 = builder.createGEP!(gep1, i32ty, [arg1, arg2], inbounds=true)
+///   let gep2 = builder.createGEP(gep1, i32ty, [arg1, arg2], inbounds=true)
 ///   // GEP with constant indices
-///   let gep3 = builder.createGEP!(gep2, i32ty, [const0, const5])
-///   let _ = builder.createRet!(gep3)
+///   let gep3 = builder.createGEP(gep2, i32ty, [const0, const5])
+///   let _ = builder.createRet(gep3)
 ///
 ///   inspect(
 ///     fval,
@@ -3483,12 +3483,12 @@ pub fn IRBuilder::createGEP(
   indices : Array[&Value],
   name~ : String = "",
   inbounds~ : Bool = false
-) -> &Value!Error {
+) -> &Value raise Error {
   let parent = self.getInsertFunction()
-  let inst = GetElementPtrInst::new!(
+  let inst = GetElementPtrInst::new(
     ptr, pointeeType, indices, inbounds, parent, name,
   )
-  self.insert!(inst)
+  self.insert(inst)
   inst
 }
 
@@ -3515,25 +3515,25 @@ pub fn IRBuilder::createGEP(
 ///
 ///   let i32ty = ctx.getInt32Ty()
 ///   let ptrty = ctx.getPtrTy()
-///   let fty = ctx.getFunctionType!(i32ty, [ptrty])
-///   let fval = prog.addFunction!(fty, "load_func")
+///   let fty = ctx.getFunctionType(i32ty, [ptrty])
+///   let fval = prog.addFunction(fty, "load_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
 ///   let ptr_arg = fval.getArg(0).unwrap()
 ///   
 ///   // Test regular load
-///   let loaded_val = builder.createLoad!(i32ty, ptr_arg)
+///   let loaded_val = builder.createLoad(i32ty, ptr_arg)
 ///   
 ///   // Test volatile load  
-///   let volatile_load = builder.createLoad!(i32ty, ptr_arg, isVolatile=true)
+///   let volatile_load = builder.createLoad(i32ty, ptr_arg, isVolatile=true)
 ///   
 ///   // Test atomic load with name
-///   let atomic_load = builder.createLoad!(i32ty, ptr_arg, atomicOrdering=Acquire)
+///   let atomic_load = builder.createLoad(i32ty, ptr_arg, atomicOrdering=Acquire)
 ///   
-///   let add1 = builder.createAdd!(loaded_val, volatile_load)
-///   let add2 = builder.createAdd!(add1, atomic_load)
-///   let _ = builder.createRet!(add2)
+///   let add1 = builder.createAdd(loaded_val, volatile_load)
+///   let add2 = builder.createAdd(add1, atomic_load)
+///   let _ = builder.createRet(add2)
 ///
 ///   inspect(
 ///     fval,
@@ -3558,12 +3558,12 @@ pub fn IRBuilder::createLoad(
   isVolatile~ : Bool = false,
   atomicOrdering~ : AtomicOrdering = NotAtomic,
   name~ : String = ""
-) -> &Value!Error {
+) -> &Value raise Error {
   let parent = self.getInsertFunction()
-  let inst = LoadInst::new!(
+  let inst = LoadInst::new(
     load_ty, ptr, isVolatile, atomicOrdering, parent, name,
   )
-  self.insert!(inst)
+  self.insert(inst)
   inst
 }
 
@@ -3590,28 +3590,28 @@ pub fn IRBuilder::createLoad(
 ///
 ///   let i32ty = ctx.getInt32Ty()
 ///   let voidty = ctx.getVoidTy()
-///   let fty = ctx.getFunctionType!(voidty, [i32ty])
-///   let fval = prog.addFunction!(fty, "store_func")
+///   let fty = ctx.getFunctionType(voidty, [i32ty])
+///   let fval = prog.addFunction(fty, "store_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
 ///   let val_arg = fval.getArg(0).unwrap()
 ///   
 ///   // Create multiple allocations
-///   let ptr1 = builder.createAlloca!(i32ty, name="ptr1")
-///   let ptr2 = builder.createAlloca!(i32ty, name="ptr2") 
-///   let ptr3 = builder.createAlloca!(i32ty, name="ptr3")
+///   let ptr1 = builder.createAlloca(i32ty, name="ptr1")
+///   let ptr2 = builder.createAlloca(i32ty, name="ptr2") 
+///   let ptr3 = builder.createAlloca(i32ty, name="ptr3")
 ///   
 ///   // Test regular store
-///   let _ = builder.createStore!(val_arg, ptr1)
+///   let _ = builder.createStore(val_arg, ptr1)
 ///   
 ///   // Test volatile store
-///   let _ = builder.createStore!(val_arg, ptr2, isVolatile=true)
+///   let _ = builder.createStore(val_arg, ptr2, isVolatile=true)
 ///   
 ///   // Test atomic store
-///   let _ = builder.createStore!(val_arg, ptr3, atomicOrdering=Release)
+///   let _ = builder.createStore(val_arg, ptr3, atomicOrdering=Release)
 ///   
-///   let _ = builder.createRetVoid!()
+///   let _ = builder.createRetVoid()
 ///
 ///   inspect(
 ///     fval,
@@ -3636,10 +3636,10 @@ pub fn IRBuilder::createStore(
   ptr : &Value,
   isVolatile~ : Bool = false,
   atomicOrdering~ : AtomicOrdering = NotAtomic
-) -> &Instruction!Error {
+) -> &Instruction raise Error {
   let parent = self.getInsertFunction()
-  let inst = StoreInst::new!(value, ptr, isVolatile, atomicOrdering, parent)
-  self.insert!(inst)
+  let inst = StoreInst::new(value, ptr, isVolatile, atomicOrdering, parent)
+  self.insert(inst)
   inst
 }
 
@@ -3660,20 +3660,20 @@ pub fn IRBuilder::createStore(
 ///   let builder = IRBuilder::new()
 ///
 ///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [])
-///   let fval = prog.addFunction!(fty, "br_test")
+///   let fty = ctx.getFunctionType(i32ty, [])
+///   let fval = prog.addFunction(fty, "br_test")
 ///   
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   let targetBB = fval.addBasicBlock(name="target")
 ///   
 ///   // Setup entry block
 ///   builder.setInsertPoint(entryBB)
-///   let _ = builder.createBr!(targetBB)
+///   let _ = builder.createBr(targetBB)
 ///   
 ///   // Setup target block
 ///   builder.setInsertPoint(targetBB)
 ///   let const_val = ctx.getConstInt32(42)
-///   let _ = builder.createRet!(const_val)
+///   let _ = builder.createRet(const_val)
 ///
 ///   inspect(
 ///     fval,
@@ -3689,7 +3689,7 @@ pub fn IRBuilder::createStore(
 ///   )
 /// }
 /// ```
-pub fn IRBuilder::createBr(self : Self, dst : BasicBlock) -> &Instruction!Error {
+pub fn IRBuilder::createBr(self : Self, dst : BasicBlock) -> &Instruction raise Error {
   let parent = self.getInsertFunction()
   let inst = BranchInst::newUnconditional(dst, parent)
   self.insert(inst)
@@ -3715,31 +3715,31 @@ pub fn IRBuilder::createBr(self : Self, dst : BasicBlock) -> &Instruction!Error 
 ///  let forty_two = ctx.getConstInt32(42)
 ///  let thirty_three = ctx.getConstInt32(33)
 ///
-///  let fty = ctx.getFunctionType!(i32ty, [i32ty])
-///  let fval = prog.addFunction!(fty, "foo")
+///  let fty = ctx.getFunctionType(i32ty, [i32ty])
+///  let fval = prog.addFunction(fty, "foo")
 ///
 ///  let entryBB = fval.addBasicBlock(name="entry")
 ///  builder.setInsertPoint(entryBB)
-///  let alloc = builder.createAlloca!(i32ty)
+///  let alloc = builder.createAlloca(i32ty)
 ///
 ///  let arg0 = fval.getArg(0).unwrap()
-///  let cond = builder.createCmp!(ICMP_SGT, arg0, ctx.getConstInt32(0))
+///  let cond = builder.createCmp(ICMP_SGT, arg0, ctx.getConstInt32(0))
 ///  let thenBB = fval.addBasicBlock()
 ///  let elseBB = fval.addBasicBlock()
 ///  let mergeBB = fval.addBasicBlock()
 ///
-///  let _ = builder.createCondBr!(cond, thenBB, elseBB)
+///  let _ = builder.createCondBr(cond, thenBB, elseBB)
 ///  builder.setInsertPoint(thenBB)
-///  let _ = builder.createStore!(thirty_three, alloc)
-///  let _ = builder.createBr!(mergeBB)
+///  let _ = builder.createStore(thirty_three, alloc)
+///  let _ = builder.createBr(mergeBB)
 ///
 ///  builder.setInsertPoint(elseBB)
-///  let _ = builder.createStore!(forty_two, alloc)
-///  let _ = builder.createBr!(mergeBB)
+///  let _ = builder.createStore(forty_two, alloc)
+///  let _ = builder.createBr(mergeBB)
 ///
 ///  builder.setInsertPoint(mergeBB)
-///  let loaded = builder.createLoad!(i32ty, alloc)
-///  let _ = builder.createRet!(loaded)
+///  let loaded = builder.createLoad(i32ty, alloc)
+///  let _ = builder.createRet(loaded)
 ///
 ///   inspect(
 ///     fval,
@@ -3771,7 +3771,7 @@ pub fn IRBuilder::createCondBr(
   cond : &Value,
   true_dst : BasicBlock,
   false_dst : BasicBlock
-) -> &Instruction!Error {
+) -> &Instruction raise Error {
   let parent = self.getInsertFunction()
   let inst = BranchInst::newConditional(cond, true_dst, false_dst, parent)
   self.insert(inst)
@@ -3801,8 +3801,8 @@ pub fn IRBuilder::createCondBr(
 ///
 ///   let i1ty = ctx.getInt1Ty()
 ///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [i1ty, i32ty])
-///   let fval = prog.addFunction!(fty, "select_func")
+///   let fty = ctx.getFunctionType(i32ty, [i1ty, i32ty])
+///   let fval = prog.addFunction(fty, "select_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
@@ -3812,10 +3812,10 @@ pub fn IRBuilder::createCondBr(
 ///   let forty_two = ctx.getConstInt32(42)
 ///   let thirty_three = ctx.getConstInt32(33)
 ///   let always_true = ctx.getConstTrue()
-///   let false_val = builder.createSelect!(always_true, forty_two, thirty_three)
+///   let false_val = builder.createSelect(always_true, forty_two, thirty_three)
 ///
-///   let select_result = builder.createSelect!(cond, true_val, false_val)
-///   let _ = builder.createRet!(select_result)
+///   let select_result = builder.createSelect(cond, true_val, false_val)
+///   let _ = builder.createRet(select_result)
 ///
 ///   inspect(
 ///     fval,
@@ -3835,7 +3835,7 @@ pub fn IRBuilder::createSelect(
   trueValue : &Value,
   falseValue : &Value,
   name~ : String = ""
-) -> &Value!Error {
+) -> &Value raise Error {
   match condition.tryAsConstantEnum() {
     Some(ConstantInt(ci)) =>
       if ci.getValue() != 0L {
@@ -3846,8 +3846,8 @@ pub fn IRBuilder::createSelect(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = SelectInst::new!(condition, trueValue, falseValue, parent, name)
-  self.insert!(inst)
+  let inst = SelectInst::new(condition, trueValue, falseValue, parent, name)
+  self.insert(inst)
   inst
 }
 
@@ -3872,8 +3872,8 @@ pub fn IRBuilder::createSelect(
 ///
 ///   let i32ty = ctx.getInt32Ty()
 ///   let voidty = ctx.getVoidTy()
-///   let fty = ctx.getFunctionType!(voidty, [i32ty])
-///   let fval = prog.addFunction!(fty, "switch_func")
+///   let fty = ctx.getFunctionType(voidty, [i32ty])
+///   let fval = prog.addFunction(fty, "switch_func")
 ///   
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   let case1BB = fval.addBasicBlock(name="case1")
@@ -3885,7 +3885,7 @@ pub fn IRBuilder::createSelect(
 ///   let arg0 = fval.getArg(0).unwrap()
 ///   
 ///   // Create switch with default destination
-///   let switch_inst = builder.createSwitch!(arg0, defaultBB)
+///   let switch_inst = builder.createSwitch(arg0, defaultBB)
 ///   
 ///   // Add cases
 ///   let case_65 = ctx.getConstInt32(65)
@@ -3899,16 +3899,16 @@ pub fn IRBuilder::createSelect(
 ///   
 ///   // Setup case blocks
 ///   builder.setInsertPoint(case1BB)
-///   let _ = builder.createRetVoid!()
+///   let _ = builder.createRetVoid()
 ///   
 ///   builder.setInsertPoint(case2BB)
-///   let _ = builder.createRetVoid!()
+///   let _ = builder.createRetVoid()
 ///   
 ///   builder.setInsertPoint(case3BB)
-///   let _ = builder.createRetVoid!()
+///   let _ = builder.createRetVoid()
 ///   
 ///   builder.setInsertPoint(defaultBB)
-///   let _ = builder.createRetVoid!()
+///   let _ = builder.createRetVoid()
 ///
 ///   inspect(
 ///     fval,
@@ -3941,10 +3941,10 @@ pub fn IRBuilder::createSwitch(
   self : IRBuilder,
   cond : &Value,
   defaultDest : BasicBlock
-) -> SwitchInst!Error {
+) -> SwitchInst raise Error {
   let parent = self.getInsertFunction()
-  let inst = SwitchInst::new!(cond, defaultDest, parent)
-  self.insert!(inst)
+  let inst = SwitchInst::new(cond, defaultDest, parent)
+  self.insert(inst)
   inst
 }
 
@@ -3970,8 +3970,8 @@ pub fn IRBuilder::createSwitch(
 ///   let builder = IRBuilder::new()
 ///
 ///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [i32ty])
-///   let fval = prog.addFunction!(fty, "phi_func")
+///   let fty = ctx.getFunctionType(i32ty, [i32ty])
+///   let fval = prog.addFunction(fty, "phi_func")
 ///   
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   let thenBB = fval.addBasicBlock(name="then")
@@ -3981,26 +3981,26 @@ pub fn IRBuilder::createSwitch(
 ///   // Entry block: create condition and branch
 ///   builder.setInsertPoint(entryBB)
 ///   let arg0 = fval.getArg(0).unwrap()
-///   let cond = builder.createCmp!(ICMP_SGT, arg0, ctx.getConstInt32(0))
-///   let _ = builder.createCondBr!(cond, thenBB, elseBB)
+///   let cond = builder.createCmp(ICMP_SGT, arg0, ctx.getConstInt32(0))
+///   let _ = builder.createCondBr(cond, thenBB, elseBB)
 ///   
 ///   // Then block: use value 100
 ///   builder.setInsertPoint(thenBB)
 ///   let then_val = ctx.getConstInt32(100)
-///   let _ = builder.createBr!(mergeBB)
+///   let _ = builder.createBr(mergeBB)
 ///   
 ///   // Else block: use value 200  
 ///   builder.setInsertPoint(elseBB)
 ///   let else_val = ctx.getConstInt32(200)
-///   let _ = builder.createBr!(mergeBB)
+///   let _ = builder.createBr(mergeBB)
 ///   
 ///   // Merge block: create PHI node to merge values
 ///   builder.setInsertPoint(mergeBB)
-///   let phi = builder.createPHI!(i32ty, name="result")
-///   phi.addIncoming!(then_val, thenBB)
-///   phi.addIncoming!(else_val, elseBB)
+///   let phi = builder.createPHI(i32ty, name="result")
+///   phi.addIncoming(then_val, thenBB)
+///   phi.addIncoming(else_val, elseBB)
 ///   
-///   let _ = builder.createRet!(phi)
+///   let _ = builder.createRet(phi)
 ///
 ///   inspect(
 ///     fval,
@@ -4028,10 +4028,10 @@ pub fn IRBuilder::createPHI(
   self : IRBuilder,
   ty : &Type,
   name~ : String = ""
-) -> PHINode!Error {
+) -> PHINode raise Error {
   let parent = self.getInsertFunction()
   let phi = PHINode::new(ty, parent, name)
-  self.insert!(phi)
+  self.insert(phi)
   phi
 }
 
@@ -4056,15 +4056,15 @@ pub fn IRBuilder::createPHI(
 ///   let i32ty = ctx.getInt32Ty()
 ///   
 ///   // Create two helper functions to be called
-///   let helper1_fty = ctx.getFunctionType!(i32ty, [i32ty])
-///   let helper1 = prog.addFunction!(helper1_fty, "helper1")
+///   let helper1_fty = ctx.getFunctionType(i32ty, [i32ty])
+///   let helper1 = prog.addFunction(helper1_fty, "helper1")
 ///   
-///   let helper2_fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
-///   let helper2 = prog.addFunction!(helper2_fty, "helper2")
+///   let helper2_fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+///   let helper2 = prog.addFunction(helper2_fty, "helper2")
 ///   
 ///   // Create main function that calls the helpers
-///   let main_fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty, i32ty])
-///   let main_func = prog.addFunction!(main_fty, "main")
+///   let main_fty = ctx.getFunctionType(i32ty, [i32ty, i32ty, i32ty])
+///   let main_func = prog.addFunction(main_fty, "main")
 ///   let entryBB = main_func.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
@@ -4073,15 +4073,15 @@ pub fn IRBuilder::createPHI(
 ///   let arg2 = main_func.getArg(2).unwrap()
 ///
 ///   // Call helper1 with tail call
-///   let call1 = builder.createCall!(helper1, [arg0], name="result1")
+///   let call1 = builder.createCall(helper1, [arg0], name="result1")
 ///   call1.setTailCallKind(Tail)
 ///   
 ///   // Call helper2 without tail call
-///   let call2 = builder.createCall!(helper2, [arg1, arg2], name="result2")
+///   let call2 = builder.createCall(helper2, [arg1, arg2], name="result2")
 ///   
 ///   // Add the results and return
-///   let sum = builder.createAdd!(call1, call2, name="sum")
-///   let _ = builder.createRet!(sum)
+///   let sum = builder.createAdd(call1, call2, name="sum")
+///   let _ = builder.createRet(sum)
 ///
 ///   inspect(
 ///     main_func,
@@ -4102,10 +4102,10 @@ pub fn IRBuilder::createCall(
   callee : Function,
   args : Array[&Value],
   name~ : String = ""
-) -> CallInst!Error {
+) -> CallInst raise Error {
   let parent = self.getInsertFunction()
-  let inst = CallInst::new!(callee, args, parent, name)
-  self.insert!(inst)
+  let inst = CallInst::new(callee, args, parent, name)
+  self.insert(inst)
   inst
 }
 
@@ -4129,17 +4129,17 @@ pub fn IRBuilder::createCall(
 ///
 ///   let i32ty = ctx.getInt32Ty()
 ///   let f32ty = ctx.getFloatTy()
-///   let sty = ctx.getStructType!([i32ty, f32ty], name="MyStruct")
-///   let fty = ctx.getFunctionType!(i32ty, [sty])
-///   let fval = prog.addFunction!(fty, "extract_func")
+///   let sty = ctx.getStructType([i32ty, f32ty], name="MyStruct")
+///   let fty = ctx.getFunctionType(i32ty, [sty])
+///   let fval = prog.addFunction(fty, "extract_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
 ///   let struct_arg = fval.getArg(0).unwrap()
 ///   
 ///   // Extract the first element (i32) from struct
-///   let extracted_val = builder.createExtractValue!(struct_arg, [0], name="field0")
-///   let _ = builder.createRet!(extracted_val)
+///   let extracted_val = builder.createExtractValue(struct_arg, [0], name="field0")
+///   let _ = builder.createRet(extracted_val)
 ///
 ///   inspect(
 ///     fval,
@@ -4158,10 +4158,10 @@ pub fn IRBuilder::createExtractValue(
   aggregate : &Value,
   indices : Array[Int],
   name~ : String = ""
-) -> &Value!Error {
+) -> &Value raise Error {
   let parent = self.getInsertFunction()
-  let inst = ExtractValueInst::new!(aggregate, indices, parent, name)
-  self.insert!(inst)
+  let inst = ExtractValueInst::new(aggregate, indices, parent, name)
+  self.insert(inst)
   inst
 }
 
@@ -4186,9 +4186,9 @@ pub fn IRBuilder::createExtractValue(
 ///
 ///   let i32ty = ctx.getInt32Ty()
 ///   let f32ty = ctx.getFloatTy()
-///   let sty = ctx.getStructType!([i32ty, f32ty], name="MyStruct")
-///   let fty = ctx.getFunctionType!(sty, [sty, i32ty])
-///   let fval = prog.addFunction!(fty, "insert_func")
+///   let sty = ctx.getStructType([i32ty, f32ty], name="MyStruct")
+///   let fty = ctx.getFunctionType(sty, [sty, i32ty])
+///   let fval = prog.addFunction(fty, "insert_func")
 ///   let entryBB = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entryBB)
 ///
@@ -4196,8 +4196,8 @@ pub fn IRBuilder::createExtractValue(
 ///   let new_val = fval.getArg(1).unwrap()
 ///   
 ///   // Insert the new value into the first field of the struct
-///   let new_struct = builder.createInsertValue!(struct_arg, new_val, [0], name="new_struct")
-///   let _ = builder.createRet!(new_struct)
+///   let new_struct = builder.createInsertValue(struct_arg, new_val, [0], name="new_struct")
+///   let _ = builder.createRet(new_struct)
 ///
 ///   inspect(
 ///     fval,
@@ -4217,9 +4217,9 @@ pub fn IRBuilder::createInsertValue(
   value : &Value,
   indices : Array[Int],
   name~ : String = ""
-) -> &Value!Error {
+) -> &Value raise Error {
   let parent = self.getInsertFunction()
-  let inst = InsertValueInst::new!(aggregate, value, indices, parent, name)
-  self.insert!(inst)
+  let inst = InsertValueInst::new(aggregate, value, indices, parent, name)
+  self.insert(inst)
   inst
 }

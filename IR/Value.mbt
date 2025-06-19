@@ -432,8 +432,8 @@ pub trait Instruction: User {
   isIndependent(Self) -> Bool = _
   next(Self) -> &Instruction? = _
   prev(Self) -> &Instruction? = _
-  insertAfter(Self, &Instruction) -> Unit!LLVMValueError = _
-  insertBefore(Self, &Instruction) -> Unit!LLVMValueError = _
+  insertAfter(Self, &Instruction) -> Unit raise LLVMValueError = _
+  insertBefore(Self, &Instruction) -> Unit raise LLVMValueError = _
 }
 
 ///|

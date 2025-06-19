@@ -414,17 +414,17 @@ impl Type with tryAsAbstractTypeEnum(self) -> AbstractTypeEnum? {
 ///   let ctx = LLVMContext::new()
 ///
 ///   let i8ty :&IntegerType = ctx.getInt8Ty()
-///   assert_eq!(i8ty.getBitWidth(), 8)
-///   inspect!(i8ty.getExtendedType().unwrap(), content="i16")
-///   assert_eq!(i8ty.getBitMask(), 0xFF)
-///   assert_eq!(i8ty.getExtendedType().unwrap().getSignBit(), 0x8000)
+///   assert_eq(i8ty.getBitWidth(), 8)
+///   inspect(i8ty.getExtendedType().unwrap(), content="i16")
+///   assert_eq(i8ty.getBitMask(), 0xFF)
+///   assert_eq(i8ty.getExtendedType().unwrap().getSignBit(), 0x8000)
 ///
 ///   let i32ty = i8ty.getExtendedType().unwrap()
 ///                   .getExtendedType().unwrap()
 ///
-///   inspect!(i32ty, content="i32")
+///   inspect(i32ty, content="i32")
 ///   guard i32ty.asIntegerTypeEnum() is Int32Type(i32ty)
-///   inspect!(i32ty, content="i32")
+///   inspect(i32ty, content="i32")
 /// }
 /// ```
 pub trait IntegerType: Type {
@@ -935,7 +935,7 @@ pub impl PrimitiveType for FP128Type with asPrimitiveTypeEnum(self) -> Primitive
 /// test "Int1Type" {
 ///   let ctx = LLVMContext::new()
 ///
-///   inspect!(ctx.getInt1Ty(), content="i1")
+///   inspect(ctx.getInt1Ty(), content="i1")
 /// }
 /// ```
 pub struct Int1Type {
@@ -985,7 +985,7 @@ pub impl PrimitiveType for Int1Type with asPrimitiveTypeEnum(self) -> PrimitiveT
 /// test "Int8Type" {
 ///   let ctx = LLVMContext::new()
 ///
-///   inspect!(ctx.getInt8Ty(), content="i8")
+///   inspect(ctx.getInt8Ty(), content="i8")
 /// }
 /// ```
 pub struct Int8Type {
@@ -1040,7 +1040,7 @@ pub impl PrimitiveType for Int8Type with asPrimitiveTypeEnum(self) -> PrimitiveT
 /// test "Int16Type" {
 ///   let ctx = LLVMContext::new()
 ///
-///   inspect!(ctx.getInt16Ty(), content="i16")
+///   inspect(ctx.getInt16Ty(), content="i16")
 /// }
 /// ```
 pub struct Int16Type {
@@ -1095,7 +1095,7 @@ pub impl PrimitiveType for Int16Type with asPrimitiveTypeEnum(self) -> Primitive
 /// test "Int32Type" {
 ///   let ctx = LLVMContext::new()
 ///
-///   inspect!(ctx.getInt32Ty(), content="i32")
+///   inspect(ctx.getInt32Ty(), content="i32")
 /// }
 /// ```
 pub struct Int32Type {
@@ -1150,7 +1150,7 @@ pub impl PrimitiveType for Int32Type with asPrimitiveTypeEnum(self) -> Primitive
 /// test "Int64Type" {
 ///   let ctx = LLVMContext::new()
 ///
-///   inspect!(ctx.getInt64Ty(), content="i64")
+///   inspect(ctx.getInt64Ty(), content="i64")
 /// }
 /// ```
 pub struct Int64Type {
@@ -1205,7 +1205,7 @@ pub struct VoidType {
 /// test "VoidType" {
 ///   let ctx = LLVMContext::new()
 ///   let voidty = ctx.getVoidTy()
-///   inspect!(voidty, content="void")
+///   inspect(voidty, content="void")
 /// }
 fn VoidType::new(context : LLVMContext) -> VoidType {
   let base = TypeBase::new(context)
@@ -1249,7 +1249,7 @@ pub struct LabelType {
 /// test "LabelType" {
 ///   let ctx = LLVMContext::new()
 ///   let labelty = ctx.getLabelTy()
-///   inspect!(labelty, content="label")
+///   inspect(labelty, content="label")
 /// }
 fn LabelType::new(context : LLVMContext) -> LabelType {
   let base = TypeBase::new(context)
@@ -1293,7 +1293,7 @@ pub struct MetadataType {
 /// test "MetadataType" {
 ///   let ctx = LLVMContext::new()
 ///   let metadataty = ctx.getMetadataTy()
-///   inspect!(metadataty, content="metadata")
+///   inspect(metadataty, content="metadata")
 /// }
 /// ```
 fn MetadataType::new(context : LLVMContext) -> MetadataType {
@@ -1338,7 +1338,7 @@ pub struct TokenType {
 /// test "TokenType" {
 ///   let ctx = LLVMContext::new()
 ///   let tokenty = ctx.getTokenTy()
-///   inspect!(tokenty, content="token")
+///   inspect(tokenty, content="token")
 /// }
 /// ```
 fn TokenType::new(context : LLVMContext) -> TokenType {
@@ -1380,8 +1380,8 @@ pub impl AbstractType for TokenType with asAbstractTypeEnum(self) -> AbstractTyp
 ///   let voidty = ctx.getVoidTy()
 ///   let f32ty = ctx.getFloatTy()
 ///   let f64ty = ctx.getDoubleTy()
-///   let fty = ctx.getFunctionType!(voidty, [int32ty, f32ty, f64ty])
-///   inspect!(fty, content="void (i32, float, double)")
+///   let fty = ctx.getFunctionType(voidty, [int32ty, f32ty, f64ty])
+///   inspect(fty, content="void (i32, float, double)")
 /// }
 /// ```
 pub struct FunctionType {
@@ -1451,7 +1451,7 @@ pub fn FunctionType::getParamType(self : FunctionType, idx : Int) -> &Type? {
 ///|
 pub impl Show for FunctionType with output(self, logger : &Logger) {
   let ret_str = self.getReturnType().to_string()
-  let param_strs = self.param_iter().map(fn { p => p.to_string() }).collect()
+  let param_strs = self.param_iter().map(p => "\{p}").collect()
   let param_str = param_strs.join(", ")
   logger.write_string("\{ret_str} (\{param_str})")
 }
@@ -1501,11 +1501,11 @@ pub impl AbstractType for FunctionType with asAbstractTypeEnum(self) -> Abstract
 ///   let i32ty = ctx.getInt32Ty()
 ///   let f32ty = ctx.getFloatTy()
 ///
-///   let sty = ctx.getStructType!([i32ty, f32ty], name="foo")
-///   inspect!(sty.full_info(), content="%foo = type { i32, float }")
+///   let sty = ctx.getStructType([i32ty, f32ty], name="foo")
+///   inspect(sty.full_info(), content="%foo = type { i32, float }")
 ///
-///   let sty = ctx.getStructType!([i8ty, i16ty], name="bar", isPacked=true)
-///   inspect!(sty.full_info(), content="%bar = type <{ i8, i16 }>")
+///   let sty = ctx.getStructType([i8ty, i16ty], name="bar", isPacked=true)
+///   inspect(sty.full_info(), content="%bar = type <{ i8, i16 }>")
 /// }
 /// ```
 pub struct StructType {
@@ -1526,7 +1526,7 @@ fn StructType::new(
   elements : Array[&Type],
   name~ : String? = None,
   isPacked~ : Bool = false
-) -> StructType!LLVMTypeError {
+) -> StructType raise LLVMTypeError {
   if name is None && elements.is_empty() {
     raise OpaqueStructMustHaveName
   }
@@ -1564,11 +1564,11 @@ fn StructType::new(
 ///   let i32ty = ctx.getInt32Ty()
 ///   let f32ty = ctx.getFloatTy()
 ///
-///   let foo = ctx.getStructType!([i32ty, f32ty])
-///   let bar = ctx.getStructType!([i32ty, f32ty], name="bar")
+///   let foo = ctx.getStructType([i32ty, f32ty])
+///   let bar = ctx.getStructType([i32ty, f32ty], name="bar")
 ///
-///   assert_true!(foo.isLiteral())
-///   assert_false!(bar.isLiteral())
+///   assert_true(foo.isLiteral())
+///   assert_false(bar.isLiteral())
 /// }
 /// ```
 pub fn StructType::isLiteral(self : StructType) -> Bool {
@@ -1587,10 +1587,10 @@ pub fn StructType::isLiteral(self : StructType) -> Bool {
 ///   let i32ty = ctx.getInt32Ty()
 ///   let f32ty = ctx.getFloatTy()
 ///
-///   let foo = ctx.getStructType!([], name="foo")
-///   let bar = ctx.getStructType!([i32ty, f32ty], name="bar")
-///   assert_true!(foo.isOpaque())
-///   assert_false!(bar.isOpaque())
+///   let foo = ctx.getStructType([], name="foo")
+///   let bar = ctx.getStructType([i32ty, f32ty], name="bar")
+///   assert_true(foo.isOpaque())
+///   assert_false(bar.isOpaque())
 /// }
 /// ```
 pub fn StructType::isOpaque(self : StructType) -> Bool {
@@ -1617,7 +1617,7 @@ pub fn StructType::isSized(self : StructType) -> Bool {
   if self
     .elements()
     .iter()
-    .any(fn { ty => ty.isScalableTy() || not(ty.isSized()) }) {
+    .any(ty => ty.isScalableTy() || not(ty.isSized())) {
     return false
   }
   self.isSized = Some(true)
@@ -1647,7 +1647,7 @@ pub fn StructType::setBody(
   self : StructType,
   elements : Array[&Type],
   isPacked~ : Bool = false
-) -> Unit!LLVMTypeError {
+) -> Unit raise LLVMTypeError {
   // only opaque struct can be set body.
   guard self.isOpaque() else { raise SetBodyForNonOpaqueStruct }
 
@@ -1659,7 +1659,7 @@ pub fn StructType::setBody(
   }
   self.isPacked = isPacked
   self.elements.clear()
-  elements.each(fn { ty => self.elements.push(ty) })
+  elements.each(ty => self.elements.push(ty))
 }
 
 ///| Get the name of the struct.
@@ -1683,7 +1683,7 @@ pub fn StructType::getName(self : StructType) -> String? {
 pub fn StructType::setName(
   self : StructType,
   new_name : String
-) -> Unit!LLVMTypeError {
+) -> Unit raise LLVMTypeError {
   if new_name.is_empty() {
     raise StructTypeNameCannotBeEmpty
   }
@@ -1727,7 +1727,7 @@ pub fn StructType::getIndexedType(self : Self, idxs : ArrayView[Int]) -> &Type? 
 
 ///|
 pub fn StructType::body_str(self : Self) -> String {
-  let s = self.elements.iter().map(fn { ty => ty.to_string() }).join(", ")
+  let s = self.elements.iter().map(ty => ty.to_string()).join(", ")
   match self.isPacked() {
     true => "<{ \{s} }>"
     false => "{ \{s} }"
@@ -1795,11 +1795,11 @@ pub impl AggregateType for StructType with asAggregateTypeEnum(self) -> Aggregat
 ///
 ///   let i32ty = ctx.getInt32Ty()
 ///
-///   let arrty = ctx.getArrayType!(i32ty, 16)
-///   inspect!(arrty, content="[16 x i32]")
+///   let arrty = ctx.getArrayType(i32ty, 16)
+///   inspect(arrty, content="[16 x i32]")
 ///
-///   assert_eq!(arrty.getElementCount(), 16)
-///   inspect!(arrty.getElementType(), content="i32")
+///   assert_eq(arrty.getElementCount(), 16)
+///   inspect(arrty.getElementType(), content="i32")
 /// }
 /// ```
 pub struct ArrayType {
@@ -1813,7 +1813,7 @@ fn ArrayType::new(
   context : LLVMContext,
   elementType : &Type,
   elementCount : UInt
-) -> ArrayType!LLVMTypeError {
+) -> ArrayType raise LLVMTypeError {
   guard ArrayType::isValidElementType(elementType) else {
     raise InValidArrayElementType(elementType)
   }
@@ -1873,11 +1873,11 @@ impl AggregateType for ArrayType with asAggregateTypeEnum(self) -> AggregateType
 ///   let ctx = LLVMContext::new()
 ///
 ///   let i32ty = ctx.getInt32Ty()
-///   let vecty = ctx.getFixedVectorType!(i32ty, 16)
+///   let vecty = ctx.getFixedVectorType(i32ty, 16)
 ///
-///   inspect!(vecty, content="<16 x i32>")
-///   assert_eq!(vecty.getElementCount(), 16)
-///   inspect!(vecty.getElementType(), content="i32")
+///   inspect(vecty, content="<16 x i32>")
+///   assert_eq(vecty.getElementCount(), 16)
+///   inspect(vecty.getElementType(), content="i32")
 /// }
 /// ```
 pub struct FixedVectorType {
@@ -1891,7 +1891,7 @@ fn FixedVectorType::new(
   context : LLVMContext,
   elementType : &Type,
   elementCount : UInt
-) -> FixedVectorType!LLVMTypeError {
+) -> FixedVectorType raise LLVMTypeError {
   guard FixedVectorType::isValidElementType(elementType) else {
     raise InValidVectorElementType(elementType)
   }
@@ -1952,11 +1952,11 @@ pub impl AggregateType for FixedVectorType with asAggregateTypeEnum(self) -> Agg
 ///   let ctx = LLVMContext::new()
 ///
 ///   let f32ty = ctx.getFloatTy()
-///   let vecty = ctx.getScalableVectorType!(f32ty, 16)
+///   let vecty = ctx.getScalableVectorType(f32ty, 16)
 ///
-///   inspect!(vecty, content="<vscale x 16 x float>")
-///   assert_eq!(vecty.getElementCount(), 16)
-///   inspect!(vecty.getElementType(), content="float")
+///   inspect(vecty, content="<vscale x 16 x float>")
+///   assert_eq(vecty.getElementCount(), 16)
+///   inspect(vecty.getElementType(), content="float")
 /// }
 /// ```
 pub struct ScalableVectorType {
@@ -1970,7 +1970,7 @@ fn ScalableVectorType::new(
   context : LLVMContext,
   elementType : &Type,
   elementCount : UInt
-) -> ScalableVectorType!LLVMTypeError {
+) -> ScalableVectorType raise LLVMTypeError {
   guard ScalableVectorType::isValidElementType(elementType) else {
     raise InValidVectorElementType(elementType)
   }
@@ -2043,17 +2043,17 @@ pub fn AddressSpace::new(v : UInt) -> AddressSpace {
 /// test "PointerType" {
 ///   let ctx = LLVMContext::new()
 ///
-///   inspect!(ctx.getPtrTy(), content="ptr")
+///   inspect(ctx.getPtrTy(), content="ptr")
 ///
 ///   let addressSpace = AddressSpace::new(0)
 ///   let ptr = ctx.getPtrTy(addressSpace~)
-///   inspect!(ptr, content="ptr")
+///   inspect(ptr, content="ptr")
 ///
 ///   let i32ty = ctx.getInt32Ty()
-///   assert_true!(PointerType::isLoadableOrStorableType(i32ty))
+///   assert_true(PointerType::isLoadableOrStorableType(i32ty))
 ///
 ///   let voidty = ctx.getVoidTy()
-///   assert_false!(PointerType::isLoadableOrStorableType(voidty))
+///   assert_false(PointerType::isLoadableOrStorableType(voidty))
 /// }
 /// ```
 pub struct PointerType {

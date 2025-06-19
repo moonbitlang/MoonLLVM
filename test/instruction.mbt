@@ -10,8 +10,8 @@ test "complex arithmetic operations" {
   let builder = @IR.IRBuilder::new()
 
   let i32ty = ctx.getInt32Ty()
-  let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty, i32ty])
-  let fval = prog.addFunction!(fty, "complex_math")
+  let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty, i32ty])
+  let fval = prog.addFunction(fty, "complex_math")
   let entryBB = fval.addBasicBlock(name="entry")
   builder.setInsertPoint(entryBB)
 
@@ -20,15 +20,15 @@ test "complex arithmetic operations" {
   let arg_c = fval.getArg(2).unwrap()
 
   // (a + b)
-  let add_result = builder.createAdd!(arg_a, arg_b, name="add_ab")
+  let add_result = builder.createAdd(arg_a, arg_b, name="add_ab")
   // (a + b) * c
-  let mul_result = builder.createMul!(add_result, arg_c, name="mul_abc")
+  let mul_result = builder.createMul(add_result, arg_c, name="mul_abc")
   // a / b
-  let div_result = builder.createSDiv!(arg_a, arg_b, name="div_ab")
+  let div_result = builder.createSDiv(arg_a, arg_b, name="div_ab")
   // (a + b) * c - a / b
-  let final_result = builder.createSub!(mul_result, div_result, name="final")
+  let final_result = builder.createSub(mul_result, div_result, name="final")
   
-  let _ = builder.createRet!(final_result)
+  let _ = builder.createRet(final_result)
 
   inspect(
     fval,
@@ -62,8 +62,8 @@ test "nested conditional statements" {
   let builder = @IR.IRBuilder::new()
 
   let i32ty = ctx.getInt32Ty()
-  let fty = ctx.getFunctionType!(i32ty, [i32ty])
-  let fval = prog.addFunction!(fty, "nested_if")
+  let fty = ctx.getFunctionType(i32ty, [i32ty])
+  let fval = prog.addFunction(fty, "nested_if")
   
   let entryBB = fval.addBasicBlock(name="entry")
   let positiveBB = fval.addBasicBlock(name="positive")
@@ -75,28 +75,28 @@ test "nested conditional statements" {
   builder.setInsertPoint(entryBB)
   let arg_x = fval.getArg(0).unwrap()
   let zero = ctx.getConstInt32(0)
-  let cond1 = builder.createICmpSGT!(arg_x, zero, name="x_gt_0")
-  let _ = builder.createCondBr!(cond1, positiveBB, negativeBB)
+  let cond1 = builder.createICmpSGT(arg_x, zero, name="x_gt_0")
+  let _ = builder.createCondBr(cond1, positiveBB, negativeBB)
   
   // Negative branch
   builder.setInsertPoint(negativeBB)
-  let _ = builder.createRet!(zero)
+  let _ = builder.createRet(zero)
   
   // Positive branch
   builder.setInsertPoint(positiveBB)
   let ten = ctx.getConstInt32(10)
-  let cond2 = builder.createICmpSGT!(arg_x, ten, name="x_gt_10")
-  let _ = builder.createCondBr!(cond2, innerIfBB, innerElseBB)
+  let cond2 = builder.createICmpSGT(arg_x, ten, name="x_gt_10")
+  let _ = builder.createCondBr(cond2, innerIfBB, innerElseBB)
   
   // Inner if branch
   builder.setInsertPoint(innerIfBB)
   let hundred = ctx.getConstInt32(100)
-  let _ = builder.createRet!(hundred)
+  let _ = builder.createRet(hundred)
   
   // Inner else branch
   builder.setInsertPoint(innerElseBB)
   let fifty = ctx.getConstInt32(50)
-  let _ = builder.createRet!(fifty)
+  let _ = builder.createRet(fifty)
 
   inspect(
     fval,
@@ -138,8 +138,8 @@ test "simple loop structure" {
   let builder = @IR.IRBuilder::new()
 
   let i32ty = ctx.getInt32Ty()
-  let fty = ctx.getFunctionType!(i32ty, [i32ty])
-  let fval = prog.addFunction!(fty, "simple_loop")
+  let fty = ctx.getFunctionType(i32ty, [i32ty])
+  let fval = prog.addFunction(fty, "simple_loop")
   
   let entryBB = fval.addBasicBlock(name="entry")
   let loopBB = fval.addBasicBlock(name="loop")
@@ -151,29 +151,29 @@ test "simple loop structure" {
   let arg_n = fval.getArg(0).unwrap()
   let zero = ctx.getConstInt32(0)
   let one = ctx.getConstInt32(1)
-  let _ = builder.createBr!(loopBB)
+  let _ = builder.createBr(loopBB)
   
   // Loop header - PHI nodes and condition
   builder.setInsertPoint(loopBB)
-  let i_phi = builder.createPHI!(i32ty, name="i")
-  let sum_phi = builder.createPHI!(i32ty, name="sum")
-  i_phi.addIncoming!(zero, entryBB)
-  sum_phi.addIncoming!(zero, entryBB)
+  let i_phi = builder.createPHI(i32ty, name="i")
+  let sum_phi = builder.createPHI(i32ty, name="sum")
+  i_phi.addIncoming(zero, entryBB)
+  sum_phi.addIncoming(zero, entryBB)
   
-  let cond = builder.createICmpSLT!(i_phi, arg_n, name="i_lt_n")
-  let _ = builder.createCondBr!(cond, bodyBB, exitBB)
+  let cond = builder.createICmpSLT(i_phi, arg_n, name="i_lt_n")
+  let _ = builder.createCondBr(cond, bodyBB, exitBB)
   
   // Loop body
   builder.setInsertPoint(bodyBB)
-  let new_sum = builder.createAdd!(sum_phi, i_phi, name="new_sum")
-  let new_i = builder.createAdd!(i_phi, one, name="new_i")
-  i_phi.addIncoming!(new_i, bodyBB)
-  sum_phi.addIncoming!(new_sum, bodyBB)
-  let _ = builder.createBr!(loopBB)
+  let new_sum = builder.createAdd(sum_phi, i_phi, name="new_sum")
+  let new_i = builder.createAdd(i_phi, one, name="new_i")
+  i_phi.addIncoming(new_i, bodyBB)
+  sum_phi.addIncoming(new_sum, bodyBB)
+  let _ = builder.createBr(loopBB)
   
   // Exit block
   builder.setInsertPoint(exitBB)
-  let _ = builder.createRet!(sum_phi)
+  let _ = builder.createRet(sum_phi)
 
   inspect(
     fval,
@@ -212,8 +212,8 @@ test "floating point operations" {
   let builder = @IR.IRBuilder::new()
 
   let f32ty = ctx.getFloatTy()
-  let fty = ctx.getFunctionType!(f32ty, [f32ty, f32ty])
-  let fval = prog.addFunction!(fty, "float_ops")
+  let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
+  let fval = prog.addFunction(fty, "float_ops")
   let entryBB = fval.addBasicBlock(name="entry")
   builder.setInsertPoint(entryBB)
 
@@ -221,13 +221,13 @@ test "floating point operations" {
   let arg_b = fval.getArg(1).unwrap()
 
   // a + b
-  let add_result = builder.createFAdd!(arg_a, arg_b, name="add_ab")
+  let add_result = builder.createFAdd(arg_a, arg_b, name="add_ab")
   // a - b  
-  let sub_result = builder.createFSub!(arg_a, arg_b, name="sub_ab")
+  let sub_result = builder.createFSub(arg_a, arg_b, name="sub_ab")
   // (a + b) / (a - b)
-  let div_result = builder.createFDiv!(add_result, sub_result, name="div_result")
+  let div_result = builder.createFDiv(add_result, sub_result, name="div_result")
   
-  let _ = builder.createRet!(div_result)
+  let _ = builder.createRet(div_result)
 
   inspect(
     fval,
@@ -256,8 +256,8 @@ test "type conversion operations" {
 
   let i32ty = ctx.getInt32Ty()
   let f32ty = ctx.getFloatTy()
-  let fty = ctx.getFunctionType!(f32ty, [i32ty, f32ty])
-  let fval = prog.addFunction!(fty, "convert_types")
+  let fty = ctx.getFunctionType(f32ty, [i32ty, f32ty])
+  let fval = prog.addFunction(fty, "convert_types")
   let entryBB = fval.addBasicBlock(name="entry")
   builder.setInsertPoint(entryBB)
 
@@ -265,11 +265,11 @@ test "type conversion operations" {
   let arg_f = fval.getArg(1).unwrap()
 
   // Convert int to float
-  let i_as_float = builder.createSIToFP!(arg_i, f32ty, name="i_to_float")
+  let i_as_float = builder.createSIToFP(arg_i, f32ty, name="i_to_float")
   // Add float values
-  let result = builder.createFAdd!(i_as_float, arg_f, name="result")
+  let result = builder.createFAdd(i_as_float, arg_f, name="result")
   
-  let _ = builder.createRet!(result)
+  let _ = builder.createRet(result)
 
   inspect(
     fval,
@@ -296,8 +296,8 @@ test "bitwise operations" {
   let builder = @IR.IRBuilder::new()
 
   let i32ty = ctx.getInt32Ty()
-  let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
-  let fval = prog.addFunction!(fty, "bitwise_ops")
+  let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+  let fval = prog.addFunction(fty, "bitwise_ops")
   let entryBB = fval.addBasicBlock(name="entry")
   builder.setInsertPoint(entryBB)
 
@@ -305,13 +305,13 @@ test "bitwise operations" {
   let arg_b = fval.getArg(1).unwrap()
 
   // a & b
-  let and_result = builder.createAnd!(arg_a, arg_b, name="and_ab")
+  let and_result = builder.createAnd(arg_a, arg_b, name="and_ab")
   // a ^ b
-  let xor_result = builder.createXor!(arg_a, arg_b, name="xor_ab")
+  let xor_result = builder.createXor(arg_a, arg_b, name="xor_ab")
   // (a & b) | (a ^ b)
-  let or_result = builder.createOr!(and_result, xor_result, name="final")
+  let or_result = builder.createOr(and_result, xor_result, name="final")
   
-  let _ = builder.createRet!(or_result)
+  let _ = builder.createRet(or_result)
 
   inspect(
     fval,
@@ -342,8 +342,8 @@ test "memory operations" {
   let builder = @IR.IRBuilder::new()
 
   let i32ty = ctx.getInt32Ty()
-  let fty = ctx.getFunctionType!(i32ty, [i32ty])
-  let fval = prog.addFunction!(fty, "memory_ops")
+  let fty = ctx.getFunctionType(i32ty, [i32ty])
+  let fval = prog.addFunction(fty, "memory_ops")
   let entryBB = fval.addBasicBlock(name="entry")
   builder.setInsertPoint(entryBB)
 
@@ -351,17 +351,17 @@ test "memory operations" {
   let ten = ctx.getConstInt32(10)
 
   // int local = x;
-  let local_ptr = builder.createAlloca!(i32ty, name="local")
-  let _ = builder.createStore!(arg_x, local_ptr)
+  let local_ptr = builder.createAlloca(i32ty, name="local")
+  let _ = builder.createStore(arg_x, local_ptr)
   
   // Load, add 10, store back
-  let loaded_val = builder.createLoad!(i32ty, local_ptr, name="loaded")
-  let incremented = builder.createAdd!(loaded_val, ten, name="incremented")
-  let _ = builder.createStore!(incremented, local_ptr)
+  let loaded_val = builder.createLoad(i32ty, local_ptr, name="loaded")
+  let incremented = builder.createAdd(loaded_val, ten, name="incremented")
+  let _ = builder.createStore(incremented, local_ptr)
   
   // Return final value
-  let final_val = builder.createLoad!(i32ty, local_ptr, name="final")
-  let _ = builder.createRet!(final_val)
+  let final_val = builder.createLoad(i32ty, local_ptr, name="final")
+  let _ = builder.createRet(final_val)
 
   inspect(
     fval,
@@ -396,8 +396,8 @@ test "switch statement" {
   let builder = @IR.IRBuilder::new()
 
   let i32ty = ctx.getInt32Ty()
-  let fty = ctx.getFunctionType!(i32ty, [i32ty])
-  let fval = prog.addFunction!(fty, "switch_test")
+  let fty = ctx.getFunctionType(i32ty, [i32ty])
+  let fval = prog.addFunction(fty, "switch_test")
   
   let entryBB = fval.addBasicBlock(name="entry")
   let case1BB = fval.addBasicBlock(name="case1")
@@ -407,7 +407,7 @@ test "switch statement" {
   builder.setInsertPoint(entryBB)
   let arg_x = fval.getArg(0).unwrap()
   
-  let switch_inst = builder.createSwitch!(arg_x, defaultBB)
+  let switch_inst = builder.createSwitch(arg_x, defaultBB)
   let one = ctx.getConstInt32(1)
   let two = ctx.getConstInt32(2)
   switch_inst.addCase(one, case1BB)
@@ -416,17 +416,17 @@ test "switch statement" {
   // Case 1
   builder.setInsertPoint(case1BB)
   let ten = ctx.getConstInt32(10)
-  let _ = builder.createRet!(ten)
+  let _ = builder.createRet(ten)
   
   // Case 2
   builder.setInsertPoint(case2BB)
   let twenty = ctx.getConstInt32(20)
-  let _ = builder.createRet!(twenty)
+  let _ = builder.createRet(twenty)
   
   // Default
   builder.setInsertPoint(defaultBB)
   let zero = ctx.getConstInt32(0)
-  let _ = builder.createRet!(zero)
+  let _ = builder.createRet(zero)
 
   inspect(
     fval,
@@ -463,8 +463,8 @@ test "comparison operations" {
   let builder = @IR.IRBuilder::new()
 
   let i32ty = ctx.getInt32Ty()
-  let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
-  let fval = prog.addFunction!(fty, "compare_test")
+  let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+  let fval = prog.addFunction(fty, "compare_test")
   let entryBB = fval.addBasicBlock(name="entry")
   builder.setInsertPoint(entryBB)
 
@@ -475,16 +475,16 @@ test "comparison operations" {
   let zero = ctx.getConstInt32(0)
 
   // a > b
-  let gt_cond = builder.createICmpSGT!(arg_a, arg_b, name="a_gt_b")
+  let gt_cond = builder.createICmpSGT(arg_a, arg_b, name="a_gt_b")
   // a < b
-  let lt_cond = builder.createICmpSLT!(arg_a, arg_b, name="a_lt_b")
+  let lt_cond = builder.createICmpSLT(arg_a, arg_b, name="a_lt_b")
   
   // Nested select: (a < b) ? -1 : 0
-  let inner_select = builder.createSelect!(lt_cond, neg_one, zero, name="inner")
+  let inner_select = builder.createSelect(lt_cond, neg_one, zero, name="inner")
   // Outer select: (a > b) ? 1 : inner_select
-  let result = builder.createSelect!(gt_cond, one, inner_select, name="result")
+  let result = builder.createSelect(gt_cond, one, inner_select, name="result")
   
-  let _ = builder.createRet!(result)
+  let _ = builder.createRet(result)
 
   inspect(
     fval,
@@ -519,18 +519,18 @@ test "function call test" {
   let i32ty = ctx.getInt32Ty()
   
   // Define helper function
-  let helper_fty = ctx.getFunctionType!(i32ty, [i32ty])
-  let helper_func = prog.addFunction!(helper_fty, "helper")
+  let helper_fty = ctx.getFunctionType(i32ty, [i32ty])
+  let helper_func = prog.addFunction(helper_fty, "helper")
   let helper_entry = helper_func.addBasicBlock(name="entry")
   builder.setInsertPoint(helper_entry)
   let helper_arg = helper_func.getArg(0).unwrap()
   let one = ctx.getConstInt32(1)
-  let helper_result = builder.createAdd!(helper_arg, one, name="result")
-  let _ = builder.createRet!(helper_result)
+  let helper_result = builder.createAdd(helper_arg, one, name="result")
+  let _ = builder.createRet(helper_result)
   
   // Define caller function
-  let caller_fty = ctx.getFunctionType!(i32ty, [i32ty])
-  let caller_func = prog.addFunction!(caller_fty, "caller")
+  let caller_fty = ctx.getFunctionType(i32ty, [i32ty])
+  let caller_func = prog.addFunction(caller_fty, "caller")
   let caller_entry = caller_func.addBasicBlock(name="entry")
   builder.setInsertPoint(caller_entry)
   
@@ -538,15 +538,15 @@ test "function call test" {
   let two = ctx.getConstInt32(2)
   
   // First call: helper(x)
-  let call1 = builder.createCall!(helper_func, [caller_arg], name="call1")
+  let call1 = builder.createCall(helper_func, [caller_arg], name="call1")
   
   // Second call: helper(x * 2)
-  let doubled = builder.createMul!(caller_arg, two, name="doubled")
-  let call2 = builder.createCall!(helper_func, [doubled], name="call2")
+  let doubled = builder.createMul(caller_arg, two, name="doubled")
+  let call2 = builder.createCall(helper_func, [doubled], name="call2")
   
   // Add results
-  let final_result = builder.createAdd!(call1, call2, name="final")
-  let _ = builder.createRet!(final_result)
+  let final_result = builder.createAdd(call1, call2, name="final")
+  let _ = builder.createRet(final_result)
 
   inspect(
     caller_func,
@@ -570,23 +570,23 @@ test "error handling - invalid function calls" {
   let builder = @IR.IRBuilder::new()
 
   let i32ty = ctx.getInt32Ty()
-  let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
-  let fval = prog.addFunction!(fty, "test_func")
+  let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+  let fval = prog.addFunction(fty, "test_func")
   let entryBB = fval.addBasicBlock(name="entry")
   builder.setInsertPoint(entryBB)
 
   // 测试获取不存在的函数参数
   let invalid_arg = fval.getArg(5) // 只有2个参数，索引5不存在
-  assert_true!(invalid_arg is None)
+  assert_true(invalid_arg is None)
   
   // 测试正确的参数获取
   let valid_arg = fval.getArg(0)
-  assert_true!(valid_arg is Some(_))
+  assert_true(valid_arg is Some(_))
   
   let arg0 = fval.getArg(0).unwrap()
   let arg1 = fval.getArg(1).unwrap()
-  let result = builder.createAdd!(arg0, arg1)
-  let _ = builder.createRet!(result)
+  let result = builder.createAdd(arg0, arg1)
+  let _ = builder.createRet(result)
 }
 
 // 常量折叠测试
@@ -596,21 +596,21 @@ test "constant folding verification" {
   let builder = @IR.IRBuilder::new()
 
   let i32ty = ctx.getInt32Ty()
-  let fty = ctx.getFunctionType!(i32ty, [])
-  let fval = prog.addFunction!(fty, "constant_test")
+  let fty = ctx.getFunctionType(i32ty, [])
+  let fval = prog.addFunction(fty, "constant_test")
   let entryBB = fval.addBasicBlock(name="entry")
   builder.setInsertPoint(entryBB)
 
   // 测试整数常量折叠
   let const_a = ctx.getConstInt32(10)
   let const_b = ctx.getConstInt32(20)
-  let const_sum = builder.createAdd!(const_a, const_b) // 应该折叠为30
+  let const_sum = builder.createAdd(const_a, const_b) // 应该折叠为30
   
   // 验证结果是常量
   let const_enum = const_sum.tryAsConstantEnum()
-  assert_true!(const_enum is Some(_))
+  assert_true(const_enum is Some(_))
   
-  let _ = builder.createRet!(const_sum)
+  let _ = builder.createRet(const_sum)
 
   inspect(const_sum, content = "i32 30")
 }
@@ -622,8 +622,8 @@ test "shift operations" {
   let builder = @IR.IRBuilder::new()
 
   let i32ty = ctx.getInt32Ty()
-  let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
-  let fval = prog.addFunction!(fty, "shift_ops")
+  let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+  let fval = prog.addFunction(fty, "shift_ops")
   let entryBB = fval.addBasicBlock(name="entry")
   builder.setInsertPoint(entryBB)
 
@@ -631,13 +631,13 @@ test "shift operations" {
   let arg_shift = fval.getArg(1).unwrap()
 
   // 左移
-  let shl_result = builder.createShl!(arg_val, arg_shift, name="shl")
+  let shl_result = builder.createShl(arg_val, arg_shift, name="shl")
   // 逻辑右移
-  let lshr_result = builder.createLShr!(shl_result, arg_shift, name="lshr")
+  let lshr_result = builder.createLShr(shl_result, arg_shift, name="lshr")
   // 算术右移
-  let ashr_result = builder.createAShr!(lshr_result, arg_shift, name="ashr")
+  let ashr_result = builder.createAShr(lshr_result, arg_shift, name="ashr")
   
-  let _ = builder.createRet!(ashr_result)
+  let _ = builder.createRet(ashr_result)
 
   inspect(
     fval,
@@ -661,8 +661,8 @@ test "GEP pointer arithmetic" {
 
   let i32ty = ctx.getInt32Ty()
   let ptrty = ctx.getPtrTy()
-  let fty = ctx.getFunctionType!(i32ty, [ptrty, i32ty])
-  let fval = prog.addFunction!(fty, "array_access")
+  let fty = ctx.getFunctionType(i32ty, [ptrty, i32ty])
+  let fval = prog.addFunction(fty, "array_access")
   let entryBB = fval.addBasicBlock(name="entry")
   builder.setInsertPoint(entryBB)
 
@@ -670,10 +670,10 @@ test "GEP pointer arithmetic" {
   let index = fval.getArg(1).unwrap()
 
   // 计算 array_ptr[index] 的地址
-  let element_ptr = builder.createGEP!(array_ptr, i32ty, [index], name="element_ptr")
+  let element_ptr = builder.createGEP(array_ptr, i32ty, [index], name="element_ptr")
   // 加载值
-  let loaded_val = builder.createLoad!(i32ty, element_ptr, name="element_val")
-  let _ = builder.createRet!(loaded_val)
+  let loaded_val = builder.createLoad(i32ty, element_ptr, name="element_val")
+  let _ = builder.createRet(loaded_val)
 
   inspect(
     fval,
@@ -695,8 +695,8 @@ test "complex constant folding" {
   let builder = @IR.IRBuilder::new()
 
   let i32ty = ctx.getInt32Ty()
-  let fty = ctx.getFunctionType!(i32ty, [])
-  let fval = prog.addFunction!(fty, "complex_const")
+  let fty = ctx.getFunctionType(i32ty, [])
+  let fval = prog.addFunction(fty, "complex_const")
   let entryBB = fval.addBasicBlock(name="entry")
   builder.setInsertPoint(entryBB)
 
@@ -707,12 +707,12 @@ test "complex constant folding" {
   let const_8 = ctx.getConstInt32(8)
   let const_4 = ctx.getConstInt32(4)
 
-  let add_result = builder.createAdd!(const_10, const_5) // 15
-  let mul_result = builder.createMul!(add_result, const_2) // 30
-  let or_result = builder.createOr!(const_8, const_4) // 12
-  let xor_result = builder.createXor!(mul_result, or_result) // 30 ^ 12 = 18
+  let add_result = builder.createAdd(const_10, const_5) // 15
+  let mul_result = builder.createMul(add_result, const_2) // 30
+  let or_result = builder.createOr(const_8, const_4) // 12
+  let xor_result = builder.createXor(mul_result, or_result) // 30 ^ 12 = 18
 
-  let _ = builder.createRet!(xor_result)
+  let _ = builder.createRet(xor_result)
 
   // 验证最终结果
   inspect(xor_result, content = "i32 18")
@@ -725,8 +725,8 @@ test "nested loops simplified" {
   let builder = @IR.IRBuilder::new()
 
   let i32ty = ctx.getInt32Ty()
-  let fty = ctx.getFunctionType!(i32ty, [i32ty])
-  let fval = prog.addFunction!(fty, "simple_multiply")
+  let fty = ctx.getFunctionType(i32ty, [i32ty])
+  let fval = prog.addFunction(fty, "simple_multiply")
   
   let entryBB = fval.addBasicBlock(name="entry")
   let loopBB = fval.addBasicBlock(name="loop")
@@ -738,29 +738,29 @@ test "nested loops simplified" {
   let zero = ctx.getConstInt32(0)
   let one = ctx.getConstInt32(1)
   let two = ctx.getConstInt32(2)
-  let _ = builder.createBr!(loopBB)
+  let _ = builder.createBr(loopBB)
   
   // 循环头
   builder.setInsertPoint(loopBB)
-  let i_phi = builder.createPHI!(i32ty, name="i")
-  let result_phi = builder.createPHI!(i32ty, name="result")
-  i_phi.addIncoming!(zero, entryBB)
-  result_phi.addIncoming!(zero, entryBB)
+  let i_phi = builder.createPHI(i32ty, name="i")
+  let result_phi = builder.createPHI(i32ty, name="result")
+  i_phi.addIncoming(zero, entryBB)
+  result_phi.addIncoming(zero, entryBB)
   
-  let cond = builder.createICmpSLT!(i_phi, arg_n, name="i_lt_n")
-  let _ = builder.createCondBr!(cond, bodyBB, exitBB)
+  let cond = builder.createICmpSLT(i_phi, arg_n, name="i_lt_n")
+  let _ = builder.createCondBr(cond, bodyBB, exitBB)
   
   // 循环体
   builder.setInsertPoint(bodyBB)
-  let new_result = builder.createAdd!(result_phi, two, name="new_result")
-  let new_i = builder.createAdd!(i_phi, one, name="new_i")
-  i_phi.addIncoming!(new_i, bodyBB)
-  result_phi.addIncoming!(new_result, bodyBB)
-  let _ = builder.createBr!(loopBB)
+  let new_result = builder.createAdd(result_phi, two, name="new_result")
+  let new_i = builder.createAdd(i_phi, one, name="new_i")
+  i_phi.addIncoming(new_i, bodyBB)
+  result_phi.addIncoming(new_result, bodyBB)
+  let _ = builder.createBr(loopBB)
   
   // 退出
   builder.setInsertPoint(exitBB)
-  let _ = builder.createRet!(result_phi)
+  let _ = builder.createRet(result_phi)
 
   inspect(
     fval,
@@ -795,8 +795,8 @@ test "atomic memory operations" {
 
   let i32ty = ctx.getInt32Ty()
   let ptrty = ctx.getPtrTy()
-  let fty = ctx.getFunctionType!(i32ty, [ptrty, i32ty])
-  let fval = prog.addFunction!(fty, "atomic_ops")
+  let fty = ctx.getFunctionType(i32ty, [ptrty, i32ty])
+  let fval = prog.addFunction(fty, "atomic_ops")
   let entryBB = fval.addBasicBlock(name="entry")
   builder.setInsertPoint(entryBB)
 
@@ -804,12 +804,12 @@ test "atomic memory operations" {
   let val_arg = fval.getArg(1).unwrap()
 
   // 原子加载
-  let loaded = builder.createLoad!(i32ty, ptr_arg, atomicOrdering=Acquire, name="atomic_load")
+  let loaded = builder.createLoad(i32ty, ptr_arg, atomicOrdering=Acquire, name="atomic_load")
   
   // 普通存储
-  let _ = builder.createStore!(val_arg, ptr_arg, atomicOrdering=Release)
+  let _ = builder.createStore(val_arg, ptr_arg, atomicOrdering=Release)
   
-  let _ = builder.createRet!(loaded)
+  let _ = builder.createRet(loaded)
 
   inspect(
     fval,
@@ -832,8 +832,8 @@ test "volatile memory operations" {
 
   let i32ty = ctx.getInt32Ty()
   let ptrty = ctx.getPtrTy()
-  let fty = ctx.getFunctionType!(i32ty, [ptrty])
-  let fval = prog.addFunction!(fty, "volatile_ops")
+  let fty = ctx.getFunctionType(i32ty, [ptrty])
+  let fval = prog.addFunction(fty, "volatile_ops")
   let entryBB = fval.addBasicBlock(name="entry")
   builder.setInsertPoint(entryBB)
 
@@ -841,12 +841,12 @@ test "volatile memory operations" {
   let const_42 = ctx.getConstInt32(42)
 
   // Volatile加载
-  let volatile_load = builder.createLoad!(i32ty, ptr_arg, isVolatile=true, name="vol_load")
+  let volatile_load = builder.createLoad(i32ty, ptr_arg, isVolatile=true, name="vol_load")
   
   // Volatile存储
-  let _ = builder.createStore!(const_42, ptr_arg, isVolatile=true)
+  let _ = builder.createStore(const_42, ptr_arg, isVolatile=true)
   
-  let _ = builder.createRet!(volatile_load)
+  let _ = builder.createRet(volatile_load)
 
   inspect(
     fval,
@@ -871,9 +871,9 @@ test "struct operations with extract/insert value" {
   let f32ty = ctx.getFloatTy()
   
   // 定义结构体类型 {i32, float, i32}
-  let struct_ty = ctx.getStructType!([i32ty, f32ty, i32ty], name="TestStruct")
-  let fty = ctx.getFunctionType!(struct_ty, [struct_ty, i32ty])
-  let fval = prog.addFunction!(fty, "struct_ops")
+  let struct_ty = ctx.getStructType([i32ty, f32ty, i32ty], name="TestStruct")
+  let fty = ctx.getFunctionType(struct_ty, [struct_ty, i32ty])
+  let fval = prog.addFunction(fty, "struct_ops")
   let entryBB = fval.addBasicBlock(name="entry")
   builder.setInsertPoint(entryBB)
 
@@ -881,18 +881,18 @@ test "struct operations with extract/insert value" {
   let new_val = fval.getArg(1).unwrap()
 
   // 提取第一个字段
-  let field0 = builder.createExtractValue!(struct_arg, [0], name="field0")
+  let field0 = builder.createExtractValue(struct_arg, [0], name="field0")
   
   // 提取第三个字段（演示用，但不使用）
-  let _field2 = builder.createExtractValue!(struct_arg, [2], name="field2")
+  let _field2 = builder.createExtractValue(struct_arg, [2], name="field2")
   
   // 将第一个字段和新值相加
-  let sum = builder.createAdd!(field0, new_val, name="sum")
+  let sum = builder.createAdd(field0, new_val, name="sum")
   
   // 将相加结果插入到第三个字段
-  let new_struct = builder.createInsertValue!(struct_arg, sum, [2], name="new_struct")
+  let new_struct = builder.createInsertValue(struct_arg, sum, [2], name="new_struct")
   
-  let _ = builder.createRet!(new_struct)
+  let _ = builder.createRet(new_struct)
 
   inspect(
     fval,
@@ -917,8 +917,8 @@ test "floating point comparisons" {
 
   let f32ty = ctx.getFloatTy()
   let i1ty = ctx.getInt1Ty()
-  let fty = ctx.getFunctionType!(i1ty, [f32ty, f32ty])
-  let fval = prog.addFunction!(fty, "float_compare")
+  let fty = ctx.getFunctionType(i1ty, [f32ty, f32ty])
+  let fval = prog.addFunction(fty, "float_compare")
   let entryBB = fval.addBasicBlock(name="entry")
   builder.setInsertPoint(entryBB)
 
@@ -926,13 +926,13 @@ test "floating point comparisons" {
   let arg_b = fval.getArg(1).unwrap()
 
   // 有序相等比较
-  let oeq = builder.createFCmpOEQ!(arg_a, arg_b, name="oeq")
+  let oeq = builder.createFCmpOEQ(arg_a, arg_b, name="oeq")
   // 有序大于比较
-  let ogt = builder.createFCmpOGT!(arg_a, arg_b, name="ogt")
+  let ogt = builder.createFCmpOGT(arg_a, arg_b, name="ogt")
   // 逻辑或组合
-  let result = builder.createOr!(oeq, ogt, name="result")
+  let result = builder.createOr(oeq, ogt, name="result")
   
-  let _ = builder.createRet!(result)
+  let _ = builder.createRet(result)
 
   inspect(
     fval,
@@ -961,21 +961,21 @@ test "type conversion chains" {
   let f32ty = ctx.getFloatTy()
   let f64ty = ctx.getDoubleTy()
   
-  let fty = ctx.getFunctionType!(f64ty, [i8ty])
-  let fval = prog.addFunction!(fty, "conversion_chain")
+  let fty = ctx.getFunctionType(f64ty, [i8ty])
+  let fval = prog.addFunction(fty, "conversion_chain")
   let entryBB = fval.addBasicBlock(name="entry")
   builder.setInsertPoint(entryBB)
 
   let arg = fval.getArg(0).unwrap()
 
   // i8 -> i16 -> i32 -> i64 -> f32 -> f64
-  let ext16 = builder.createSExt!(arg, i16ty, name="ext16")
-  let ext32 = builder.createSExt!(ext16, i32ty, name="ext32")
-  let ext64 = builder.createSExt!(ext32, i64ty, name="ext64")
-  let to_f32 = builder.createSIToFP!(ext64, f32ty, name="to_f32")
-  let to_f64 = builder.createFPExt!(to_f32, f64ty, name="to_f64")
+  let ext16 = builder.createSExt(arg, i16ty, name="ext16")
+  let ext32 = builder.createSExt(ext16, i32ty, name="ext32")
+  let ext64 = builder.createSExt(ext32, i64ty, name="ext64")
+  let to_f32 = builder.createSIToFP(ext64, f32ty, name="to_f32")
+  let to_f64 = builder.createFPExt(to_f32, f64ty, name="to_f64")
   
-  let _ = builder.createRet!(to_f64)
+  let _ = builder.createRet(to_f64)
 
   inspect(
     fval,
@@ -1000,23 +1000,23 @@ test "error handling - function argument bounds" {
   let builder = @IR.IRBuilder::new()
 
   let i32ty = ctx.getInt32Ty()
-  let fty = ctx.getFunctionType!(i32ty, [i32ty])
-  let fval = prog.addFunction!(fty, "error_test")
+  let fty = ctx.getFunctionType(i32ty, [i32ty])
+  let fval = prog.addFunction(fty, "error_test")
   let entryBB = fval.addBasicBlock(name="entry")
   builder.setInsertPoint(entryBB)
   
   // 测试获取不存在的函数参数
   let invalid_arg = fval.getArg(5) // 只有1个参数，索引5不存在
-  assert_true!(invalid_arg is None)
+  assert_true(invalid_arg is None)
   
   // 测试正确的参数获取
   let valid_arg = fval.getArg(0)
-  assert_true!(valid_arg is Some(_))
+  assert_true(valid_arg is Some(_))
   
   let arg = fval.getArg(0).unwrap()
   let const_1 = ctx.getConstInt32(1)
-  let result = builder.createAdd!(arg, const_1)
-  let _ = builder.createRet!(result)
+  let result = builder.createAdd(arg, const_1)
+  let _ = builder.createRet(result)
 }
 
 // 大型函数测试 - 模拟复杂的C函数
@@ -1027,8 +1027,8 @@ test "large complex function" {
 
   let i32ty = ctx.getInt32Ty()
   let f32ty = ctx.getFloatTy()
-  let fty = ctx.getFunctionType!(f32ty, [i32ty, i32ty, f32ty, f32ty])
-  let fval = prog.addFunction!(fty, "large_function")
+  let fty = ctx.getFunctionType(f32ty, [i32ty, i32ty, f32ty, f32ty])
+  let fval = prog.addFunction(fty, "large_function")
   
   let entryBB = fval.addBasicBlock(name="entry")
   let positiveBB = fval.addBasicBlock(name="positive")
@@ -1043,36 +1043,36 @@ test "large complex function" {
   let arg_f2 = fval.getArg(3).unwrap()
   
   // 复杂条件判断
-  let sum_ints = builder.createAdd!(arg_i1, arg_i2, name="sum_ints")
+  let sum_ints = builder.createAdd(arg_i1, arg_i2, name="sum_ints")
   let zero = ctx.getConstInt32(0)
-  let cond = builder.createICmpSGT!(sum_ints, zero, name="sum_positive")
-  let _ = builder.createCondBr!(cond, positiveBB, negativeBB)
+  let cond = builder.createICmpSGT(sum_ints, zero, name="sum_positive")
+  let _ = builder.createCondBr(cond, positiveBB, negativeBB)
   
   // Positive分支
   builder.setInsertPoint(positiveBB)
-  let float_sum = builder.createFAdd!(arg_f1, arg_f2, name="float_sum")
-  let _ = builder.createBr!(calcBB)
+  let float_sum = builder.createFAdd(arg_f1, arg_f2, name="float_sum")
+  let _ = builder.createBr(calcBB)
   
   // Negative分支
   builder.setInsertPoint(negativeBB)
-  let float_diff = builder.createFSub!(arg_f1, arg_f2, name="float_diff")
-  let _ = builder.createBr!(calcBB)
+  let float_diff = builder.createFSub(arg_f1, arg_f2, name="float_diff")
+  let _ = builder.createBr(calcBB)
   
   // 计算分支
   builder.setInsertPoint(calcBB)
-  let float_phi = builder.createPHI!(f32ty, name="float_val")
-  float_phi.addIncoming!(float_sum, positiveBB)
-  float_phi.addIncoming!(float_diff, negativeBB)
+  let float_phi = builder.createPHI(f32ty, name="float_val")
+  float_phi.addIncoming(float_sum, positiveBB)
+  float_phi.addIncoming(float_diff, negativeBB)
   
   // 转换整数为浮点数并进行计算
-  let sum_as_float = builder.createSIToFP!(sum_ints, f32ty, name="sum_as_float")
-  let final_calc = builder.createFMul!(float_phi, sum_as_float, name="final_calc")
-  let _ = builder.createBr!(resultBB)
+  let sum_as_float = builder.createSIToFP(sum_ints, f32ty, name="sum_as_float")
+  let final_calc = builder.createFMul(float_phi, sum_as_float, name="final_calc")
+  let _ = builder.createBr(resultBB)
   
   // 结果分支
   builder.setInsertPoint(resultBB)
-  let _ = builder.createRet!(final_calc)
+  let _ = builder.createRet(final_calc)
 
   // 验证函数结构是否正确生成 - 注释掉，因为Function没有getBasicBlockList方法
-  // assert_true!(fval.getBasicBlockList().length() == 5)
+  // assert_true(fval.getBasicBlockList().length() == 5)
 }

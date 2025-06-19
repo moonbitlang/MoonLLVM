@@ -12,16 +12,16 @@
 ///   let prog = ctx.addProgram("demo")
 ///
 ///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
+///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
 ///
-///   let f = prog.addFunction!(fty, "add")
+///   let f = prog.addFunction(fty, "add")
 ///
 ///   let arg0 = f.getArg(0).unwrap()
 ///   let arg1 = f.getArg(1).unwrap()
 ///
-///   inspect!(arg0, content="i32 %0")
-///   inspect!(arg1.getType(), content="i32")
-///   assert_true!(f.getArg(2) is None)
+///   inspect(arg0, content="i32 %0")
+///   inspect(arg1.getType(), content="i32")
+///   assert_true(f.getArg(2) is None)
 /// }
 /// ```
 pub struct Argument {
@@ -52,26 +52,26 @@ pub fn Argument::getName(self : Argument) -> String? {
 ///   let prog = ctx.addProgram("demo")
 ///
 ///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
+///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
 ///
-///   let f = prog.addFunction!(fty, "add")
+///   let f = prog.addFunction(fty, "add")
 ///
 ///   let arg0 = f.getArg(0).unwrap()
 ///   let arg1 = f.getArg(1).unwrap()
 ///
-///   assert_true!(f.getArg(2) is None)
-///   inspect!(arg0, content="i32 %0")
-///   inspect!(arg1.getType(), content="i32")
+///   assert_true(f.getArg(2) is None)
+///   inspect(arg0, content="i32 %0")
+///   inspect(arg1.getType(), content="i32")
 ///
-///   arg0.setName!("lhs")
-///   arg1.setName!("rhs")
-///   inspect!(arg0, content="i32 %lhs")
-///   inspect!(arg1, content="i32 %rhs")
+///   arg0.setName("lhs")
+///   arg1.setName("rhs")
+///   inspect(arg0, content="i32 %lhs")
+///   inspect(arg1, content="i32 %rhs")
 ///
-///   assert_true!({try? arg1.setName("lhs")} is Err(_))
+///   assert_true({try? arg1.setName("lhs")} is Err(_))
 /// }
 /// ```
-pub fn Argument::setName(self : Argument, name : String) -> Unit!LLVMValueError {
+pub fn Argument::setName(self : Argument, name : String) -> Unit raise LLVMValueError {
   guard self.getName() != Some(name) else { return }
   let symbols = self.parent.symbols
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
@@ -89,18 +89,18 @@ pub fn Argument::setName(self : Argument, name : String) -> Unit!LLVMValueError 
 ///   let prog = ctx.addProgram("demo")
 ///
 ///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType!(i32ty, [i32ty, i32ty])
+///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
 ///
-///   let fval = prog.addFunction!(fty, "add")
+///   let fval = prog.addFunction(fty, "add")
 ///
 ///   let arg0 = f.getArg(0).unwrap()
 ///   let arg1 = f.getArg(1).unwrap()
 ///
-///   arg0.addAttr!(NoAlias)
-///   inspect!(fval, content="declare i32 @add(i32 noalias, i32)")
+///   arg0.addAttr(NoAlias)
+///   inspect(fval, content="declare i32 @add(i32 noalias, i32)")
 ///
-///   arg1.addAttr!(NonNull)
-///   inspect!(fval, content="declare i32 @add(i32 noalias, i32 nonnull)")
+///   arg1.addAttr(NonNull)
+///   inspect(fval, content="declare i32 @add(i32 noalias, i32 nonnull)")
 /// }
 /// ```
 pub fn Argument::addAttr(self : Argument, attr : ArgAttr) -> Unit {
@@ -181,7 +181,7 @@ fn Function::new(
   addressSpace~ : AddressSpace,
   index : UInt,
   program : Program
-) -> Function!LLVMValueError {
+) -> Function raise LLVMValueError {
   guard Function::isValidFunctionName(name) else {
     raise InValidFunctionName(name)
   }
@@ -406,7 +406,7 @@ pub impl Show for Function with output(self, logger) {
     (if hasBody { " {\n" } else { "" })
   logger.write_string(func_info)
   if hasBody {
-    let body_str = self.basicBlocks.map(fn { bb => bb.to_string() }).join("\n")
+    let body_str = self.basicBlocks.map(bb => bb.to_string()).join("\n")
     logger.write_string(body_str)
     logger.write_string("}")
   }

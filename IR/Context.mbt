@@ -98,7 +98,7 @@ pub fn LLVMContext::addProgram(
 /// test "HalfType" {
 ///   let ctx = LLVMContext::new()
 ///   let half_ty = ctx.getHalfTy()
-///   inspect!(half_ty, content="half")
+///   inspect(half_ty, content="half")
 /// }
 /// ```
 pub fn LLVMContext::getHalfTy(self : LLVMContext) -> HalfType {
@@ -113,7 +113,7 @@ pub fn LLVMContext::getHalfTy(self : LLVMContext) -> HalfType {
 /// test "BFloatType" {
 ///   let ctx = LLVMContext::new()
 ///   let bfloat_ty = ctx.getBFloatTy()
-///   inspect!(bfloat_ty, content="bfloat")
+///   inspect(bfloat_ty, content="bfloat")
 /// }
 /// ```
 pub fn LLVMContext::getBFloatTy(self : LLVMContext) -> BFloatType {
@@ -128,7 +128,7 @@ pub fn LLVMContext::getBFloatTy(self : LLVMContext) -> BFloatType {
 /// test "FloatType" {
 ///   let ctx = LLVMContext::new()
 ///   let f32ty = ctx.getFloatTy()
-///   inspect!(f32ty, content="float")
+///   inspect(f32ty, content="float")
 /// }
 /// ```
 pub fn LLVMContext::getFloatTy(self : LLVMContext) -> FloatType {
@@ -143,7 +143,7 @@ pub fn LLVMContext::getFloatTy(self : LLVMContext) -> FloatType {
 /// test "DoubleType" {
 ///   let ctx = LLVMContext::new()
 ///   let doubletype = ctx.getDoubleTy()
-///   inspect!(doubletype, content="double")
+///   inspect(doubletype, content="double")
 /// }
 /// ```
 pub fn LLVMContext::getDoubleTy(self : LLVMContext) -> DoubleType {
@@ -158,7 +158,7 @@ pub fn LLVMContext::getDoubleTy(self : LLVMContext) -> DoubleType {
 /// test "FP128Type" {
 ///   let ctx = LLVMContext::new()
 ///   let fp128ty = ctx.getFP128Ty()
-///   inspect!(fp128ty, content="fp128")
+///   inspect(fp128ty, content="fp128")
 /// }
 pub fn LLVMContext::getFP128Ty(self : LLVMContext) -> FP128Type {
   self.pimpl.unwrap().fp128_ty
@@ -172,7 +172,7 @@ pub fn LLVMContext::getFP128Ty(self : LLVMContext) -> FP128Type {
 /// test "VoidType" {
 ///   let ctx = LLVMContext::new()
 ///   let voidty = ctx.getVoidTy()
-///   inspect!(voidty, content="void")
+///   inspect(voidty, content="void")
 /// }
 pub fn LLVMContext::getVoidTy(self : LLVMContext) -> VoidType {
   self.pimpl.unwrap().void_ty
@@ -196,7 +196,7 @@ pub fn LLVMContext::getMetadataTy(self : LLVMContext) -> MetadataType {
 /// test "TokenType" {
 ///   let ctx = LLVMContext::new()
 ///   let tokenty = ctx.getTokenTy()
-///   inspect!(tokenty, content="token")
+///   inspect(tokenty, content="token")
 /// }
 /// ```
 pub fn LLVMContext::getTokenTy(self : LLVMContext) -> TokenType {
@@ -241,10 +241,10 @@ pub fn LLVMContext::getInt64Ty(self : LLVMContext) -> Int64Type {
 /// test "PointerType" {
 ///   let ctx = LLVMContext::new()
 ///
-///   inspect!(ctx.getPtrTy(), content="ptr")
+///   inspect(ctx.getPtrTy(), content="ptr")
 ///   
 ///   let addressSpace = AddressSpace::new(1)
-///   inspect!(ctx.getPtrTy(addressSpace~), content="ptr")
+///   inspect(ctx.getPtrTy(addressSpace~), content="ptr")
 /// }
 /// ```
 pub fn LLVMContext::getPtrTy(
@@ -277,8 +277,8 @@ pub fn LLVMContext::getPtrTy(
 ///   let i32ty = ctx.getInt32Ty()
 ///   let f64ty = ctx.getDoubleTy()
 ///
-///   let fty = ctx.getFunctionType!(voidty, [i32ty, f64ty])
-///   inspect!(fty, content="void (i32, double)")
+///   let fty = ctx.getFunctionType(voidty, [i32ty, f64ty])
+///   inspect(fty, content="void (i32, double)")
 /// }
 /// ```
 pub fn LLVMContext::getFunctionType(
@@ -287,7 +287,7 @@ pub fn LLVMContext::getFunctionType(
   paramTypes : Array[&Type]
 ) -> FunctionType!LLVMTypeError {
   ignore(self)
-  FunctionType::new!(returnType, paramTypes)
+  FunctionType::new(returnType, paramTypes)
 }
 
 ///| Create a struct type in the context.
@@ -306,15 +306,15 @@ pub fn LLVMContext::getFunctionType(
 ///   let f32ty = ctx.getFloatTy()
 ///   let f64ty = ctx.getDoubleTy()
 ///
-///   let sty = ctx.getStructType!([i32ty, f32ty, f64ty], name = "foo")
-///   inspect!(sty.full_info(), content="%foo = type { i32, float, double }")
+///   let sty = ctx.getStructType([i32ty, f32ty, f64ty], name = "foo")
+///   inspect(sty.full_info(), content="%foo = type { i32, float, double }")
 ///
 ///   // Cannot create a ananymous struct type with empty elements.
-///   assert_true!(ctx.getStructType?([]).is_err())
+///   assert_true(ctx.getStructType?([]).is_err())
 ///
 ///   // Cannot create a struct which has same name with other struct.
 ///   // the `foo` struct is already created.
-///   assert_true!(ctx.getStructType?([], name="foo").is_err())
+///   assert_true(ctx.getStructType?([], name="foo").is_err())
 /// }
 /// ```
 pub fn LLVMContext::getStructType(
@@ -324,7 +324,7 @@ pub fn LLVMContext::getStructType(
   isPacked~ : Bool = false
 ) -> StructType!LLVMTypeError {
   let name = @option.unless(name.is_empty(), fn() { name })
-  StructType::new!(self, elements, name~, isPacked~)
+  StructType::new(self, elements, name~, isPacked~)
 }
 
 ///| Create an array type in the context.
@@ -341,11 +341,11 @@ pub fn LLVMContext::getStructType(
 ///   let ctx = LLVMContext::new()
 ///   let i32ty = ctx.getInt32Ty()
 ///
-///   let arrty = ctx.getArrayType!(i32ty, 16)
-///   inspect!(arrty, content="[16 x i32]")
-///   inspect!(arrty.getElementType(), content="i32")
+///   let arrty = ctx.getArrayType(i32ty, 16)
+///   inspect(arrty, content="[16 x i32]")
+///   inspect(arrty.getElementType(), content="i32")
 ///
-///   assert_eq!(arrty.getElementCount(), 16)
+///   assert_eq(arrty.getElementCount(), 16)
 /// }
 /// ```
 pub fn LLVMContext::getArrayType(
@@ -353,7 +353,7 @@ pub fn LLVMContext::getArrayType(
   elementType : &Type,
   numElements : UInt
 ) -> ArrayType!LLVMTypeError {
-  ArrayType::new!(self, elementType, numElements)
+  ArrayType::new(self, elementType, numElements)
 }
 
 ///| Create a fixed length vector type in the context.
@@ -365,8 +365,8 @@ pub fn LLVMContext::getArrayType(
 ///   let ctx = LLVMContext::new()
 ///   let i32ty = ctx.getInt32Ty()
 ///
-///   let fixedVecTy = ctx.getFixedVectorType!(i32ty, 32)
-///   inspect!(fixedVecTy, content="<32 x i32>")
+///   let fixedVecTy = ctx.getFixedVectorType(i32ty, 32)
+///   inspect(fixedVecTy, content="<32 x i32>")
 /// }
 /// ```
 pub fn LLVMContext::getFixedVectorType(
@@ -374,7 +374,7 @@ pub fn LLVMContext::getFixedVectorType(
   elementType : &Type,
   elementQuantity : UInt
 ) -> FixedVectorType!LLVMTypeError {
-  FixedVectorType::new!(self, elementType, elementQuantity)
+  FixedVectorType::new(self, elementType, elementQuantity)
 }
 
 ///| Create a scalable vector type in the context.
@@ -386,8 +386,8 @@ pub fn LLVMContext::getFixedVectorType(
 ///   let ctx = LLVMContext::new()
 ///   let i32ty = ctx.getInt32Ty()
 ///
-///   let scalableVecTy = ctx.getScalableVectorType!(i32ty, 16)
-///   inspect!(scalableVecTy, content="<vscale x 16 x i32>")
+///   let scalableVecTy = ctx.getScalableVectorType(i32ty, 16)
+///   inspect(scalableVecTy, content="<vscale x 16 x i32>")
 /// }
 /// ```
 pub fn LLVMContext::getScalableVectorType(
@@ -395,7 +395,7 @@ pub fn LLVMContext::getScalableVectorType(
   elementType : &Type,
   elementQuantity : UInt
 ) -> ScalableVectorType!LLVMTypeError {
-  ScalableVectorType::new!(self, elementType, elementQuantity)
+  ScalableVectorType::new(self, elementType, elementQuantity)
 }
 
 ///| Create a constant with int8 type.
@@ -405,9 +405,9 @@ pub fn LLVMContext::getScalableVectorType(
 /// ```moonbit
 /// test "Constant Int8" {
 ///   let ctx = LLVMContext::new()
-///   inspect!(ctx.getConstInt8(0), content="i8 0")
-///   inspect!(ctx.getConstInt8(1), content="i8 1")
-///   inspect!(ctx.getConstInt8(-1), content="i8 -1")
+///   inspect(ctx.getConstInt8(0), content="i8 0")
+///   inspect(ctx.getConstInt8(1), content="i8 1")
+///   inspect(ctx.getConstInt8(-1), content="i8 -1")
 /// }
 /// ```
 pub fn LLVMContext::getConstInt8(
@@ -425,9 +425,9 @@ pub fn LLVMContext::getConstInt8(
 /// ```moonbit
 /// test "Constant Int16" {
 ///   let ctx = LLVMContext::new()
-///   inspect!(ctx.getConstInt16(0), content="i16 0")
-///   inspect!(ctx.getConstInt16(1), content="i16 1")
-///   inspect!(ctx.getConstInt16(-1), content="i16 -1")
+///   inspect(ctx.getConstInt16(0), content="i16 0")
+///   inspect(ctx.getConstInt16(1), content="i16 1")
+///   inspect(ctx.getConstInt16(-1), content="i16 -1")
 /// }
 /// ```
 pub fn LLVMContext::getConstInt16(
@@ -444,9 +444,9 @@ pub fn LLVMContext::getConstInt16(
 /// ```moonbit
 /// test "Constant Int32" {
 ///   let ctx = LLVMContext::new()
-///   inspect!(ctx.getConstInt32(0), content="i32 0")
-///   inspect!(ctx.getConstInt32(1), content="i32 1")
-///   inspect!(ctx.getConstInt32(-1), content="i32 -1")
+///   inspect(ctx.getConstInt32(0), content="i32 0")
+///   inspect(ctx.getConstInt32(1), content="i32 1")
+///   inspect(ctx.getConstInt32(-1), content="i32 -1")
 /// }
 /// ```
 pub fn LLVMContext::getConstInt32(
@@ -463,9 +463,9 @@ pub fn LLVMContext::getConstInt32(
 /// ```moonbit
 /// test "Constant Int64" {
 ///   let ctx = LLVMContext::new()
-///   inspect!(ctx.getConstInt64(0), content="i64 0")
-///   inspect!(ctx.getConstInt64(1), content="i64 1")
-///   inspect!(ctx.getConstInt64(-1), content="i64 -1")
+///   inspect(ctx.getConstInt64(0), content="i64 0")
+///   inspect(ctx.getConstInt64(1), content="i64 1")
+///   inspect(ctx.getConstInt64(-1), content="i64 -1")
 /// }
 /// ```
 pub fn LLVMContext::getConstInt64(
@@ -482,7 +482,7 @@ pub fn LLVMContext::getConstInt64(
 /// ```moonbit
 /// test "Constant Bool" {
 ///   let ctx = LLVMContext::new()
-///   inspect!(ctx.getConstTrue(), content="i1 true")
+///   inspect(ctx.getConstTrue(), content="i1 true")
 /// }
 /// ```
 pub fn LLVMContext::getConstTrue(self : LLVMContext) -> ConstantInt {
@@ -496,7 +496,7 @@ pub fn LLVMContext::getConstTrue(self : LLVMContext) -> ConstantInt {
 /// ```moonbit
 /// test "Constant Bool" {
 ///   let ctx = LLVMContext::new()
-///   inspect!(ctx.getConstFalse(), content="i1 false")
+///   inspect(ctx.getConstFalse(), content="i1 false")
 /// }
 /// ```
 pub fn LLVMContext::getConstFalse(self : LLVMContext) -> ConstantInt {
@@ -511,8 +511,8 @@ pub fn LLVMContext::getConstFalse(self : LLVMContext) -> ConstantInt {
 /// test "Constant Bool" {
 ///   let ctx = LLVMContext::new()
 ///
-///   inspect!(ctx.getConstBool(true), content="i1 true")
-///   inspect!(ctx.getConstBool(false), content="i1 false")
+///   inspect(ctx.getConstBool(true), content="i1 true")
+///   inspect(ctx.getConstBool(false), content="i1 false")
 /// }
 /// ```
 pub fn LLVMContext::getConstBool(self : LLVMContext, b : Bool) -> ConstantInt {
@@ -529,8 +529,8 @@ pub fn LLVMContext::getConstBool(self : LLVMContext, b : Bool) -> ConstantInt {
 ///
 ///   let one = ctx.getConstFloat(1.0)
 ///   let two = ctx.getConstFloat(2.0)
-///   inspect!(one, content="float 0x3FF0000000000000")
-///   inspect!(two, content="float 0x4000000000000000")
+///   inspect(one, content="float 0x3FF0000000000000")
+///   inspect(two, content="float 0x4000000000000000")
 /// }
 /// ```
 pub fn LLVMContext::getConstFloat(
@@ -551,8 +551,8 @@ pub fn LLVMContext::getConstFloat(
 ///   let one = ctx.getConstDouble(1.0)
 ///   let two = ctx.getConstDouble(2.0)
 ///
-///   inspect!(one, content="double 0x3FF0000000000000")
-///   inspect!(two, content="double 0x4000000000000000")
+///   inspect(one, content="double 0x3FF0000000000000")
+///   inspect(two, content="double 0x4000000000000000")
 /// }
 /// ```
 pub fn LLVMContext::getConstDouble(
@@ -577,8 +577,8 @@ pub fn LLVMContext::getConstDouble(
 ///   let zero = ctx.getConstZeroFloat()
 ///   let neg_zero = ctx.getConstZeroFloat(isNegative=true)
 ///
-///   inspect!(zero, content="float 0x0")
-///   inspect!(neg_zero, content="float 0x8000000000000000")
+///   inspect(zero, content="float 0x0")
+///   inspect(neg_zero, content="float 0x8000000000000000")
 /// }
 /// ```
 pub fn LLVMContext::getConstZeroFloat(
@@ -607,8 +607,8 @@ pub fn LLVMContext::getConstZeroFloat(
 ///  let zero = ctx.getConstZeroDouble()
 ///  let neg_zero = ctx.getConstZeroDouble(isNegative=true)
 ///
-///  inspect!(zero, content="double 0x0")
-///  inspect!(neg_zero, content="double 0x8000000000000000")
+///  inspect(zero, content="double 0x0")
+///  inspect(neg_zero, content="double 0x8000000000000000")
 /// }
 /// ```
 pub fn LLVMContext::getConstZeroDouble(
@@ -637,8 +637,8 @@ pub fn LLVMContext::getConstZeroDouble(
 ///   let nan = ctx.getConstNaNDouble()
 ///   let neg_nan = ctx.getConstNaNDouble(isNegative=true)
 ///
-///   inspect!(nan, content="double 0x7FF8000000000000")
-///   inspect!(neg_nan, content="double 0xFFF8000000000000")
+///   inspect(nan, content="double 0x7FF8000000000000")
+///   inspect(neg_nan, content="double 0xFFF8000000000000")
 /// }
 /// ```
 pub fn LLVMContext::getConstNaNFloat(
@@ -667,8 +667,8 @@ pub fn LLVMContext::getConstNaNFloat(
 ///   let nan = ctx.getConstQNaNFloat()
 ///   let neg_nan = ctx.getConstQNaNFloat(isNegative=true)
 ///
-///   inspect!(nan, content="float 0x7FF8000000000000")
-///   inspect!(neg_nan, content="float 0xFFF8000000000000")
+///   inspect(nan, content="float 0x7FF8000000000000")
+///   inspect(neg_nan, content="float 0xFFF8000000000000")
 /// }
 /// ```
 pub fn LLVMContext::getConstQNaNFloat(
@@ -697,8 +697,8 @@ pub fn LLVMContext::getConstQNaNFloat(
 ///   let nan = ctx.getConstSNaNFloat()
 ///   let neg_nan = ctx.getConstSNaNFloat(isNegative=true)
 ///
-///   inspect!(nan, content="float 0x7FF4000000000000")
-///   inspect!(neg_nan, content="float 0xFFF4000000000000")
+///   inspect(nan, content="float 0x7FF4000000000000")
+///   inspect(neg_nan, content="float 0xFFF4000000000000")
 /// }
 /// ```
 pub fn LLVMContext::getConstSNaNFloat(
@@ -727,8 +727,8 @@ pub fn LLVMContext::getConstSNaNFloat(
 ///   let inf = ctx.getConstInfFloat()
 ///   let neg_inf = ctx.getConstInfFloat(isNegative=true)
 ///
-///   inspect!(inf, content="float 0x7FF0000000000000")
-///   inspect!(neg_inf, content="float 0xFFF0000000000000")
+///   inspect(inf, content="float 0x7FF0000000000000")
+///   inspect(neg_inf, content="float 0xFFF0000000000000")
 /// }
 /// ```
 pub fn LLVMContext::getConstInfFloat(
@@ -757,8 +757,8 @@ pub fn LLVMContext::getConstInfFloat(
 ///   let nan = ctx.getConstNaNDouble()
 ///   let neg_nan = ctx.getConstNaNDouble(isNegative=true)
 ///
-///   inspect!(nan, content="double 0x7FF8000000000000")
-///   inspect!(neg_nan, content="double 0xFFF8000000000000")
+///   inspect(nan, content="double 0x7FF8000000000000")
+///   inspect(neg_nan, content="double 0xFFF8000000000000")
 /// }
 /// ```
 pub fn LLVMContext::getConstNaNDouble(
@@ -787,8 +787,8 @@ pub fn LLVMContext::getConstNaNDouble(
 ///   let nan = ctx.getConstQNaNDouble()
 ///   let neg_nan = ctx.getConstQNaNDouble(isNegative=true)
 ///
-///   inspect!(nan, content="double 0x7FF8000000000000")
-///   inspect!(neg_nan, content="double 0xFFF8000000000000")
+///   inspect(nan, content="double 0x7FF8000000000000")
+///   inspect(neg_nan, content="double 0xFFF8000000000000")
 /// }
 /// ```
 pub fn LLVMContext::getConstQNaNDouble(
@@ -817,8 +817,8 @@ pub fn LLVMContext::getConstQNaNDouble(
 ///   let nan = ctx.getConstSNaNDouble()
 ///   let neg_nan = ctx.getConstSNaNDouble(isNegative=true)
 ///
-///   inspect!(nan, content="double 0x7FF4000000000000")
-///   inspect!(neg_nan, content="double 0xFFF4000000000000")
+///   inspect(nan, content="double 0x7FF4000000000000")
+///   inspect(neg_nan, content="double 0xFFF4000000000000")
 /// }
 /// ```
 pub fn LLVMContext::getConstSNaNDouble(
@@ -847,8 +847,8 @@ pub fn LLVMContext::getConstSNaNDouble(
 ///   let inf = ctx.getConstInfDouble()
 ///   let neg_inf = ctx.getConstInfDouble(isNegative=true)
 ///
-///   inspect!(inf, content="double 0x7FF0000000000000")
-///   inspect!(neg_inf, content="double 0xFFF0000000000000")
+///   inspect(inf, content="double 0x7FF0000000000000")
+///   inspect(neg_inf, content="double 0xFFF0000000000000")
 /// }
 /// ```
 pub fn LLVMContext::getConstInfDouble(
@@ -877,7 +877,7 @@ pub fn LLVMContext::getConstInfDouble(
 ///
 ///   let data : Array[Int] = [42, 63, 77, 89]
 ///   let arr = ctx.getConstInt8Array(data)
-///   inspect!(arr, content="[4 x i8] [i8 42, i8 63, i8 77, i8 89]")
+///   inspect(arr, content="[4 x i8] [i8 42, i8 63, i8 77, i8 89]")
 /// }
 /// ```
 pub fn LLVMContext::getConstInt8Array(
@@ -901,7 +901,7 @@ pub fn LLVMContext::getConstInt8Array(
 ///
 ///   let data : Array[Int16] = [42, 63, 77, 89]
 ///   let arr = ctx.getConstInt16Array(data)
-///   inspect!(arr, content="[4 x i16] [i16 42, i16 63, i16 77, i16 89]")
+///   inspect(arr, content="[4 x i16] [i16 42, i16 63, i16 77, i16 89]")
 /// }
 /// ```
 pub fn LLVMContext::getConstInt16Array(
@@ -925,7 +925,7 @@ pub fn LLVMContext::getConstInt16Array(
 ///
 ///   let data : Array[Int] = [42, 63, 77, 89]
 ///   let arr = ctx.getConstInt32Array(data)
-///   inspect!(arr, content="[4 x i32] [i32 42, i32 63, i32 77, i32 89]")
+///   inspect(arr, content="[4 x i32] [i32 42, i32 63, i32 77, i32 89]")
 /// }
 /// ```
 pub fn LLVMContext::getConstInt32Array(
@@ -949,7 +949,7 @@ pub fn LLVMContext::getConstInt32Array(
 ///
 ///   let data : Array[Int64] = [42, 63, 77, 89]
 ///   let arr = ctx.getConstInt64Array(data)
-///   inspect!(arr, content="[4 x i64] [i64 42, i64 63, i64 77, i64 89]")
+///   inspect(arr, content="[4 x i64] [i64 42, i64 63, i64 77, i64 89]")
 /// }
 /// ```
 pub fn LLVMContext::getConstInt64Array(
@@ -973,7 +973,7 @@ pub fn LLVMContext::getConstInt64Array(
 ///
 ///   let data : Array[Byte] = [42, 63, 77, 89]
 ///   let arr = ctx.getConstUInt8Array(data)
-///   inspect!(arr, content="[4 x i8] [i8 42, i8 63, i8 77, i8 89]")
+///   inspect(arr, content="[4 x i8] [i8 42, i8 63, i8 77, i8 89]")
 /// }
 /// ```
 pub fn LLVMContext::getConstUInt8Array(
@@ -995,7 +995,7 @@ pub fn LLVMContext::getConstUInt8Array(
 ///
 ///   let data : Array[UInt16] = [42, 63, 77, 89]
 ///   let arr = ctx.getConstUInt16Array(data)
-///   inspect!(arr, content="[4 x i16] [i16 42, i16 63, i16 77, i16 89]")
+///   inspect(arr, content="[4 x i16] [i16 42, i16 63, i16 77, i16 89]")
 /// }
 /// ```
 pub fn LLVMContext::getConstUInt16Array(
@@ -1017,7 +1017,7 @@ pub fn LLVMContext::getConstUInt16Array(
 ///
 ///   let data : Array[UInt] = [42, 63, 77, 89]
 ///   let arr = ctx.getConstUInt32Array(data)
-///   inspect!(arr, content="[4 x i32] [i32 42, i32 63, i32 77, i32 89]")
+///   inspect(arr, content="[4 x i32] [i32 42, i32 63, i32 77, i32 89]")
 /// }
 /// ```
 pub fn LLVMContext::getConstUInt32Array(
@@ -1039,7 +1039,7 @@ pub fn LLVMContext::getConstUInt32Array(
 ///
 ///   let data : Array[UInt64] = [42, 63, 77, 89]
 ///   let arr = ctx.getConstUInt64Array(data)
-///   inspect!(arr, content="[4 x i64] [i64 42, i64 63, i64 77, i64 89]")
+///   inspect(arr, content="[4 x i64] [i64 42, i64 63, i64 77, i64 89]")
 /// }
 /// ```
 pub fn LLVMContext::getConstUInt64Array(
@@ -1061,7 +1061,7 @@ pub fn LLVMContext::getConstUInt64Array(
 ///
 ///   let data : Array[Float] = [1.0, 2.0]
 ///   let arr = ctx.getConstFloatArray(data)
-///   inspect!(
+///   inspect(
 ///     arr,
 ///     content="[2 x float] [float 0x3FF0000000000000, float 0x4000000000000000]"
 ///   )
@@ -1087,7 +1087,7 @@ pub fn LLVMContext::getConstFloatArray(
 ///   let data : Array[Double] = [1.0, 2.0]
 ///   let arr = ctx.getConstDoubleArray(data)
 ///
-///   inspect!(
+///   inspect(
 ///     arr,
 ///     content="[2 x double] [double 0x3FF0000000000000, double 0x4000000000000000]"
 ///   )
@@ -1119,7 +1119,7 @@ pub fn LLVMContext::getConstDoubleArray(
 ///
 ///   let data : Array[Int] = [42, 63, 77, 89]
 ///   let arr = ctx.getConstInt8Vector(data)
-///   inspect!(arr, content="<4 x i8> <i8 42, i8 63, i8 77, i8 89>")
+///   inspect(arr, content="<4 x i8> <i8 42, i8 63, i8 77, i8 89>")
 /// }
 /// ```
 pub fn LLVMContext::getConstInt8Vector(
@@ -1141,7 +1141,7 @@ pub fn LLVMContext::getConstInt8Vector(
 ///
 ///   let data : Array[Int16] = [42, 63, 77, 89]
 ///   let arr = ctx.getConstInt16Vector(data)
-///   inspect!(arr, content="<4 x i16> <i16 42, i16 63, i16 77, i16 89>")
+///   inspect(arr, content="<4 x i16> <i16 42, i16 63, i16 77, i16 89>")
 /// }
 /// ```
 pub fn LLVMContext::getConstInt16Vector(
@@ -1163,7 +1163,7 @@ pub fn LLVMContext::getConstInt16Vector(
 ///
 ///   let data : Array[Int] = [42, 63, 77, 89]
 ///   let arr = ctx.getConstInt32Vector(data)
-///   inspect!(arr, content="<4 x i32> <i32 42, i32 63, i32 77, i32 89>")
+///   inspect(arr, content="<4 x i32> <i32 42, i32 63, i32 77, i32 89>")
 /// }
 /// ```
 pub fn LLVMContext::getConstInt32Vector(
@@ -1185,7 +1185,7 @@ pub fn LLVMContext::getConstInt32Vector(
 ///
 ///   let data : Array[Int64] = [42, 63, 77, 89]
 ///   let arr = ctx.getConstInt64Vector(data)
-///   inspect!(arr, content="<4 x i64> <i64 42, i64 63, i64 77, i64 89>")
+///   inspect(arr, content="<4 x i64> <i64 42, i64 63, i64 77, i64 89>")
 /// }
 /// ```
 pub fn LLVMContext::getConstInt64Vector(
@@ -1207,7 +1207,7 @@ pub fn LLVMContext::getConstInt64Vector(
 ///
 ///   let data : Array[Byte] = [42, 63, 77, 89]
 ///   let arr = ctx.getConstUInt8Vector(data)
-///   inspect!(arr, content="<4 x i8> <i8 42, i8 63, i8 77, i8 89>")
+///   inspect(arr, content="<4 x i8> <i8 42, i8 63, i8 77, i8 89>")
 /// }
 /// ```
 pub fn LLVMContext::getConstUInt8Vector(
@@ -1230,7 +1230,7 @@ pub fn LLVMContext::getConstUInt8Vector(
 ///
 ///   let data : Array[UInt16] = [42, 63, 77, 89]
 ///   let arr = ctx.getConstUInt16Vector(data)
-///   inspect!(arr, content="<4 x i16> <i16 42, i16 63, i16 77, i16 89>")
+///   inspect(arr, content="<4 x i16> <i16 42, i16 63, i16 77, i16 89>")
 /// }
 /// ```
 pub fn LLVMContext::getConstUInt16Vector(
@@ -1253,7 +1253,7 @@ pub fn LLVMContext::getConstUInt16Vector(
 ///
 ///   let data : Array[UInt] = [42, 63, 77, 89]
 ///   let arr = ctx.getConstUInt32Vector(data)
-///   inspect!(arr, content="<4 x i32> <i32 42, i32 63, i32 77, i32 89>")
+///   inspect(arr, content="<4 x i32> <i32 42, i32 63, i32 77, i32 89>")
 /// }
 /// ```
 pub fn LLVMContext::getConstUInt32Vector(
@@ -1276,7 +1276,7 @@ pub fn LLVMContext::getConstUInt32Vector(
 ///
 ///   let data : Array[UInt64] = [42, 63, 77, 89]
 ///   let arr = ctx.getConstUInt64Vector(data)
-///   inspect!(arr, content="<4 x i64> <i64 42, i64 63, i64 77, i64 89>")
+///   inspect(arr, content="<4 x i64> <i64 42, i64 63, i64 77, i64 89>")
 /// }
 /// ```
 pub fn LLVMContext::getConstUInt64Vector(
@@ -1299,7 +1299,7 @@ pub fn LLVMContext::getConstUInt64Vector(
 ///
 ///   let data : Array[Float] = [1.0, 2.0]
 ///   let arr = ctx.getConstFloatVector(data)
-///   inspect!(
+///   inspect(
 ///     arr,
 ///     content="<2 x float> <float 0x3FF0000000000000, float 0x4000000000000000>"
 ///   )
@@ -1326,7 +1326,7 @@ pub fn LLVMContext::getConstFloatVector(
 ///   let data : Array[Double] = [1.0, 2.0]
 ///   let arr = ctx.getConstDoubleVector(data)
 ///
-///   inspect!(
+///   inspect(
 ///     arr,
 ///     content="<2 x double> <double 0x3FF0000000000000, double 0x4000000000000000>"
 ///   )
@@ -1354,7 +1354,7 @@ pub fn LLVMContext::getConstDoubleVector(
 ///   let ctx = LLVMContext::new()
 ///   let i32ty = ctx.getInt32Ty()
 ///   let zero_i32 = ctx.getConstZero(i32ty)
-///   inspect!(zero_i32, content="i32 0")
+///   inspect(zero_i32, content="i32 0")
 /// }
 /// ```
 pub fn LLVMContext::getConstZero(
