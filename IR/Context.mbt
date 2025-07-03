@@ -320,7 +320,7 @@ pub fn LLVMContext::getStructType(
 ///
 /// let _ = ctx.getStructType([i32ty, f32ty], name="foo")
 ///
-/// let sty = ctx.searchNamedStructType("foo").unwrap()
+/// let sty = ctx.getStructTypeByName("foo").unwrap()
 ///
 /// inspect(sty.full_info(), content="%foo = type { i32, float }")
 /// ```

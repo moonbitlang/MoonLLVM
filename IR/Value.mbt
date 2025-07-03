@@ -333,6 +333,7 @@ pub trait User: Value {
   getOperands(Self) -> Array[&Value] = _
   getOperand(Self, index : Int) -> &Value? = _
   getNumOperands(Self) -> Int = _
+  addOperand(Self, operand : &Value) -> Unit = _
 }
 
 ///|
@@ -355,6 +356,11 @@ impl User with getOperand(self, index : Int) {
 ///|
 impl User with getNumOperands(self) {
   self.getOperands().length()
+}
+
+impl User with addOperand(self, operand : &Value) {
+  self.getUserBase().operands.push(operand)
+  operand.getValueBase().users.push(self)
 }
 
 ///|

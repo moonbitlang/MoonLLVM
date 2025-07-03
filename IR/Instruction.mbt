@@ -234,9 +234,10 @@ fn LoadInst::new(
   let base = ValueBase::new(vty)
   let user_base = UserBase::new(name)
   let inst_base = InstBase::new(parent)
-  user_base.operands.push(ptr)
   let align = parent.getDataLayout().getAlignment(load_ty)
-  LoadInst::{ base, inst_base, user_base, isVolatile, atomicOrdering, align }
+  let inst = LoadInst::{ base, inst_base, user_base, isVolatile, atomicOrdering, align }
+  inst.addOperand(ptr)
+  inst
 }
 
 ///|
@@ -339,10 +340,10 @@ fn StoreInst::new(
   let base = ValueBase::new(vty.getContext().getVoidTy())
   let user_base = UserBase::new("")
   let inst_base = InstBase::new(parent)
-  user_base.operands.push(value)
-  user_base.operands.push(ptr)
   let align = parent.getDataLayout().getAlignment(vty)
-  StoreInst::{ base, inst_base, user_base, isVolatile, atomicOrdering, align }
+  let inst = StoreInst::{ base, inst_base, user_base, isVolatile, atomicOrdering, align }
+  inst..addOperand(value)..addOperand(ptr)
+  inst
 }
 
 ///|
@@ -465,9 +466,7 @@ fn BinaryInstruction::newStandardOp(
   let base = ValueBase::new(vty)
   let user_base = UserBase::new(name)
   let inst_base = InstBase::new(parent)
-  user_base.operands.push(lhs)
-  user_base.operands.push(rhs)
-  BinaryInstruction::{
+  let inst = BinaryInstruction::{
     base,
     user_base,
     inst_base,
@@ -475,6 +474,8 @@ fn BinaryInstruction::newStandardOp(
     flags,
     fast_math_flags: Set::new(),
   }
+  inst..addOperand(lhs)..addOperand(rhs)
+  inst
 }
 
 ///|
@@ -500,9 +501,7 @@ fn BinaryInstruction::newFPMathOp(
   let base = ValueBase::new(vty)
   let user_base = UserBase::new(name)
   let inst_base = InstBase::new(parent)
-  user_base.operands.push(lhs)
-  user_base.operands.push(rhs)
-  BinaryInstruction::{
+  let inst = BinaryInstruction::{
     base,
     user_base,
     inst_base,
@@ -510,6 +509,8 @@ fn BinaryInstruction::newFPMathOp(
     flags: Set::new(),
     fast_math_flags,
   }
+  inst..addOperand(lhs)..addOperand(rhs)
+  inst
 }
 
 ///|
@@ -697,9 +698,9 @@ fn CmpInst::new(
   let base = ValueBase::new(vty)
   let user_base = UserBase::new(name)
   let inst_base = InstBase::new(parent)
-  user_base.operands.push(lhs)
-  user_base.operands.push(rhs)
-  CmpInst::{ base, user_base, inst_base, predicate }
+  let inst = CmpInst::{ base, user_base, inst_base, predicate }
+  inst..addOperand(lhs)..addOperand(rhs)
+  inst
 }
 
 ///|
@@ -826,8 +827,9 @@ fn CastInst::newTrunc(
   let base = ValueBase::new(vty)
   let user_base = UserBase::new(name)
   let inst_base = InstBase::new(parent)
-  user_base.operands.push(src_val)
-  CastInst::{ base, user_base, inst_base, opcode: Trunc }
+  let inst = CastInst::{ base, user_base, inst_base, opcode: Trunc }
+  inst.addOperand(src_val)
+  inst
 }
 
 ///|
@@ -847,8 +849,9 @@ fn CastInst::newZExt(
   let base = ValueBase::new(vty)
   let user_base = UserBase::new(name)
   let inst_base = InstBase::new(parent)
-  user_base.operands.push(src_val)
-  CastInst::{ base, user_base, inst_base, opcode: ZExt }
+  let inst = CastInst::{ base, user_base, inst_base, opcode: ZExt }
+  inst.addOperand(src_val)
+  inst
 }
 
 ///|
@@ -868,8 +871,9 @@ fn CastInst::newSExt(
   let base = ValueBase::new(vty)
   let user_base = UserBase::new(name)
   let inst_base = InstBase::new(parent)
-  user_base.operands.push(src_val)
-  CastInst::{ base, user_base, inst_base, opcode: SExt }
+  let inst = CastInst::{ base, user_base, inst_base, opcode: SExt }
+  inst.addOperand(src_val)
+  inst
 }
 
 ///|
@@ -889,8 +893,9 @@ fn CastInst::newFPTrunc(
   let base = ValueBase::new(vty)
   let user_base = UserBase::new(name)
   let inst_base = InstBase::new(parent)
-  user_base.operands.push(src_val)
-  CastInst::{ base, user_base, inst_base, opcode: FPTrunc }
+  let inst = CastInst::{ base, user_base, inst_base, opcode: FPTrunc }
+  inst.addOperand(src_val)
+  inst
 }
 
 ///|
@@ -910,8 +915,9 @@ fn CastInst::newFPExt(
   let base = ValueBase::new(vty)
   let user_base = UserBase::new(name)
   let inst_base = InstBase::new(parent)
-  user_base.operands.push(src_val)
-  CastInst::{ base, user_base, inst_base, opcode: FPExt }
+  let inst = CastInst::{ base, user_base, inst_base, opcode: FPExt }
+  inst.addOperand(src_val)
+  inst
 }
 
 ///|
@@ -928,8 +934,9 @@ fn CastInst::newUIToFP(
   let base = ValueBase::new(vty)
   let user_base = UserBase::new(name)
   let inst_base = InstBase::new(parent)
-  user_base.operands.push(src_val)
-  CastInst::{ base, user_base, inst_base, opcode: UIToFP }
+  let inst = CastInst::{ base, user_base, inst_base, opcode: UIToFP }
+  inst.addOperand(src_val)
+  inst
 }
 
 ///|
@@ -946,8 +953,9 @@ fn CastInst::newFPToUI(
   let base = ValueBase::new(vty)
   let user_base = UserBase::new(name)
   let inst_base = InstBase::new(parent)
-  user_base.operands.push(src_val)
-  CastInst::{ base, user_base, inst_base, opcode: FPToUI }
+  let inst = CastInst::{ base, user_base, inst_base, opcode: FPToUI }
+  inst.addOperand(src_val)
+  inst
 }
 
 ///|
@@ -964,8 +972,9 @@ fn CastInst::newSIToFP(
   let base = ValueBase::new(vty)
   let user_base = UserBase::new(name)
   let inst_base = InstBase::new(parent)
-  user_base.operands.push(src_val)
-  CastInst::{ base, user_base, inst_base, opcode: SIToFP }
+  let inst = CastInst::{ base, user_base, inst_base, opcode: SIToFP }
+  inst.addOperand(src_val)
+  inst
 }
 
 ///|
@@ -982,8 +991,9 @@ fn CastInst::newFPToSI(
   let base = ValueBase::new(vty)
   let user_base = UserBase::new(name)
   let inst_base = InstBase::new(parent)
-  user_base.operands.push(src_val)
-  CastInst::{ base, user_base, inst_base, opcode: FPToSI }
+  let inst = CastInst::{ base, user_base, inst_base, opcode: FPToSI }
+  inst.addOperand(src_val)
+  inst
 }
 
 ///|
@@ -1000,8 +1010,9 @@ fn CastInst::newPtrToInt(
   let base = ValueBase::new(vty)
   let user_base = UserBase::new(name)
   let inst_base = InstBase::new(parent)
-  user_base.operands.push(src_val)
-  CastInst::{ base, user_base, inst_base, opcode: PtrToInt }
+  let inst = CastInst::{ base, user_base, inst_base, opcode: PtrToInt }
+  inst.addOperand(src_val)
+  inst
 }
 
 ///|
@@ -1017,8 +1028,9 @@ fn CastInst::newIntToPtr(
   let base = ValueBase::new(vty)
   let user_base = UserBase::new(name)
   let inst_base = InstBase::new(parent)
-  user_base.operands.push(src_val)
-  CastInst::{ base, user_base, inst_base, opcode: IntToPtr }
+  let inst = CastInst::{ base, user_base, inst_base, opcode: IntToPtr }
+  inst.addOperand(src_val)
+  inst
 }
 
 ///|
@@ -1042,8 +1054,9 @@ fn CastInst::newBitCast(
   let base = ValueBase::new(vty)
   let user_base = UserBase::new(name)
   let inst_base = InstBase::new(parent)
-  user_base.operands.push(src_val)
-  CastInst::{ base, user_base, inst_base, opcode: BitCast }
+  let inst = CastInst::{ base, user_base, inst_base, opcode: BitCast }
+  inst.addOperand(src_val)
+  inst
 }
 
 ///|
@@ -1138,11 +1151,12 @@ fn GetElementPtrInst::new(
   let base = ValueBase::new(vty)
   let user_base = UserBase::new(name)
   let inst_base = InstBase::new(parent)
-  user_base.operands.push(ptr)
+  let inst = GetElementPtrInst::{ base, user_base, inst_base, isInbounds, pointeeType }
+  inst.addOperand(ptr)
   for idx in indices {
-    user_base.operands.push(idx)
+    inst.addOperand(idx)
   }
-  GetElementPtrInst::{ base, user_base, inst_base, isInbounds, pointeeType }
+  inst
 }
 
 ///|
@@ -1247,10 +1261,11 @@ fn SelectInst::new(
   let base = ValueBase::new(vty)
   let user_base = UserBase::new(name)
   let inst_base = InstBase::new(parent)
-  user_base.operands.push(condition)
-  user_base.operands.push(trueValue)
-  user_base.operands.push(falseValue)
-  SelectInst::{ base, user_base, inst_base }
+  let inst = SelectInst::{ base, user_base, inst_base }
+  inst.addOperand(condition)
+  inst.addOperand(trueValue)
+  inst.addOperand(falseValue)
+  inst
 }
 
 ///|
@@ -1360,10 +1375,11 @@ fn ReturnInst::new(
   let base = ValueBase::new(vty)
   let user_base = UserBase::new("")
   let inst_base = InstBase::new(parent)
+  let inst = ReturnInst::{ base, user_base, inst_base }
   if retVal is Some(val) {
-    user_base.operands.push(val)
+    inst.addOperand(val)
   }
-  ReturnInst::{ base, user_base, inst_base }
+  inst
 }
 
 ///|
@@ -1439,10 +1455,11 @@ fn BranchInst::newConditional(
   let base = ValueBase::new(parent.getContext().getVoidTy())
   let user_base = UserBase::new("")
   let inst_base = InstBase::new(parent)
-  user_base.operands.push(condition)
-  user_base.operands.push(trueBlock)
-  user_base.operands.push(falseBlock)
-  BranchInst::{ base, user_base, inst_base }
+  let inst = BranchInst::{ base, user_base, inst_base }
+  inst.addOperand(condition)
+  inst.addOperand(trueBlock)
+  inst.addOperand(falseBlock)
+  inst
 }
 
 ///|
@@ -1453,8 +1470,9 @@ fn BranchInst::newUnconditional(
   let base = ValueBase::new(parent.getContext().getVoidTy())
   let user_base = UserBase::new("")
   let inst_base = InstBase::new(parent)
-  user_base.operands.push(targetBlock)
-  BranchInst::{ base, user_base, inst_base }
+  let inst = BranchInst::{ base, user_base, inst_base }
+  inst.addOperand(targetBlock)
+  inst
 }
 
 ///|
@@ -1583,9 +1601,10 @@ fn SwitchInst::new(
   let base = ValueBase::new(vty)
   let user_base = UserBase::new("")
   let inst_base = InstBase::new(parent)
-  user_base.operands.push(cond)
-  user_base.operands.push(defaultDest)
-  SwitchInst::{ base, user_base, inst_base }
+  let inst = SwitchInst::{ base, user_base, inst_base }
+  inst.addOperand(cond)
+  inst.addOperand(defaultDest)
+  inst
 }
 
 ///|
@@ -1633,8 +1652,8 @@ pub fn SwitchInst::addCase(
     let case_cond_ty = case_cond_ty.asTypeClass()
     raise SwitchInstCaseConditionTypeMismatch(intTy, case_cond_ty)
   }
-  self.user_base.operands.push(cond)
-  self.user_base.operands.push(dest)
+  self.addOperand(cond)
+  self.addOperand(dest)
 }
 
 ///|
@@ -1804,8 +1823,8 @@ pub fn PHINode::addIncoming(
   guard value.getType() == self.getType() else {
     raise PHINodeIncomingValueTypeMismatch(value.getType(), self.getType())
   }
-  self.user_base.operands.push(value)
-  self.user_base.operands.push(block)
+  self.addOperand(value)
+  self.addOperand(block)
 }
 
 ///|
@@ -1935,9 +1954,10 @@ fn CallInst::new(
   let base = ValueBase::new(ret_ty)
   let user_base = UserBase::new(name)
   let inst_base = InstBase::new(parent)
-  user_base.operands.push(callee)
-  args.each(arg => user_base.operands.push(arg))
-  CallInst::{ base, user_base, inst_base, callee, tailCallKind: NoTail }
+  let inst = CallInst::{ base, user_base, inst_base, callee, tailCallKind: NoTail }
+  inst.addOperand(callee)
+  args.each(arg => inst.addOperand(arg))
+  inst
 }
 
 ///|
@@ -2120,8 +2140,9 @@ fn ExtractValueInst::new(
   let base = ValueBase::new(result_ty)
   let user_base = UserBase::new(name)
   let inst_base = InstBase::new(parent)
-  user_base.operands.push(agg)
-  ExtractValueInst::{ base, user_base, inst_base, indices }
+  let inst = ExtractValueInst::{ base, user_base, inst_base, indices }
+  inst.addOperand(agg)
+  inst
 }
 
 ///|
@@ -2226,9 +2247,10 @@ fn InsertValueInst::new(
   let base = ValueBase::new(agg_ty.asTypeClass())
   let user_base = UserBase::new(name)
   let inst_base = InstBase::new(parent)
-  user_base.operands.push(agg)
-  user_base.operands.push(val)
-  InsertValueInst::{ base, user_base, inst_base, indices }
+  let inst = InsertValueInst::{ base, user_base, inst_base, indices }
+  inst.addOperand(agg)
+  inst.addOperand(val)
+  inst
 }
 
 ///|
