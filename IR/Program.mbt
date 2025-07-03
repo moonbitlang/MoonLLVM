@@ -11,7 +11,7 @@ pub struct Program {
 }
 
 ///|
-fn Program::new(programID : String, ctx : LLVMContext) -> Program {
+pub fn Program::new(programID : String, ctx : LLVMContext) -> Program {
   Program::{
     context: ctx,
     functions: Map::new(),

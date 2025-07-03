@@ -1816,17 +1816,17 @@ pub impl Show for ArrayType with output(self, logger : &Logger) {
 }
 
 ///|
-impl Type for ArrayType with asTypeEnum(self) -> TypeEnum {
+pub impl Type for ArrayType with asTypeEnum(self) -> TypeEnum {
   ArrayType(self)
 }
 
 ///|
-impl Type for ArrayType with getTypeBase(self) -> TypeBase {
+pub impl Type for ArrayType with getTypeBase(self) -> TypeBase {
   self.base
 }
 
 ///|
-impl AggregateType for ArrayType with asAggregateTypeEnum(self) -> AggregateTypeEnum {
+pub impl AggregateType for ArrayType with asAggregateTypeEnum(self) -> AggregateTypeEnum {
   ArrayType(self)
 }
 

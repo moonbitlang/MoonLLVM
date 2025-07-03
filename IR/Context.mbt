@@ -309,6 +309,25 @@ pub fn LLVMContext::getStructType(
   StructType::new(self, elements, name~, isPacked~)
 }
 
+///| Search a named struct type in the context.
+///
+/// LLVM Cpp version has no this method, since llvm-cpp allow duplicated struct type names.
+///
+/// ```moonbit
+/// let ctx = LLVMContext::new()
+/// let i32ty = ctx.getInt32Ty()
+/// let f32ty = ctx.getFloatTy()
+///
+/// let _ = ctx.getStructType([i32ty, f32ty], name="foo")
+///
+/// let sty = ctx.searchNamedStructType("foo").unwrap()
+///
+/// inspect(sty.full_info(), content="%foo = type { i32, float }")
+/// ```
+pub fn LLVMContext::getStructTypeByName(self: Self, name: String) -> StructType? {
+  self.pimpl.unwrap().namedStructTypes.get(name)
+}
+
 ///| Create an array type in the context.
 ///
 /// This is different with the method of creating array type in LLVM.
