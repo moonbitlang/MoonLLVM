@@ -167,7 +167,7 @@ pub trait Value: Show {
   /// It's equivalent to: LLVM: replaceAllUsesWith(this, V)
   /// Please note that in LLVM, this API is `replaceAllUsesWith`, while here
   /// is `replaceAllUsersWith`.
-  //replaceAllUsersWith(Self, other: &Value) -> Unit = _
+  replaceAllUsersWith(Self, other: &Value) -> Unit = _
 
   getUsers(Self) -> Array[&Value] = _
 
@@ -208,6 +208,22 @@ impl Value with getValueName(self) {
         None => None
       }
     _ => None
+  }
+}
+
+impl Value with replaceAllUsersWith(self, other : &Value) {
+  let users = self.getUsers().map(u => u.tryAsUserEnum().or_else(
+    () => {
+      println("ICE: Value not User, `replaceAllUsersWith`.");
+      panic()
+    }).asClass())
+  for user in  users{
+    let operands = user.getOperands()
+    for i in 0 ..<operands.length() {
+      if operands[i] == self {
+        user.getUserBase().operands[i] = other
+      }
+    }
   }
 }
 
@@ -314,7 +330,7 @@ fn ValueBase::new(vty : &Type, users~ : Array[&Value] = []) -> ValueBase {
 pub struct UserBase {
   name : String?
   operands : Array[&Value]
-}
+} derive(Eq)
 
 ///|
 pub fn UserBase::new(name : String, operands~ : Array[&Value] = []) -> UserBase {
@@ -334,6 +350,10 @@ pub trait User: Value {
   getOperand(Self, index : Int) -> &Value? = _
   getNumOperands(Self) -> Int = _
   addOperand(Self, operand : &Value) -> Unit = _
+}
+
+pub impl Eq for &User with op_equal(self, other) {
+  self.getUserBase() == other.getUserBase()
 }
 
 ///|
@@ -383,6 +403,26 @@ pub enum UserEnum {
   BranchInst(BranchInst)
   SwitchInst(SwitchInst)
   CallInst(CallInst)
+}
+
+pub fn UserEnum::asClass(self: Self) -> &User {
+  match self {
+    AllocaInst(c) => c as &User
+    LoadInst(l) => l
+    ExtractValueInst(e) => e
+    BinaryInstruction(b) => b
+    CmpInst(c) => c
+    StoreInst(s) => s
+    CastInst(c) => c
+    GetElementPtrInst(g) => g
+    SelectInst(s) => s
+    InsertValueInst(i) => i
+    PHINode(p) => p
+    ReturnInst(r) => r
+    BranchInst(b) => b
+    SwitchInst(s) => s
+    CallInst(c) => c
+  }
 }
 
 ///|
