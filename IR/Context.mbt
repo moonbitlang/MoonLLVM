@@ -324,7 +324,10 @@ pub fn LLVMContext::getStructType(
 ///
 /// inspect(sty.full_info(), content="%foo = type { i32, float }")
 /// ```
-pub fn LLVMContext::getStructTypeByName(self: Self, name: String) -> StructType? {
+pub fn LLVMContext::getStructTypeByName(
+  self : Self,
+  name : String
+) -> StructType? {
   self.pimpl.unwrap().namedStructTypes.get(name)
 }
 

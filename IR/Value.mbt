@@ -167,8 +167,7 @@ pub trait Value: Show {
   /// It's equivalent to: LLVM: replaceAllUsesWith(this, V)
   /// Please note that in LLVM, this API is `replaceAllUsesWith`, while here
   /// is `replaceAllUsersWith`.
-  replaceAllUsersWith(Self, other: &Value) -> Unit = _
-
+  replaceAllUsersWith(Self, other : &Value) -> Unit = _
   getUsers(Self) -> Array[&Value] = _
 
   // It's equivalent to: LLVM: use_empty
@@ -211,15 +210,20 @@ impl Value with getValueName(self) {
   }
 }
 
+///|
 impl Value with replaceAllUsersWith(self, other : &Value) {
-  let users = self.getUsers().map(u => u.tryAsUserEnum().or_else(
-    () => {
-      println("ICE: Value not User, `replaceAllUsersWith`.");
-      panic()
-    }).asClass())
-  for user in  users{
+  let users = self
+    .getUsers()
+    .map(u => u
+      .tryAsUserEnum()
+      .or_else(() => {
+        println("ICE: Value not User, `replaceAllUsersWith`.")
+        panic()
+      })
+      .asClass())
+  for user in users {
     let operands = user.getOperands()
-    for i in 0 ..<operands.length() {
+    for i in 0..<operands.length() {
       if operands[i] == self {
         user.getUserBase().operands[i] = other
       }
@@ -352,6 +356,7 @@ pub trait User: Value {
   addOperand(Self, operand : &Value) -> Unit = _
 }
 
+///|
 pub impl Eq for &User with op_equal(self, other) {
   self.getUserBase() == other.getUserBase()
 }
@@ -378,6 +383,7 @@ impl User with getNumOperands(self) {
   self.getOperands().length()
 }
 
+///|
 impl User with addOperand(self, operand : &Value) {
   self.getUserBase().operands.push(operand)
   operand.getValueBase().users.push(self)
@@ -405,9 +411,12 @@ pub enum UserEnum {
   CallInst(CallInst)
 }
 
-pub fn UserEnum::asClass(self: Self) -> &User {
+///|
+pub fn UserEnum::asClass(self : Self) -> &User {
   match self {
-    AllocaInst(c) => c as &User
+    AllocaInst(c) => {
+      c as &User
+    }
     LoadInst(l) => l
     ExtractValueInst(e) => e
     BinaryInstruction(b) => b

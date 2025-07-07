@@ -235,7 +235,14 @@ fn LoadInst::new(
   let user_base = UserBase::new(name)
   let inst_base = InstBase::new(parent)
   let align = parent.getDataLayout().getAlignment(load_ty)
-  let inst = LoadInst::{ base, inst_base, user_base, isVolatile, atomicOrdering, align }
+  let inst = LoadInst::{
+    base,
+    inst_base,
+    user_base,
+    isVolatile,
+    atomicOrdering,
+    align,
+  }
   inst.addOperand(ptr)
   inst
 }
@@ -341,7 +348,14 @@ fn StoreInst::new(
   let user_base = UserBase::new("")
   let inst_base = InstBase::new(parent)
   let align = parent.getDataLayout().getAlignment(vty)
-  let inst = StoreInst::{ base, inst_base, user_base, isVolatile, atomicOrdering, align }
+  let inst = StoreInst::{
+    base,
+    inst_base,
+    user_base,
+    isVolatile,
+    atomicOrdering,
+    align,
+  }
   inst..addOperand(value)..addOperand(ptr)
   inst
 }
@@ -1151,7 +1165,13 @@ fn GetElementPtrInst::new(
   let base = ValueBase::new(vty)
   let user_base = UserBase::new(name)
   let inst_base = InstBase::new(parent)
-  let inst = GetElementPtrInst::{ base, user_base, inst_base, isInbounds, pointeeType }
+  let inst = GetElementPtrInst::{
+    base,
+    user_base,
+    inst_base,
+    isInbounds,
+    pointeeType,
+  }
   inst.addOperand(ptr)
   for idx in indices {
     inst.addOperand(idx)
@@ -1954,7 +1974,13 @@ fn CallInst::new(
   let base = ValueBase::new(ret_ty)
   let user_base = UserBase::new(name)
   let inst_base = InstBase::new(parent)
-  let inst = CallInst::{ base, user_base, inst_base, callee, tailCallKind: NoTail }
+  let inst = CallInst::{
+    base,
+    user_base,
+    inst_base,
+    callee,
+    tailCallKind: NoTail,
+  }
   inst.addOperand(callee)
   args.each(arg => inst.addOperand(arg))
   inst
