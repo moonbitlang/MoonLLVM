@@ -89,6 +89,8 @@ pub struct ArrayType {
 }
 fn ArrayType::getElementCount(Self) -> UInt
 fn ArrayType::getElementType(Self) -> &Type
+impl AggregateType for ArrayType
+impl Type for ArrayType
 impl Eq for ArrayType
 impl Hash for ArrayType
 impl Show for ArrayType
@@ -856,6 +858,7 @@ fn LLVMContext::getMetadataTy(Self) -> MetadataType
 fn LLVMContext::getPtrTy(Self, addressSpace~ : AddressSpace = ..) -> PointerType
 fn LLVMContext::getScalableVectorType(Self, &Type, UInt) -> ScalableVectorType raise LLVMTypeError
 fn LLVMContext::getStructType(Self, Array[&Type], name~ : String = .., isPacked~ : Bool = ..) -> StructType raise LLVMTypeError
+fn LLVMContext::getStructTypeByName(Self, String) -> StructType?
 fn LLVMContext::getTokenTy(Self) -> TokenType
 fn LLVMContext::getVoidTy(Self) -> VoidType
 fn LLVMContext::new() -> Self
@@ -1023,6 +1026,7 @@ pub struct Program {
 }
 fn Program::addFunction(Self, FunctionType, String, linkage~ : LinkageTypes = .., addressSpace~ : AddressSpace = ..) -> Function raise LLVMValueError
 fn Program::getContext(Self) -> LLVMContext
+fn Program::new(String, LLVMContext) -> Self
 
 pub(all) enum RetAttr {
   Alignment(Int)
@@ -1238,6 +1242,7 @@ pub struct UserBase {
   operands : Array[&Value]
 }
 fn UserBase::new(String, operands~ : Array[&Value] = ..) -> Self
+impl Eq for UserBase
 
 pub enum UserEnum {
   AllocaInst(AllocaInst)
@@ -1256,6 +1261,7 @@ pub enum UserEnum {
   SwitchInst(SwitchInst)
   CallInst(CallInst)
 }
+fn UserEnum::asClass(Self) -> &User
 fn UserEnum::getUserName(Self) -> String?
 
 type ValueBase
@@ -1305,6 +1311,8 @@ impl Type for VoidType
 impl Eq for VoidType
 impl Hash for VoidType
 impl Show for VoidType
+
+impl Eq for &User
 
 // Type aliases
 
@@ -1450,6 +1458,7 @@ pub trait User : Value {
   getOperands(Self) -> Array[&Value]
   getOperand(Self, Int) -> &Value?
   getNumOperands(Self) -> Int
+  addOperand(Self, &Value) -> Unit
 }
 
 pub trait Value : Show {
@@ -1458,6 +1467,7 @@ pub trait Value : Show {
   getType(Self) -> &Type
   getContext(Self) -> LLVMContext
   getValueName(Self) -> String?
+  replaceAllUsersWith(Self, &Value) -> Unit
   getUsers(Self) -> Array[&Value]
   user_empty(Self) -> Bool
   tryAsConstant(Self) -> &Constant?
