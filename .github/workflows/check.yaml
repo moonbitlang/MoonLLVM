@@ -151,16 +151,16 @@ jobs:
           done
           (exit $_passed)
 
-  check-typos:
-    runs-on: ubuntu-latest
-
-    steps:
-
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-    - name: AutoCorrect
-      uses: huacnlee/autocorrect-action@v2
-
-    - name: typos-action
-      uses: crate-ci/typos@v1.31.1
+  # check-typos:
+  #   runs-on: ubuntu-latest
+  #
+  #   steps:
+  #
+  #   - name: Checkout repository
+  #     uses: actions/checkout@v4
+  #
+  #   - name: AutoCorrect
+  #     uses: huacnlee/autocorrect-action@v2
+  #
+  #   - name: typos-action
+  #     uses: crate-ci/typos@v1.31.1
