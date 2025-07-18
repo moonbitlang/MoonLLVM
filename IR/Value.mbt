@@ -44,7 +44,7 @@ pub enum ValueEnum {
   ExtractValueInst(ExtractValueInst)
   // FreezeInst(FreezeInst)
   CastInst(CastInst)
-  BinaryInstruction(BinaryInstruction)
+  BinaryInst(BinaryInst)
   CmpInst(CmpInst)
   StoreInst(StoreInst)
   GetElementPtrInst(GetElementPtrInst)
@@ -98,7 +98,7 @@ pub fn ValueEnum::tryAsUserEnum(self : ValueEnum) -> UserEnum? {
     ExtractValueInst(c) => ExtractValueInst(c) |> Some
     //FreezeInst(c) => FreezeInst(c) |> Some
     CastInst(c) => CastInst(c) |> Some
-    BinaryInstruction(b) => BinaryInstruction(b) |> Some
+    BinaryInst(b) => BinaryInst(b) |> Some
     CmpInst(c) => CmpInst(c) |> Some
     StoreInst(s) => StoreInst(s) |> Some
     GetElementPtrInst(g) => GetElementPtrInst(g) |> Some
@@ -122,7 +122,7 @@ pub fn ValueEnum::tryAsInstEnum(self : ValueEnum) -> InstEnum? {
     ExtractValueInst(c) => ExtractValueInst(c) |> Some
     //FreezeInst(c) => FreezeInst(c) |> Some
     CastInst(c) => CastInst(c) |> Some
-    BinaryInstruction(b) => BinaryInstruction(b) |> Some
+    BinaryInst(b) => BinaryInst(b) |> Some
     CmpInst(c) => CmpInst(c) |> Some
     StoreInst(s) => StoreInst(s) |> Some
     GetElementPtrInst(g) => GetElementPtrInst(g) |> Some
@@ -276,7 +276,7 @@ impl Value with tryAsUserEnum(self) {
     ExtractValueInst(c) => Some(ExtractValueInst(c))
     //FreezeInst(c) => Some(FreezeInst(c))
     CastInst(c) => Some(CastInst(c))
-    BinaryInstruction(b) => Some(BinaryInstruction(b))
+    BinaryInst(b) => Some(BinaryInst(b))
     CmpInst(c) => Some(CmpInst(c))
     StoreInst(s) => Some(StoreInst(s))
     GetElementPtrInst(g) => Some(GetElementPtrInst(g))
@@ -398,7 +398,7 @@ pub enum UserEnum {
   ExtractValueInst(ExtractValueInst)
   //FreezeInst(FreezeInst)
   CastInst(CastInst)
-  BinaryInstruction(BinaryInstruction)
+  BinaryInst(BinaryInst)
   CmpInst(CmpInst)
   StoreInst(StoreInst)
   GetElementPtrInst(GetElementPtrInst)
@@ -419,7 +419,7 @@ pub fn UserEnum::asClass(self : Self) -> &User {
     }
     LoadInst(l) => l
     ExtractValueInst(e) => e
-    BinaryInstruction(b) => b
+    BinaryInst(b) => b
     CmpInst(c) => c
     StoreInst(s) => s
     CastInst(c) => c
@@ -440,7 +440,7 @@ pub fn UserEnum::getUserName(self : UserEnum) -> String? {
     AllocaInst(c) => c.getUserName()
     LoadInst(l) => l.getUserName()
     ExtractValueInst(e) => e.getUserName()
-    BinaryInstruction(b) => b.getUserName()
+    BinaryInst(b) => b.getUserName()
     CmpInst(c) => c.getUserName()
     StoreInst(s) => s.getUserName()
     CastInst(c) => c.getUserName()
@@ -574,7 +574,7 @@ pub enum InstEnum {
   ExtractValueInst(ExtractValueInst)
   //FreezeInst(FreezeInst)
   CastInst(CastInst)
-  BinaryInstruction(BinaryInstruction)
+  BinaryInst(BinaryInst)
   CmpInst(CmpInst)
   StoreInst(StoreInst)
   GetElementPtrInst(GetElementPtrInst)

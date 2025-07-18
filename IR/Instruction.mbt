@@ -435,7 +435,7 @@ pub impl Show for StoreInst with output(self, logger) {
 // =======================================================
 
 ///|
-pub struct BinaryInstruction {
+pub struct BinaryInst {
   base : ValueBase
   user_base : UserBase
   inst_base : InstBase
@@ -445,14 +445,14 @@ pub struct BinaryInstruction {
 }
 
 ///|
-fn BinaryInstruction::newStandardOp(
+fn BinaryInst::newStandardOp(
   opcode : BinaryOps,
   lhs : &Value,
   rhs : &Value,
   parent : Function,
   name : String,
   flags : Set[BinaryOpFlags]
-) -> BinaryInstruction raise LLVMValueError {
+) -> BinaryInst raise LLVMValueError {
   guard opcode
     is (Add
     | Sub
@@ -468,7 +468,7 @@ fn BinaryInstruction::newStandardOp(
     | LShr
     | AShr) else {
     llvm_unreachable(
-      "Should not call BinaryInstruction::newStandardOp with opcode \{opcode}",
+      "Should not call BinaryInst::newStandardOp with opcode \{opcode}",
     )
   }
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
@@ -480,7 +480,7 @@ fn BinaryInstruction::newStandardOp(
   let base = ValueBase::new(vty)
   let user_base = UserBase::new(name)
   let inst_base = InstBase::new(parent)
-  let inst = BinaryInstruction::{
+  let inst = BinaryInst::{
     base,
     user_base,
     inst_base,
@@ -493,17 +493,17 @@ fn BinaryInstruction::newStandardOp(
 }
 
 ///|
-fn BinaryInstruction::newFPMathOp(
+fn BinaryInst::newFPMathOp(
   opcode : BinaryOps,
   lhs : &Value,
   rhs : &Value,
   parent : Function,
   name : String,
   fast_math_flags : Set[FastMathFlag]
-) -> BinaryInstruction raise LLVMValueError {
+) -> BinaryInst raise LLVMValueError {
   guard opcode is (FAdd | FSub | FMul | FDiv | FRem) else {
     llvm_unreachable(
-      "Should not call BinaryInstruction::newFPMathOp with opcode \{opcode}",
+      "Should not call BinaryInst::newFPMathOp with opcode \{opcode}",
     )
   }
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
@@ -515,7 +515,7 @@ fn BinaryInstruction::newFPMathOp(
   let base = ValueBase::new(vty)
   let user_base = UserBase::new(name)
   let inst_base = InstBase::new(parent)
-  let inst = BinaryInstruction::{
+  let inst = BinaryInst::{
     base,
     user_base,
     inst_base,
@@ -528,37 +528,37 @@ fn BinaryInstruction::newFPMathOp(
 }
 
 ///|
-pub impl Value for BinaryInstruction with getValueBase(self) {
+pub impl Value for BinaryInst with getValueBase(self) {
   self.base
 }
 
 ///|
-pub impl Value for BinaryInstruction with asValueEnum(self) {
-  BinaryInstruction(self)
+pub impl Value for BinaryInst with asValueEnum(self) {
+  BinaryInst(self)
 }
 
 ///|
-pub impl User for BinaryInstruction with asUserEnum(self) {
-  BinaryInstruction(self)
+pub impl User for BinaryInst with asUserEnum(self) {
+  BinaryInst(self)
 }
 
 ///|
-pub impl User for BinaryInstruction with getUserBase(self) {
+pub impl User for BinaryInst with getUserBase(self) {
   self.user_base
 }
 
 ///|
-pub impl Instruction for BinaryInstruction with getInstBase(self) {
+pub impl Instruction for BinaryInst with getInstBase(self) {
   self.inst_base
 }
 
 ///|
-pub impl Instruction for BinaryInstruction with asInstEnum(self) {
-  InstEnum::BinaryInstruction(self)
+pub impl Instruction for BinaryInst with asInstEnum(self) {
+  InstEnum::BinaryInst(self)
 }
 
 ///|
-pub impl Show for BinaryInstruction with output(self, logger) {
+pub impl Show for BinaryInst with output(self, logger) {
   let parent = self.getParent()
   let ty = self.getType()
   let prefix = match self.getName() {

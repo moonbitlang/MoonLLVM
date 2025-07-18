@@ -4,7 +4,7 @@ Initial a new type.
 
 ```moonbit
 test "Init Type" {
-  let ctx = @IR.LLVMContext::new()
+  let ctx = @IR.Context::new()
 
   // Basic Integer Type
   let i16ty = ctx.getInt16Ty()
