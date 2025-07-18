@@ -1950,7 +1950,7 @@ pub fn IRBuilder::createFCmpUNE(
 /// This creates a truncation instruction that truncates an integer value to a smaller integer type.
 /// The input value must be an integer type, and the target type must be a smaller integer type.
 ///
-/// ```moonbit skip
+/// ```moonbit
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -1996,7 +1996,7 @@ pub fn IRBuilder::createTrunc(
 /// This creates a zero extension instruction that extends an integer value to a larger integer type by padding with zeros.
 /// The input value must be an integer type, and the target type must be a larger integer type.
 ///
-/// ```moonbit skip
+/// ```moonbit
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -2042,7 +2042,7 @@ pub fn IRBuilder::createZExt(
 /// This creates a sign extension instruction that extends an integer value to a larger integer type by replicating the sign bit.
 /// The input value must be an integer type, and the target type must be a larger integer type.
 ///
-/// ```moonbit skip
+/// ```moonbit
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -2088,7 +2088,7 @@ pub fn IRBuilder::createSExt(
 /// This creates a floating-point truncation instruction that truncates a floating-point value to a smaller floating-point type.
 /// The input value must be a floating-point type, and the target type must be a smaller floating-point type.
 ///
-/// ```moonbit skip
+/// ```moonbit
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -2133,7 +2133,7 @@ pub fn IRBuilder::createFPTrunc(
 /// This creates a floating-point extension instruction that extends a floating-point value to a larger floating-point type.
 /// The input value must be a floating-point type, and the target type must be a larger floating-point type.
 ///
-/// ```moonbit skip
+/// ```moonbit
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -2174,7 +2174,7 @@ pub fn IRBuilder::createFPExt(
 /// This creates an unsigned integer to floating-point conversion instruction that converts an unsigned integer value to a floating-point value.
 /// The input value must be an integer type, and the target type must be a floating-point type.
 ///
-/// ```moonbit skip
+/// ```moonbit
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -2219,7 +2219,7 @@ pub fn IRBuilder::createUIToFP(
 /// This creates a floating-point to unsigned integer conversion instruction that converts a floating-point value to an unsigned integer.
 /// The input value must be a floating-point type, and the target type must be an integer type.
 ///
-/// ```moonbit skip
+/// ```moonbit
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -2265,7 +2265,7 @@ pub fn IRBuilder::createFPToUI(
 /// This creates a signed integer to floating-point conversion instruction that converts a signed integer value to a floating-point value.
 /// The input value must be an integer type, and the target type must be a floating-point type.
 ///
-/// ```moonbit skip
+/// ```moonbit
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -2306,7 +2306,7 @@ pub fn IRBuilder::createSIToFP(
 /// This creates a floating-point to signed integer conversion instruction that converts a floating-point value to a signed integer.
 /// The input value must be a floating-point type, and the target type must be an integer type.
 ///
-/// ```moonbit skip
+/// ```moonbit
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -2347,7 +2347,7 @@ pub fn IRBuilder::createFPToSI(
 /// This creates an integer to pointer conversion instruction that converts an integer value to a pointer.
 /// The input value must be an integer type, and the target type must be a pointer type.
 ///
-/// ```moonbit skip
+/// ```moonbit
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -2361,7 +2361,7 @@ pub fn IRBuilder::createFPToSI(
 /// let arg = fval.getArg(0).unwrap()
 ///
 /// builder.setInsertPoint(bb)
-/// let inttoptr = builder.createIntToPtr(arg, ptr_ty, name="ptr")
+/// let inttoptr = builder.createIntToPtr(arg, name="ptr")
 ///
 /// inspect(inttoptr, content = "  %ptr = inttoptr i64 %0 to ptr")
 /// ```
@@ -2387,7 +2387,7 @@ pub fn IRBuilder::createIntToPtr(
 /// This creates a pointer to integer conversion instruction that converts a pointer value to an integer.
 /// The input value must be a pointer type, and the target type must be an integer type.
 ///
-/// ```moonbit skip
+/// ```moonbit
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -2425,7 +2425,7 @@ pub fn IRBuilder::createPtrToInt(
 /// This creates a bitcast instruction that converts a value from one type to another without changing the bit representation.
 /// The source and destination types must have the same bit width.
 ///
-/// ```moonbit skip
+/// ```moonbit
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()

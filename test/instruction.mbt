@@ -253,7 +253,7 @@ test "type conversion operations" {
   let expect =
     #|define float @convert_types(i32 %0, float %1) {
     #|entry:
-    #|  %i_to_float = sitofp i32 %0
+    #|  %i_to_float = sitofp i32 %0 to float
     #|  %result = fadd float %i_to_float, %1
     #|  ret float %result
     #|}
@@ -913,11 +913,11 @@ test "type conversion chains" {
   let expect =
     #|define double @conversion_chain(i8 %0) {
     #|entry:
-    #|  %ext16 = sext i8 %0
-    #|  %ext32 = sext i16 %ext16
-    #|  %ext64 = sext i32 %ext32
-    #|  %to_f32 = sitofp i64 %ext64
-    #|  %to_f64 = fpext float %to_f32
+    #|  %ext16 = sext i8 %0 to i16
+    #|  %ext32 = sext i16 %ext16 to i32
+    #|  %ext64 = sext i32 %ext32 to i64
+    #|  %to_f32 = sitofp i64 %ext64 to float
+    #|  %to_f64 = fpext float %to_f32 to double
     #|  ret double %to_f64
     #|}
   inspect(fval, content=expect)

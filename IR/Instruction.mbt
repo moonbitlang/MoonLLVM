@@ -1229,8 +1229,9 @@ pub impl Show for CastInst with output(self, logger) {
     None if src.tryAsConstant() is Some(c) => c.valstr()
     _ => "<badref>"
   }
+  let dst_ty = self.getType()
   logger.write_string(
-    "  %\{prefix} = \{self.opcode} \{src.getType()} \{src_str}",
+    "  %\{prefix} = \{self.opcode} \{src.getType()} \{src_str} to \{dst_ty}",
   )
 }
 
