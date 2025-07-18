@@ -1,5 +1,5 @@
 {
   "import" : [
-    "Kaida-Amethyst/Aether/IR"
+    "Kaida-Amethyst/MoonLLVM/IR"
   ]
 }

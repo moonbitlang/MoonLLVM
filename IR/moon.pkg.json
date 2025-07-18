@@ -1,7 +1,7 @@
 {
   "import" : [
-    "Kaida-Amethyst/Aether/int8",
-    "Kaida-Amethyst/Aether/uint8",
-    "Kaida-Amethyst/Aether/Either"
+    "Kaida-Amethyst/MoonLLVM/int8",
+    "Kaida-Amethyst/MoonLLVM/uint8",
+    "Kaida-Amethyst/MoonLLVM/Either"
   ]
 }
