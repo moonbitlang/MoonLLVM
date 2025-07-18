@@ -98,17 +98,17 @@ test "nested conditional statements" {
     #|  %x_gt_0 = icmp sgt i32 %0, 0
     #|  br i1 %x_gt_0, label %positive, label %negative
     #|
-    #|positive:
+    #|positive:                                     ; preds = %entry
     #|  %x_gt_10 = icmp sgt i32 %0, 10
     #|  br i1 %x_gt_10, label %inner_if, label %inner_else
     #|
-    #|negative:
+    #|negative:                                     ; preds = %entry
     #|  ret i32 0
     #|
-    #|inner_if:
+    #|inner_if:                                     ; preds = %positive
     #|  ret i32 100
     #|
-    #|inner_else:
+    #|inner_else:                                     ; preds = %positive
     #|  ret i32 50
     #|}
   inspect(fval, content=expect)
@@ -169,18 +169,18 @@ test "simple loop structure" {
     #|entry:
     #|  br label %loop
     #|
-    #|loop:
+    #|loop:                                     ; preds = %entry, %body
     #|  %i = phi i32 [ 0, %entry ], [ %new_i, %body ]
     #|  %sum = phi i32 [ 0, %entry ], [ %new_sum, %body ]
     #|  %i_lt_n = icmp slt i32 %i, %0
     #|  br i1 %i_lt_n, label %body, label %exit
     #|
-    #|body:
+    #|body:                                     ; preds = %loop
     #|  %new_sum = add i32 %sum, %i
     #|  %new_i = add i32 %i, 1
     #|  br label %loop
     #|
-    #|exit:
+    #|exit:                                     ; preds = %loop
     #|  ret i32 %sum
     #|}
   inspect(fval, content=expect)
@@ -400,13 +400,13 @@ test "switch statement" {
     #|    i32 2, label %case2
     #|  ]
     #|
-    #|case1:
+    #|case1:                                     ; preds = %entry
     #|  ret i32 10
     #|
-    #|case2:
+    #|case2:                                     ; preds = %entry
     #|  ret i32 20
     #|
-    #|default:
+    #|default:                                     ; preds = %entry
     #|  ret i32 0
     #|}
   inspect(fval, content=expect)
@@ -711,18 +711,18 @@ test "nested loops simplified" {
     #|entry:
     #|  br label %loop
     #|
-    #|loop:
+    #|loop:                                     ; preds = %entry, %body
     #|  %i = phi i32 [ 0, %entry ], [ %new_i, %body ]
     #|  %result = phi i32 [ 0, %entry ], [ %new_result, %body ]
     #|  %i_lt_n = icmp slt i32 %i, %0
     #|  br i1 %i_lt_n, label %body, label %exit
     #|
-    #|body:
+    #|body:                                     ; preds = %loop
     #|  %new_result = add i32 %result, 2
     #|  %new_i = add i32 %i, 1
     #|  br label %loop
     #|
-    #|exit:
+    #|exit:                                     ; preds = %loop
     #|  ret i32 %result
     #|}
   inspect(fval, content=expect)

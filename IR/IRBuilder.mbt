@@ -54,17 +54,23 @@ fn IRBuilder::insert(self : IRBuilder, inst : &Instruction) -> Unit raise Error 
     Some(insertPt) => {
       inst.insertAfter(insertPt)
       self.insertPt = Some(inst)
+      inst.getInstBase().bb = Some(self.bb.unwrap())
     }
     None => {
       self.bb.unwrap().head = Some(inst)
       self.insertPt = Some(inst)
+      inst.getInstBase().bb = Some(self.bb.unwrap())
     }
   }
 }
 
 ///|
-fn IRBuilder::getInsertFunction(self : IRBuilder) -> Function {
+pub fn IRBuilder::getInsertFunction(self : IRBuilder) -> Function {
   self.bb.unwrap().parent
+}
+
+pub fn IRBuilder::getInsertBlock(self : IRBuilder) -> BasicBlock {
+  self.bb.unwrap()
 }
 
 ///| Create a Return Instruction
@@ -2610,8 +2616,10 @@ pub fn IRBuilder::createBr(
   dst : BasicBlock
 ) -> &Instruction raise Error {
   let parent = self.getInsertFunction()
+  let currBlock = self.getInsertBlock()
   let inst = BranchInst::newUnconditional(dst, parent)
   self.insert(inst)
+  dst.preds.push(currBlock)
   inst
 }
 
@@ -2651,6 +2659,9 @@ pub fn IRBuilder::createCondBr(
   let parent = self.getInsertFunction()
   let inst = BranchInst::newConditional(cond, true_dst, false_dst, parent)
   self.insert(inst)
+  let currBlock = self.getInsertBlock()
+  true_dst.preds.push(currBlock)
+  false_dst.preds.push(currBlock)
   inst
 }
 
@@ -2746,6 +2757,8 @@ pub fn IRBuilder::createSwitch(
   let parent = self.getInsertFunction()
   let inst = SwitchInst::new(cond, defaultDest, parent)
   self.insert(inst)
+  let currBlock = self.getInsertBlock()
+  defaultDest.preds.push(currBlock)
   inst
 }
 

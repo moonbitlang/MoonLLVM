@@ -1781,6 +1781,10 @@ pub fn SwitchInst::addCase(
   }
   self.addOperand(cond)
   self.addOperand(dest)
+  match self.getBasicBlock() {
+    Some(bb) => dest.preds.push(bb)
+    None => ()
+  }
 }
 
 ///|

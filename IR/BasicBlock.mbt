@@ -5,6 +5,7 @@ pub struct BasicBlock {
   name : String?
   mut head : &Instruction?
   id : Int
+  preds : Array[BasicBlock]
 }
 
 ///|
@@ -21,6 +22,7 @@ fn BasicBlock::new(
     name,
     head: None,
     id: parent.getNumBasicBlocks(),
+    preds: []
   }
   parent.appendBasicBlock(bb, before~)
   bb
@@ -65,7 +67,25 @@ pub impl Show for BasicBlock with output(self, logger) {
     None if self.parent.getSlot(self) is Some(s) => "\{s}"
     None => "<badlabel>"
   }
-  logger.write_string("\{label}:\n")
+  logger.write_string("\{label}:")
+  if self.preds.length() > 0 {
+    let str_builder = StringBuilder::new()
+    str_builder.write_string("                                     ; preds = ")
+    let pred_labels = self.preds.map(bb => {
+      let bb_label = match bb.getName() {
+        Some(name) => name
+        None if bb.parent.getSlot(bb) is Some(s) => "\{s}"
+        None => "<badlabel>"
+      }
+      "%\{bb_label}"
+    })
+    let preds = pred_labels.join(", ")
+    str_builder.write_string(preds)
+    let preds_str = str_builder.to_string()
+    logger.write_string("\{preds_str}\n")
+  }else {
+    logger.write_string("\n")
+  }
   loop self.head {
     Some(i) => {
       logger.write_string("\{i}\n")

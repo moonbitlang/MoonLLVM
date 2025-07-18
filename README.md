@@ -125,8 +125,8 @@ moon add moonbitlang/MoonLLVM
     ```moonbit
     fn main {
       // 1. 设置上下文、程序（模块）和 IR 构建器。
-      let ctx = @IR.LLVMContext::new()
-      let prog = ctx.addProgram("my_module")
+      let ctx = @IR.Context::new()
+      let mod = ctx.addModule("my_module")
       let builder = IRBuilder::new()
 
       // 2. 定义函数签名：i32 add(i32, i32)。
@@ -134,7 +134,7 @@ moon add moonbitlang/MoonLLVM
       let f_type = ctx.getFunctionType(i32_t, [i32_t, i32_t])
 
       // 3. 将函数添加到模块，并创建入口基本块。
-      let f = prog.addFunction(f_type, "add")
+      let f = mod.addFunction(f_type, "add")
       let bb = f.addBasicBlock("entry")
       builder.setInsertPoint(bb)
 
