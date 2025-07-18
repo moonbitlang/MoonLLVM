@@ -1,6 +1,6 @@
 //fn main_err() -> Unit raise Error {
-//  let ctx = @IR.LLVMContext::new()
-//  let prog = ctx.addProgram("demo")
+//  let ctx = @IR.Context::new()
+//  let prog = ctx.addModule("demo")
 //  let builder = @IR.IRBuilder::new()
 //  let i32ty = ctx.getInt32Ty()
 //  //let forty_two = ctx.getConstInt32(42)
@@ -29,9 +29,9 @@
 //   return 42;
 // }
 fn main_err() -> Unit raise Error {
-  let ctx = @IR.LLVMContext::new()
-  let prog = ctx.addProgram("demo")
-  let builder = @IR.IRBuilder::new()
+  let ctx = @IR.Context::new()
+  let prog = ctx.addModule("demo")
+  let builder = ctx.createBuilder()
   let i32ty = ctx.getInt32Ty()
   let forty_two = ctx.getConstInt32(42)
   let thirty_three = ctx.getConstInt32(33)

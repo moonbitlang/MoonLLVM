@@ -7,9 +7,9 @@
 
 ///|
 test "complex arithmetic operations" {
-  let ctx = @IR.LLVMContext::new()
-  let prog = ctx.addProgram("test_complex_math")
-  let builder = @IR.IRBuilder::new()
+  let ctx = @IR.Context::new()
+  let prog = ctx.addModule("test_complex_math")
+  let builder = ctx.createBuilder()
   let i32ty = ctx.getInt32Ty()
   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty, i32ty])
   let fval = prog.addFunction(fty, "complex_math")
@@ -28,9 +28,7 @@ test "complex arithmetic operations" {
   // (a + b) * c - a / b
   let final_result = builder.createSub(mul_result, div_result, name="final")
   let _ = builder.createRet(final_result)
-  inspect(
-    fval,
-    content=
+  let expect = 
       #|define i32 @complex_math(i32 %0, i32 %1, i32 %2) {
       #|entry:
       #|  %add_ab = add i32 %0, %1
@@ -39,7 +37,9 @@ test "complex arithmetic operations" {
       #|  %final = sub i32 %mul_abc, %div_ab
       #|  ret i32 %final
       #|}
-    ,
+  inspect(
+    fval,
+    content=expect
   )
 }
 
@@ -57,9 +57,9 @@ test "complex arithmetic operations" {
 
 ///|
 test "nested conditional statements" {
-  let ctx = @IR.LLVMContext::new()
-  let prog = ctx.addProgram("test_nested_if")
-  let builder = @IR.IRBuilder::new()
+  let ctx = @IR.Context::new()
+  let prog = ctx.addModule("test_nested_if")
+  let builder = ctx.createBuilder()
   let i32ty = ctx.getInt32Ty()
   let fty = ctx.getFunctionType(i32ty, [i32ty])
   let fval = prog.addFunction(fty, "nested_if")
@@ -95,9 +95,7 @@ test "nested conditional statements" {
   builder.setInsertPoint(innerElseBB)
   let fifty = ctx.getConstInt32(50)
   let _ = builder.createRet(fifty)
-  inspect(
-    fval,
-    content=
+  let expect = 
       #|define i32 @nested_if(i32 %0) {
       #|entry:
       #|  %x_gt_0 = icmp sgt i32 %0, 0
@@ -116,6 +114,9 @@ test "nested conditional statements" {
       #|inner_else:
       #|  ret i32 50
       #|}
+  inspect(
+    fval,
+    content=expect
     ,
   )
 }
@@ -132,9 +133,9 @@ test "nested conditional statements" {
 
 ///|
 test "simple loop structure" {
-  let ctx = @IR.LLVMContext::new()
-  let prog = ctx.addProgram("test_loop")
-  let builder = @IR.IRBuilder::new()
+  let ctx = @IR.Context::new()
+  let prog = ctx.addModule("test_loop")
+  let builder = ctx.createBuilder()
   let i32ty = ctx.getInt32Ty()
   let fty = ctx.getFunctionType(i32ty, [i32ty])
   let fval = prog.addFunction(fty, "simple_loop")
@@ -170,9 +171,7 @@ test "simple loop structure" {
   // Exit block
   builder.setInsertPoint(exitBB)
   let _ = builder.createRet(sum_phi)
-  inspect(
-    fval,
-    content=
+  let expect = 
       #|define i32 @simple_loop(i32 %0) {
       #|entry:
       #|  br label %loop
@@ -191,6 +190,9 @@ test "simple loop structure" {
       #|exit:
       #|  ret i32 %sum
       #|}
+  inspect(
+    fval,
+    content=expect
     ,
   )
 }
@@ -204,9 +206,9 @@ test "simple loop structure" {
 
 ///|
 test "floating point operations" {
-  let ctx = @IR.LLVMContext::new()
-  let prog = ctx.addProgram("test_float_ops")
-  let builder = @IR.IRBuilder::new()
+  let ctx = @IR.Context::new()
+  let prog = ctx.addModule("test_float_ops")
+  let builder = ctx.createBuilder()
   let f32ty = ctx.getFloatTy()
   let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
   let fval = prog.addFunction(fty, "float_ops")
@@ -222,9 +224,7 @@ test "floating point operations" {
   // (a + b) / (a - b)
   let div_result = builder.createFDiv(add_result, sub_result, name="div_result")
   let _ = builder.createRet(div_result)
-  inspect(
-    fval,
-    content=
+  let expect = 
       #|define float @float_ops(float %0, float %1) {
       #|entry:
       #|  %add_ab = fadd float %0, %1
@@ -232,7 +232,9 @@ test "floating point operations" {
       #|  %div_result = fdiv float %add_ab, %sub_ab
       #|  ret float %div_result
       #|}
-    ,
+  inspect(
+    fval,
+    content=expect
   )
 }
 
@@ -245,9 +247,9 @@ test "floating point operations" {
 
 ///|
 test "type conversion operations" {
-  let ctx = @IR.LLVMContext::new()
-  let prog = ctx.addProgram("test_convert")
-  let builder = @IR.IRBuilder::new()
+  let ctx = @IR.Context::new()
+  let prog = ctx.addModule("test_convert")
+  let builder = ctx.createBuilder()
   let i32ty = ctx.getInt32Ty()
   let f32ty = ctx.getFloatTy()
   let fty = ctx.getFunctionType(f32ty, [i32ty, f32ty])
@@ -262,16 +264,16 @@ test "type conversion operations" {
   // Add float values
   let result = builder.createFAdd(i_as_float, arg_f, name="result")
   let _ = builder.createRet(result)
-  inspect(
-    fval,
-    content=
+  let expect = 
       #|define float @convert_types(i32 %0, float %1) {
       #|entry:
       #|  %i_to_float = sitofp i32 %0
       #|  %result = fadd float %i_to_float, %1
       #|  ret float %result
       #|}
-    ,
+  inspect(
+    fval,
+    content=expect
   )
 }
 
@@ -284,9 +286,9 @@ test "type conversion operations" {
 
 ///|
 test "bitwise operations" {
-  let ctx = @IR.LLVMContext::new()
-  let prog = ctx.addProgram("test_bitwise")
-  let builder = @IR.IRBuilder::new()
+  let ctx = @IR.Context::new()
+  let prog = ctx.addModule("test_bitwise")
+  let builder = ctx.createBuilder()
   let i32ty = ctx.getInt32Ty()
   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
   let fval = prog.addFunction(fty, "bitwise_ops")
@@ -302,9 +304,7 @@ test "bitwise operations" {
   // (a & b) | (a ^ b)
   let or_result = builder.createOr(and_result, xor_result, name="final")
   let _ = builder.createRet(or_result)
-  inspect(
-    fval,
-    content=
+  let expect = 
       #|define i32 @bitwise_ops(i32 %0, i32 %1) {
       #|entry:
       #|  %and_ab = and i32 %0, %1
@@ -312,7 +312,9 @@ test "bitwise operations" {
       #|  %final = or i32 %and_ab, %xor_ab
       #|  ret i32 %final
       #|}
-    ,
+  inspect(
+    fval,
+    content=expect
   )
 }
 
@@ -328,9 +330,9 @@ test "bitwise operations" {
 
 ///|
 test "memory operations" {
-  let ctx = @IR.LLVMContext::new()
-  let prog = ctx.addProgram("test_memory")
-  let builder = @IR.IRBuilder::new()
+  let ctx = @IR.Context::new()
+  let prog = ctx.addModule("test_memory")
+  let builder = ctx.createBuilder()
   let i32ty = ctx.getInt32Ty()
   let fty = ctx.getFunctionType(i32ty, [i32ty])
   let fval = prog.addFunction(fty, "memory_ops")
@@ -351,9 +353,7 @@ test "memory operations" {
   // Return final value
   let final_val = builder.createLoad(i32ty, local_ptr, name="final")
   let _ = builder.createRet(final_val)
-  inspect(
-    fval,
-    content=
+  let expect = 
       #|define i32 @memory_ops(i32 %0) {
       #|entry:
       #|  %local = alloca i32, align 4
@@ -364,7 +364,9 @@ test "memory operations" {
       #|  %final = load i32, ptr %local, align 4
       #|  ret i32 %final
       #|}
-    ,
+  inspect(
+    fval,
+    content=expect
   )
 }
 
@@ -381,9 +383,9 @@ test "memory operations" {
 
 ///|
 test "switch statement" {
-  let ctx = @IR.LLVMContext::new()
-  let prog = ctx.addProgram("test_switch")
-  let builder = @IR.IRBuilder::new()
+  let ctx = @IR.Context::new()
+  let prog = ctx.addModule("test_switch")
+  let builder = ctx.createBuilder()
   let i32ty = ctx.getInt32Ty()
   let fty = ctx.getFunctionType(i32ty, [i32ty])
   let fval = prog.addFunction(fty, "switch_test")
@@ -413,9 +415,7 @@ test "switch statement" {
   builder.setInsertPoint(defaultBB)
   let zero = ctx.getConstInt32(0)
   let _ = builder.createRet(zero)
-  inspect(
-    fval,
-    content=
+  let expect = 
       #|define i32 @switch_test(i32 %0) {
       #|entry:
       #|  switch i32 %0, label %default [
@@ -432,6 +432,9 @@ test "switch statement" {
       #|default:
       #|  ret i32 0
       #|}
+  inspect(
+    fval,
+    content=expect
     ,
   )
 }
@@ -445,9 +448,9 @@ test "switch statement" {
 
 ///|
 test "comparison operations" {
-  let ctx = @IR.LLVMContext::new()
-  let prog = ctx.addProgram("test_compare")
-  let builder = @IR.IRBuilder::new()
+  let ctx = @IR.Context::new()
+  let prog = ctx.addModule("test_compare")
+  let builder = ctx.createBuilder()
   let i32ty = ctx.getInt32Ty()
   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
   let fval = prog.addFunction(fty, "compare_test")
@@ -469,9 +472,7 @@ test "comparison operations" {
   // Outer select: (a > b) ? 1 : inner_select
   let result = builder.createSelect(gt_cond, one, inner_select, name="result")
   let _ = builder.createRet(result)
-  inspect(
-    fval,
-    content=
+  let expect = 
       #|define i32 @compare_test(i32 %0, i32 %1) {
       #|entry:
       #|  %a_gt_b = icmp sgt i32 %0, %1
@@ -480,7 +481,9 @@ test "comparison operations" {
       #|  %result = select i1 %a_gt_b, i32 1, i32 %inner
       #|  ret i32 %result
       #|}
-    ,
+  inspect(
+    fval,
+    content=expect
   )
 }
 
@@ -497,9 +500,9 @@ test "comparison operations" {
 
 ///|
 test "function call test" {
-  let ctx = @IR.LLVMContext::new()
-  let prog = ctx.addProgram("test_calls")
-  let builder = @IR.IRBuilder::new()
+  let ctx = @IR.Context::new()
+  let prog = ctx.addModule("test_calls")
+  let builder = ctx.createBuilder()
   let i32ty = ctx.getInt32Ty()
 
   // Define helper function
@@ -530,9 +533,7 @@ test "function call test" {
   // Add results
   let final_result = builder.createAdd(call1, call2, name="final")
   let _ = builder.createRet(final_result)
-  inspect(
-    caller_func,
-    content=
+  let expect = 
       #|define i32 @caller(i32 %0) {
       #|entry:
       #|  %call1 = call i32 @helper(i32 %0)
@@ -541,6 +542,9 @@ test "function call test" {
       #|  %final = add i32 %call1, %call2
       #|  ret i32 %final
       #|}
+  inspect(
+    caller_func,
+    content=expect
     ,
   )
 }
@@ -549,9 +553,9 @@ test "function call test" {
 
 ///|
 test "error handling - invalid function calls" {
-  let ctx = @IR.LLVMContext::new()
-  let prog = ctx.addProgram("test_errors")
-  let builder = @IR.IRBuilder::new()
+  let ctx = @IR.Context::new()
+  let prog = ctx.addModule("test_errors")
+  let builder = ctx.createBuilder()
   let i32ty = ctx.getInt32Ty()
   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
   let fval = prog.addFunction(fty, "test_func")
@@ -576,9 +580,9 @@ test "error handling - invalid function calls" {
 
 ///|
 test "constant folding verification" {
-  let ctx = @IR.LLVMContext::new()
-  let prog = ctx.addProgram("test_constant_folding")
-  let builder = @IR.IRBuilder::new()
+  let ctx = @IR.Context::new()
+  let prog = ctx.addModule("test_constant_folding")
+  let builder = ctx.createBuilder()
   let i32ty = ctx.getInt32Ty()
   let fty = ctx.getFunctionType(i32ty, [])
   let fval = prog.addFunction(fty, "constant_test")
@@ -601,9 +605,9 @@ test "constant folding verification" {
 
 ///|
 test "shift operations" {
-  let ctx = @IR.LLVMContext::new()
-  let prog = ctx.addProgram("test_shifts")
-  let builder = @IR.IRBuilder::new()
+  let ctx = @IR.Context::new()
+  let prog = ctx.addModule("test_shifts")
+  let builder = ctx.createBuilder()
   let i32ty = ctx.getInt32Ty()
   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
   let fval = prog.addFunction(fty, "shift_ops")
@@ -619,9 +623,7 @@ test "shift operations" {
   // 算术右移
   let ashr_result = builder.createAShr(lshr_result, arg_shift, name="ashr")
   let _ = builder.createRet(ashr_result)
-  inspect(
-    fval,
-    content=
+  let expect = 
       #|define i32 @shift_ops(i32 %0, i32 %1) {
       #|entry:
       #|  %shl = shl i32 %0, %1
@@ -629,6 +631,9 @@ test "shift operations" {
       #|  %ashr = ashr i32 %lshr, %1
       #|  ret i32 %ashr
       #|}
+  inspect(
+    fval,
+    content=expect
     ,
   )
 }
@@ -637,9 +642,9 @@ test "shift operations" {
 
 ///|
 test "GEP pointer arithmetic" {
-  let ctx = @IR.LLVMContext::new()
-  let prog = ctx.addProgram("test_gep")
-  let builder = @IR.IRBuilder::new()
+  let ctx = @IR.Context::new()
+  let prog = ctx.addModule("test_gep")
+  let builder = ctx.createBuilder()
   let i32ty = ctx.getInt32Ty()
   let ptrty = ctx.getPtrTy()
   let fty = ctx.getFunctionType(i32ty, [ptrty, i32ty])
@@ -659,16 +664,16 @@ test "GEP pointer arithmetic" {
   // 加载值
   let loaded_val = builder.createLoad(i32ty, element_ptr, name="element_val")
   let _ = builder.createRet(loaded_val)
-  inspect(
-    fval,
-    content=
+  let expect = 
       #|define i32 @array_access(ptr %0, i32 %1) {
       #|entry:
       #|  %element_ptr = getelementptr i32, ptr %0, i32 %1
       #|  %element_val = load i32, ptr %element_ptr, align 4
       #|  ret i32 %element_val
       #|}
-    ,
+  inspect(
+    fval,
+    content=expect
   )
 }
 
@@ -676,9 +681,9 @@ test "GEP pointer arithmetic" {
 
 ///|
 test "complex constant folding" {
-  let ctx = @IR.LLVMContext::new()
-  let prog = ctx.addProgram("test_complex_const")
-  let builder = @IR.IRBuilder::new()
+  let ctx = @IR.Context::new()
+  let prog = ctx.addModule("test_complex_const")
+  let builder = ctx.createBuilder()
   let i32ty = ctx.getInt32Ty()
   let fty = ctx.getFunctionType(i32ty, [])
   let fval = prog.addFunction(fty, "complex_const")
@@ -705,9 +710,9 @@ test "complex constant folding" {
 
 ///|
 test "nested loops simplified" {
-  let ctx = @IR.LLVMContext::new()
-  let prog = ctx.addProgram("test_nested_loop")
-  let builder = @IR.IRBuilder::new()
+  let ctx = @IR.Context::new()
+  let prog = ctx.addModule("test_nested_loop")
+  let builder = ctx.createBuilder()
   let i32ty = ctx.getInt32Ty()
   let fty = ctx.getFunctionType(i32ty, [i32ty])
   let fval = prog.addFunction(fty, "simple_multiply")
@@ -742,9 +747,7 @@ test "nested loops simplified" {
   // 退出
   builder.setInsertPoint(exitBB)
   let _ = builder.createRet(result_phi)
-  inspect(
-    fval,
-    content=
+  let expect = 
       #|define i32 @simple_multiply(i32 %0) {
       #|entry:
       #|  br label %loop
@@ -763,6 +766,9 @@ test "nested loops simplified" {
       #|exit:
       #|  ret i32 %result
       #|}
+  inspect(
+    fval,
+    content=expect
     ,
   )
 }
@@ -771,9 +777,9 @@ test "nested loops simplified" {
 
 ///|
 test "atomic memory operations" {
-  let ctx = @IR.LLVMContext::new()
-  let prog = ctx.addProgram("test_atomic")
-  let builder = @IR.IRBuilder::new()
+  let ctx = @IR.Context::new()
+  let prog = ctx.addModule("test_atomic")
+  let builder = ctx.createBuilder()
   let i32ty = ctx.getInt32Ty()
   let ptrty = ctx.getPtrTy()
   let fty = ctx.getFunctionType(i32ty, [ptrty, i32ty])
@@ -794,15 +800,16 @@ test "atomic memory operations" {
   // 普通存储
   let _ = builder.createStore(val_arg, ptr_arg, atomicOrdering=Release)
   let _ = builder.createRet(loaded)
-  inspect(
-    fval,
-    content=
+  let expect = 
       #|define i32 @atomic_ops(ptr %0, i32 %1) {
       #|entry:
       #|  %atomic_load = load atomic i32, ptr %0 acquire, align 4
       #|  store atomic i32 %1, ptr %0 release, align 4
       #|  ret i32 %atomic_load
       #|}
+  inspect(
+    fval,
+    content=expect
     ,
   )
 }
@@ -811,9 +818,9 @@ test "atomic memory operations" {
 
 ///|
 test "volatile memory operations" {
-  let ctx = @IR.LLVMContext::new()
-  let prog = ctx.addProgram("test_volatile")
-  let builder = @IR.IRBuilder::new()
+  let ctx = @IR.Context::new()
+  let prog = ctx.addModule("test_volatile")
+  let builder = ctx.createBuilder()
   let i32ty = ctx.getInt32Ty()
   let ptrty = ctx.getPtrTy()
   let fty = ctx.getFunctionType(i32ty, [ptrty])
@@ -834,15 +841,16 @@ test "volatile memory operations" {
   // Volatile存储
   let _ = builder.createStore(const_42, ptr_arg, isVolatile=true)
   let _ = builder.createRet(volatile_load)
-  inspect(
-    fval,
-    content=
+  let expect =
       #|define i32 @volatile_ops(ptr %0) {
       #|entry:
       #|  %vol_load = load volatile i32, ptr %0, align 4
       #|  store volatile i32 42, ptr %0, align 4
       #|  ret i32 %vol_load
       #|}
+  inspect(
+    fval,
+    content=expect
     ,
   )
 }
@@ -851,9 +859,9 @@ test "volatile memory operations" {
 
 ///|
 test "struct operations with extract/insert value" {
-  let ctx = @IR.LLVMContext::new()
-  let prog = ctx.addProgram("test_struct_ops")
-  let builder = @IR.IRBuilder::new()
+  let ctx = @IR.Context::new()
+  let prog = ctx.addModule("test_struct_ops")
+  let builder = ctx.createBuilder()
   let i32ty = ctx.getInt32Ty()
   let f32ty = ctx.getFloatTy()
 
@@ -883,9 +891,7 @@ test "struct operations with extract/insert value" {
     name="new_struct",
   )
   let _ = builder.createRet(new_struct)
-  inspect(
-    fval,
-    content=
+  let expect = 
       #|define %TestStruct @struct_ops(%TestStruct %0, i32 %1) {
       #|entry:
       #|  %field0 = extractvalue %TestStruct %0, 0
@@ -894,7 +900,9 @@ test "struct operations with extract/insert value" {
       #|  %new_struct = insertvalue %TestStruct %0, i32 %sum, 2
       #|  ret %TestStruct %new_struct
       #|}
-    ,
+  inspect(
+    fval,
+    content=expect
   )
 }
 
@@ -902,9 +910,9 @@ test "struct operations with extract/insert value" {
 
 ///|
 test "floating point comparisons" {
-  let ctx = @IR.LLVMContext::new()
-  let prog = ctx.addProgram("test_fcmp")
-  let builder = @IR.IRBuilder::new()
+  let ctx = @IR.Context::new()
+  let prog = ctx.addModule("test_fcmp")
+  let builder = ctx.createBuilder()
   let f32ty = ctx.getFloatTy()
   let i1ty = ctx.getInt1Ty()
   let fty = ctx.getFunctionType(i1ty, [f32ty, f32ty])
@@ -921,9 +929,7 @@ test "floating point comparisons" {
   // 逻辑或组合
   let result = builder.createOr(oeq, ogt, name="result")
   let _ = builder.createRet(result)
-  inspect(
-    fval,
-    content=
+  let expect = 
       #|define i1 @float_compare(float %0, float %1) {
       #|entry:
       #|  %oeq = fcmp oeq float %0, %1
@@ -931,7 +937,9 @@ test "floating point comparisons" {
       #|  %result = or i1 %oeq, %ogt
       #|  ret i1 %result
       #|}
-    ,
+  inspect(
+    fval,
+    content=expect
   )
 }
 
@@ -939,9 +947,9 @@ test "floating point comparisons" {
 
 ///|
 test "type conversion chains" {
-  let ctx = @IR.LLVMContext::new()
-  let prog = ctx.addProgram("test_conversion_chain")
-  let builder = @IR.IRBuilder::new()
+  let ctx = @IR.Context::new()
+  let prog = ctx.addModule("test_conversion_chain")
+  let builder = ctx.createBuilder()
   let i8ty = ctx.getInt8Ty()
   let i16ty = ctx.getInt16Ty()
   let i32ty = ctx.getInt32Ty()
@@ -961,9 +969,7 @@ test "type conversion chains" {
   let to_f32 = builder.createSIToFP(ext64, f32ty, name="to_f32")
   let to_f64 = builder.createFPExt(to_f32, f64ty, name="to_f64")
   let _ = builder.createRet(to_f64)
-  inspect(
-    fval,
-    content=
+  let expect = 
       #|define double @conversion_chain(i8 %0) {
       #|entry:
       #|  %ext16 = sext i8 %0
@@ -973,7 +979,9 @@ test "type conversion chains" {
       #|  %to_f64 = fpext float %to_f32
       #|  ret double %to_f64
       #|}
-    ,
+  inspect(
+    fval,
+    content=expect
   )
 }
 
@@ -981,9 +989,9 @@ test "type conversion chains" {
 
 ///|
 test "error handling - function argument bounds" {
-  let ctx = @IR.LLVMContext::new()
-  let prog = ctx.addProgram("test_error_handling")
-  let builder = @IR.IRBuilder::new()
+  let ctx = @IR.Context::new()
+  let prog = ctx.addModule("test_error_handling")
+  let builder = ctx.createBuilder()
   let i32ty = ctx.getInt32Ty()
   let fty = ctx.getFunctionType(i32ty, [i32ty])
   let fval = prog.addFunction(fty, "error_test")
@@ -1008,9 +1016,9 @@ test "error handling - function argument bounds" {
 
 ///|
 test "large complex function" {
-  let ctx = @IR.LLVMContext::new()
-  let prog = ctx.addProgram("test_large_func")
-  let builder = @IR.IRBuilder::new()
+  let ctx = @IR.Context::new()
+  let prog = ctx.addModule("test_large_func")
+  let builder = ctx.createBuilder()
   let i32ty = ctx.getInt32Ty()
   let f32ty = ctx.getFloatTy()
   let fty = ctx.getFunctionType(f32ty, [i32ty, i32ty, f32ty, f32ty])

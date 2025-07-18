@@ -1,6 +1,6 @@
 ///|
 test "Constant Int, UInt, and Bool" {
-  let ctx = LLVMContext::new()
+  let ctx = Context::new()
 
   // Int8
   inspect(ctx.getConstInt8(0), content="i8 0")
@@ -39,7 +39,7 @@ test "Constant Int, UInt, and Bool" {
 
 ///|
 test "ConstantFP" {
-  let ctx = LLVMContext::new()
+  let ctx = Context::new()
   inspect(ctx.getConstFloat(1.0), content="float 0x3FF0000000000000")
   inspect(ctx.getConstDouble(1.0), content="double 0x3FF0000000000000")
   inspect(ctx.getConstZeroFloat(), content="float 0x0")

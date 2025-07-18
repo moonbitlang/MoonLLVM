@@ -41,5 +41,5 @@ pub fn TypeSize::getKnownMinValue(self : TypeSize) -> UInt64 {
 
 ///|
 pub fn TypeSize::getFixedValue(self : TypeSize) -> UInt64? {
-  @option.when(not(self.scalable), fn() { self.getKnownMinValue() })
+  when(not(self.scalable), fn() { self.getKnownMinValue() })
 }

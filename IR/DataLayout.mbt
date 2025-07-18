@@ -87,7 +87,7 @@ fn DataLayout::getAlignment(self : DataLayout, ty : &Type) -> Align {
           })
           .iter()
           .maximum()
-          .or(1)
+          .unwrap_or(1)
         Align(maxAlign)
       }
     ArrayType(arr) => DataLayout::getAlignment(self, arr.getElementType())

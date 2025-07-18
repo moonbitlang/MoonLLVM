@@ -2,8 +2,8 @@
 // we use `Program` instead of `Module` is because `Module` is a keyword in Moonbit.
 
 ///|
-pub struct Program {
-  context : LLVMContext
+pub struct Module {
+  context : Context
   functions : Map[String, Function]
   srcFileName : String
   programID : String
@@ -11,8 +11,8 @@ pub struct Program {
 }
 
 ///|
-pub fn Program::new(programID : String, ctx : LLVMContext) -> Program {
-  Program::{
+pub fn Module::new(programID : String, ctx : Context) -> Module {
+  Module::{
     context: ctx,
     functions: Map::new(),
     srcFileName: programID,
@@ -22,8 +22,8 @@ pub fn Program::new(programID : String, ctx : LLVMContext) -> Program {
 }
 
 ///|
-pub fn Program::addFunction(
-  self : Program,
+pub fn Module::addFunction(
+  self : Module,
   fty : FunctionType,
   name : String,
   linkage~ : LinkageTypes = ExternalLinkage,
@@ -39,6 +39,6 @@ pub fn Program::addFunction(
 }
 
 ///|
-pub fn Program::getContext(self : Program) -> LLVMContext {
+pub fn Module::getContext(self : Module) -> Context {
   self.context
 }

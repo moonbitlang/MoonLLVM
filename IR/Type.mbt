@@ -52,7 +52,7 @@ pub fn TypeEnum::asTypeClass(self : TypeEnum) -> &Type {
 pub trait Type: Show + Hash {
   getTypeBase(Self) -> TypeBase
   asTypeEnum(Self) -> TypeEnum
-  getContext(Self) -> LLVMContext = _
+  getContext(Self) -> Context = _
   //print(Self, logger: &Logger, isForDebug~ = false, noDetails~ = false)
   //dump(Self)
 
@@ -161,7 +161,7 @@ impl Eq for &Type with op_equal(self, other) {
 }
 
 ///|
-impl Type with getContext(self) -> LLVMContext {
+impl Type with getContext(self) -> Context {
   self.getTypeBase().context
 }
 
@@ -411,7 +411,7 @@ impl Type with tryAsAbstractTypeEnum(self) -> AbstractTypeEnum? {
 ///| Collection of Int1Type, Int8Type, Int16Type, Int32Type, Int64Type
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// let i8ty :&IntegerType = ctx.getInt8Ty()
 /// assert_eq(i8ty.getBitWidth(), 8)
@@ -671,21 +671,21 @@ pub fn AggregateTypeEnum::getIndexedType(
   match self {
     StructType(sty) => sty.getIndexedType(idxs)
     ArrayType(arr) =>
-      @option.when(
+      when(
         idxs.length() == 1 &&
         idxs[0] >= 0 &&
         idxs[0] < arr.getElementCount().reinterpret_as_int(),
         fn() { arr.getElementType() },
       )
     FixedVectorType(arr) =>
-      @option.when(
+      when(
         idxs.length() == 1 &&
         idxs[0] >= 0 &&
         idxs[0] < arr.getElementCount().reinterpret_as_int(),
         fn() { arr.getElementType() },
       )
     ScalableVectorType(arr) =>
-      @option.when(
+      when(
         idxs.length() == 1 && idxs[0] >= 0, // no need to check upper bound
         fn() { arr.getElementType() },
       )
@@ -716,11 +716,11 @@ pub enum AbstractTypeEnum {
 
 ///|
 struct TypeBase {
-  context : LLVMContext
+  context : Context
 } derive(Eq, Hash)
 
 ///|
-fn TypeBase::new(context : LLVMContext) -> TypeBase {
+fn TypeBase::new(context : Context) -> TypeBase {
   TypeBase::{ context, }
 }
 
@@ -734,7 +734,7 @@ pub struct HalfType {
 } derive(Eq, Hash)
 
 ///| Create a HalfType.
-fn HalfType::new(context : LLVMContext) -> HalfType {
+fn HalfType::new(context : Context) -> HalfType {
   HalfType::{ base: TypeBase::new(context) }
 }
 
@@ -773,7 +773,7 @@ pub struct BFloatType {
 } derive(Eq, Hash)
 
 ///|
-fn BFloatType::new(context : LLVMContext) -> BFloatType {
+fn BFloatType::new(context : Context) -> BFloatType {
   BFloatType::{ base: TypeBase::new(context) }
 }
 
@@ -812,7 +812,7 @@ pub struct FloatType {
 } derive(Eq, Hash)
 
 ///|
-fn FloatType::new(context : LLVMContext) -> FloatType {
+fn FloatType::new(context : Context) -> FloatType {
   let base = TypeBase::new(context)
   FloatType::{ base, }
 }
@@ -852,7 +852,7 @@ pub struct DoubleType {
 } derive(Eq, Hash)
 
 ///| Create a DoubleType
-fn DoubleType::new(context : LLVMContext) -> DoubleType {
+fn DoubleType::new(context : Context) -> DoubleType {
   let base = TypeBase::new(context)
   DoubleType::{ base, }
 }
@@ -892,7 +892,7 @@ pub struct FP128Type {
 } derive(Eq, Hash)
 
 ///| Create a FP128Ty.
-fn FP128Type::new(context : LLVMContext) -> FP128Type {
+fn FP128Type::new(context : Context) -> FP128Type {
   let base = TypeBase::new(context)
   FP128Type::{ base, }
 }
@@ -931,7 +931,7 @@ pub impl PrimitiveType for FP128Type with asPrimitiveTypeEnum(self) -> Primitive
 /// - See LLVM: `Type::getInt1Ty`.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// inspect(ctx.getInt1Ty(), content="i1")
 /// ```
@@ -940,7 +940,7 @@ pub struct Int1Type {
 } derive(Eq, Hash)
 
 ///|
-fn Int1Type::new(context : LLVMContext) -> Int1Type {
+fn Int1Type::new(context : Context) -> Int1Type {
   let base = TypeBase::new(context)
   Int1Type::{ base, }
 }
@@ -979,7 +979,7 @@ pub impl PrimitiveType for Int1Type with asPrimitiveTypeEnum(self) -> PrimitiveT
 /// - See LLVM: `Type::getInt8Ty`.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// inspect(ctx.getInt8Ty(), content="i8")
 /// ```
@@ -988,7 +988,7 @@ pub struct Int8Type {
 } derive(Eq, Hash)
 
 ///|
-fn Int8Type::new(context : LLVMContext) -> Int8Type {
+fn Int8Type::new(context : Context) -> Int8Type {
   let base = TypeBase::new(context)
   Int8Type::{ base, }
 }
@@ -1032,7 +1032,7 @@ pub impl PrimitiveType for Int8Type with asPrimitiveTypeEnum(self) -> PrimitiveT
 /// - See LLVM: `Type::getInt16Ty`.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// inspect(ctx.getInt16Ty(), content="i16")
 /// ```
@@ -1041,7 +1041,7 @@ pub struct Int16Type {
 } derive(Eq, Hash)
 
 ///|
-fn Int16Type::new(context : LLVMContext) -> Int16Type {
+fn Int16Type::new(context : Context) -> Int16Type {
   let base = TypeBase::new(context)
   Int16Type::{ base, }
 }
@@ -1085,7 +1085,7 @@ pub impl PrimitiveType for Int16Type with asPrimitiveTypeEnum(self) -> Primitive
 /// - See LLVM: `Type::getInt32Ty`.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// inspect(ctx.getInt32Ty(), content="i32")
 /// ```
@@ -1094,7 +1094,7 @@ pub struct Int32Type {
 } derive(Eq, Hash)
 
 ///|
-fn Int32Type::new(context : LLVMContext) -> Int32Type {
+fn Int32Type::new(context : Context) -> Int32Type {
   let base = TypeBase::new(context)
   Int32Type::{ base, }
 }
@@ -1138,7 +1138,7 @@ pub impl PrimitiveType for Int32Type with asPrimitiveTypeEnum(self) -> Primitive
 /// - See LLVM: `Type::getInt64Ty`.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// inspect(ctx.getInt64Ty(), content="i64")
 /// ```
@@ -1147,7 +1147,7 @@ pub struct Int64Type {
 } derive(Eq, Hash)
 
 ///|
-fn Int64Type::new(context : LLVMContext) -> Int64Type {
+fn Int64Type::new(context : Context) -> Int64Type {
   let base = TypeBase::new(context)
   Int64Type::{ base, }
 }
@@ -1191,11 +1191,11 @@ pub struct VoidType {
 /// - See LLVM: `Type::getVoidTy`.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 /// let voidty = ctx.getVoidTy()
 /// inspect(voidty, content="void")
 /// ```
-fn VoidType::new(context : LLVMContext) -> VoidType {
+fn VoidType::new(context : Context) -> VoidType {
   let base = TypeBase::new(context)
   VoidType::{ base, }
 }
@@ -1234,11 +1234,11 @@ pub struct LabelType {
 /// - See LLVM: `Type::getLabelTy`.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 /// let labelty = ctx.getLabelTy()
 /// inspect(labelty, content="label")
 /// ```
-fn LabelType::new(context : LLVMContext) -> LabelType {
+fn LabelType::new(context : Context) -> LabelType {
   let base = TypeBase::new(context)
   LabelType::{ base, }
 }
@@ -1277,11 +1277,11 @@ pub struct MetadataType {
 /// - See LLVM: `Type::getMetadataTy`.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 /// let metadataty = ctx.getMetadataTy()
 /// inspect(metadataty, content="metadata")
 /// ```
-fn MetadataType::new(context : LLVMContext) -> MetadataType {
+fn MetadataType::new(context : Context) -> MetadataType {
   let base = TypeBase::new(context)
   MetadataType::{ base, }
 }
@@ -1320,11 +1320,11 @@ pub struct TokenType {
 /// - See LLVM: `Type::getTokenTy`.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 /// let tokenty = ctx.getTokenTy()
 /// inspect(tokenty, content="token")
 /// ```
-fn TokenType::new(context : LLVMContext) -> TokenType {
+fn TokenType::new(context : Context) -> TokenType {
   TokenType::{ base: TypeBase::new(context) }
 }
 
@@ -1357,7 +1357,7 @@ pub impl AbstractType for TokenType with asAbstractTypeEnum(self) -> AbstractTyp
 /// See LLVM: `FunctionType::FunctionType`.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 /// let int32ty = ctx.getInt32Ty()
 /// let voidty = ctx.getVoidTy()
 /// let f32ty = ctx.getFloatTy()
@@ -1474,7 +1474,7 @@ pub impl AbstractType for FunctionType with asAbstractTypeEnum(self) -> Abstract
 /// - See LLVM: `StructType::get`.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// let i8ty = ctx.getInt8Ty()
 /// let i16ty = ctx.getInt16Ty()
@@ -1501,7 +1501,7 @@ pub struct StructType {
 ///| Create a StructType.
 /// FIXME: this is may different from LLVM Cpp
 fn StructType::new(
-  context : LLVMContext,
+  context : Context,
   elements : Array[&Type],
   name~ : String? = None,
   isPacked~ : Bool = false
@@ -1538,7 +1538,7 @@ fn StructType::new(
 /// - See LLVM: `StructType::isLiteral`.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 /// let i32ty = ctx.getInt32Ty()
 /// let f32ty = ctx.getFloatTy()
 ///
@@ -1559,7 +1559,7 @@ pub fn StructType::isLiteral(self : StructType) -> Bool {
 /// - See LLVM: `StructType::isOpaque`.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 /// let i32ty = ctx.getInt32Ty()
 /// let f32ty = ctx.getFloatTy()
 ///
@@ -1762,7 +1762,7 @@ pub impl AggregateType for StructType with asAggregateTypeEnum(self) -> Aggregat
 /// - See LLVM: `ArrayType::get`.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// let i32ty = ctx.getInt32Ty()
 ///
@@ -1780,7 +1780,7 @@ pub struct ArrayType {
 
 ///|
 fn ArrayType::new(
-  context : LLVMContext,
+  context : Context,
   elementType : &Type,
   elementCount : UInt
 ) -> ArrayType raise LLVMTypeError {
@@ -1839,7 +1839,7 @@ pub impl AggregateType for ArrayType with asAggregateTypeEnum(self) -> Aggregate
 /// - See LLVM: `FixedVectorType::get`.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// let i32ty = ctx.getInt32Ty()
 /// let vecty = ctx.getFixedVectorType(i32ty, 16)
@@ -1856,7 +1856,7 @@ pub struct FixedVectorType {
 
 ///| Create a FixedVectorType.
 fn FixedVectorType::new(
-  context : LLVMContext,
+  context : Context,
   elementType : &Type,
   elementCount : UInt
 ) -> FixedVectorType raise LLVMTypeError {
@@ -1916,7 +1916,7 @@ pub impl AggregateType for FixedVectorType with asAggregateTypeEnum(self) -> Agg
 /// - See LLVM: `ScalableVectorType::get`.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// let f32ty = ctx.getFloatTy()
 /// let vecty = ctx.getScalableVectorType(f32ty, 16)
@@ -1933,7 +1933,7 @@ pub struct ScalableVectorType {
 
 ///| Create a ScalableVectorType.
 fn ScalableVectorType::new(
-  context : LLVMContext,
+  context : Context,
   elementType : &Type,
   elementCount : UInt
 ) -> ScalableVectorType raise LLVMTypeError {
@@ -2006,7 +2006,7 @@ pub fn AddressSpace::new(v : UInt) -> AddressSpace {
 /// also opaque pointer, and will not mark type for pointer.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// inspect(ctx.getPtrTy(), content="ptr")
 ///
@@ -2027,7 +2027,7 @@ pub struct PointerType {
 
 ///|
 fn PointerType::new(
-  context : LLVMContext,
+  context : Context,
   addressSpace~ : AddressSpace = AddressSpace::default()
 ) -> PointerType {
   let base = TypeBase::new(context)

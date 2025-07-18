@@ -7,8 +7,8 @@
 /// - See `llvm::Argument`.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
 ///
 /// let i32ty = ctx.getInt32Ty()
 /// let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
@@ -45,8 +45,8 @@ pub fn Argument::getName(self : Argument) -> String? {
 /// - See `llvm::Argument::setName`.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
 ///
 /// let i32ty = ctx.getInt32Ty()
 /// let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
@@ -84,8 +84,8 @@ pub fn Argument::setName(
 ///
 /// ```moonbit`
 /// test "Argument::addAttribute" {
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
+///   let ctx = Context::new()
+///   let prog = ctx.addModule("demo")
 ///
 ///   let i32ty = ctx.getInt32Ty()
 ///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
@@ -153,7 +153,7 @@ pub impl Show for Argument with output(self, logger) {
 pub struct Function {
   base : ValueBase
   gv_base : GlobalValueBase
-  program : Program
+  program : Module
   /// index of the function in the program
   index : UInt
   name : String
@@ -179,7 +179,7 @@ fn Function::new(
   linkage~ : LinkageTypes,
   addressSpace~ : AddressSpace,
   index : UInt,
-  program : Program
+  program : Module
 ) -> Function raise LLVMValueError {
   guard Function::isValidFunctionName(name) else {
     raise InValidFunctionName(name)
@@ -287,11 +287,10 @@ fn Function::appendBasicBlock(
       let idx = match self.basicBlocks.search(before) {
         Some(idx) => idx
         None => {
-          println(
+          let msg = 
             #|Serious error: loc: Function::addBasicBlock.
             #|the `before` block's parent is not the same as the function's parent
-            ,
-          )
+          println(msg)
           panic()
         }
       }
@@ -302,7 +301,7 @@ fn Function::appendBasicBlock(
 
 ///|
 pub fn Function::getArg(self : Function, idx : Int) -> Argument? {
-  @option.when(idx >= 0 && idx < self.getNumArgs(), fn() { self.arguments[idx] })
+  when(idx >= 0 && idx < self.getNumArgs(), fn() { self.arguments[idx] })
 }
 
 ///|

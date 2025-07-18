@@ -26,7 +26,7 @@ pub struct IRBuilder {
 }
 
 ///|
-pub fn IRBuilder::new() -> IRBuilder {
+fn IRBuilder::new() -> IRBuilder {
   IRBuilder::{ bb: None, insertPt: None }
 }
 
@@ -119,9 +119,9 @@ pub fn IRBuilder::createAlloca(
 /// If an overflow occurs, the behavior is undefined.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let i32ty = ctx.getInt32Ty()
 /// let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
@@ -209,9 +209,9 @@ pub fn IRBuilder::createAdd(
 /// If an overflow occurs, the behavior is undefined.
 ///
 /// ```moonbit
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+///   let ctx = Context::new()
+///   let prog = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
 ///
 ///   let i32ty = ctx.getInt32Ty()
 ///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
@@ -269,9 +269,9 @@ pub fn IRBuilder::createNSWAdd(
 /// If an overflow occurs, the behavior is undefined.
 ///
 /// ```moonbit
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+///   let ctx = Context::new()
+///   let prog = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
 ///
 ///   let i32ty = ctx.getInt32Ty()
 ///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
@@ -333,9 +333,9 @@ pub fn IRBuilder::createNUWAdd(
 /// If an overflow occurs, the behavior is undefined.
 ///
 /// ```moonbit
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+///   let ctx = Context::new()
+///   let prog = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
 ///
 ///   let i32ty = ctx.getInt32Ty()
 ///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
@@ -423,9 +423,9 @@ pub fn IRBuilder::createSub(
 /// If an overflow occurs, the behavior is undefined.
 ///
 /// ```moonbit
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+///   let ctx = Context::new()
+///   let prog = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
 ///
 ///   let i32ty = ctx.getInt32Ty()
 ///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
@@ -478,9 +478,9 @@ pub fn IRBuilder::createNSWSub(
 /// If an overflow occurs, the behavior is undefined.
 ///
 /// ```moonbit
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+///   let ctx = Context::new()
+///   let prog = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
 ///
 ///   let i32ty = ctx.getInt32Ty()
 ///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
@@ -509,9 +509,9 @@ pub fn IRBuilder::createNSWSub(
 /// ## Constant Folding
 ///
 /// ```moonbit
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+///   let ctx = Context::new()
+///   let prog = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
 ///
 ///   let i32ty = ctx.getInt32Ty()
 ///   let fty = ctx.getFunctionType(i32ty, [])
@@ -561,9 +561,9 @@ pub fn IRBuilder::createNUWSub(
 /// If an overflow occurs, the behavior is undefined.
 ///
 /// ```moonbit
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+///   let ctx = Context::new()
+///   let prog = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
 ///
 ///   let i32ty = ctx.getInt32Ty()
 ///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
@@ -651,9 +651,9 @@ pub fn IRBuilder::createMul(
 /// If an overflow occurs, the behavior is undefined.
 ///
 /// ```moonbit
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+///   let ctx = Context::new()
+///   let prog = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
 ///
 ///   let i32ty = ctx.getInt32Ty()
 ///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
@@ -711,9 +711,9 @@ pub fn IRBuilder::createNSWMul(
 /// If an overflow occurs, the behavior is undefined.
 ///
 /// ```moonbit
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+///   let ctx = Context::new()
+///   let prog = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
 ///
 ///   let i32ty = ctx.getInt32Ty()
 ///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
@@ -769,9 +769,9 @@ pub fn IRBuilder::createNUWMul(
 /// - If the divisor is zero, or if the division overflows (e.g., `INT_MIN / -1`), the behavior is undefined.
 ///
 /// ```moonbit
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+///   let ctx = Context::new()
+///   let prog = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
 ///
 ///   let i32ty = ctx.getInt32Ty()
 ///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
@@ -839,9 +839,9 @@ pub fn IRBuilder::createSDiv(
 /// Therefore, this function will generate a standard `sdiv` instruction without the `exact` property being enforced at the IR level by this constructor.
 ///
 /// ```moonbit
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+///   let ctx = Context::new()
+///   let prog = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
 ///
 ///   let i32ty = ctx.getInt32Ty()
 ///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
@@ -885,9 +885,9 @@ pub fn IRBuilder::createExactSDiv(
 /// - If the divisor is zero, the behavior is undefined.
 ///
 /// ```moonbit
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+///   let ctx = Context::new()
+///   let prog = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
 ///
 ///   let i32ty = ctx.getInt32Ty() // Using i32 for unsigned operations as well, common in LLVM
 ///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
@@ -956,9 +956,9 @@ pub fn IRBuilder::createUDiv(
 /// Therefore, this function will generate a standard `udiv` instruction without the `exact` property being enforced at the IR level by this constructor.
 ///
 /// ```moonbit
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+///   let ctx = Context::new()
+///   let prog = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
 ///
 ///   let i32ty = ctx.getInt32Ty()
 ///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
@@ -1005,9 +1005,9 @@ pub fn IRBuilder::createExactUDiv(
 /// Attempting to create this instruction using it will result in an `llvm_unreachable` error.
 ///
 /// ```moonbit
-///   let ctx = LLVMContext::new()
-///   let prog = ctx.addProgram("demo")
-///   let builder = IRBuilder::new()
+///   let ctx = Context::new()
+///   let prog = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
 ///
 ///   let i32ty = ctx.getInt32Ty()
 ///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
@@ -1068,9 +1068,9 @@ pub fn IRBuilder::createSRem(
 /// - If the divisor is zero, the behavior is undefined.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let i32ty = ctx.getInt32Ty() // Using i32 for unsigned operations as well
 /// let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
@@ -1124,9 +1124,9 @@ pub fn IRBuilder::createURem(
 ///| Create FAdd (floating-point addition) Instruction.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let f32ty = ctx.getFloatTy()
 /// let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
@@ -1158,9 +1158,9 @@ pub fn IRBuilder::createURem(
 /// optimize floating-point operations.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let f32ty = ctx.getFloatTy()
 /// let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
@@ -1209,9 +1209,9 @@ pub fn IRBuilder::createFAdd(
 ///| Create FSub (floating-point subtraction) Instruction.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let f32ty = ctx.getFloatTy()
 /// let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
@@ -1243,9 +1243,9 @@ pub fn IRBuilder::createFAdd(
 /// optimize floating-point operations.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let f32ty = ctx.getFloatTy()
 /// let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
@@ -1294,9 +1294,9 @@ pub fn IRBuilder::createFSub(
 ///| Create FMul (floating-point multiplication) Instruction.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let f32ty = ctx.getFloatTy()
 /// let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
@@ -1328,9 +1328,9 @@ pub fn IRBuilder::createFSub(
 /// optimize floating-point operations.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let f32ty = ctx.getFloatTy()
 /// let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
@@ -1379,9 +1379,9 @@ pub fn IRBuilder::createFMul(
 ///| Create FDiv (floating-point division) Instruction.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let f32ty = ctx.getFloatTy()
 /// let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
@@ -1413,9 +1413,9 @@ pub fn IRBuilder::createFMul(
 /// optimize floating-point operations.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let f32ty = ctx.getFloatTy()
 /// let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
@@ -1464,9 +1464,9 @@ pub fn IRBuilder::createFDiv(
 ///| Create FRem (floating-point remainder) Instruction.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let f32ty = ctx.getFloatTy()
 /// let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
@@ -1498,9 +1498,9 @@ pub fn IRBuilder::createFDiv(
 /// optimize floating-point operations.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let f32ty = ctx.getFloatTy()
 /// let fty = ctx.getFunctionType(f32ty, [f32ty, f32ty])
@@ -1554,9 +1554,9 @@ pub fn IRBuilder::createFRem(
 /// evaluated at compile time and the result is returned as a constant value.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let i32ty = ctx.getInt32Ty()
 /// let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
@@ -1624,9 +1624,9 @@ pub fn IRBuilder::createAnd(
 /// evaluated at compile time and the result is returned as a constant value.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let i32ty = ctx.getInt32Ty()
 /// let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
@@ -1694,9 +1694,9 @@ pub fn IRBuilder::createOr(
 /// evaluated at compile time and the result is returned as a constant value.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let i32ty = ctx.getInt32Ty()
 /// let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
@@ -1766,9 +1766,9 @@ pub fn IRBuilder::createXor(
 /// - `nuw` stands for "no unsigned wrap". If an overflow occurs, the behavior is undefined.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let i32ty = ctx.getInt32Ty()
 /// let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
@@ -1849,9 +1849,9 @@ pub fn IRBuilder::createShl(
 /// If any ones are shifted out, the behavior is undefined.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let i32ty = ctx.getInt32Ty()
 /// let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
@@ -1929,9 +1929,9 @@ pub fn IRBuilder::createLShr(
 /// If any ones are shifted out that differ from the original sign bit, the behavior is undefined.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let i32ty = ctx.getInt32Ty()
 /// let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
@@ -2013,9 +2013,9 @@ pub fn IRBuilder::createAShr(
 ///   (OEQ, OGT, OGE, OLT, OLE, ONE, ORD, UNO, UEQ, UGT, UGE, ULT, ULE, UNE, TRUE, FALSE).
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let i32ty = ctx.getInt32Ty()
 /// let i1ty = ctx.getInt1Ty()
@@ -2044,9 +2044,9 @@ pub fn IRBuilder::createAShr(
 /// ```
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let floatty = ctx.getFloatTy()
 /// let i1ty = ctx.getInt1Ty()
@@ -2077,9 +2077,9 @@ pub fn IRBuilder::createAShr(
 /// ## Constant Folding
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let i1ty = ctx.getInt1Ty()
 /// let fty = ctx.getFunctionType(i1ty, [])
@@ -2109,9 +2109,9 @@ pub fn IRBuilder::createAShr(
 /// ```
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let i1ty = ctx.getInt1Ty()
 /// let fty = ctx.getFunctionType(i1ty, [])
@@ -2457,9 +2457,9 @@ pub fn IRBuilder::createFCmpUNE(
 /// - The source type bit width must be greater than the destination type bit width.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let i32ty = ctx.getInt32Ty()
 /// let i16ty = ctx.getInt16Ty()
@@ -2519,9 +2519,9 @@ pub fn IRBuilder::createTrunc(
 /// - The source type bit width must be less than the destination type bit width.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let i16ty = ctx.getInt16Ty()
 /// let i32ty = ctx.getInt32Ty()
@@ -2581,9 +2581,9 @@ pub fn IRBuilder::createZExt(
 /// - The source type bit width must be less than the destination type bit width.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let i16ty = ctx.getInt16Ty()
 /// let i32ty = ctx.getInt32Ty()
@@ -2643,9 +2643,9 @@ pub fn IRBuilder::createSExt(
 /// - The source type bit width must be greater than the destination type bit width.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let f64ty = ctx.getDoubleTy()
 /// let f32ty = ctx.getFloatTy()
@@ -2673,9 +2673,9 @@ pub fn IRBuilder::createSExt(
 /// ## Constant Folding
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let f32ty = ctx.getFloatTy()
 /// let fty = ctx.getFunctionType(f32ty, [])
@@ -2716,9 +2716,9 @@ pub fn IRBuilder::createFPTrunc(
 /// - The source type bit width must be less than the destination type bit width.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let f32ty = ctx.getFloatTy()
 /// let f64ty = ctx.getDoubleTy()
@@ -2746,9 +2746,9 @@ pub fn IRBuilder::createFPTrunc(
 /// ## Constant Folding
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let f64ty = ctx.getDoubleTy()
 /// let fty = ctx.getFunctionType(f64ty, [])
@@ -2789,9 +2789,9 @@ pub fn IRBuilder::createFPExt(
 /// - The integer value is interpreted as unsigned regardless of its sign bit.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let i32ty = ctx.getInt32Ty()
 /// let f32ty = ctx.getFloatTy()
@@ -2819,9 +2819,9 @@ pub fn IRBuilder::createFPExt(
 /// ## Constant Folding
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let f32ty = ctx.getFloatTy()
 /// let fty = ctx.getFunctionType(f32ty, [])
@@ -2862,9 +2862,9 @@ pub fn IRBuilder::createUIToFP(
 /// - The floating-point value is truncated towards zero and interpreted as unsigned.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let f32ty = ctx.getFloatTy()
 /// let i32ty = ctx.getInt32Ty()
@@ -2892,9 +2892,9 @@ pub fn IRBuilder::createUIToFP(
 /// ## Constant Folding
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let i32ty = ctx.getInt32Ty()
 /// let fty = ctx.getFunctionType(i32ty, [])
@@ -2943,9 +2943,9 @@ pub fn IRBuilder::createFPToUI(
 /// - The integer value is interpreted as signed.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let i32ty = ctx.getInt32Ty()
 /// let f32ty = ctx.getFloatTy()
@@ -2973,9 +2973,9 @@ pub fn IRBuilder::createFPToUI(
 /// ## Constant Folding
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let f32ty = ctx.getFloatTy()
 /// let fty = ctx.getFunctionType(f32ty, [])
@@ -3016,9 +3016,9 @@ pub fn IRBuilder::createSIToFP(
 /// - The floating-point value is truncated towards zero and interpreted as signed.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let f32ty = ctx.getFloatTy()
 /// let i32ty = ctx.getInt32Ty()
@@ -3046,9 +3046,9 @@ pub fn IRBuilder::createSIToFP(
 /// ## Constant Folding
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let i32ty = ctx.getInt32Ty()
 /// let fty = ctx.getFunctionType(i32ty, [])
@@ -3098,9 +3098,9 @@ pub fn IRBuilder::createFPToSI(
 ///   meaningful pointer constants from integer values at compile time.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let i64ty = ctx.getInt64Ty()
 /// let ptrty = ctx.getPtrTy()
@@ -3128,9 +3128,9 @@ pub fn IRBuilder::createFPToSI(
 /// ## Constant Folding
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let ptrty = ctx.getPtrTy()
 /// let fty = ctx.getFunctionType(ptrty, [])
@@ -3177,9 +3177,9 @@ pub fn IRBuilder::createIntToPtr(
 /// - No constant folding is performed for this instruction.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let ptrty = ctx.getPtrTy()
 /// let i64ty = ctx.getInt64Ty()
@@ -3227,9 +3227,9 @@ pub fn IRBuilder::createPtrToInt(
 /// - Currently only supports primitive types.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let i32ty = ctx.getInt32Ty()
 /// let f32ty = ctx.getFloatTy()
@@ -3257,9 +3257,9 @@ pub fn IRBuilder::createPtrToInt(
 /// ## Constant Folding
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let f32ty = ctx.getFloatTy()
 /// let fty = ctx.getFunctionType(f32ty, [])
@@ -3276,9 +3276,9 @@ pub fn IRBuilder::createPtrToInt(
 /// ```
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let i32ty = ctx.getInt32Ty()
 /// let fty = ctx.getFunctionType(i32ty, [])
@@ -3322,9 +3322,9 @@ pub fn IRBuilder::createBitCast(
 /// - No constant folding is performed for this instruction
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let i32ty = ctx.getInt32Ty()
 /// let ptrty = ctx.getPtrTy()
@@ -3392,9 +3392,9 @@ pub fn IRBuilder::createGEP(
 ///   have both volatile and atomic on the same load.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let i32ty = ctx.getInt32Ty()
 /// let ptrty = ctx.getPtrTy()
@@ -3465,9 +3465,9 @@ pub fn IRBuilder::createLoad(
 ///   have both volatile and atomic on the same store.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let i32ty = ctx.getInt32Ty()
 /// let voidty = ctx.getVoidTy()
@@ -3534,9 +3534,9 @@ pub fn IRBuilder::createStore(
 /// - Control flow will continue at the destination basic block
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let i32ty = ctx.getInt32Ty()
 /// let fty = ctx.getFunctionType(i32ty, [])
@@ -3587,9 +3587,9 @@ pub fn IRBuilder::createBr(
 /// - The condition must be of i1 type (boolean)
 ///
 /// ```moonbit
-///  let ctx = @IR.LLVMContext::new()
-///  let prog = ctx.addProgram("demo")
-///  let builder = @IR.IRBuilder::new()
+///  let ctx = @IR.Context::new()
+///  let prog = ctx.addModule("demo")
+///  let builder = @IR.ctx.createBuilder()
 ///
 ///  let i32ty = ctx.getInt32Ty()
 ///  let forty_two = ctx.getConstInt32(42)
@@ -3673,9 +3673,9 @@ pub fn IRBuilder::createCondBr(
 /// - (Constant folding) If the condition is a constant, the appropriate operand is returned directly
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let i1ty = ctx.getInt1Ty()
 /// let i32ty = ctx.getInt32Ty()
@@ -3742,9 +3742,9 @@ pub fn IRBuilder::createSelect(
 /// - The switch instruction transfers control to `defaultDest` if no cases match
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let i32ty = ctx.getInt32Ty()
 /// let voidty = ctx.getVoidTy()
@@ -3839,9 +3839,9 @@ pub fn IRBuilder::createSwitch(
 /// - PHI nodes are typically placed at the beginning of basic blocks that have multiple predecessors
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let i32ty = ctx.getInt32Ty()
 /// let fty = ctx.getFunctionType(i32ty, [i32ty])
@@ -3921,9 +3921,9 @@ pub fn IRBuilder::createPHI(
 /// - For non-void functions, a name can be provided for the return value
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let i32ty = ctx.getInt32Ty()
 /// 
@@ -3993,9 +3993,9 @@ pub fn IRBuilder::createCall(
 /// - The result type is determined by the type of the element at the specified indices
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let i32ty = ctx.getInt32Ty()
 /// let f32ty = ctx.getFloatTy()
@@ -4048,9 +4048,9 @@ pub fn IRBuilder::createExtractValue(
 /// - The result type is the same as the aggregate type
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
-/// let prog = ctx.addProgram("demo")
-/// let builder = IRBuilder::new()
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
 ///
 /// let i32ty = ctx.getInt32Ty()
 /// let f32ty = ctx.getFloatTy()

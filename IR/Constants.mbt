@@ -4,11 +4,11 @@
 
 ///| ConstantInt
 ///
-/// Use `LLVMContext::getConstInt8, getConstInt16, getConstInt32, getConstInt64`
+/// Use `Context::getConstInt8, getConstInt16, getConstInt32, getConstInt64`
 /// To create a new ConstantInt.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 /// let i8 = ctx.getConstInt8(0)
 /// let i16 = ctx.getConstInt16(1)
 /// let i32 = ctx.getConstInt32(-2)
@@ -49,7 +49,7 @@ fn ConstantInt::getValue(self : ConstantInt) -> Int64 {
 ///| Get the value of this constant as a signed 64-bits integer.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// let i8_zero = ctx.getConstInt8(0)
 /// let i16_one = ctx.getConstInt16(1)
@@ -70,7 +70,7 @@ pub fn ConstantInt::getValueAsInt64(self : ConstantInt) -> Int64 {
 ///| Get the type of constant int value.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// let i8_zero = ctx.getConstInt8(0)
 /// let i16_one = ctx.getConstInt16(1)
@@ -96,7 +96,7 @@ pub fn ConstantInt::getIntegerType(self : ConstantInt) -> &IntegerType {
 ///| Compare the value of this constant int with a signed integer.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// assert_true(ctx.getConstInt8(0).equals(0))
 /// assert_true(ctx.getConstInt8(-1).equals(-1))
@@ -146,7 +146,7 @@ pub fn ConstantInt::isMinValue(self : ConstantInt) -> Bool {
 /// ConstantInt are not the same.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// let i8_0 = ctx.getConstInt8(0)
 /// let i8_31 = ctx.getConstInt8(31)
@@ -191,7 +191,7 @@ pub fn ConstantInt::add(
 /// ConstantInt are not the same.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// let i8_0 = ctx.getConstInt8(0)
 /// let i8_31 = ctx.getConstInt8(31)
@@ -237,7 +237,7 @@ pub fn ConstantInt::sub(
 /// ConstantInt are not the same.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// let i8_0 = ctx.getConstInt8(0)
 /// let i8_31 = ctx.getConstInt8(31)
@@ -280,7 +280,7 @@ pub fn ConstantInt::mul(
 /// ConstantInt are not the same.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// let i8_1 = ctx.getConstInt8(1)
 /// let i8_31 = ctx.getConstInt8(31)
@@ -324,7 +324,7 @@ pub fn ConstantInt::sdiv(
 /// ConstantInt are not the same. It will raise `DivisionByZeroError` if `other` is zero.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// // Test case 1: i8 unsigned division
 /// // 200u8 / 10u8 = 20u8. ConstantInt stores 20L.
@@ -403,7 +403,7 @@ pub fn ConstantInt::udiv(
 ///| Bitwise AND two ConstantInt, useful in constant folding.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// let i8_6 = ctx.getConstInt8(6)     // 00000110
 /// let i8_3 = ctx.getConstInt8(3)     // 00000011
@@ -446,7 +446,7 @@ pub fn ConstantInt::compute_and(
 /// ConstantInt are not the same.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// let i8_6 = ctx.getConstInt8(6)     // 00000110
 /// let i8_3 = ctx.getConstInt8(3)     // 00000011
@@ -489,7 +489,7 @@ pub fn ConstantInt::or(
 /// ConstantInt are not the same.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// let i8_6 = ctx.getConstInt8(6)     // 00000110
 /// let i8_3 = ctx.getConstInt8(3)     // 00000011
@@ -532,7 +532,7 @@ pub fn ConstantInt::xor(
 /// ConstantInt are not the same.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// let i8_1 = ctx.getConstInt8(1)     // 00000001
 /// let i8_3 = ctx.getConstInt8(3)     // shift by 3
@@ -575,7 +575,7 @@ pub fn ConstantInt::compute_shl(
 /// ConstantInt are not the same.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// let i8_200 = ctx.getConstInt8(200)  // 11001000 (as unsigned)
 /// let i8_2 = ctx.getConstInt8(2)      // shift by 2
@@ -636,7 +636,7 @@ pub fn ConstantInt::lshr(
 /// ConstantInt are not the same.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// let i8_m1 = ctx.getConstInt8(-1)   // 11111111
 /// let i8_2 = ctx.getConstInt8(2)     // shift by 2
@@ -684,7 +684,7 @@ pub fn ConstantInt::ashr(
 /// ConstantInt are not the same. Only ICMP_xxx predicates are supported.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// let i8_5 = ctx.getConstInt8(5)
 /// let i8_10 = ctx.getConstInt8(10)
@@ -802,7 +802,7 @@ pub fn ConstantInt::compare(
 /// is not greater than the destination type bit width.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// let i32_255 = ctx.getConstInt32(255)
 /// let i8_255 = i32_255.trunc(ctx.getInt8Ty())
@@ -839,7 +839,7 @@ pub fn ConstantInt::trunc(
 /// is not less than the destination type bit width.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// let i8_255 = ctx.getConstInt8(255) // -1 as signed, 255 as unsigned
 /// let i32_255 = i8_255.zext(ctx.getInt32Ty())
@@ -884,7 +884,7 @@ pub fn ConstantInt::zext(
 /// is not less than the destination type bit width.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// let i8_m1 = ctx.getConstInt8(-1)
 /// let i32_m1 = i8_m1.sext(ctx.getInt32Ty())
@@ -925,7 +925,7 @@ pub fn ConstantInt::sext(
 /// **Note**: It will raise `UIToFPInstTypeMismatch` if the source is not an integer type.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// let i32_255 = ctx.getConstInt32(255)
 /// let f32_255 = i32_255.uitofp(ctx.getFloatTy())
@@ -963,7 +963,7 @@ pub fn ConstantInt::uitofp(
 /// **Note**: It will raise `SIToFPInstTypeMismatch` if the source is not an integer type.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// let i32_m42 = ctx.getConstInt32(-42)
 /// let f32_m42 = i32_m42.sitofp(ctx.getFloatTy())
@@ -996,7 +996,7 @@ pub fn ConstantInt::sitofp(
 /// meaningful pointer constants from integer values at compile time.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// let i64_0 = ctx.getConstInt64(0)
 /// let null_ptr = i64_0.inttoptr()
@@ -1024,7 +1024,7 @@ pub fn ConstantInt::inttoptr(
 /// is not a primitive type.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// // Test i32 to f32 bitcast
 /// let i32_val = ctx.getConstInt32(0x40000000) // 2.0 in float
@@ -1156,7 +1156,7 @@ pub fn[T : Floating] ConstantFP::exactlyEquals(
 /// ConstantFP are not the same.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// let f32_0 = ctx.getConstFloat(0.0)
 /// let f32_1_5 = ctx.getConstFloat(1.5)
@@ -1185,7 +1185,7 @@ pub fn ConstantFP::add(
 /// ConstantFP are not the same.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// let f32_0 = ctx.getConstFloat(0.0)
 /// let f32_1_5 = ctx.getConstFloat(1.5)
@@ -1214,7 +1214,7 @@ pub fn ConstantFP::sub(
 /// ConstantFP are not the same.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// let f32_0 = ctx.getConstFloat(0.0)
 /// let f32_1_5 = ctx.getConstFloat(1.5)
@@ -1243,7 +1243,7 @@ pub fn ConstantFP::mul(
 /// ConstantFP are not the same.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// let f32_0 = ctx.getConstFloat(0.0)
 /// let f32_1_5 = ctx.getConstFloat(1.5)
@@ -1272,7 +1272,7 @@ pub fn ConstantFP::div(
 /// ConstantFP are not the same. Only FCMP_xxx predicates are supported.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// let f32_1_5 = ctx.getConstFloat(1.5)
 /// let f32_2_5 = ctx.getConstFloat(2.5)
@@ -1360,7 +1360,7 @@ pub fn ConstantFP::compare(
 /// is not greater than the destination type bit width.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// // Test f64 to f32 truncation
 /// let f64_1_5 = ctx.getConstDouble(1.5)
@@ -1397,7 +1397,7 @@ pub fn ConstantFP::fptrunc(
 /// is not less than the destination type bit width.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// // Test f32 to f64 extension
 /// let f32_1_5 = ctx.getConstFloat(1.5)
@@ -1433,7 +1433,7 @@ pub fn ConstantFP::fpext(
 /// The conversion truncates towards zero (similar to C cast).
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// // Test positive float to unsigned integer
 /// let f32_3_7 = ctx.getConstFloat(3.7)
@@ -1478,7 +1478,7 @@ pub fn ConstantFP::fptoui(
 /// The conversion truncates towards zero (similar to C cast).
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// // Test positive float to signed integer
 /// let f32_3_7 = ctx.getConstFloat(3.7)
@@ -1519,7 +1519,7 @@ pub fn ConstantFP::fptosi(
 /// is not a primitive type.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 ///
 /// // Test f32 to i32 bitcast
 /// let f32_2_0 = ctx.getConstFloat(2.0)
@@ -2383,7 +2383,7 @@ pub impl Show for ConstantVector with output(self, logger) {
 /// Represents a constant struct value in LLVM IR.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 /// let i32ty = ctx.getInt32Ty()
 /// let f32ty = ctx.getFloatTy()
 /// let sty = ctx.getStructType([i32ty, f32ty])
@@ -2445,7 +2445,7 @@ pub fn ConstantStruct::getElement(
 /// The indices specify a path through nested aggregate types.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 /// let i32ty = ctx.getInt32Ty()
 /// let f32ty = ctx.getFloatTy()
 /// let sty = ctx.getStructType([i32ty, f32ty])
@@ -2486,7 +2486,7 @@ pub fn ConstantStruct::extractValue(
 /// Returns a new ConstantStruct with the value inserted at the specified path.
 ///
 /// ```moonbit
-/// let ctx = LLVMContext::new()
+/// let ctx = Context::new()
 /// let i32ty = ctx.getInt32Ty()
 /// let f32ty = ctx.getFloatTy()
 /// let sty = ctx.getStructType([i32ty, f32ty])

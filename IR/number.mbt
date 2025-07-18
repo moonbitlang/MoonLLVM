@@ -335,7 +335,7 @@ priv enum IntegerNumberEnum {
   UInt32(UInt)
   Int64(Int64)
   UInt64(UInt64)
-} derive(Eq, Hash, Show)
+}
 
 ///|
 trait IntegerNumber: Show {

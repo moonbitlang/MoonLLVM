@@ -1,7 +1,7 @@
 ///|
 test "Function" {
-  let ctx = LLVMContext::new()
-  let prog = ctx.addProgram("demo")
+  let ctx = Context::new()
+  let prog = ctx.addModule("demo")
 
   // get data type and function type
   let i32ty = ctx.getInt32Ty()
@@ -18,22 +18,22 @@ test "Function" {
 
   // add attribute `alwaysinline`.
   fval.addAttr(AlwaysInline)
-  inspect(
-    fval,
-    content=
+  let expect = 
       #|; Function Attrs: alwaysinline
       #|declare i32 @add(i32, i32) #0
-    ,
+  inspect(
+    fval,
+    content=expect
   )
 
   // add attribute `builtin`.
   fval.addAttr(Builtin)
-  inspect(
-    fval,
-    content=
+  let expect = 
       #|; Function Attrs: alwaysinline builtin
       #|declare i32 @add(i32, i32) #0
-    ,
+  inspect(
+    fval,
+    content=expect
   )
 
   // get args.
@@ -43,11 +43,11 @@ test "Function" {
   // add attributes to args.
   arg0.addAttr(NoAlias)
   arg1.addAttr(NonNull)
-  inspect(
-    fval,
-    content=
+  let expect = 
       #|; Function Attrs: alwaysinline builtin
       #|declare i32 @add(i32 noalias, i32 nonnull) #0
-    ,
+  inspect(
+    fval,
+    content=expect
   )
 }

@@ -1,6 +1,6 @@
 ///|
 test "Basic Type Print" {
-  let ctx = LLVMContext::new()
+  let ctx = Context::new()
   let halfty = ctx.getHalfTy()
   let bfloaty = ctx.getBFloatTy()
   let floaty = ctx.getFloatTy()
@@ -31,7 +31,7 @@ test "Basic Type Print" {
 
 ///|
 test "Function Type Print" {
-  let ctx = LLVMContext::new()
+  let ctx = Context::new()
   let i32ty = ctx.getInt32Ty()
   let f32ty = ctx.getFloatTy()
   let f64ty = ctx.getDoubleTy()
@@ -42,7 +42,7 @@ test "Function Type Print" {
 
 ///|
 test "Struct Type Print" {
-  let ctx = LLVMContext::new()
+  let ctx = Context::new()
   let i32ty = ctx.getInt32Ty()
   let f32ty = ctx.getFloatTy()
   let f64ty = ctx.getDoubleTy()
@@ -67,7 +67,7 @@ test "Struct Type Print" {
 
 ///|
 test "ArrayType, VectorType" {
-  let ctx = LLVMContext::new()
+  let ctx = Context::new()
   let i32ty = ctx.getInt32Ty()
   let i64ty = ctx.getInt64Ty()
   let f32ty = ctx.getFloatTy()
@@ -81,7 +81,7 @@ test "ArrayType, VectorType" {
 
 ///|
 test "Integer Type Functionality Test" {
-  let ctx = LLVMContext::new()
+  let ctx = Context::new()
   let i32ty = ctx.getInt32Ty()
 
   // getBitMask
@@ -100,7 +100,7 @@ test "Integer Type Functionality Test" {
 
 ///|
 test "Function Type Functionality Test" {
-  let ctx = LLVMContext::new()
+  let ctx = Context::new()
   let voidty = ctx.getVoidTy()
   let i32ty = ctx.getInt32Ty()
   let f64ty = ctx.getDoubleTy()
@@ -119,7 +119,7 @@ test "Function Type Functionality Test" {
 
 ///|
 test "Struct Type Functionality Test" {
-  let ctx = LLVMContext::new()
+  let ctx = Context::new()
   let i32ty = ctx.getInt32Ty()
   let f32ty = ctx.getFloatTy()
   let f64ty = ctx.getDoubleTy()

@@ -1,5 +1,5 @@
 ///|
-typealias @IR.LLVMContext
+typealias @IR.Context
 
 ///|
 traitalias @IR.Type

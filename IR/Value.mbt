@@ -146,7 +146,7 @@ pub trait Value: Show {
   getType(Self) -> &Type = _
 
   // All values hold a context through their type.
-  getContext(Self) -> LLVMContext = _
+  getContext(Self) -> Context = _
   getValueName(Self) -> String? = _
 
   /// Change the name of the value.
@@ -216,7 +216,7 @@ impl Value with replaceAllUsersWith(self, other : &Value) {
     .getUsers()
     .map(u => u
       .tryAsUserEnum()
-      .or_else(() => {
+      .unwrap_or_else(() => {
         println("ICE: Value not User, `replaceAllUsersWith`.")
         panic()
       })

@@ -249,52 +249,52 @@ pub trait NumberArray: Show {
   asEnum(Self) -> NumberArrayEnum
 }
 
-///|
-impl NumberArray for Int8Array with asEnum(self) {
-  Int8Array(self)
-}
-
-///|
-impl NumberArray for Int16Array with asEnum(self) {
-  Int16Array(self)
-}
-
-///|
-impl NumberArray for Int32Array with asEnum(self) {
-  Int32Array(self)
-}
-
-///|
-impl NumberArray for Int64Array with asEnum(self) {
-  Int64Array(self)
-}
-
-///|
-impl NumberArray for UInt8Array with asEnum(self) {
-  UInt8Array(self)
-}
-
-///|
-impl NumberArray for UInt16Array with asEnum(self) {
-  UInt16Array(self)
-}
-
-///|
-impl NumberArray for UInt32Array with asEnum(self) {
-  UInt32Array(self)
-}
-
-///|
-impl NumberArray for UInt64Array with asEnum(self) {
-  UInt64Array(self)
-}
-
-///|
-impl NumberArray for FloatArray with asEnum(self) {
-  FloatArray(self)
-}
-
-///|
-impl NumberArray for DoubleArray with asEnum(self) {
-  DoubleArray(self)
-}
+/////|
+//impl NumberArray for Int8Array with asEnum(self) {
+//  Int8Array(self)
+//}
+//
+/////|
+//impl NumberArray for Int16Array with asEnum(self) {
+//  Int16Array(self)
+//}
+//
+/////|
+//impl NumberArray for Int32Array with asEnum(self) {
+//  Int32Array(self)
+//}
+//
+/////|
+//impl NumberArray for Int64Array with asEnum(self) {
+//  Int64Array(self)
+//}
+//
+/////|
+//impl NumberArray for UInt8Array with asEnum(self) {
+//  UInt8Array(self)
+//}
+//
+/////|
+//impl NumberArray for UInt16Array with asEnum(self) {
+//  UInt16Array(self)
+//}
+//
+/////|
+//impl NumberArray for UInt32Array with asEnum(self) {
+//  UInt32Array(self)
+//}
+//
+/////|
+//impl NumberArray for UInt64Array with asEnum(self) {
+//  UInt64Array(self)
+//}
+//
+/////|
+//impl NumberArray for FloatArray with asEnum(self) {
+//  FloatArray(self)
+//}
+//
+/////|
+//impl NumberArray for DoubleArray with asEnum(self) {
+//  DoubleArray(self)
+//}
