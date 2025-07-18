@@ -1494,149 +1494,67 @@ pub fn IRBuilder::createAShr(
   inst
 }
 
-///| Create Comparison Instruction (ICmp or FCmp).
+///| Create an Integer Compare Instruction.
 ///
 /// **Note:**
 ///
-/// - (Constant folding) If both operands are constant integers or floating-point values, 
-/// the comparison is evaluated at compile time and the result is returned as a constant i1 value.
-///
-/// - For integer comparisons, use ICMP_xxx predicates
-///   (EQ, NE, SGT, SGE, SLT, SLE, UGT, UGE, ULT, ULE).
-///
-/// - For floating-point comparisons, use FCMP_xxx predicates
-///   (OEQ, OGT, OGE, OLT, OLE, ONE, ORD, UNO, UEQ, UGT, UGE, ULT, ULE, UNE, TRUE, FALSE).
+/// 1. `lhs` and `rhs` must be integer types with the same bitwidth.
+/// 2. Allowed predicates: EQ, NE, SGT, SGE, SLT, SLE, UGT, UGE, ULT, ULE.
 ///
 /// ```moonbit
 /// let ctx = Context::new()
-/// let prog = ctx.addModule("demo")
+/// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
 ///
-/// let i32ty = ctx.getInt32Ty()
-/// let i1ty = ctx.getInt1Ty()
-/// let fty = ctx.getFunctionType(i1ty, [i32ty, i32ty])
-/// let fval = prog.addFunction(fty, "cmp_func")
-/// let entryBB = fval.addBasicBlock(name="entry")
-/// builder.setInsertPoint(entryBB)
+/// let i32_ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32_ty, [i32_ty, i32_ty])
+/// let fval = mod.addFunction(fty, "icmp_demo")
 ///
+/// let bb = fval.addBasicBlock(name="entry")
 /// let arg0 = fval.getArg(0).unwrap()
 /// let arg1 = fval.getArg(1).unwrap()
+/// builder.setInsertPoint(bb)
 ///
-/// // Test signed greater than
-/// let cmp_sgt = builder.createCmp(ICMP_SGT, arg0, arg1)
-/// let _ = builder.createRet(cmp_sgt)
+/// let eq_cmp = builder.createICmp(IntPredicate::EQ, arg0, arg1, name="eq_cmp")
+/// inspect(eq_cmp, content = "  %eq_cmp = icmp eq i32 %0, %1")
+/// assert_true(eq_cmp.asValueEnum() is ICmpInst(_))
 ///
-/// inspect(
-///   fval,
-///   content =
-///   #|define i1 @cmp_func(i32 %0, i32 %1) {
-///   #|entry:
-///   #|  %2 = icmp sgt i32 %0, %1
-///   #|  ret i1 %2
-///   #|}
-///   ,
-/// )
+/// let val1 = ctx.getConstInt32(5)
+/// let val2 = ctx.getConstInt32(5)
+/// let result = builder.createICmpEQ(val1, val2)
+/// inspect(result, content = "i1 true")
+/// assert_true(result.asValueEnum() is ConstantInt(_))
+///
+/// let ne_cmp = builder.createICmpNE(arg0, arg1, name="ne_cmp")
+/// inspect(ne_cmp, content = "  %ne_cmp = icmp ne i32 %0, %1")
+///
+/// let sgt_cmp = builder.createICmpSGT(arg0, arg1, name="sgt_cmp")
+/// inspect(sgt_cmp, content = "  %sgt_cmp = icmp sgt i32 %0, %1")
+///
+/// let sge_cmp = builder.createICmpSGE(arg0, arg1, name="sge_cmp")
+/// inspect(sge_cmp, content = "  %sge_cmp = icmp sge i32 %0, %1")
+///
+/// let slt_cmp = builder.createICmpSLT(arg0, arg1, name="slt_cmp")
+/// inspect(slt_cmp, content = "  %slt_cmp = icmp slt i32 %0, %1")
+///
+/// let sle_cmp = builder.createICmpSLE(arg0, arg1, name="sle_cmp")
+/// inspect(sle_cmp, content = "  %sle_cmp = icmp sle i32 %0, %1")
+///
+/// let ugt_cmp = builder.createICmpUGT(arg0, arg1, name="ugt_cmp")
+/// inspect(ugt_cmp, content = "  %ugt_cmp = icmp ugt i32 %0, %1")
+///
+/// let uge_cmp = builder.createICmpUGE(arg0, arg1, name="uge_cmp")
+/// inspect(uge_cmp, content = "  %uge_cmp = icmp uge i32 %0, %1")
+///
+/// let ult_cmp = builder.createICmpULT(arg0, arg1, name="ult_cmp")
+/// inspect(ult_cmp, content = "  %ult_cmp = icmp ult i32 %0, %1")
+///
+/// let ule_cmp = builder.createICmpULE(arg0, arg1, name="ule_cmp")
+/// inspect(ule_cmp, content = "  %ule_cmp = icmp ule i32 %0, %1")
 /// ```
-///
-/// ```moonbit
-/// let ctx = Context::new()
-/// let prog = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-///
-/// let floatty = ctx.getFloatTy()
-/// let i1ty = ctx.getInt1Ty()
-/// let fty = ctx.getFunctionType(i1ty, [floatty, floatty])
-/// let fval = prog.addFunction(fty, "fcmp_func")
-/// let entryBB = fval.addBasicBlock(name="entry")
-/// builder.setInsertPoint(entryBB)
-///
-/// let arg0 = fval.getArg(0).unwrap()
-/// let arg1 = fval.getArg(1).unwrap()
-///
-/// // Test ordered equal
-/// let fcmp_oeq = builder.createCmp(FCMP_OEQ, arg0, arg1)
-/// let _ = builder.createRet(fcmp_oeq)
-///
-/// inspect(
-///   fval,
-///   content =
-///   #|define i1 @fcmp_func(float %0, float %1) {
-///   #|entry:
-///   #|  %2 = fcmp oeq float %0, %1
-///   #|  ret i1 %2
-///   #|}
-///   ,
-/// )
-/// ```
-///
-/// ## Constant Folding
-///
-/// ```moonbit
-/// let ctx = Context::new()
-/// let prog = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-///
-/// let i1ty = ctx.getInt1Ty()
-/// let fty = ctx.getFunctionType(i1ty, [])
-///
-/// // Test integer constant comparison
-/// let fval_int = prog.addFunction(fty, "icmp_const_func")
-/// let entryBB_int = fval_int.addBasicBlock(name="entry")
-/// builder.setInsertPoint(entryBB_int)
-/// 
-/// let const_5 = ctx.getConstInt32(5)
-/// let const_10 = ctx.getConstInt32(10)
-/// 
-/// // 5 < 10 should be true
-/// let cmp_result = builder.createCmp(ICMP_SLT, const_5, const_10)
-/// let _ = builder.createRet(cmp_result)
-/// 
-/// inspect(cmp_result, content="i1 true")
-/// inspect(
-///   fval_int,
-///   content =
-///   #|define i1 @icmp_const_func() {
-///   #|entry:
-///   #|  ret i1 true
-///   #|}
-///   ,
-/// )
-/// ```
-///
-/// ```moonbit
-/// let ctx = Context::new()
-/// let prog = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-///
-/// let i1ty = ctx.getInt1Ty()
-/// let fty = ctx.getFunctionType(i1ty, [])
-///
-/// // Test floating-point constant comparison
-/// let fval_fp = prog.addFunction(fty, "fcmp_const_func")
-/// let entryBB_fp = fval_fp.addBasicBlock(name="entry")
-/// builder.setInsertPoint(entryBB_fp)
-/// 
-/// let const_1_5 = ctx.getConstFloat(1.5)
-/// let const_2_5 = ctx.getConstFloat(2.5)
-/// 
-/// // 1.5 < 2.5 should be true (ordered less than)
-/// let fcmp_result = builder.createCmp(FCMP_OLT, const_1_5, const_2_5)
-/// let _ = builder.createRet(fcmp_result)
-/// 
-/// inspect(fcmp_result, content="i1 true")
-/// inspect(
-///   fval_fp,
-///   content =
-///   #|define i1 @fcmp_const_func() {
-///   #|entry:
-///   #|  ret i1 true
-///   #|}
-///   ,
-/// )
-/// ```
-pub fn IRBuilder::createCmp(
+pub fn IRBuilder::createICmp(
   self : IRBuilder,
-  pred : Predicate,
+  pred : IntPredicate,
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
@@ -1644,135 +1562,220 @@ pub fn IRBuilder::createCmp(
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
     (Some(ConstantInt(lhs)), Some(ConstantInt(rhs))) =>
       return lhs.compare(pred, rhs)
-    (Some(ConstantFP(lhs)), Some(ConstantFP(rhs))) =>
-      return lhs.compare(pred, rhs)
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CmpInst::new(pred, lhs, rhs, parent, name)
+  let inst = ICmpInst::new(pred, lhs, rhs, parent, name)
   self.insert(inst)
   inst
 }
 
 ///| Create Eq (Equality) Comparison Instruction.
 ///
-/// It's equivalent to `IRBuilder::createCmp(ICMP_EQ, ...)`.
+/// It's equivalent to `IRBuilder::createICmp(ICMP_EQ, ...)`.
 pub fn IRBuilder::createICmpEQ(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
 ) -> &Value raise Error {
-  self.createCmp(ICMP_EQ, lhs, rhs, name~)
+  self.createICmp(EQ, lhs, rhs, name~)
 }
 
 ///| Create Ne (Not Equal) Comparison Instruction.
 ///
-/// It's equivalent to `IRBuilder::createCmp(ICMP_NE, ...)`.
+/// It's equivalent to `IRBuilder::createICmp(ICMP_NE, ...)`.
 pub fn IRBuilder::createICmpNE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
 ) -> &Value raise Error {
-  self.createCmp(ICMP_NE, lhs, rhs, name~)
+  self.createICmp(NE, lhs, rhs, name~)
 }
 
 ///| Create UGT (Unsigned Greater Than) Comparison Instruction.
 ///
-/// It's equivalent to `IRBuilder::createCmp(ICMP_UGT, ...)`.
+/// It's equivalent to `IRBuilder::createICmp(UGT, ...)`.
 pub fn IRBuilder::createICmpUGT(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
 ) -> &Value raise Error {
-  self.createCmp(ICMP_UGT, lhs, rhs, name~)
+  self.createICmp(UGT, lhs, rhs, name~)
 }
 
 ///| Create UGE (Unsigned Greater Than or Equal) Comparison Instruction.
 ///
-/// It's equivalent to `IRBuilder::createCmp(ICMP_UGE, ...)`.
+/// It's equivalent to `IRBuilder::createICmp(UGE, ...)`.
 pub fn IRBuilder::createICmpUGE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
 ) -> &Value raise Error {
-  self.createCmp(ICMP_UGE, lhs, rhs, name~)
+  self.createICmp(UGE, lhs, rhs, name~)
 }
 
 ///| Create ULT (Unsigned Less Than) Comparison Instruction.
 ///
-/// It's equivalent to `IRBuilder::createCmp(ICMP_ULT, ...)`.
+/// It's equivalent to `IRBuilder::createICmp(ULT, ...)`.
 pub fn IRBuilder::createICmpULT(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
 ) -> &Value raise Error {
-  self.createCmp(ICMP_ULT, lhs, rhs, name~)
+  self.createICmp(ULT, lhs, rhs, name~)
 }
 
 ///| Create ULE (Unsigned Less Than or Equal) Comparison Instruction.
 ///
-/// It's equivalent to `IRBuilder::createCmp(ICMP_ULE, ...)`.
+/// It's equivalent to `IRBuilder::createICmp(ULE, ...)`.
 pub fn IRBuilder::createICmpULE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
 ) -> &Value raise Error {
-  self.createCmp(ICMP_ULE, lhs, rhs, name~)
+  self.createICmp(ULE, lhs, rhs, name~)
 }
 
 ///| Create SGT (Signed Greater Than) Comparison Instruction.
 ///
-/// It's equivalent to `IRBuilder::createCmp(ICMP_SGT, ...)`.
+/// It's equivalent to `IRBuilder::createICmp(SGT, ...)`.
 pub fn IRBuilder::createICmpSGT(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
 ) -> &Value raise Error {
-  self.createCmp(ICMP_SGT, lhs, rhs, name~)
+  self.createICmp(SGT, lhs, rhs, name~)
 }
 
 ///| Create SGE (Signed Greater Than or Equal) Comparison Instruction.
 ///
-/// It's equivalent to `IRBuilder::createCmp(ICMP_SGE, ...)`.
+/// It's equivalent to `IRBuilder::createICmp(SGE, ...)`.
 pub fn IRBuilder::createICmpSGE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
 ) -> &Value raise Error {
-  self.createCmp(ICMP_SGE, lhs, rhs, name~)
+  self.createICmp(SGE, lhs, rhs, name~)
 }
 
 ///| Create SLT (Signed Less Than) Comparison Instruction.
 ///
-/// It's equivalent to `IRBuilder::createCmp(ICMP_SLT, ...)`.
+/// It's equivalent to `IRBuilder::createICmp(SLT, ...)`.
 pub fn IRBuilder::createICmpSLT(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
 ) -> &Value raise Error {
-  self.createCmp(ICMP_SLT, lhs, rhs, name~)
+  self.createICmp(SLT, lhs, rhs, name~)
 }
 
 ///| Create SLE (Signed Less Than or Equal) Comparison Instruction.
 ///
-/// It's equivalent to `IRBuilder::createCmp(ICMP_SLE, ...)`.
+/// It's equivalent to `IRBuilder::createICmp(SLE, ...)`.
 pub fn IRBuilder::createICmpSLE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
 ) -> &Value raise Error {
-  self.createCmp(ICMP_SLE, lhs, rhs, name~)
+  self.createICmp(SLE, lhs, rhs, name~)
 }
+
+
+///| Create a Float Compare Instruction.
+///
+/// **Note:**
+///
+/// 1. `lhs` and `rhs` must be floating-point types with the same bitwidth.
+/// 2. Allowed predicates: OEQ, OGT, OGE, OLT, OLE, ONE, ORD, UEQ, UGT, UGE, ULT, ULE, UNE.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let f32_ty = ctx.getFloatTy()
+/// let fty = ctx.getFunctionType(f32_ty, [f32_ty, f32_ty])
+/// let fval = mod.addFunction(fty, "fcmp_demo")
+///
+/// let bb = fval.addBasicBlock(name="entry")
+/// let arg0 = fval.getArg(0).unwrap()
+/// let arg1 = fval.getArg(1).unwrap()
+/// builder.setInsertPoint(bb)
+///
+/// let oeq_cmp = builder.createFCmp(FloatPredicate::OEQ, arg0, arg1, name="oeq_cmp")
+/// inspect(oeq_cmp, content = "  %oeq_cmp = fcmp oeq float %0, %1")
+/// assert_true(oeq_cmp.asValueEnum() is FCmpInst(_))
+///
+/// let val1 = ctx.getConstFloat(3.14)
+/// let val2 = ctx.getConstFloat(3.14)
+/// let result = builder.createFCmpOEQ(val1, val2)
+/// inspect(result, content = "i1 true")
+/// assert_true(result.asValueEnum() is ConstantInt(_))
+///
+/// let ogt_cmp = builder.createFCmpOGT(arg0, arg1, name="ogt_cmp")
+/// inspect(ogt_cmp, content = "  %ogt_cmp = fcmp ogt float %0, %1")
+///
+/// let oge_cmp = builder.createFCmpOGE(arg0, arg1, name="oge_cmp")
+/// inspect(oge_cmp, content = "  %oge_cmp = fcmp oge float %0, %1")
+///
+/// let olt_cmp = builder.createFCmpOLT(arg0, arg1, name="olt_cmp")
+/// inspect(olt_cmp, content = "  %olt_cmp = fcmp olt float %0, %1")
+///
+/// let ole_cmp = builder.createFCmpOLE(arg0, arg1, name="ole_cmp")
+/// inspect(ole_cmp, content = "  %ole_cmp = fcmp ole float %0, %1")
+///
+/// let one_cmp = builder.createFCmpONE(arg0, arg1, name="one_cmp")
+/// inspect(one_cmp, content = "  %one_cmp = fcmp one float %0, %1")
+///
+/// let ord_cmp = builder.createFCmpORD(arg0, arg1, name="ord_cmp")
+/// inspect(ord_cmp, content = "  %ord_cmp = fcmp ord float %0, %1")
+///
+/// let ueq_cmp = builder.createFCmpUEQ(arg0, arg1, name="ueq_cmp")
+/// inspect(ueq_cmp, content = "  %ueq_cmp = fcmp ueq float %0, %1")
+///
+/// let ugt_cmp = builder.createFCmpUGT(arg0, arg1, name="ugt_cmp")
+/// inspect(ugt_cmp, content = "  %ugt_cmp = fcmp ugt float %0, %1")
+///
+/// let uge_cmp = builder.createFCmpUGE(arg0, arg1, name="uge_cmp")
+/// inspect(uge_cmp, content = "  %uge_cmp = fcmp uge float %0, %1")
+///
+/// let ult_cmp = builder.createFCmpULT(arg0, arg1, name="ult_cmp")
+/// inspect(ult_cmp, content = "  %ult_cmp = fcmp ult float %0, %1")
+///
+/// let ule_cmp = builder.createFCmpULE(arg0, arg1, name="ule_cmp")
+/// inspect(ule_cmp, content = "  %ule_cmp = fcmp ule float %0, %1")
+///
+/// let une_cmp = builder.createFCmpUNE(arg0, arg1, name="une_cmp")
+/// inspect(une_cmp, content = "  %une_cmp = fcmp une float %0, %1")
+/// ```
+pub fn IRBuilder::createFCmp(
+  self : IRBuilder,
+  pred : FloatPredicate,
+  lhs : &Value,
+  rhs : &Value,
+  name~ : String = ""
+) -> &Value raise Error {
+  match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
+    (Some(ConstantFP(lhs)), Some(ConstantFP(rhs))) =>
+      return lhs.compare(pred, rhs)
+    _ => ()
+  }
+  let parent = self.getInsertFunction()
+  let inst = FCmpInst::new(pred, lhs, rhs, parent, name)
+  self.insert(inst)
+  inst
+}
+
 
 ///| Create OEQ (Ordered Equal) Comparison Instruction for floating-point values.
 ///
@@ -1783,7 +1786,7 @@ pub fn IRBuilder::createFCmpOEQ(
   rhs : &Value,
   name~ : String = ""
 ) -> &Value raise Error {
-  self.createCmp(FCMP_OEQ, lhs, rhs, name~)
+  self.createFCmp(OEQ, lhs, rhs, name~)
 }
 
 ///| Create OGT (Ordered Greater Than) Comparison Instruction for floating-point values.
@@ -1795,151 +1798,151 @@ pub fn IRBuilder::createFCmpOGT(
   rhs : &Value,
   name~ : String = ""
 ) -> &Value raise Error {
-  self.createCmp(FCMP_OGT, lhs, rhs, name~)
+  self.createFCmp(OGT, lhs, rhs, name~)
 }
 
 ///| Create OGE (Ordered Greater Than or Equal) Comparison Instruction for floating-point values.
 ///
-/// It's equivalent to `IRBuilder::createCmp(FCMP_OGE, ...)`.
+/// It's equivalent to `IRBuilder::createCmp(OGE, ...)`.
 pub fn IRBuilder::createFCmpOGE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
 ) -> &Value raise Error {
-  self.createCmp(FCMP_OGE, lhs, rhs, name~)
+  self.createFCmp(OGE, lhs, rhs, name~)
 }
 
 ///| Create OLT (Ordered Less Than) Comparison Instruction for floating-point values.
 ///
-/// It's equivalent to `IRBuilder::createCmp(FCMP_OLT, ...)`.
+/// It's equivalent to `IRBuilder::createCmp(OLT, ...)`.
 pub fn IRBuilder::createFCmpOLT(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
 ) -> &Value raise Error {
-  self.createCmp(FCMP_OLT, lhs, rhs, name~)
+  self.createFCmp(OLT, lhs, rhs, name~)
 }
 
 ///| Create OLE (Ordered Less Than or Equal) Comparison Instruction for floating-point values.
 ///
-/// It's equivalent to `IRBuilder::createCmp(FCMP_OLE, ...)`.
+/// It's equivalent to `IRBuilder::createCmp(OLE, ...)`.
 pub fn IRBuilder::createFCmpOLE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
 ) -> &Value raise Error {
-  self.createCmp(FCMP_OLE, lhs, rhs, name~)
+  self.createFCmp(OLE, lhs, rhs, name~)
 }
 
 ///| Create ONE (Ordered Not Equal) Comparison Instruction for floating-point values.
 ///
-/// It's equivalent to `IRBuilder::createCmp(FCMP_ONE, ...)`.
+/// It's equivalent to `IRBuilder::createCmp(ONE, ...)`.
 pub fn IRBuilder::createFCmpONE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
 ) -> &Value raise Error {
-  self.createCmp(FCMP_ONE, lhs, rhs, name~)
+  self.createFCmp(ONE, lhs, rhs, name~)
 }
 
 ///| Create ORD (Ordered) Comparison Instruction for floating-point values.
 ///
-/// It's equivalent to `IRBuilder::createCmp(FCMP_ORD, ...)`.
+/// It's equivalent to `IRBuilder::createCmp(ORD, ...)`.
 pub fn IRBuilder::createFCmpORD(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
 ) -> &Value raise Error {
-  self.createCmp(FCMP_ORD, lhs, rhs, name~)
+  self.createFCmp(ORD, lhs, rhs, name~)
 }
 
 ///| Create UNO (Unordered) Comparison Instruction for floating-point values.
 ///
-/// It's equivalent to `IRBuilder::createCmp(FCMP_UNO, ...)`.
+/// It's equivalent to `IRBuilder::createCmp(UNO, ...)`.
 pub fn IRBuilder::createFCmpUNO(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
 ) -> &Value raise Error {
-  self.createCmp(FCMP_UNO, lhs, rhs, name~)
+  self.createFCmp(UNO, lhs, rhs, name~)
 }
 
 ///| Create UEQ (Unordered Equal) Comparison Instruction for floating-point values.
 ///
-/// It's equivalent to `IRBuilder::createCmp(FCMP_UEQ, ...)`.
+/// It's equivalent to `IRBuilder::createCmp(UEQ, ...)`.
 pub fn IRBuilder::createFCmpUEQ(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
 ) -> &Value raise Error {
-  self.createCmp(FCMP_UEQ, lhs, rhs, name~)
+  self.createFCmp(UEQ, lhs, rhs, name~)
 }
 
 ///| Create UGT (Unordered Greater Than) Comparison Instruction for floating-point values.
 ///
-/// It's equivalent to `IRBuilder::createCmp(FCMP_UGT, ...)`.
+/// It's equivalent to `IRBuilder::createCmp(UGT, ...)`.
 pub fn IRBuilder::createFCmpUGT(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
 ) -> &Value raise Error {
-  self.createCmp(FCMP_UGT, lhs, rhs, name~)
+  self.createFCmp(UGT, lhs, rhs, name~)
 }
 
 ///| Create UGE (Unordered Greater Than or Equal) Comparison Instruction for floating-point values.
 ///
-/// It's equivalent to `IRBuilder::createCmp(FCMP_UGE, ...)`.
+/// It's equivalent to `IRBuilder::createCmp(UGE, ...)`.
 pub fn IRBuilder::createFCmpUGE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
 ) -> &Value raise Error {
-  self.createCmp(FCMP_UGE, lhs, rhs, name~)
+  self.createFCmp(UGE, lhs, rhs, name~)
 }
 
 ///| Create ULT (Unordered Less Than) Comparison Instruction for floating-point values.
 ///
-/// It's equivalent to `IRBuilder::createCmp(FCMP_ULT, ...)`.
+/// It's equivalent to `IRBuilder::createCmp(ULT, ...)`.
 pub fn IRBuilder::createFCmpULT(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
 ) -> &Value raise Error {
-  self.createCmp(FCMP_ULT, lhs, rhs, name~)
+  self.createFCmp(ULT, lhs, rhs, name~)
 }
 
 ///| Create ULE (Unordered Less Than or Equal) Comparison Instruction for floating-point values.
 ///
-/// It's equivalent to `IRBuilder::createCmp(FCMP_ULE, ...)`.
+/// It's equivalent to `IRBuilder::createCmp(ULE, ...)`.
 pub fn IRBuilder::createFCmpULE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
 ) -> &Value raise Error {
-  self.createCmp(FCMP_ULE, lhs, rhs, name~)
+  self.createFCmp(ULE, lhs, rhs, name~)
 }
 
 ///| Create UNE (Unordered Not Equal) Comparison Instruction for floating-point values.
 ///
-/// It's equivalent to `IRBuilder::createCmp(FCMP_UNE, ...)`.
+/// It's equivalent to `IRBuilder::createFCmp(UNE, ...)`.
 pub fn IRBuilder::createFCmpUNE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
   name~ : String = ""
 ) -> &Value raise Error {
-  self.createCmp(FCMP_UNE, lhs, rhs, name~)
+  self.createFCmp(UNE, lhs, rhs, name~)
 }
 
 ///| Create a Trunc Instruction

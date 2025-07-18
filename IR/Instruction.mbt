@@ -598,157 +598,260 @@ pub impl Show for BinaryInst with output(self, logger) {
 }
 
 // =======================================================
-// CmpInst
+// ICmpInst
 // =======================================================
-
 ///|
-pub(all) enum Predicate {
-  /// Always false (always folded)
-  FCMP_FALSE
-  /// True if ordered and equal
-  FCMP_OEQ
-  /// True if ordered and greater than
-  FCMP_OGT
-  /// True if ordered and greater than or equal
-  FCMP_OGE
-  /// True if ordered and less than
-  FCMP_OLT
-  /// True if ordered and less than or equal
-  FCMP_OLE
-  /// True if ordered and operands are unequal
-  FCMP_ONE
-  /// True if ordered (no nans)
-  FCMP_ORD
-  /// True if unordered: isnan(X) | isnan(Y)
-  FCMP_UNO
-  /// True if unordered or equal
-  FCMP_UEQ
-  /// True if unordered or greater than
-  FCMP_UGT
-  /// True if unordered, greater than, or equal
-  FCMP_UGE
-  /// True if unordered or less than
-  FCMP_ULT
-  /// True if unordered, less than, or equal
-  FCMP_ULE
-  /// True if unordered or not equal
-  FCMP_UNE
-  /// Always true (always folded)
-  FCMP_TRUE
+pub(all) enum IntPredicate {
   /// equal
-  ICMP_EQ
+  EQ
   /// not equal
-  ICMP_NE
+  NE
   /// unsigned greater than
-  ICMP_UGT
+  UGT
   /// unsigned greater or equal
-  ICMP_UGE
+  UGE
   /// unsigned less than
-  ICMP_ULT
+  ULT
   /// unsigned less or equal
-  ICMP_ULE
+  ULE
   /// signed greater than
-  ICMP_SGT
+  SGT
   /// signed greater or equal
-  ICMP_SGE
+  SGE
   /// signed less than
-  ICMP_SLT
+  SLT
   /// signed less or equal
-  ICMP_SLE
+  SLE
 }
 
-///|
-pub impl Show for Predicate with output(self, logger) {
-  let str = match self {
-    FCMP_FALSE => "fcmp false"
-    FCMP_OEQ => "fcmp oeq"
-    FCMP_OGT => "fcmp ogt"
-    FCMP_OGE => "fcmp oge"
-    FCMP_OLT => "fcmp olt"
-    FCMP_OLE => "fcmp ole"
-    FCMP_ONE => "fcmp one"
-    FCMP_ORD => "fcmp ord"
-    FCMP_UNO => "fcmp uno"
-    FCMP_UEQ => "fcmp ueq"
-    FCMP_UGT => "fcmp ugt"
-    FCMP_UGE => "fcmp uge"
-    FCMP_ULT => "fcmp ult"
-    FCMP_ULE => "fcmp ule"
-    FCMP_UNE => "fcmp une"
-    FCMP_TRUE => "fcmp true"
-    ICMP_EQ => "icmp eq"
-    ICMP_NE => "icmp ne"
-    ICMP_UGT => "icmp ugt"
-    ICMP_UGE => "icmp uge"
-    ICMP_ULT => "icmp ult"
-    ICMP_ULE => "icmp ule"
-    ICMP_SGT => "icmp sgt"
-    ICMP_SGE => "icmp sge"
-    ICMP_SLT => "icmp slt"
-    ICMP_SLE => "icmp sle"
+pub impl Show for IntPredicate with output(self, logger) {
+  let s = match self {
+    EQ => "icmp eq"
+    NE => "icmp ne"
+    UGT => "icmp ugt"
+    UGE => "icmp uge"
+    ULT => "icmp ult"
+    ULE => "icmp ule"
+    SGT => "icmp sgt"
+    SGE => "icmp sge"
+    SLT => "icmp slt"
+    SLE => "icmp sle"
   }
-  logger.write_string(str)
+  logger.write_string(s)
 }
 
 ///|
-pub struct CmpInst {
+pub struct ICmpInst {
   base : ValueBase
   user_base : UserBase
   inst_base : InstBase
-  predicate : Predicate
+  predicate : IntPredicate
 }
 
 ///|
-fn CmpInst::new(
-  predicate : Predicate,
+fn ICmpInst::new(
+  predicate : IntPredicate,
   lhs : &Value,
   rhs : &Value,
   parent : Function,
   name : String
-) -> CmpInst raise LLVMValueError {
+) -> ICmpInst raise LLVMValueError {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else { raise TypeMismatchForCmpInst(lhsTy, rhsTy) }
+  guard lhsTy.tryAsIntegerTypeEnum() is Some(_) else {
+    raise TypeMismatchForICmpInst(lhsTy)
+  }
   let vty = parent.getContext().getInt1Ty()
   let base = ValueBase::new(vty)
   let user_base = UserBase::new(name)
   let inst_base = InstBase::new(parent)
-  let inst = CmpInst::{ base, user_base, inst_base, predicate }
+  let inst = ICmpInst::{ base, user_base, inst_base, predicate }
   inst..addOperand(lhs)..addOperand(rhs)
   inst
 }
 
 ///|
-impl Value for CmpInst with getValueBase(self) {
+impl Value for ICmpInst with getValueBase(self) {
   self.base
 }
 
 ///|
-impl Value for CmpInst with asValueEnum(self) {
-  CmpInst(self)
+impl Value for ICmpInst with asValueEnum(self) {
+  ICmpInst(self)
 }
 
 ///|
-impl User for CmpInst with asUserEnum(self) {
-  CmpInst(self)
+impl User for ICmpInst with asUserEnum(self) {
+  ICmpInst(self)
 }
 
 ///|
-impl User for CmpInst with getUserBase(self) {
+impl User for ICmpInst with getUserBase(self) {
   self.user_base
 }
 
 ///|
-impl Instruction for CmpInst with getInstBase(self) {
+impl Instruction for ICmpInst with getInstBase(self) {
   self.inst_base
 }
 
 ///|
-impl Instruction for CmpInst with asInstEnum(self) {
-  InstEnum::CmpInst(self)
+impl Instruction for ICmpInst with asInstEnum(self) {
+  InstEnum::ICmpInst(self)
 }
 
 ///|
-impl Show for CmpInst with output(self, logger) {
+impl Show for ICmpInst with output(self, logger) {
+  let parent = self.getParent()
+  let lhs = self.getOperand(0).unwrap()
+  let rhs = self.getOperand(1).unwrap()
+  let lhs_ty = lhs.getType()
+  let prefix = match self.getName() {
+    Some(name) => "\{name}"
+    None if parent.getSlot(self) is Some(s) => "\{s}"
+    None => "<badref>"
+  }
+  let lhs_str = match lhs.getValueName() {
+    Some(lhs) => "%\{lhs}"
+    None if parent.getSlot(lhs) is Some(lhs_slot) => "%\{lhs_slot}"
+    None if lhs.tryAsConstant() is Some(c) => c.valstr()
+    _ => "<badref>"
+  }
+  let rhs_str = match rhs.getValueName() {
+    Some(rhs) => "%\{rhs}"
+    None if parent.getSlot(rhs) is Some(rhs_slot) => "%\{rhs_slot}"
+    None if rhs.tryAsConstant() is Some(c) => c.valstr()
+    _ => "<badref>"
+  }
+  logger.write_string(
+    "  %\{prefix} = \{self.predicate} \{lhs_ty} \{lhs_str}, \{rhs_str}",
+  )
+}
+
+// =======================================================
+// FCmpInst
+// =======================================================
+
+///|
+pub(all) enum FloatPredicate {
+  /// Always false (always folded)
+  FALSE
+  /// True if ordered and equal
+  OEQ
+  /// True if ordered and greater than
+  OGT
+  /// True if ordered and greater than or equal
+  OGE
+  /// True if ordered and less than
+  OLT
+  /// True if ordered and less than or equal
+  OLE
+  /// True if ordered and operands are unequal
+  ONE
+  /// True if ordered (no nans)
+  ORD
+  /// True if unordered: isnan(X) | isnan(Y)
+  UNO
+  /// True if unordered or equal
+  UEQ
+  /// True if unordered or greater than
+  UGT
+  /// True if unordered, greater than, or equal
+  UGE
+  /// True if unordered or less than
+  ULT
+  /// True if unordered, less than, or equal
+  ULE
+  /// True if unordered or not equal
+  UNE
+  /// Always true (always folded)
+  TRUE
+}
+
+pub impl Show for FloatPredicate with output(self, logger) {
+  let s = match self {
+    FALSE => "fcmp false"
+    OEQ => "fcmp oeq"
+    OGT => "fcmp ogt"
+    OGE => "fcmp oge"
+    OLT => "fcmp olt"
+    OLE => "fcmp ole"
+    ONE => "fcmp one"
+    ORD => "fcmp ord"
+    UNO => "fcmp uno"
+    UEQ => "fcmp ueq"
+    UGT => "fcmp ugt"
+    UGE => "fcmp uge"
+    ULT => "fcmp ult"
+    ULE => "fcmp ule"
+    UNE => "fcmp une"
+    TRUE => "fcmp true"
+  }
+  logger.write_string(s)
+}
+
+///|
+pub struct FCmpInst {
+  base : ValueBase
+  user_base : UserBase
+  inst_base : InstBase
+  predicate : FloatPredicate
+}
+
+///|
+fn FCmpInst::new(
+  predicate : FloatPredicate,
+  lhs : &Value,
+  rhs : &Value,
+  parent : Function,
+  name : String
+) -> FCmpInst raise LLVMValueError {
+  let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
+  guard lhsTy == rhsTy else { raise TypeMismatchForCmpInst(lhsTy, rhsTy) }
+  guard lhsTy.tryAsFPTypeEnum() is Some(_) else {
+    raise TypeMismatchForFCmpInst(lhsTy)
+  }
+  let vty = parent.getContext().getInt1Ty()
+  let base = ValueBase::new(vty)
+  let user_base = UserBase::new(name)
+  let inst_base = InstBase::new(parent)
+  let inst = FCmpInst::{ base, user_base, inst_base, predicate }
+  inst..addOperand(lhs)..addOperand(rhs)
+  inst
+}
+
+///|
+impl Value for FCmpInst with getValueBase(self) {
+  self.base
+}
+
+///|
+impl Value for FCmpInst with asValueEnum(self) {
+  FCmpInst(self)
+}
+
+///|
+impl User for FCmpInst with asUserEnum(self) {
+  FCmpInst(self)
+}
+
+///|
+impl User for FCmpInst with getUserBase(self) {
+  self.user_base
+}
+
+///|
+impl Instruction for FCmpInst with getInstBase(self) {
+  self.inst_base
+}
+
+///|
+impl Instruction for FCmpInst with asInstEnum(self) {
+  InstEnum::FCmpInst(self)
+}
+
+///|
+impl Show for FCmpInst with output(self, logger) {
   let parent = self.getParent()
   let lhs = self.getOperand(0).unwrap()
   let rhs = self.getOperand(1).unwrap()

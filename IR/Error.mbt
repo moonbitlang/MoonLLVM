@@ -21,8 +21,9 @@ suberror LLVMValueError {
   TypeMismatchForBinaryOp(&Type, &Type)
   TypeNotSupportForBinaryOp(&Type, BinaryOps)
   TypeMismatchForCmpInst(&Type, &Type)
+  TypeMismatchForICmpInst(&Type)
+  TypeMismatchForFCmpInst(&Type)
   TypeMismatchForReturnInst(&Type, &Type)
-  InValidPredicateForCmpInst(Predicate, &Type)
   DivisionByZeroError
   TypeCouldNotBeCreatedZeroValue(&Type)
   TruncCastInstTypeMismatch(&Type, &Type)

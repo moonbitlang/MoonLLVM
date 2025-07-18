@@ -45,7 +45,8 @@ pub enum ValueEnum {
   // FreezeInst(FreezeInst)
   CastInst(CastInst)
   BinaryInst(BinaryInst)
-  CmpInst(CmpInst)
+  ICmpInst(ICmpInst)
+  FCmpInst(FCmpInst)
   StoreInst(StoreInst)
   GetElementPtrInst(GetElementPtrInst)
   SelectInst(SelectInst)
@@ -99,7 +100,8 @@ pub fn ValueEnum::tryAsUserEnum(self : ValueEnum) -> UserEnum? {
     //FreezeInst(c) => FreezeInst(c) |> Some
     CastInst(c) => CastInst(c) |> Some
     BinaryInst(b) => BinaryInst(b) |> Some
-    CmpInst(c) => CmpInst(c) |> Some
+    ICmpInst(c) => ICmpInst(c) |> Some
+    FCmpInst(c) => FCmpInst(c) |> Some
     StoreInst(s) => StoreInst(s) |> Some
     GetElementPtrInst(g) => GetElementPtrInst(g) |> Some
     SelectInst(s) => SelectInst(s) |> Some
@@ -123,7 +125,8 @@ pub fn ValueEnum::tryAsInstEnum(self : ValueEnum) -> InstEnum? {
     //FreezeInst(c) => FreezeInst(c) |> Some
     CastInst(c) => CastInst(c) |> Some
     BinaryInst(b) => BinaryInst(b) |> Some
-    CmpInst(c) => CmpInst(c) |> Some
+    ICmpInst(c) => ICmpInst(c) |> Some
+    FCmpInst(c) => FCmpInst(c) |> Some
     StoreInst(s) => StoreInst(s) |> Some
     GetElementPtrInst(g) => GetElementPtrInst(g) |> Some
     SelectInst(s) => SelectInst(s) |> Some
@@ -277,7 +280,8 @@ impl Value with tryAsUserEnum(self) {
     //FreezeInst(c) => Some(FreezeInst(c))
     CastInst(c) => Some(CastInst(c))
     BinaryInst(b) => Some(BinaryInst(b))
-    CmpInst(c) => Some(CmpInst(c))
+    ICmpInst(c) => Some(ICmpInst(c))
+    FCmpInst(c) => Some(FCmpInst(c))
     StoreInst(s) => Some(StoreInst(s))
     GetElementPtrInst(g) => Some(GetElementPtrInst(g))
     SelectInst(s) => Some(SelectInst(s))
@@ -399,7 +403,8 @@ pub enum UserEnum {
   //FreezeInst(FreezeInst)
   CastInst(CastInst)
   BinaryInst(BinaryInst)
-  CmpInst(CmpInst)
+  ICmpInst(ICmpInst)
+  FCmpInst(FCmpInst)
   StoreInst(StoreInst)
   GetElementPtrInst(GetElementPtrInst)
   SelectInst(SelectInst)
@@ -420,7 +425,8 @@ pub fn UserEnum::asClass(self : Self) -> &User {
     LoadInst(l) => l
     ExtractValueInst(e) => e
     BinaryInst(b) => b
-    CmpInst(c) => c
+    ICmpInst(c) => c
+    FCmpInst(c) => c
     StoreInst(s) => s
     CastInst(c) => c
     GetElementPtrInst(g) => g
@@ -441,7 +447,8 @@ pub fn UserEnum::getUserName(self : UserEnum) -> String? {
     LoadInst(l) => l.getUserName()
     ExtractValueInst(e) => e.getUserName()
     BinaryInst(b) => b.getUserName()
-    CmpInst(c) => c.getUserName()
+    ICmpInst(c) => c.getUserName()
+    FCmpInst(c) => c.getUserName()
     StoreInst(s) => s.getUserName()
     CastInst(c) => c.getUserName()
     GetElementPtrInst(g) => g.getUserName()
@@ -575,7 +582,8 @@ pub enum InstEnum {
   //FreezeInst(FreezeInst)
   CastInst(CastInst)
   BinaryInst(BinaryInst)
-  CmpInst(CmpInst)
+  ICmpInst(ICmpInst)
+  FCmpInst(FCmpInst)
   StoreInst(StoreInst)
   GetElementPtrInst(GetElementPtrInst)
   SelectInst(SelectInst)

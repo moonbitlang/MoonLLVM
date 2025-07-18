@@ -690,39 +690,39 @@ pub fn ConstantInt::ashr(
 /// let i8_10 = ctx.getConstInt8(10)
 /// let i8_m5 = ctx.getConstInt8(-5)
 ///
-/// // Test ICMP_EQ
-/// inspect(i8_5.compare(ICMP_EQ, i8_5), content="i1 true")
-/// inspect(i8_5.compare(ICMP_EQ, i8_10), content="i1 false")
+/// // Test EQ
+/// inspect(i8_5.compare(EQ, i8_5), content="i1 true")
+/// inspect(i8_5.compare(EQ, i8_10), content="i1 false")
 ///
-/// // Test ICMP_NE
-/// inspect(i8_5.compare(ICMP_NE, i8_10), content="i1 true")
-/// inspect(i8_5.compare(ICMP_NE, i8_5), content="i1 false")
+/// // Test NE
+/// inspect(i8_5.compare(NE, i8_10), content="i1 true")
+/// inspect(i8_5.compare(NE, i8_5), content="i1 false")
 ///
-/// // Test ICMP_SGT (signed greater than)
-/// inspect(i8_10.compare(ICMP_SGT, i8_5), content="i1 true")
-/// inspect(i8_5.compare(ICMP_SGT, i8_10), content="i1 false")
-/// inspect(i8_5.compare(ICMP_SGT, i8_m5), content="i1 true")
+/// // Test SGT (signed greater than)
+/// inspect(i8_10.compare(SGT, i8_5), content="i1 true")
+/// inspect(i8_5.compare(SGT, i8_10), content="i1 false")
+/// inspect(i8_5.compare(SGT, i8_m5), content="i1 true")
 ///
-/// // Test ICMP_UGT (unsigned greater than)
+/// // Test UGT (unsigned greater than)
 /// let i8_200 = ctx.getConstInt8(200) // -56 as signed, 200 as unsigned
-/// inspect(i8_200.compare(ICMP_UGT, i8_10), content="i1 true")
-/// inspect(i8_10.compare(ICMP_UGT, i8_200), content="i1 false")
+/// inspect(i8_200.compare(UGT, i8_10), content="i1 true")
+/// inspect(i8_10.compare(UGT, i8_200), content="i1 false")
 ///
-/// // Test ICMP_SLT (signed less than)
-/// inspect(i8_5.compare(ICMP_SLT, i8_10), content="i1 true")
-/// inspect(i8_m5.compare(ICMP_SLT, i8_5), content="i1 true")
+/// // Test SLT (signed less than)
+/// inspect(i8_5.compare(SLT, i8_10), content="i1 true")
+/// inspect(i8_m5.compare(SLT, i8_5), content="i1 true")
 ///
-/// // Test ICMP_ULE (unsigned less or equal)
-/// inspect(i8_5.compare(ICMP_ULE, i8_10), content="i1 true")
-/// inspect(i8_5.compare(ICMP_ULE, i8_5), content="i1 true")
+/// // Test ULE (unsigned less or equal)
+/// inspect(i8_5.compare(ULE, i8_10), content="i1 true")
+/// inspect(i8_5.compare(ULE, i8_5), content="i1 true")
 ///
 /// // Test type mismatch
 /// let i16_5 = ctx.getConstInt16(5)
-/// assert_true({try? i8_5.compare(ICMP_EQ, i16_5)} is Err(_))
+/// assert_true({try? i8_5.compare(EQ, i16_5)} is Err(_))
 /// ```
 pub fn ConstantInt::compare(
   self : ConstantInt,
-  predicate : Predicate,
+  predicate : IntPredicate,
   other : ConstantInt
 ) -> ConstantInt raise LLVMValueError {
   let (lty, rty) = (self.getType(), other.getType())
@@ -730,13 +730,13 @@ pub fn ConstantInt::compare(
   guard lty.tryAsIntegerTypeEnum() is Some(ty)
   let ctx = self.getType().getContext()
   let result = match predicate {
-    ICMP_EQ => self.value == other.value
-    ICMP_NE => self.value != other.value
-    ICMP_SGT => self.value > other.value
-    ICMP_SGE => self.value >= other.value
-    ICMP_SLT => self.value < other.value
-    ICMP_SLE => self.value <= other.value
-    ICMP_UGT =>
+    EQ => self.value == other.value
+    NE => self.value != other.value
+    SGT => self.value > other.value
+    SGE => self.value >= other.value
+    SLT => self.value < other.value
+    SLE => self.value <= other.value
+    UGT =>
       match ty {
         Int1Type(_) => self.value > other.value
         Int8Type(_) => self.value.to_byte() > other.value.to_byte()
@@ -749,7 +749,7 @@ pub fn ConstantInt::compare(
           self.value.reinterpret_as_uint64() >
           other.value.reinterpret_as_uint64()
       }
-    ICMP_UGE =>
+    UGE =>
       match ty {
         Int1Type(_) => self.value >= other.value
         Int8Type(_) => self.value.to_byte() >= other.value.to_byte()
@@ -762,7 +762,7 @@ pub fn ConstantInt::compare(
           self.value.reinterpret_as_uint64() >=
           other.value.reinterpret_as_uint64()
       }
-    ICMP_ULT =>
+    ULT =>
       match ty {
         Int1Type(_) => self.value < other.value
         Int8Type(_) => self.value.to_byte() < other.value.to_byte()
@@ -775,7 +775,7 @@ pub fn ConstantInt::compare(
           self.value.reinterpret_as_uint64() <
           other.value.reinterpret_as_uint64()
       }
-    ICMP_ULE =>
+    ULE =>
       match ty {
         Int1Type(_) => self.value <= other.value
         Int8Type(_) => self.value.to_byte() <= other.value.to_byte()
@@ -788,7 +788,6 @@ pub fn ConstantInt::compare(
           self.value.reinterpret_as_uint64() <=
           other.value.reinterpret_as_uint64()
       }
-    _ => raise InValidPredicateForCmpInst(predicate, lty)
   }
   match result {
     true => ctx.getConstTrue()
@@ -1279,46 +1278,46 @@ pub fn ConstantFP::div(
 /// let f32_nan = ctx.getConstFloat(0.0 / 0.0)
 ///
 /// // Test FCMP_OEQ (ordered equal)
-/// inspect(f32_1_5.compare(FCMP_OEQ, f32_1_5), content="i1 true")
-/// inspect(f32_1_5.compare(FCMP_OEQ, f32_2_5), content="i1 false")
-/// inspect(f32_nan.compare(FCMP_OEQ, f32_nan), content="i1 false") // NaN != NaN
+/// inspect(f32_1_5.compare(OEQ, f32_1_5), content="i1 true")
+/// inspect(f32_1_5.compare(OEQ, f32_2_5), content="i1 false")
+/// inspect(f32_nan.compare(OEQ, f32_nan), content="i1 false") // NaN != NaN
 ///
-/// // Test FCMP_UEQ (unordered equal)
-/// inspect(f32_1_5.compare(FCMP_UEQ, f32_1_5), content="i1 true")
-/// inspect(f32_nan.compare(FCMP_UEQ, f32_nan), content="i1 true") // NaN == NaN in unordered
+/// // Test UEQ (unordered equal)
+/// inspect(f32_1_5.compare(UEQ, f32_1_5), content="i1 true")
+/// inspect(f32_nan.compare(UEQ, f32_nan), content="i1 true") // NaN == NaN in unordered
 ///
-/// // Test FCMP_OGT (ordered greater than)
-/// inspect(f32_2_5.compare(FCMP_OGT, f32_1_5), content="i1 true")
-/// inspect(f32_1_5.compare(FCMP_OGT, f32_2_5), content="i1 false")
-/// inspect(f32_nan.compare(FCMP_OGT, f32_1_5), content="i1 false") // NaN comparisons are false
+/// // Test OGT (ordered greater than)
+/// inspect(f32_2_5.compare(OGT, f32_1_5), content="i1 true")
+/// inspect(f32_1_5.compare(OGT, f32_2_5), content="i1 false")
+/// inspect(f32_nan.compare(OGT, f32_1_5), content="i1 false") // NaN comparisons are false
 ///
-/// // Test FCMP_UGT (unordered greater than)
-/// inspect(f32_2_5.compare(FCMP_UGT, f32_1_5), content="i1 true")
-/// inspect(f32_nan.compare(FCMP_UGT, f32_1_5), content="i1 true") // NaN makes it unordered
+/// // Test UGT (unordered greater than)
+/// inspect(f32_2_5.compare(UGT, f32_1_5), content="i1 true")
+/// inspect(f32_nan.compare(UGT, f32_1_5), content="i1 true") // NaN makes it unordered
 ///
-/// // Test FCMP_OLT (ordered less than)
-/// inspect(f32_1_5.compare(FCMP_OLT, f32_2_5), content="i1 true")
-/// inspect(f32_2_5.compare(FCMP_OLT, f32_1_5), content="i1 false")
+/// // Test OLT (ordered less than)
+/// inspect(f32_1_5.compare(OLT, f32_2_5), content="i1 true")
+/// inspect(f32_2_5.compare(OLT, f32_1_5), content="i1 false")
 ///
-/// // Test FCMP_ORD (ordered - no NaNs)
-/// inspect(f32_1_5.compare(FCMP_ORD, f32_2_5), content="i1 true")
-/// inspect(f32_nan.compare(FCMP_ORD, f32_1_5), content="i1 false")
+/// // Test ORD (ordered - no NaNs)
+/// inspect(f32_1_5.compare(ORD, f32_2_5), content="i1 true")
+/// inspect(f32_nan.compare(ORD, f32_1_5), content="i1 false")
 ///
-/// // Test FCMP_UNO (unordered - has NaNs)
-/// inspect(f32_1_5.compare(FCMP_UNO, f32_2_5), content="i1 false")
-/// inspect(f32_nan.compare(FCMP_UNO, f32_1_5), content="i1 true")
+/// // Test UNO (unordered - has NaNs)
+/// inspect(f32_1_5.compare(UNO, f32_2_5), content="i1 false")
+/// inspect(f32_nan.compare(UNO, f32_1_5), content="i1 true")
 ///
-/// // Test FCMP_TRUE and FCMP_FALSE
-/// inspect(f32_1_5.compare(FCMP_TRUE, f32_2_5), content="i1 true")
-/// inspect(f32_1_5.compare(FCMP_FALSE, f32_2_5), content="i1 false")
+/// // Test TRUE and FCMP_FALSE
+/// inspect(f32_1_5.compare(TRUE, f32_2_5), content="i1 true")
+/// inspect(f32_1_5.compare(FALSE, f32_2_5), content="i1 false")
 ///
 /// // Test type mismatch
 /// let f64_1_5 = ctx.getConstDouble(1.5)
-/// assert_true({try? f32_1_5.compare(FCMP_OEQ, f64_1_5)} is Err(_))
+/// assert_true({try? f32_1_5.compare(OEQ, f64_1_5)} is Err(_))
 /// ```
 pub fn ConstantFP::compare(
   self : ConstantFP,
-  predicate : Predicate,
+  predicate : FloatPredicate,
   other : ConstantFP
 ) -> ConstantInt raise LLVMValueError {
   let (lty, rty) = (self.getType(), other.getType())
@@ -1330,23 +1329,22 @@ pub fn ConstantFP::compare(
   let is_unordered = self_is_nan || other_is_nan
   let ctx = self.getType().getContext()
   let result = match predicate {
-    FCMP_FALSE => false
-    FCMP_TRUE => true
-    FCMP_OEQ => not(is_unordered) && self_val == other_val
-    FCMP_OGT => not(is_unordered) && self_val > other_val
-    FCMP_OGE => not(is_unordered) && self_val >= other_val
-    FCMP_OLT => not(is_unordered) && self_val < other_val
-    FCMP_OLE => not(is_unordered) && self_val <= other_val
-    FCMP_ONE => not(is_unordered) && self_val != other_val
-    FCMP_ORD => not(is_unordered)
-    FCMP_UNO => is_unordered
-    FCMP_UEQ => is_unordered || self_val == other_val
-    FCMP_UGT => is_unordered || self_val > other_val
-    FCMP_UGE => is_unordered || self_val >= other_val
-    FCMP_ULT => is_unordered || self_val < other_val
-    FCMP_ULE => is_unordered || self_val <= other_val
-    FCMP_UNE => is_unordered || self_val != other_val
-    _ => raise InValidPredicateForCmpInst(predicate, lty)
+    FALSE => false
+    TRUE => true
+    OEQ => not(is_unordered) && self_val == other_val
+    OGT => not(is_unordered) && self_val > other_val
+    OGE => not(is_unordered) && self_val >= other_val
+    OLT => not(is_unordered) && self_val < other_val
+    OLE => not(is_unordered) && self_val <= other_val
+    ONE => not(is_unordered) && self_val != other_val
+    ORD => not(is_unordered)
+    UNO => is_unordered
+    UEQ => is_unordered || self_val == other_val
+    UGT => is_unordered || self_val > other_val
+    UGE => is_unordered || self_val >= other_val
+    ULT => is_unordered || self_val < other_val
+    ULE => is_unordered || self_val <= other_val
+    UNE => is_unordered || self_val != other_val
   }
   match result {
     true => ctx.getConstTrue()
