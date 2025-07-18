@@ -1690,7 +1690,6 @@ pub fn IRBuilder::createICmpSLE(
   self.createICmp(SLE, lhs, rhs, name~)
 }
 
-
 ///| Create a Float Compare Instruction.
 ///
 /// **Note:**
@@ -1775,7 +1774,6 @@ pub fn IRBuilder::createFCmp(
   self.insert(inst)
   inst
 }
-
 
 ///| Create OEQ (Ordered Equal) Comparison Instruction for floating-point values.
 ///
@@ -2937,7 +2935,6 @@ pub fn IRBuilder::createInsertValue(
 //  name~ : String = "",
 //  loc~ : SourceLoc = _
 //) -> CallInst raise {
-
 
 ///| Create a Free Instruction
 ///

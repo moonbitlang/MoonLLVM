@@ -287,7 +287,7 @@ fn Function::appendBasicBlock(
       let idx = match self.basicBlocks.search(before) {
         Some(idx) => idx
         None => {
-          let msg = 
+          let msg =
             #|Serious error: loc: Function::addBasicBlock.
             #|the `before` block's parent is not the same as the function's parent
           println(msg)

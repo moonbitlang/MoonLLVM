@@ -28,19 +28,16 @@ test "complex arithmetic operations" {
   // (a + b) * c - a / b
   let final_result = builder.createSub(mul_result, div_result, name="final")
   let _ = builder.createRet(final_result)
-  let expect = 
-      #|define i32 @complex_math(i32 %0, i32 %1, i32 %2) {
-      #|entry:
-      #|  %add_ab = add i32 %0, %1
-      #|  %mul_abc = mul i32 %add_ab, %2
-      #|  %div_ab = sdiv i32 %0, %1
-      #|  %final = sub i32 %mul_abc, %div_ab
-      #|  ret i32 %final
-      #|}
-  inspect(
-    fval,
-    content=expect
-  )
+  let expect =
+    #|define i32 @complex_math(i32 %0, i32 %1, i32 %2) {
+    #|entry:
+    #|  %add_ab = add i32 %0, %1
+    #|  %mul_abc = mul i32 %add_ab, %2
+    #|  %div_ab = sdiv i32 %0, %1
+    #|  %final = sub i32 %mul_abc, %div_ab
+    #|  ret i32 %final
+    #|}
+  inspect(fval, content=expect)
 }
 
 // 嵌套条件测试 
@@ -95,30 +92,26 @@ test "nested conditional statements" {
   builder.setInsertPoint(innerElseBB)
   let fifty = ctx.getConstInt32(50)
   let _ = builder.createRet(fifty)
-  let expect = 
-      #|define i32 @nested_if(i32 %0) {
-      #|entry:
-      #|  %x_gt_0 = icmp sgt i32 %0, 0
-      #|  br i1 %x_gt_0, label %positive, label %negative
-      #|
-      #|positive:
-      #|  %x_gt_10 = icmp sgt i32 %0, 10
-      #|  br i1 %x_gt_10, label %inner_if, label %inner_else
-      #|
-      #|negative:
-      #|  ret i32 0
-      #|
-      #|inner_if:
-      #|  ret i32 100
-      #|
-      #|inner_else:
-      #|  ret i32 50
-      #|}
-  inspect(
-    fval,
-    content=expect
-    ,
-  )
+  let expect =
+    #|define i32 @nested_if(i32 %0) {
+    #|entry:
+    #|  %x_gt_0 = icmp sgt i32 %0, 0
+    #|  br i1 %x_gt_0, label %positive, label %negative
+    #|
+    #|positive:
+    #|  %x_gt_10 = icmp sgt i32 %0, 10
+    #|  br i1 %x_gt_10, label %inner_if, label %inner_else
+    #|
+    #|negative:
+    #|  ret i32 0
+    #|
+    #|inner_if:
+    #|  ret i32 100
+    #|
+    #|inner_else:
+    #|  ret i32 50
+    #|}
+  inspect(fval, content=expect)
 }
 
 // 循环结构测试: 
@@ -171,30 +164,26 @@ test "simple loop structure" {
   // Exit block
   builder.setInsertPoint(exitBB)
   let _ = builder.createRet(sum_phi)
-  let expect = 
-      #|define i32 @simple_loop(i32 %0) {
-      #|entry:
-      #|  br label %loop
-      #|
-      #|loop:
-      #|  %i = phi i32 [ 0, %entry ], [ %new_i, %body ]
-      #|  %sum = phi i32 [ 0, %entry ], [ %new_sum, %body ]
-      #|  %i_lt_n = icmp slt i32 %i, %0
-      #|  br i1 %i_lt_n, label %body, label %exit
-      #|
-      #|body:
-      #|  %new_sum = add i32 %sum, %i
-      #|  %new_i = add i32 %i, 1
-      #|  br label %loop
-      #|
-      #|exit:
-      #|  ret i32 %sum
-      #|}
-  inspect(
-    fval,
-    content=expect
-    ,
-  )
+  let expect =
+    #|define i32 @simple_loop(i32 %0) {
+    #|entry:
+    #|  br label %loop
+    #|
+    #|loop:
+    #|  %i = phi i32 [ 0, %entry ], [ %new_i, %body ]
+    #|  %sum = phi i32 [ 0, %entry ], [ %new_sum, %body ]
+    #|  %i_lt_n = icmp slt i32 %i, %0
+    #|  br i1 %i_lt_n, label %body, label %exit
+    #|
+    #|body:
+    #|  %new_sum = add i32 %sum, %i
+    #|  %new_i = add i32 %i, 1
+    #|  br label %loop
+    #|
+    #|exit:
+    #|  ret i32 %sum
+    #|}
+  inspect(fval, content=expect)
 }
 
 // 浮点运算测试 - 模拟 C:
@@ -224,18 +213,15 @@ test "floating point operations" {
   // (a + b) / (a - b)
   let div_result = builder.createFDiv(add_result, sub_result, name="div_result")
   let _ = builder.createRet(div_result)
-  let expect = 
-      #|define float @float_ops(float %0, float %1) {
-      #|entry:
-      #|  %add_ab = fadd float %0, %1
-      #|  %sub_ab = fsub float %0, %1
-      #|  %div_result = fdiv float %add_ab, %sub_ab
-      #|  ret float %div_result
-      #|}
-  inspect(
-    fval,
-    content=expect
-  )
+  let expect =
+    #|define float @float_ops(float %0, float %1) {
+    #|entry:
+    #|  %add_ab = fadd float %0, %1
+    #|  %sub_ab = fsub float %0, %1
+    #|  %div_result = fdiv float %add_ab, %sub_ab
+    #|  ret float %div_result
+    #|}
+  inspect(fval, content=expect)
 }
 
 // 类型转换测试
@@ -264,17 +250,14 @@ test "type conversion operations" {
   // Add float values
   let result = builder.createFAdd(i_as_float, arg_f, name="result")
   let _ = builder.createRet(result)
-  let expect = 
-      #|define float @convert_types(i32 %0, float %1) {
-      #|entry:
-      #|  %i_to_float = sitofp i32 %0
-      #|  %result = fadd float %i_to_float, %1
-      #|  ret float %result
-      #|}
-  inspect(
-    fval,
-    content=expect
-  )
+  let expect =
+    #|define float @convert_types(i32 %0, float %1) {
+    #|entry:
+    #|  %i_to_float = sitofp i32 %0
+    #|  %result = fadd float %i_to_float, %1
+    #|  ret float %result
+    #|}
+  inspect(fval, content=expect)
 }
 
 // 位操作测试
@@ -304,18 +287,15 @@ test "bitwise operations" {
   // (a & b) | (a ^ b)
   let or_result = builder.createOr(and_result, xor_result, name="final")
   let _ = builder.createRet(or_result)
-  let expect = 
-      #|define i32 @bitwise_ops(i32 %0, i32 %1) {
-      #|entry:
-      #|  %and_ab = and i32 %0, %1
-      #|  %xor_ab = xor i32 %0, %1
-      #|  %final = or i32 %and_ab, %xor_ab
-      #|  ret i32 %final
-      #|}
-  inspect(
-    fval,
-    content=expect
-  )
+  let expect =
+    #|define i32 @bitwise_ops(i32 %0, i32 %1) {
+    #|entry:
+    #|  %and_ab = and i32 %0, %1
+    #|  %xor_ab = xor i32 %0, %1
+    #|  %final = or i32 %and_ab, %xor_ab
+    #|  ret i32 %final
+    #|}
+  inspect(fval, content=expect)
 }
 
 // 内存操作测试
@@ -353,21 +333,18 @@ test "memory operations" {
   // Return final value
   let final_val = builder.createLoad(i32ty, local_ptr, name="final")
   let _ = builder.createRet(final_val)
-  let expect = 
-      #|define i32 @memory_ops(i32 %0) {
-      #|entry:
-      #|  %local = alloca i32, align 4
-      #|  store i32 %0, ptr %local, align 4
-      #|  %loaded = load i32, ptr %local, align 4
-      #|  %incremented = add i32 %loaded, 10
-      #|  store i32 %incremented, ptr %local, align 4
-      #|  %final = load i32, ptr %local, align 4
-      #|  ret i32 %final
-      #|}
-  inspect(
-    fval,
-    content=expect
-  )
+  let expect =
+    #|define i32 @memory_ops(i32 %0) {
+    #|entry:
+    #|  %local = alloca i32, align 4
+    #|  store i32 %0, ptr %local, align 4
+    #|  %loaded = load i32, ptr %local, align 4
+    #|  %incremented = add i32 %loaded, 10
+    #|  store i32 %incremented, ptr %local, align 4
+    #|  %final = load i32, ptr %local, align 4
+    #|  ret i32 %final
+    #|}
+  inspect(fval, content=expect)
 }
 
 // switch语句测试
@@ -415,28 +392,24 @@ test "switch statement" {
   builder.setInsertPoint(defaultBB)
   let zero = ctx.getConstInt32(0)
   let _ = builder.createRet(zero)
-  let expect = 
-      #|define i32 @switch_test(i32 %0) {
-      #|entry:
-      #|  switch i32 %0, label %default [
-      #|    i32 1, label %case1
-      #|    i32 2, label %case2
-      #|  ]
-      #|
-      #|case1:
-      #|  ret i32 10
-      #|
-      #|case2:
-      #|  ret i32 20
-      #|
-      #|default:
-      #|  ret i32 0
-      #|}
-  inspect(
-    fval,
-    content=expect
-    ,
-  )
+  let expect =
+    #|define i32 @switch_test(i32 %0) {
+    #|entry:
+    #|  switch i32 %0, label %default [
+    #|    i32 1, label %case1
+    #|    i32 2, label %case2
+    #|  ]
+    #|
+    #|case1:
+    #|  ret i32 10
+    #|
+    #|case2:
+    #|  ret i32 20
+    #|
+    #|default:
+    #|  ret i32 0
+    #|}
+  inspect(fval, content=expect)
 }
 
 // 比较操作测试
@@ -472,19 +445,16 @@ test "comparison operations" {
   // Outer select: (a > b) ? 1 : inner_select
   let result = builder.createSelect(gt_cond, one, inner_select, name="result")
   let _ = builder.createRet(result)
-  let expect = 
-      #|define i32 @compare_test(i32 %0, i32 %1) {
-      #|entry:
-      #|  %a_gt_b = icmp sgt i32 %0, %1
-      #|  %a_lt_b = icmp slt i32 %0, %1
-      #|  %inner = select i1 %a_lt_b, i32 -1, i32 0
-      #|  %result = select i1 %a_gt_b, i32 1, i32 %inner
-      #|  ret i32 %result
-      #|}
-  inspect(
-    fval,
-    content=expect
-  )
+  let expect =
+    #|define i32 @compare_test(i32 %0, i32 %1) {
+    #|entry:
+    #|  %a_gt_b = icmp sgt i32 %0, %1
+    #|  %a_lt_b = icmp slt i32 %0, %1
+    #|  %inner = select i1 %a_lt_b, i32 -1, i32 0
+    #|  %result = select i1 %a_gt_b, i32 1, i32 %inner
+    #|  ret i32 %result
+    #|}
+  inspect(fval, content=expect)
 }
 
 // 函数调用测试
@@ -533,20 +503,16 @@ test "function call test" {
   // Add results
   let final_result = builder.createAdd(call1, call2, name="final")
   let _ = builder.createRet(final_result)
-  let expect = 
-      #|define i32 @caller(i32 %0) {
-      #|entry:
-      #|  %call1 = call i32 @helper(i32 %0)
-      #|  %doubled = mul i32 %0, 2
-      #|  %call2 = call i32 @helper(i32 %doubled)
-      #|  %final = add i32 %call1, %call2
-      #|  ret i32 %final
-      #|}
-  inspect(
-    caller_func,
-    content=expect
-    ,
-  )
+  let expect =
+    #|define i32 @caller(i32 %0) {
+    #|entry:
+    #|  %call1 = call i32 @helper(i32 %0)
+    #|  %doubled = mul i32 %0, 2
+    #|  %call2 = call i32 @helper(i32 %doubled)
+    #|  %final = add i32 %call1, %call2
+    #|  ret i32 %final
+    #|}
+  inspect(caller_func, content=expect)
 }
 
 // 错误处理测试 - 测试不正确的函数调用
@@ -623,19 +589,15 @@ test "shift operations" {
   // 算术右移
   let ashr_result = builder.createAShr(lshr_result, arg_shift, name="ashr")
   let _ = builder.createRet(ashr_result)
-  let expect = 
-      #|define i32 @shift_ops(i32 %0, i32 %1) {
-      #|entry:
-      #|  %shl = shl i32 %0, %1
-      #|  %lshr = lshr i32 %shl, %1
-      #|  %ashr = ashr i32 %lshr, %1
-      #|  ret i32 %ashr
-      #|}
-  inspect(
-    fval,
-    content=expect
-    ,
-  )
+  let expect =
+    #|define i32 @shift_ops(i32 %0, i32 %1) {
+    #|entry:
+    #|  %shl = shl i32 %0, %1
+    #|  %lshr = lshr i32 %shl, %1
+    #|  %ashr = ashr i32 %lshr, %1
+    #|  ret i32 %ashr
+    #|}
+  inspect(fval, content=expect)
 }
 
 // GEP（GetElementPtr）指针运算测试 - 模拟C数组访问
@@ -664,17 +626,14 @@ test "GEP pointer arithmetic" {
   // 加载值
   let loaded_val = builder.createLoad(i32ty, element_ptr, name="element_val")
   let _ = builder.createRet(loaded_val)
-  let expect = 
-      #|define i32 @array_access(ptr %0, i32 %1) {
-      #|entry:
-      #|  %element_ptr = getelementptr i32, ptr %0, i32 %1
-      #|  %element_val = load i32, ptr %element_ptr, align 4
-      #|  ret i32 %element_val
-      #|}
-  inspect(
-    fval,
-    content=expect
-  )
+  let expect =
+    #|define i32 @array_access(ptr %0, i32 %1) {
+    #|entry:
+    #|  %element_ptr = getelementptr i32, ptr %0, i32 %1
+    #|  %element_val = load i32, ptr %element_ptr, align 4
+    #|  ret i32 %element_val
+    #|}
+  inspect(fval, content=expect)
 }
 
 // 复杂的常量折叠测试
@@ -747,30 +706,26 @@ test "nested loops simplified" {
   // 退出
   builder.setInsertPoint(exitBB)
   let _ = builder.createRet(result_phi)
-  let expect = 
-      #|define i32 @simple_multiply(i32 %0) {
-      #|entry:
-      #|  br label %loop
-      #|
-      #|loop:
-      #|  %i = phi i32 [ 0, %entry ], [ %new_i, %body ]
-      #|  %result = phi i32 [ 0, %entry ], [ %new_result, %body ]
-      #|  %i_lt_n = icmp slt i32 %i, %0
-      #|  br i1 %i_lt_n, label %body, label %exit
-      #|
-      #|body:
-      #|  %new_result = add i32 %result, 2
-      #|  %new_i = add i32 %i, 1
-      #|  br label %loop
-      #|
-      #|exit:
-      #|  ret i32 %result
-      #|}
-  inspect(
-    fval,
-    content=expect
-    ,
-  )
+  let expect =
+    #|define i32 @simple_multiply(i32 %0) {
+    #|entry:
+    #|  br label %loop
+    #|
+    #|loop:
+    #|  %i = phi i32 [ 0, %entry ], [ %new_i, %body ]
+    #|  %result = phi i32 [ 0, %entry ], [ %new_result, %body ]
+    #|  %i_lt_n = icmp slt i32 %i, %0
+    #|  br i1 %i_lt_n, label %body, label %exit
+    #|
+    #|body:
+    #|  %new_result = add i32 %result, 2
+    #|  %new_i = add i32 %i, 1
+    #|  br label %loop
+    #|
+    #|exit:
+    #|  ret i32 %result
+    #|}
+  inspect(fval, content=expect)
 }
 
 // 原子load store操作测试
@@ -800,18 +755,14 @@ test "atomic memory operations" {
   // 普通存储
   let _ = builder.createStore(val_arg, ptr_arg, atomicOrdering=Release)
   let _ = builder.createRet(loaded)
-  let expect = 
-      #|define i32 @atomic_ops(ptr %0, i32 %1) {
-      #|entry:
-      #|  %atomic_load = load atomic i32, ptr %0 acquire, align 4
-      #|  store atomic i32 %1, ptr %0 release, align 4
-      #|  ret i32 %atomic_load
-      #|}
-  inspect(
-    fval,
-    content=expect
-    ,
-  )
+  let expect =
+    #|define i32 @atomic_ops(ptr %0, i32 %1) {
+    #|entry:
+    #|  %atomic_load = load atomic i32, ptr %0 acquire, align 4
+    #|  store atomic i32 %1, ptr %0 release, align 4
+    #|  ret i32 %atomic_load
+    #|}
+  inspect(fval, content=expect)
 }
 
 // volatile内存操作测试
@@ -842,17 +793,13 @@ test "volatile memory operations" {
   let _ = builder.createStore(const_42, ptr_arg, isVolatile=true)
   let _ = builder.createRet(volatile_load)
   let expect =
-      #|define i32 @volatile_ops(ptr %0) {
-      #|entry:
-      #|  %vol_load = load volatile i32, ptr %0, align 4
-      #|  store volatile i32 42, ptr %0, align 4
-      #|  ret i32 %vol_load
-      #|}
-  inspect(
-    fval,
-    content=expect
-    ,
-  )
+    #|define i32 @volatile_ops(ptr %0) {
+    #|entry:
+    #|  %vol_load = load volatile i32, ptr %0, align 4
+    #|  store volatile i32 42, ptr %0, align 4
+    #|  ret i32 %vol_load
+    #|}
+  inspect(fval, content=expect)
 }
 
 // ExtractValue和InsertValue测试（结构体操作）
@@ -891,19 +838,16 @@ test "struct operations with extract/insert value" {
     name="new_struct",
   )
   let _ = builder.createRet(new_struct)
-  let expect = 
-      #|define %TestStruct @struct_ops(%TestStruct %0, i32 %1) {
-      #|entry:
-      #|  %field0 = extractvalue %TestStruct %0, 0
-      #|  %field2 = extractvalue %TestStruct %0, 2
-      #|  %sum = add i32 %field0, %1
-      #|  %new_struct = insertvalue %TestStruct %0, i32 %sum, 2
-      #|  ret %TestStruct %new_struct
-      #|}
-  inspect(
-    fval,
-    content=expect
-  )
+  let expect =
+    #|define %TestStruct @struct_ops(%TestStruct %0, i32 %1) {
+    #|entry:
+    #|  %field0 = extractvalue %TestStruct %0, 0
+    #|  %field2 = extractvalue %TestStruct %0, 2
+    #|  %sum = add i32 %field0, %1
+    #|  %new_struct = insertvalue %TestStruct %0, i32 %sum, 2
+    #|  ret %TestStruct %new_struct
+    #|}
+  inspect(fval, content=expect)
 }
 
 // 浮点比较测试
@@ -929,18 +873,15 @@ test "floating point comparisons" {
   // 逻辑或组合
   let result = builder.createOr(oeq, ogt, name="result")
   let _ = builder.createRet(result)
-  let expect = 
-      #|define i1 @float_compare(float %0, float %1) {
-      #|entry:
-      #|  %oeq = fcmp oeq float %0, %1
-      #|  %ogt = fcmp ogt float %0, %1
-      #|  %result = or i1 %oeq, %ogt
-      #|  ret i1 %result
-      #|}
-  inspect(
-    fval,
-    content=expect
-  )
+  let expect =
+    #|define i1 @float_compare(float %0, float %1) {
+    #|entry:
+    #|  %oeq = fcmp oeq float %0, %1
+    #|  %ogt = fcmp ogt float %0, %1
+    #|  %result = or i1 %oeq, %ogt
+    #|  ret i1 %result
+    #|}
+  inspect(fval, content=expect)
 }
 
 // 类型转换链测试
@@ -969,20 +910,17 @@ test "type conversion chains" {
   let to_f32 = builder.createSIToFP(ext64, f32ty, name="to_f32")
   let to_f64 = builder.createFPExt(to_f32, f64ty, name="to_f64")
   let _ = builder.createRet(to_f64)
-  let expect = 
-      #|define double @conversion_chain(i8 %0) {
-      #|entry:
-      #|  %ext16 = sext i8 %0
-      #|  %ext32 = sext i16 %ext16
-      #|  %ext64 = sext i32 %ext32
-      #|  %to_f32 = sitofp i64 %ext64
-      #|  %to_f64 = fpext float %to_f32
-      #|  ret double %to_f64
-      #|}
-  inspect(
-    fval,
-    content=expect
-  )
+  let expect =
+    #|define double @conversion_chain(i8 %0) {
+    #|entry:
+    #|  %ext16 = sext i8 %0
+    #|  %ext32 = sext i16 %ext16
+    #|  %ext64 = sext i32 %ext32
+    #|  %to_f32 = sitofp i64 %ext64
+    #|  %to_f64 = fpext float %to_f32
+    #|  ret double %to_f64
+    #|}
+  inspect(fval, content=expect)
 }
 
 // 错误处理测试 - 测试函数参数的边界情况

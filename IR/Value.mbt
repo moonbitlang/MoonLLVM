@@ -419,9 +419,7 @@ pub enum UserEnum {
 ///|
 pub fn UserEnum::asClass(self : Self) -> &User {
   match self {
-    AllocaInst(c) => {
-      c as &User
-    }
+    AllocaInst(c) => c as &User
     LoadInst(l) => l
     ExtractValueInst(e) => e
     BinaryInst(b) => b

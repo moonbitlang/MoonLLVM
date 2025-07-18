@@ -1055,9 +1055,8 @@ pub fn ConstantInt::bitcast(
   }
   match dst_ty.asPrimitiveTypeEnum() {
     // Integer to integer
-    Int1Type(_) | Int8Type(_) | Int16Type(_) | Int32Type(_) | Int64Type(_) => {
+    Int1Type(_) | Int8Type(_) | Int16Type(_) | Int32Type(_) | Int64Type(_) =>
       ConstantInt::new(dst_ty, self.value) as &Constant
-    }
     // Integer to floating point
     FloatType(_) => {
       // For i32 to f32, we need to treat the 32-bit value as float bits
@@ -1566,9 +1565,8 @@ pub fn ConstantFP::bitcast(
       ConstantInt::new(dst_ty, i64_value) as &Constant
     }
     // Floating point to floating point
-    FloatType(_) | DoubleType(_) | HalfType(_) | BFloatType(_) | FP128Type(_) => {
+    FloatType(_) | DoubleType(_) | HalfType(_) | BFloatType(_) | FP128Type(_) =>
       ConstantFP::new(dst_ty, self.value) as &Constant
-    }
     // Other integer types
     Int1Type(_) | Int8Type(_) | Int16Type(_) =>
       // For other integer types, we need proper bit width matching

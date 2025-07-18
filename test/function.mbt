@@ -18,23 +18,17 @@ test "Function" {
 
   // add attribute `alwaysinline`.
   fval.addAttr(AlwaysInline)
-  let expect = 
-      #|; Function Attrs: alwaysinline
-      #|declare i32 @add(i32, i32) #0
-  inspect(
-    fval,
-    content=expect
-  )
+  let expect =
+    #|; Function Attrs: alwaysinline
+    #|declare i32 @add(i32, i32) #0
+  inspect(fval, content=expect)
 
   // add attribute `builtin`.
   fval.addAttr(Builtin)
-  let expect = 
-      #|; Function Attrs: alwaysinline builtin
-      #|declare i32 @add(i32, i32) #0
-  inspect(
-    fval,
-    content=expect
-  )
+  let expect =
+    #|; Function Attrs: alwaysinline builtin
+    #|declare i32 @add(i32, i32) #0
+  inspect(fval, content=expect)
 
   // get args.
   let arg0 = fval.getArg(0).unwrap()
@@ -43,11 +37,8 @@ test "Function" {
   // add attributes to args.
   arg0.addAttr(NoAlias)
   arg1.addAttr(NonNull)
-  let expect = 
-      #|; Function Attrs: alwaysinline builtin
-      #|declare i32 @add(i32 noalias, i32 nonnull) #0
-  inspect(
-    fval,
-    content=expect
-  )
+  let expect =
+    #|; Function Attrs: alwaysinline builtin
+    #|declare i32 @add(i32 noalias, i32 nonnull) #0
+  inspect(fval, content=expect)
 }

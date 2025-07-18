@@ -600,6 +600,7 @@ pub impl Show for BinaryInst with output(self, logger) {
 // =======================================================
 // ICmpInst
 // =======================================================
+
 ///|
 pub(all) enum IntPredicate {
   /// equal
@@ -624,6 +625,7 @@ pub(all) enum IntPredicate {
   SLE
 }
 
+///|
 pub impl Show for IntPredicate with output(self, logger) {
   let s = match self {
     EQ => "icmp eq"
@@ -768,6 +770,7 @@ pub(all) enum FloatPredicate {
   TRUE
 }
 
+///|
 pub impl Show for FloatPredicate with output(self, logger) {
   let s = match self {
     FALSE => "fcmp false"

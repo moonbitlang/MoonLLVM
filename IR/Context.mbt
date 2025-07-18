@@ -81,16 +81,14 @@ pub impl Hash for Context with hash_combine(self, hasher) {
 }
 
 ///|
-pub fn Context::addModule(
-  self : Context,
-  programID : String
-) -> Module {
+pub fn Context::addModule(self : Context, programID : String) -> Module {
   let prog = Module::new(programID, self)
   self.pimpl.unwrap().ownedPrograms.push(prog)
   prog
 }
 
-pub fn Context::createBuilder(self: Context) -> IRBuilder {
+///|
+pub fn Context::createBuilder(self : Context) -> IRBuilder {
   ignore(self)
   IRBuilder::new()
 }
@@ -329,10 +327,7 @@ pub fn Context::getStructType(
 ///
 /// inspect(sty.full_info(), content="%foo = type { i32, float }")
 /// ```
-pub fn Context::getStructTypeByName(
-  self : Self,
-  name : String
-) -> StructType? {
+pub fn Context::getStructTypeByName(self : Self, name : String) -> StructType? {
   self.pimpl.unwrap().namedStructTypes.get(name)
 }
 
@@ -411,10 +406,7 @@ pub fn Context::getScalableVectorType(
 /// inspect(ctx.getConstInt8(1), content="i8 1")
 /// inspect(ctx.getConstInt8(-1), content="i8 -1")
 /// ```
-pub fn Context::getConstInt8(
-  self : Context,
-  value : Int
-) -> ConstantInt {
+pub fn Context::getConstInt8(self : Context, value : Int) -> ConstantInt {
   let i8val = Int8::from(value)
   ConstantInt::new(self.getInt8Ty(), i8val)
 }
@@ -429,10 +421,7 @@ pub fn Context::getConstInt8(
 /// inspect(ctx.getConstInt16(1), content="i16 1")
 /// inspect(ctx.getConstInt16(-1), content="i16 -1")
 /// ```
-pub fn Context::getConstInt16(
-  self : Context,
-  value : Int16
-) -> ConstantInt {
+pub fn Context::getConstInt16(self : Context, value : Int16) -> ConstantInt {
   ConstantInt::new(self.getInt16Ty(), value)
 }
 
@@ -446,10 +435,7 @@ pub fn Context::getConstInt16(
 /// inspect(ctx.getConstInt32(1), content="i32 1")
 /// inspect(ctx.getConstInt32(-1), content="i32 -1")
 /// ```
-pub fn Context::getConstInt32(
-  self : Context,
-  value : Int
-) -> ConstantInt {
+pub fn Context::getConstInt32(self : Context, value : Int) -> ConstantInt {
   ConstantInt::new(self.getInt32Ty(), value)
 }
 
@@ -463,10 +449,7 @@ pub fn Context::getConstInt32(
 /// inspect(ctx.getConstInt64(1), content="i64 1")
 /// inspect(ctx.getConstInt64(-1), content="i64 -1")
 /// ```
-pub fn Context::getConstInt64(
-  self : Context,
-  value : Int64
-) -> ConstantInt {
+pub fn Context::getConstInt64(self : Context, value : Int64) -> ConstantInt {
   ConstantInt::new(self.getInt64Ty(), value)
 }
 
@@ -520,10 +503,7 @@ pub fn Context::getConstBool(self : Context, b : Bool) -> ConstantInt {
 /// inspect(one, content="float 0x3FF0000000000000")
 /// inspect(two, content="float 0x4000000000000000")
 /// ```
-pub fn Context::getConstFloat(
-  self : Context,
-  value : Double
-) -> ConstantFP {
+pub fn Context::getConstFloat(self : Context, value : Double) -> ConstantFP {
   ConstantFP::new(self.getFloatTy(), value)
 }
 
@@ -540,10 +520,7 @@ pub fn Context::getConstFloat(
 /// inspect(one, content="double 0x3FF0000000000000")
 /// inspect(two, content="double 0x4000000000000000")
 /// ```
-pub fn Context::getConstDouble(
-  self : Context,
-  value : Double
-) -> ConstantFP {
+pub fn Context::getConstDouble(self : Context, value : Double) -> ConstantFP {
   ConstantFP::new(self.getDoubleTy(), value)
 }
 
@@ -1289,9 +1266,7 @@ pub fn Context::getConstZero(
 ) -> &Constant raise LLVMValueError {
   match ty.asTypeEnum() {
     // Integer Types
-    Int1Type(_) => {
-      self.getConstFalse() as &Constant
-    }
+    Int1Type(_) => self.getConstFalse() as &Constant
     Int8Type(_) => self.getConstInt8(0)
     Int16Type(_) => self.getConstInt16(0)
     Int32Type(_) => self.getConstInt32(0)
