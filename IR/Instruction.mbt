@@ -473,7 +473,7 @@ fn BinaryInst::newStandardOp(
   }
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else { raise TypeMismatchForBinaryOp(lhsTy, rhsTy) }
-  guard lhsTy.tryAsIntegerTypeEnum() is Some(_) else {
+  guard lhsTy.tryAsIntTypeEnum() is Some(_) else {
     raise TypeNotSupportForBinaryOp(lhsTy, opcode)
   }
   let vty = lhsTy
@@ -660,7 +660,7 @@ fn ICmpInst::new(
 ) -> ICmpInst raise LLVMValueError {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else { raise TypeMismatchForCmpInst(lhsTy, rhsTy) }
-  guard lhsTy.tryAsIntegerTypeEnum() is Some(_) else {
+  guard lhsTy.tryAsIntTypeEnum() is Some(_) else {
     raise TypeMismatchForICmpInst(lhsTy)
   }
   let vty = parent.getContext().getInt1Ty()
@@ -937,7 +937,7 @@ fn CastInst::newTrunc(
   parent : Function,
   name : String
 ) -> CastInst raise LLVMValueError {
-  guard src_val.getType().tryAsIntegerTypeEnum() is Some(src_ty) else {
+  guard src_val.getType().tryAsIntTypeEnum() is Some(src_ty) else {
     raise TruncCastInstTypeMismatch(src_val.getType(), dst_ty)
   }
   guard src_ty.getBitWidth() > dst_ty.getBitWidth() else {
@@ -959,7 +959,7 @@ fn CastInst::newZExt(
   parent : Function,
   name : String
 ) -> CastInst raise LLVMValueError {
-  guard src_val.getType().tryAsIntegerTypeEnum() is Some(src_ty) else {
+  guard src_val.getType().tryAsIntTypeEnum() is Some(src_ty) else {
     raise ZExtCastInstTypeMismatch(src_val.getType(), dst_ty)
   }
   guard src_ty.getBitWidth() < dst_ty.getBitWidth() else {
@@ -981,7 +981,7 @@ fn CastInst::newSExt(
   parent : Function,
   name : String
 ) -> CastInst raise LLVMValueError {
-  guard src_val.getType().tryAsIntegerTypeEnum() is Some(src_ty) else {
+  guard src_val.getType().tryAsIntTypeEnum() is Some(src_ty) else {
     raise SExtCastInstTypeMismatch(src_val.getType(), dst_ty)
   }
   guard src_ty.getBitWidth() < dst_ty.getBitWidth() else {
@@ -1047,7 +1047,7 @@ fn CastInst::newUIToFP(
   parent : Function,
   name : String
 ) -> CastInst raise LLVMValueError {
-  guard src_val.getType().tryAsIntegerTypeEnum() is Some(_) else {
+  guard src_val.getType().tryAsIntTypeEnum() is Some(_) else {
     raise UIToFPInstTypeMismatch(src_val.getType(), dst_ty)
   }
   let vty = dst_ty
@@ -1085,7 +1085,7 @@ fn CastInst::newSIToFP(
   parent : Function,
   name : String
 ) -> CastInst raise LLVMValueError {
-  guard src_val.getType().tryAsIntegerTypeEnum() is Some(_) else {
+  guard src_val.getType().tryAsIntTypeEnum() is Some(_) else {
     raise SIToFPInstTypeMismatch(src_val.getType(), dst_ty)
   }
   let vty = dst_ty
@@ -1141,7 +1141,7 @@ fn CastInst::newIntToPtr(
   parent : Function,
   name : String
 ) -> CastInst raise LLVMValueError {
-  guard src_val.getType().tryAsIntegerTypeEnum() is Some(_) else {
+  guard src_val.getType().tryAsIntTypeEnum() is Some(_) else {
     raise IntToPtrCastInstTypeMismatch(src_val.getType())
   }
   let vty = src_val.getContext().getPtrTy()
@@ -1264,7 +1264,7 @@ fn GetElementPtrInst::new(
     raise GetElementPtrInstNotValidPointeeType(pointeeType)
   }
   for idx in indices {
-    guard idx.getType().tryAsIntegerTypeEnum() is Some(_) else {
+    guard idx.getType().tryAsIntTypeEnum() is Some(_) else {
       raise GetElementPtrInstIndexNotInteger(idx.getType())
     }
   }
@@ -1377,7 +1377,7 @@ fn SelectInst::new(
   parent : Function,
   name : String
 ) -> SelectInst raise LLVMValueError {
-  guard condition.getType().tryAsIntegerTypeEnum() is Some(intTy) &&
+  guard condition.getType().tryAsIntTypeEnum() is Some(intTy) &&
     intTy.getBitWidth() == 1 else {
     raise SelectInstConditionNotBoolean(condition.getType())
   }
@@ -1573,7 +1573,7 @@ fn BranchInst::newConditional(
   falseBlock : BasicBlock,
   parent : Function
 ) -> BranchInst raise LLVMValueError {
-  guard condition.getType().tryAsIntegerTypeEnum() is Some(intTy) else {
+  guard condition.getType().tryAsIntTypeEnum() is Some(intTy) else {
     raise BranchInstConditionNotBoolean(condition.getType())
   }
   guard intTy.getBitWidth() == 1 else {
@@ -1721,7 +1721,7 @@ fn SwitchInst::new(
   defaultDest : BasicBlock,
   parent : Function
 ) -> SwitchInst raise LLVMValueError {
-  guard cond.getType().tryAsIntegerTypeEnum() is Some(_) else {
+  guard cond.getType().tryAsIntTypeEnum() is Some(_) else {
     raise SwitchInstConditionNotInteger(cond.getType())
   }
   let vty = parent.getContext().getVoidTy()
@@ -1772,8 +1772,8 @@ pub fn SwitchInst::addCase(
   cond : ConstantInt,
   dest : BasicBlock
 ) -> Unit raise LLVMValueError {
-  guard self.getCondition().getType().tryAsIntegerTypeEnum() is Some(intTy)
-  guard cond.getType().tryAsIntegerTypeEnum() is Some(case_cond_ty)
+  guard self.getCondition().getType().tryAsIntTypeEnum() is Some(intTy)
+  guard cond.getType().tryAsIntTypeEnum() is Some(case_cond_ty)
   guard intTy == case_cond_ty else {
     let intTy = intTy.asTypeClass()
     let case_cond_ty = case_cond_ty.asTypeClass()

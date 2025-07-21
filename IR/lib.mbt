@@ -8,7 +8,19 @@ typealias @int8.Int8
 typealias @uint8.UInt8
 
 ///|
-let valueOIDAssigner : Ref[UInt64] = Ref::new(0)
+
+priv struct ValueUIDAssigner {
+  mut val: UInt64
+}
+
+let valueUIDAssigner : ValueUIDAssigner = { val : 0 }
+
+fn ValueUIDAssigner::assign(self: ValueUIDAssigner) -> UInt64 {
+  let oid = self.val
+  self.val += 1
+  oid
+}
+
 
 // ====================================================
 // NumberArray & NumberArrayEnum

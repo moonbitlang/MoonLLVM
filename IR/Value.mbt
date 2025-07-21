@@ -297,7 +297,7 @@ impl Value with tryAsUserEnum(self) {
 
 ///|
 impl Hash for &Value with hash_combine(self, hasher) {
-  hasher.combine_uint64(self.getValueBase().oid)
+  hasher.combine_uint64(self.getValueBase().uid)
 }
 
 ///|
@@ -318,16 +318,15 @@ impl Hash for &Value with hash_combine(self, hasher) {
 /// users of %1 : [%2]
 /// uses of %1 : []
 struct ValueBase {
+  uid : UInt64
   vty : &Type
   users : Array[&Value]
-  oid : UInt64
 } derive(Eq)
 
 ///|
 fn ValueBase::new(vty : &Type, users~ : Array[&Value] = []) -> ValueBase {
-  let oid = valueOIDAssigner.val
-  valueOIDAssigner.val += 1
-  ValueBase::{ vty, users, oid }
+  let uid = valueUIDAssigner.assign()
+  ValueBase::{ vty, users, uid }
 }
 
 // =======================================================

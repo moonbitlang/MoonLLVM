@@ -408,7 +408,7 @@ pub fn Context::getScalableVectorType(
 /// ```
 pub fn Context::getConstInt8(self : Context, value : Int) -> ConstantInt {
   let i8val = Int8::from(value)
-  ConstantInt::new(self.getInt8Ty(), i8val)
+  ConstantInt::new(self.getInt8Ty(), i8val.to_int64())
 }
 
 ///| Create a constant with int16 type.
@@ -422,7 +422,7 @@ pub fn Context::getConstInt8(self : Context, value : Int) -> ConstantInt {
 /// inspect(ctx.getConstInt16(-1), content="i16 -1")
 /// ```
 pub fn Context::getConstInt16(self : Context, value : Int16) -> ConstantInt {
-  ConstantInt::new(self.getInt16Ty(), value)
+  ConstantInt::new(self.getInt16Ty(), value.to_int64())
 }
 
 ///| Create a constant with int32 type.
@@ -436,7 +436,7 @@ pub fn Context::getConstInt16(self : Context, value : Int16) -> ConstantInt {
 /// inspect(ctx.getConstInt32(-1), content="i32 -1")
 /// ```
 pub fn Context::getConstInt32(self : Context, value : Int) -> ConstantInt {
-  ConstantInt::new(self.getInt32Ty(), value)
+  ConstantInt::new(self.getInt32Ty(), value.to_int64())
 }
 
 ///| Create a constant with int64 type.
@@ -488,7 +488,7 @@ pub fn Context::getConstFalse(self : Context) -> ConstantInt {
 /// inspect(ctx.getConstBool(false), content="i1 false")
 /// ```
 pub fn Context::getConstBool(self : Context, b : Bool) -> ConstantInt {
-  ConstantInt::new(self.getInt1Ty(), b.to_int())
+  ConstantInt::new(self.getInt1Ty(), b.to_int64())
 }
 
 ///| Create a constant with float type.
