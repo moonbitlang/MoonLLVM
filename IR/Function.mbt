@@ -23,59 +23,29 @@
 /// assert_true(f.getArg(2) is None)
 /// ```
 pub struct Argument {
-  base : ValueBase
+  // Unique identifier for the argument.
+  uid: UInt64
+
+  // Type of the argument.
+  vty: &Type
+
+  // Users of the argument.
+  users: Array[&Value]
+
+  // Function that this argument belongs to.
   parent : Function
+
+  // Number of the argument.
   argNo : UInt
+
+  // Name of the argument, if set.
   mut name : String?
 }
 
 ///|
 fn Argument::new(vty : &Type, argNo : UInt, parent : Function) -> Argument {
-  let base = ValueBase::new(vty)
-  Argument::{ base, parent, argNo, name: None }
-}
-
-///|
-pub fn Argument::getName(self : Argument) -> String? {
-  self.name
-}
-
-///| Set name for the argument.
-///
-/// - See `llvm::Argument::setName`.
-///
-/// ```moonbit
-/// let ctx = Context::new()
-/// let prog = ctx.addModule("demo")
-///
-/// let i32ty = ctx.getInt32Ty()
-/// let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
-///
-/// let f = prog.addFunction(fty, "add")
-///
-/// let arg0 = f.getArg(0).unwrap()
-/// let arg1 = f.getArg(1).unwrap()
-///
-/// assert_true(f.getArg(2) is None)
-/// inspect(arg0, content="i32 %0")
-/// inspect(arg1.getType(), content="i32")
-///
-/// arg0.setName("lhs")
-/// arg1.setName("rhs")
-/// inspect(arg0, content="i32 %lhs")
-/// inspect(arg1, content="i32 %rhs")
-///
-/// assert_true({try? arg1.setName("lhs")} is Err(_))
-/// ```
-pub fn Argument::setName(
-  self : Argument,
-  name : String
-) -> Unit raise LLVMValueError {
-  guard self.getName() != Some(name) else { return }
-  let symbols = self.parent.symbols
-  guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
-  self.name = Some(name)
-  symbols.set(name, self)
+  let uid = valueUIDAssigner.assign()
+  Argument::{ uid, vty, users:[], parent, argNo, name: None }
 }
 
 ///| Assign an attribute to the argument.
@@ -117,7 +87,7 @@ pub fn Argument::addAttr(self : Argument, attr : ArgAttr) -> Unit {
 
 ///|
 pub impl Value for Argument with getValueBase(self) {
-  self.base
+  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users }
 }
 
 ///|
@@ -126,18 +96,64 @@ pub impl Value for Argument with asValueEnum(self) {
 }
 
 ///|
-fn Argument::getNameOrSlot(self : Argument) -> String {
+pub impl NamedValue for Argument with getName(self : Argument) -> String? {
+  self.name
+}
+
+
+///| Set name for the argument.
+///
+/// - See `llvm::Argument::setName`.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
+///
+/// let i32ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+///
+/// let f = prog.addFunction(fty, "add")
+///
+/// let arg0 = f.getArg(0).unwrap()
+/// let arg1 = f.getArg(1).unwrap()
+///
+/// assert_true(f.getArg(2) is None)
+/// inspect(arg0, content="i32 %0")
+/// inspect(arg1.getType(), content="i32")
+///
+/// arg0.setName("lhs")
+/// arg1.setName("rhs")
+/// inspect(arg0, content="i32 %lhs")
+/// inspect(arg1, content="i32 %rhs")
+///
+/// assert_true({try? arg1.setName("lhs")} is Err(_))
+/// ```
+pub impl NamedValue for Argument with setName(
+  self : Argument,
+  name : String
+) -> Unit raise LLVMValueError {
+  guard self.getName() != Some(name) else { return }
+  let symbols = self.parent.symbols
+  guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
+  self.name = Some(name)
+  symbols.set(name, self)
+}
+
+///|
+pub impl NamedValue for Argument with getNameOrSlot(self)  {
   match self.name {
-    Some(name) => name
-    None if self.parent.getSlot(self) is Some(s) => s.to_string()
-    None => "<badref>"
+    Some(name) => Some(Left(name))
+    None => match self.parent.getSlot(self) {
+      Some(s) => Some(Right(s))
+      None => None
+    }
   }
 }
 
 ///|
 pub impl Show for Argument with output(self, logger) {
   let ty = self.getType()
-  let label = self.getNameOrSlot()
+  let label = self.getNameOrSlotStr()
   logger.write_string("\{ty} %\{label}")
 }
 
@@ -151,7 +167,15 @@ pub impl Show for Argument with output(self, logger) {
 ///
 /// - `Function` can be `&Value`, `GlobalValue`
 pub struct Function {
-  base : ValueBase
+  // Unique identifier for the function.
+  uid: UInt64
+
+  // Type of the function.
+  fty: FunctionType
+
+  // Users of the function.
+  users: Array[&Value]
+
   gv_base : GlobalValueBase
   program : Module
   /// index of the function in the program
@@ -184,14 +208,17 @@ fn Function::new(
   guard Function::isValidFunctionName(name) else {
     raise InValidFunctionName(name)
   }
-  let base = ValueBase::new(fty)
+  let uid = valueUIDAssigner.assign()
+  let users = []
   let gv_base = GlobalValueBase::{ linkage, }
   let arguments = Array::new()
   let symbols = Map::new()
   let attrSet = AttributeSet::new()
   let basicBlocks = Array::new()
   let f = Function::{
-    base,
+    uid,
+    fty,
+    users,
     gv_base,
     program,
     index,
@@ -227,8 +254,7 @@ fn Function::isValidFunctionName(name : String) -> Bool {
 
 ///|
 pub fn Function::getFunctionType(self : Function) -> FunctionType {
-  guard self.base.vty.asTypeEnum() is FunctionType(fty)
-  fty
+  self.fty
 }
 
 ///|
@@ -238,8 +264,7 @@ pub fn Function::addAttr(self : Function, attr : FnAttr) -> Unit {
 
 ///|
 pub fn Function::getReturnType(self : Function) -> &Type {
-  guard self.base.vty.asTypeEnum() is FunctionType(fty)
-  fty.getReturnType()
+  self.fty.getReturnType()
 }
 
 ///|
@@ -346,7 +371,7 @@ pub impl Eq for Function with op_equal(self, other) {
 
 ///|
 pub impl Value for Function with getValueBase(self) {
-  self.base
+  ValueBase::{ uid: self.uid, vty: self.fty, users: self.users }
 }
 
 ///|
@@ -388,7 +413,7 @@ pub impl Show for Function with output(self, logger) {
     } else {
       "\{ty}"
     }) +
-    (if hasBody { " %" + arg.getNameOrSlot() } else { "" })
+    (if hasBody { " %" + arg.getNameOrSlotStr() } else { "" })
   })
   if not(fn_attrs_str.is_empty()) {
     logger.write_string("; Function Attrs: \{fn_attrs_str}\n")
