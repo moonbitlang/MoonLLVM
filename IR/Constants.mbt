@@ -20,25 +20,27 @@
 /// inspect(i64, content="i64 16")
 /// ```
 pub struct ConstantInt {
-  base : ValueBase
+  // unique identifier for this value
+  uid : UInt64
+
+  // Value Type
+  vty: &IntegerType
+
+  // the value of this constant
   value : Int64
 } derive(Eq)
 
 ///|
-/// TODO: solve int16 to uint16 problem when standard library is ready.
-fn[T : IntegerNumber] ConstantInt::new(vty : &Type, value : T) -> ConstantInt {
-  let value = value.convert_to_int64()
-  let value = match vty.asTypeEnum() {
+fn ConstantInt::new(vty : &IntegerType, value : Int64) -> ConstantInt {
+  let value = match vty.asIntegerTypeEnum() {
     Int1Type(_) => if value == 0 { 0L } else { 1L }
     Int8Type(_) => Int8::from_int64(value).to_int64()
     Int16Type(_) => value.to_int().to_int16().to_int().to_int64()
     Int32Type(_) => value.to_int().to_int64()
     Int64Type(_) => value
-    _ =>
-      llvm_unreachable("ConstantInt::new: Type Mismatch, should be IntegerType")
   }
-  let base = ValueBase::new(vty)
-  ConstantInt::{ base, value }
+  let uid = valueUIDAssigner.assign()
+  ConstantInt::{ uid, vty, value }
 }
 
 ///|
@@ -83,14 +85,7 @@ pub fn ConstantInt::getValueAsInt64(self : ConstantInt) -> Int64 {
 /// inspect(i64_m16.getIntegerType(), content="i64")
 /// ```
 pub fn ConstantInt::getIntegerType(self : ConstantInt) -> &IntegerType {
-  match self.getType().asTypeEnum() {
-    Int1Type(i1ty) => (i1ty : &IntegerType)
-    Int8Type(i8ty) => i8ty
-    Int16Type(i16ty) => i16ty
-    Int32Type(i32ty) => i32ty
-    Int64Type(i64ty) => i64ty
-    _ => llvm_unreachable("ConstantInt::getIntegerType: Type Mismatch")
-  }
+  self.vty
 }
 
 ///| Compare the value of this constant int with a signed integer.
@@ -118,7 +113,7 @@ pub fn ConstantInt::isNegative(self : ConstantInt) -> Bool {
 
 ///|
 pub fn ConstantInt::isMaxValue(self : ConstantInt) -> Bool {
-  guard self.getType().tryAsIntegerTypeEnum() is Some(ty)
+  guard self.getType().tryAsIntTypeEnum() is Some(ty)
   match ty {
     Int1Type(_) => self.value == 1
     Int8Type(_) => Int8::from_int64(self.value) == @int8.max_value
@@ -130,7 +125,7 @@ pub fn ConstantInt::isMaxValue(self : ConstantInt) -> Bool {
 
 ///|
 pub fn ConstantInt::isMinValue(self : ConstantInt) -> Bool {
-  guard self.getType().tryAsIntegerTypeEnum() is Some(ty)
+  guard self.getType().tryAsIntTypeEnum() is Some(ty)
   match ty {
     Int1Type(_) => self.value == 0
     Int8Type(_) => Int8::from_int64(self.value) == @int8.min_value
@@ -170,19 +165,18 @@ pub fn ConstantInt::add(
   self : ConstantInt,
   other : ConstantInt
 ) -> ConstantInt raise LLVMValueError {
-  let (lty, rty) = (self.getType(), other.getType())
+  let (lty, rty) = (self.getIntegerType(), other.getIntegerType())
   guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
-  guard lty.tryAsIntegerTypeEnum() is Some(ty)
   let value = self.value + other.value
-  let value = match ty {
+  let vty = lty;
+  let value = match vty.asIntegerTypeEnum() {
     Int1Type(_) => value & 1L
     Int8Type(_) => Int8::from_int64(value).to_int64()
     Int16Type(_) => value.to_int().to_int16().to_int64()
     Int32Type(_) => value.to_int().to_int64()
     Int64Type(_) => value
   }
-  let base = self.base
-  ConstantInt::{ base, value }
+  ConstantInt::new(vty, value)
 }
 
 ///| Subtract two ConstantInt, useful in constant folding.
@@ -216,19 +210,18 @@ pub fn ConstantInt::sub(
   self : ConstantInt,
   other : ConstantInt
 ) -> ConstantInt raise LLVMValueError {
-  let (lty, rty) = (self.getType(), other.getType())
+  let (lty, rty) = (self.getIntegerType(), other.getIntegerType())
   guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
-  guard lty.tryAsIntegerTypeEnum() is Some(ty)
+  let vty = lty;
   let value = self.value - other.value
-  let value = match ty {
+  let value = match vty.asIntegerTypeEnum() {
     Int1Type(_) => value & 1L
     Int8Type(_) => Int8::from_int64(value).to_int64()
     Int16Type(_) => value.to_int().to_int16().to_int64()
     Int32Type(_) => value.to_int().to_int64()
     Int64Type(_) => value
   }
-  let base = self.base
-  ConstantInt::{ base, value }
+  ConstantInt::new(vty, value)
 }
 
 ///| Multiply two ConstantInt, useful in constant folding.
@@ -259,19 +252,18 @@ pub fn ConstantInt::mul(
   self : ConstantInt,
   other : ConstantInt
 ) -> ConstantInt raise LLVMValueError {
-  let (lty, rty) = (self.getType(), other.getType())
+  let (lty, rty) = (self.getIntegerType(), other.getIntegerType())
   guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
-  guard lty.tryAsIntegerTypeEnum() is Some(ty)
+  let vty = lty;
   let value = self.value * other.value
-  let value = match ty {
+  let value = match vty.asIntegerTypeEnum() {
     Int1Type(_) => value & 1L
     Int8Type(_) => Int8::from_int64(value).to_int64()
     Int16Type(_) => value.to_int().to_int16().to_int64()
     Int32Type(_) => value.to_int().to_int64()
     Int64Type(_) => value
   }
-  let base = self.base
-  ConstantInt::{ base, value }
+  ConstantInt::new(vty, value)
 }
 
 ///| Divide two ConstantInt, useful in constant folding.
@@ -302,20 +294,19 @@ pub fn ConstantInt::sdiv(
   self : ConstantInt,
   other : ConstantInt
 ) -> ConstantInt raise LLVMValueError {
-  let (lty, rty) = (self.getType(), other.getType())
+  let (lty, rty) = (self.getIntegerType(), other.getIntegerType())
   guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
   guard other.value != 0 else { raise DivisionByZeroError }
-  guard lty.tryAsIntegerTypeEnum() is Some(ty)
+  let vty = lty;
   let value = self.value / other.value
-  let value = match ty {
+  let value = match vty.asIntegerTypeEnum() {
     Int1Type(_) => value & 1L
     Int8Type(_) => Int8::from_int64(value).to_int64()
     Int16Type(_) => value.to_int().to_int16().to_int64()
     Int32Type(_) => value.to_int().to_int64()
     Int64Type(_) => value
   }
-  let base = self.base
-  ConstantInt::{ base, value }
+  ConstantInt::new(vty, value)
 }
 
 ///| Unsigned divide two ConstantInt, useful in constant folding.
@@ -369,11 +360,11 @@ pub fn ConstantInt::udiv(
   self : ConstantInt,
   other : ConstantInt
 ) -> ConstantInt raise LLVMValueError {
-  let (lty, rty) = (self.getType(), other.getType())
+  let (lty, rty) = (self.getIntegerType(), other.getIntegerType())
   guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
   guard other.value != 0L else { raise DivisionByZeroError }
-  guard lty.tryAsIntegerTypeEnum() is Some(ty)
-  let value = match ty {
+  let vty = lty;
+  let value = match vty.asIntegerTypeEnum() {
     Int1Type(_) => self.value / other.value
     Int8Type(_) => {
       let v1_u8 = self.value.to_byte() // e.g., -56L (representing 200i8) -> 200uy (0xC8)
@@ -396,8 +387,7 @@ pub fn ConstantInt::udiv(
     Int64Type(_) =>
       (self.value.reinterpret_as_uint64() / other.value.reinterpret_as_uint64()).reinterpret_as_int64()
   }
-  let base = self.base
-  ConstantInt::{ base, value }
+  ConstantInt::new(vty, value)
 }
 
 ///| Bitwise AND two ConstantInt, useful in constant folding.
@@ -425,19 +415,18 @@ pub fn ConstantInt::compute_and(
   self : ConstantInt,
   other : ConstantInt
 ) -> ConstantInt raise LLVMValueError {
-  let (lty, rty) = (self.getType(), other.getType())
+  let (lty, rty) = (self.getIntegerType(), other.getIntegerType())
   guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
-  guard lty.tryAsIntegerTypeEnum() is Some(ty)
+  let vty = lty;
   let result_i64 = self.value & other.value
-  let final_value = match ty {
+  let final_value = match vty.asIntegerTypeEnum() {
     Int1Type(_) => result_i64 & 1L
     Int8Type(_) => Int8::from_int64(result_i64).to_int64()
     Int16Type(_) => result_i64.to_int().to_int16().to_int64()
     Int32Type(_) => result_i64.to_int().to_int64()
     Int64Type(_) => result_i64
   }
-  let base = self.base
-  ConstantInt::{ base, value: final_value }
+  ConstantInt::new(vty, final_value)
 }
 
 ///| Bitwise OR two ConstantInt, useful in constant folding.
@@ -468,19 +457,18 @@ pub fn ConstantInt::or(
   self : ConstantInt,
   other : ConstantInt
 ) -> ConstantInt raise LLVMValueError {
-  let (lty, rty) = (self.getType(), other.getType())
+  let (lty, rty) = (self.getIntegerType(), other.getIntegerType())
   guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
-  guard lty.tryAsIntegerTypeEnum() is Some(ty)
+  let vty = lty;
   let result_i64 = self.value | other.value
-  let final_value = match ty {
+  let final_value = match vty.asIntegerTypeEnum() {
     Int1Type(_) => result_i64 & 1L
     Int8Type(_) => Int8::from_int64(result_i64).to_int64()
     Int16Type(_) => result_i64.to_int().to_int16().to_int64()
     Int32Type(_) => result_i64.to_int().to_int64()
     Int64Type(_) => result_i64
   }
-  let base = self.base
-  ConstantInt::{ base, value: final_value }
+  ConstantInt::new(vty, final_value)
 }
 
 ///| Bitwise XOR two ConstantInt, useful in constant folding.
@@ -511,19 +499,18 @@ pub fn ConstantInt::xor(
   self : ConstantInt,
   other : ConstantInt
 ) -> ConstantInt raise LLVMValueError {
-  let (lty, rty) = (self.getType(), other.getType())
+  let (lty, rty) = (self.getIntegerType(), other.getIntegerType())
   guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
-  guard lty.tryAsIntegerTypeEnum() is Some(ty)
+  let vty = lty;
   let result_i64 = self.value ^ other.value
-  let final_value = match ty {
+  let final_value = match vty.asIntegerTypeEnum() {
     Int1Type(_) => result_i64 & 1L
     Int8Type(_) => Int8::from_int64(result_i64).to_int64()
     Int16Type(_) => result_i64.to_int().to_int16().to_int64()
     Int32Type(_) => result_i64.to_int().to_int64()
     Int64Type(_) => result_i64
   }
-  let base = self.base
-  ConstantInt::{ base, value: final_value }
+  ConstantInt::new(vty, final_value)
 }
 
 ///| Left shift (shl) two ConstantInt, useful in constant folding.
@@ -554,19 +541,18 @@ pub fn ConstantInt::compute_shl(
   self : ConstantInt,
   other : ConstantInt
 ) -> ConstantInt raise LLVMValueError {
-  let (lty, rty) = (self.getType(), other.getType())
+  let (lty, rty) = (self.getIntegerType(), other.getIntegerType())
   guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
-  guard lty.tryAsIntegerTypeEnum() is Some(ty)
+  let vty = lty;
   let result_i64 = self.value << other.value.to_int()
-  let final_value = match ty {
+  let final_value = match vty.asIntegerTypeEnum() {
     Int1Type(_) => result_i64 & 1L
     Int8Type(_) => Int8::from_int64(result_i64).to_int64()
     Int16Type(_) => result_i64.to_int().to_int16().to_int64()
     Int32Type(_) => result_i64.to_int().to_int64()
     Int64Type(_) => result_i64
   }
-  let base = self.base
-  ConstantInt::{ base, value: final_value }
+  ConstantInt::new(vty, final_value)
 }
 
 ///| Logical right shift (lshr) two ConstantInt, useful in constant folding.
@@ -597,10 +583,10 @@ pub fn ConstantInt::lshr(
   self : ConstantInt,
   other : ConstantInt
 ) -> ConstantInt raise LLVMValueError {
-  let (lty, rty) = (self.getType(), other.getType())
+  let (lty, rty) = (self.getIntegerType(), other.getIntegerType())
   guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
-  guard lty.tryAsIntegerTypeEnum() is Some(ty)
-  let value = match ty {
+  let vty = lty;
+  let value = match vty.asIntegerTypeEnum() {
     Int1Type(_) => (self.value >> other.value.to_int()) & 1L
     Int8Type(_) => {
       let v_u8 = self.value.to_byte()
@@ -626,8 +612,7 @@ pub fn ConstantInt::lshr(
       (v_u64 >> shift_amount).reinterpret_as_int64()
     }
   }
-  let base = self.base
-  ConstantInt::{ base, value }
+  ConstantInt::new(vty, value)
 }
 
 ///| Arithmetic right shift (ashr) two ConstantInt, useful in constant folding.
@@ -663,19 +648,18 @@ pub fn ConstantInt::ashr(
   self : ConstantInt,
   other : ConstantInt
 ) -> ConstantInt raise LLVMValueError {
-  let (lty, rty) = (self.getType(), other.getType())
+  let (lty, rty) = (self.getIntegerType(), other.getIntegerType())
   guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
-  guard lty.tryAsIntegerTypeEnum() is Some(ty)
+  let vty = lty;
   let result_i64 = self.value >> other.value.to_int()
-  let final_value = match ty {
+  let final_value = match vty.asIntegerTypeEnum() {
     Int1Type(_) => result_i64 & 1L
     Int8Type(_) => Int8::from_int64(result_i64).to_int64()
     Int16Type(_) => result_i64.to_int().to_int16().to_int64()
     Int32Type(_) => result_i64.to_int().to_int64()
     Int64Type(_) => result_i64
   }
-  let base = self.base
-  ConstantInt::{ base, value: final_value }
+  ConstantInt::new(vty, final_value)
 }
 
 ///| Compare two ConstantInt using the given predicate, useful in constant folding.
@@ -725,9 +709,9 @@ pub fn ConstantInt::compare(
   predicate : IntPredicate,
   other : ConstantInt
 ) -> ConstantInt raise LLVMValueError {
-  let (lty, rty) = (self.getType(), other.getType())
+  let (lty, rty) = (self.getIntegerType(), other.getIntegerType())
   guard lty == rty else { raise TypeMismatchForCmpInst(lty, rty) }
-  guard lty.tryAsIntegerTypeEnum() is Some(ty)
+  let vty = lty;
   let ctx = self.getType().getContext()
   let result = match predicate {
     EQ => self.value == other.value
@@ -737,7 +721,7 @@ pub fn ConstantInt::compare(
     SLT => self.value < other.value
     SLE => self.value <= other.value
     UGT =>
-      match ty {
+      match vty.asIntegerTypeEnum() {
         Int1Type(_) => self.value > other.value
         Int8Type(_) => self.value.to_byte() > other.value.to_byte()
         Int16Type(_) =>
@@ -750,7 +734,7 @@ pub fn ConstantInt::compare(
           other.value.reinterpret_as_uint64()
       }
     UGE =>
-      match ty {
+      match vty.asIntegerTypeEnum() {
         Int1Type(_) => self.value >= other.value
         Int8Type(_) => self.value.to_byte() >= other.value.to_byte()
         Int16Type(_) =>
@@ -763,7 +747,7 @@ pub fn ConstantInt::compare(
           other.value.reinterpret_as_uint64()
       }
     ULT =>
-      match ty {
+      match vty.asIntegerTypeEnum() {
         Int1Type(_) => self.value < other.value
         Int8Type(_) => self.value.to_byte() < other.value.to_byte()
         Int16Type(_) =>
@@ -776,7 +760,7 @@ pub fn ConstantInt::compare(
           other.value.reinterpret_as_uint64()
       }
     ULE =>
-      match ty {
+      match vty.asIntegerTypeEnum() {
         Int1Type(_) => self.value <= other.value
         Int8Type(_) => self.value.to_byte() <= other.value.to_byte()
         Int16Type(_) =>
@@ -823,9 +807,7 @@ pub fn ConstantInt::trunc(
   self : ConstantInt,
   dst_ty : &IntegerType
 ) -> ConstantInt raise LLVMValueError {
-  guard self.getType().tryAsIntegerTypeEnum() is Some(src_ty) else {
-    raise TruncCastInstTypeMismatch(self.getType(), dst_ty)
-  }
+  let src_ty = self.vty.asIntegerTypeEnum()
   guard src_ty.getBitWidth() > dst_ty.getBitWidth() else {
     raise TruncCastInstTypeMismatch(src_ty.asTypeClass(), dst_ty)
   }
@@ -860,9 +842,7 @@ pub fn ConstantInt::zext(
   self : ConstantInt,
   dst_ty : &IntegerType
 ) -> ConstantInt raise LLVMValueError {
-  guard self.getType().tryAsIntegerTypeEnum() is Some(src_ty) else {
-    raise ZExtCastInstTypeMismatch(self.getType(), dst_ty)
-  }
+  let src_ty = self.vty.asIntegerTypeEnum()
   guard src_ty.getBitWidth() < dst_ty.getBitWidth() else {
     raise ZExtCastInstTypeMismatch(src_ty.asTypeClass(), dst_ty)
   }
@@ -905,9 +885,7 @@ pub fn ConstantInt::sext(
   self : ConstantInt,
   dst_ty : &IntegerType
 ) -> ConstantInt raise LLVMValueError {
-  guard self.getType().tryAsIntegerTypeEnum() is Some(src_ty) else {
-    raise SExtCastInstTypeMismatch(self.getType(), dst_ty)
-  }
+  let src_ty = self.vty.asIntegerTypeEnum()
   guard src_ty.getBitWidth() < dst_ty.getBitWidth() else {
     raise SExtCastInstTypeMismatch(src_ty.asTypeClass(), dst_ty)
   }
@@ -941,10 +919,8 @@ pub fn ConstantInt::sext(
 pub fn ConstantInt::uitofp(
   self : ConstantInt,
   dst_ty : &FPType
-) -> ConstantFP raise LLVMValueError {
-  guard self.getType().tryAsIntegerTypeEnum() is Some(src_ty) else {
-    raise UIToFPInstTypeMismatch(self.getType(), dst_ty)
-  }
+) -> ConstantFP {
+  let src_ty = self.vty.asIntegerTypeEnum()
   // Convert unsigned integer to floating point
   let unsigned_value = match src_ty {
     Int1Type(_) => self.value.reinterpret_as_uint64()
@@ -979,10 +955,7 @@ pub fn ConstantInt::uitofp(
 pub fn ConstantInt::sitofp(
   self : ConstantInt,
   dst_ty : &FPType
-) -> ConstantFP raise LLVMValueError {
-  guard self.getType().tryAsIntegerTypeEnum() is Some(_) else {
-    raise SIToFPInstTypeMismatch(self.getType(), dst_ty)
-  }
+) -> ConstantFP {
   // Convert signed integer to floating point
   let fp_value = self.value.to_double()
   ConstantFP::new(dst_ty, fp_value)
@@ -1007,10 +980,7 @@ pub fn ConstantInt::sitofp(
 /// ```
 pub fn ConstantInt::inttoptr(
   self : ConstantInt
-) -> ConstantPointerNull raise LLVMValueError {
-  guard self.getType().tryAsIntegerTypeEnum() is Some(_) else {
-    raise IntToPtrCastInstTypeMismatch(self.getType())
-  }
+) -> ConstantPointerNull {
   let ctx = self.getType().getContext()
   let ptr_ty = ctx.getPtrTy()
   ConstantPointerNull::new(ptr_ty)
@@ -1056,15 +1026,15 @@ pub fn ConstantInt::bitcast(
   match dst_ty.asPrimitiveTypeEnum() {
     // Integer to integer
     Int1Type(_) | Int8Type(_) | Int16Type(_) | Int32Type(_) | Int64Type(_) =>
-      ConstantInt::new(dst_ty, self.value) as &Constant
+      ConstantInt::new(dst_ty.tryAsIntType().unwrap(), self.value) as &Constant
     // Integer to floating point
-    FloatType(_) => {
+    FloatType(dst_ty) => {
       // For i32 to f32, we need to treat the 32-bit value as float bits
       let i32_bits = self.value.to_int().reinterpret_as_uint()
       let f32_value = i32_bits.reinterpret_as_float().to_double()
       ConstantFP::new(dst_ty, f32_value)
     }
-    DoubleType(_) => {
+    DoubleType(dst_ty) => {
       let fp_bits = self.value.reinterpret_as_uint64()
       let fp_value = fp_bits.reinterpret_as_double()
       ConstantFP::new(dst_ty, fp_value)
@@ -1073,14 +1043,14 @@ pub fn ConstantInt::bitcast(
       // For other FP types, we also interpret as double for now
       let fp_bits = self.value.reinterpret_as_uint64()
       let fp_value = fp_bits.reinterpret_as_double()
-      ConstantFP::new(dst_ty, fp_value)
+      ConstantFP::new(dst_ty.tryAsFPType().unwrap(), fp_value)
     }
   }
 }
 
 ///|
 pub impl Value for ConstantInt with getValueBase(self) {
-  self.base
+  ValueBase::{ uid: self.uid, vty: self.vty, users: [] }
 }
 
 ///|
@@ -1095,7 +1065,7 @@ pub impl Constant for ConstantInt with asConstantEnum(self) {
 
 ///|
 pub impl Constant for ConstantInt with valstr(self) {
-  guard self.getType().tryAsIntegerTypeEnum() is Some(ty)
+  guard self.getType().tryAsIntTypeEnum() is Some(ty)
   match ty {
     Int1Type(_) => if self.value != 0 { "true" } else { "false" }
     _ => self.value.to_string()
@@ -1114,19 +1084,24 @@ pub impl Show for ConstantInt with output(self, logger) {
 
 ///|
 pub struct ConstantFP {
-  base : ValueBase
+  // Unique identifier
+  uid : UInt64
+
+  // Value type
+  vty : &FPType
+
+  // Value stored in this constant
   value : Double
 } derive(Eq)
 
-// TODO: eliminate guard in the future.
-
 ///|
-fn ConstantFP::new(vty : &Type, value : Double) -> ConstantFP {
-  guard vty.asTypeEnum() is (FloatType(_) | DoubleType(_)) else {
-    llvm_unreachable("ConstantFP::new: vty is not FloatType")
-  }
-  let base = ValueBase::new(vty)
-  ConstantFP::{ base, value }
+fn ConstantFP::new(vty : &FPType, value : Double) -> ConstantFP {
+  let uid = valueUIDAssigner.assign()
+  ConstantFP::{ uid, vty, value }
+}
+
+pub fn ConstantFP::getFPType(self : ConstantFP) -> &FPType {
+  self.vty
 }
 
 ///|
@@ -1170,11 +1145,11 @@ pub fn ConstantFP::add(
   self : ConstantFP,
   other : ConstantFP
 ) -> ConstantFP raise LLVMValueError {
-  let (lty, rty) = (self.getType(), other.getType())
+  let (lty, rty) = (self.getFPType(), other.getFPType())
   guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
+  let vty = lty
   let value = self.value + other.value
-  let base = self.base
-  ConstantFP::{ base, value }
+  ConstantFP::new(vty, value)
 }
 
 ///| Subtract two ConstantFP, useful in constant folding.
@@ -1199,11 +1174,11 @@ pub fn ConstantFP::sub(
   self : ConstantFP,
   other : ConstantFP
 ) -> ConstantFP raise LLVMValueError {
-  let (lty, rty) = (self.getType(), other.getType())
+  let (lty, rty) = (self.getFPType(), other.getFPType())
   guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
+  let vty = lty
   let value = self.value - other.value
-  let base = self.base
-  ConstantFP::{ base, value }
+  ConstantFP::new(vty, value)
 }
 
 ///| Multiply two ConstantFP, useful in constant folding.
@@ -1228,11 +1203,11 @@ pub fn ConstantFP::mul(
   self : ConstantFP,
   other : ConstantFP
 ) -> ConstantFP raise LLVMValueError {
-  let (lty, rty) = (self.getType(), other.getType())
+  let (lty, rty) = (self.getFPType(), other.getFPType())
   guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
+  let vty = lty
   let value = self.value * other.value
-  let base = self.base
-  ConstantFP::{ base, value }
+  ConstantFP::new(vty, value)
 }
 
 ///| Divide two ConstantFP, useful in constant folding.
@@ -1257,11 +1232,11 @@ pub fn ConstantFP::div(
   self : ConstantFP,
   other : ConstantFP
 ) -> ConstantFP raise LLVMValueError {
-  let (lty, rty) = (self.getType(), other.getType())
+  let (lty, rty) = (self.getFPType(), other.getFPType())
   guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
+  let vty = lty
   let value = self.value / other.value
-  let base = self.base
-  ConstantFP::{ base, value }
+  ConstantFP::new(vty, value)
 }
 
 ///| Compare two ConstantFP using the given predicate, useful in constant folding.
@@ -1319,7 +1294,7 @@ pub fn ConstantFP::compare(
   predicate : FloatPredicate,
   other : ConstantFP
 ) -> ConstantInt raise LLVMValueError {
-  let (lty, rty) = (self.getType(), other.getType())
+  let (lty, rty) = (self.getFPType(), other.getFPType())
   guard lty == rty else { raise TypeMismatchForCmpInst(lty, rty) }
   let self_val = self.value
   let other_val = other.value
@@ -1378,11 +1353,9 @@ pub fn ConstantFP::fptrunc(
   self : ConstantFP,
   dst_ty : &FPType
 ) -> ConstantFP raise LLVMValueError {
-  guard self.getType().tryAsFPTypeEnum() is Some(src_ty) else {
-    raise FPTruncCastInstTypeMismatch(self.getType(), dst_ty)
-  }
+  let src_ty = self.vty
   guard src_ty.getBitWidth() > dst_ty.getBitWidth() else {
-    raise FPTruncCastInstTypeMismatch(src_ty.asTypeClass(), dst_ty)
+    raise FPTruncCastInstTypeMismatch(src_ty, dst_ty)
   }
   // For truncation, we simply use the current value (precision loss handled by Double)
   ConstantFP::new(dst_ty, self.value)
@@ -1414,11 +1387,9 @@ pub fn ConstantFP::fpext(
   self : ConstantFP,
   dst_ty : &FPType
 ) -> ConstantFP raise LLVMValueError {
-  guard self.getType().tryAsFPTypeEnum() is Some(src_ty) else {
-    raise FPExtCastInstTypeMismatch(self.getType(), dst_ty)
-  }
+  let src_ty = self.vty
   guard src_ty.getBitWidth() < dst_ty.getBitWidth() else {
-    raise FPExtCastInstTypeMismatch(src_ty.asTypeClass(), dst_ty)
+    raise FPExtCastInstTypeMismatch(src_ty, dst_ty)
   }
   // For extension, we simply use the current value (no precision loss)
   ConstantFP::new(dst_ty, self.value)
@@ -1456,10 +1427,7 @@ pub fn ConstantFP::fpext(
 pub fn ConstantFP::fptoui(
   self : ConstantFP,
   dst_ty : &IntegerType
-) -> ConstantInt raise LLVMValueError {
-  guard self.getType().tryAsFPTypeEnum() is Some(_) else {
-    raise FPToUIInstTypeMismatch(self.getType(), dst_ty)
-  }
+) -> ConstantInt {
   // Convert float to unsigned integer (truncate towards zero)
   let int_value = if self.value < 0.0 {
     0L // Negative values become 0 in unsigned conversion
@@ -1500,10 +1468,7 @@ pub fn ConstantFP::fptoui(
 pub fn ConstantFP::fptosi(
   self : ConstantFP,
   dst_ty : &IntegerType
-) -> ConstantInt raise LLVMValueError {
-  guard self.getType().tryAsFPTypeEnum() is Some(_) else {
-    raise FPToSIInstTypeMismatch(self.getType(), dst_ty)
-  }
+) -> ConstantInt {
   // Convert float to signed integer (truncate towards zero)
   let int_value = self.value.to_int64()
   ConstantInt::new(dst_ty, int_value)
@@ -1552,13 +1517,13 @@ pub fn ConstantFP::bitcast(
   }
   match dst_ty.asPrimitiveTypeEnum() {
     // Floating point to integer
-    Int32Type(_) => {
+    Int32Type(dst_ty) => {
       // For f32 to i32, reinterpret the 32-bit float as 32-bit int
       let f32_bits = self.value.to_float().reinterpret_as_uint()
       let i32_value = f32_bits.reinterpret_as_int().to_int64()
       ConstantInt::new(dst_ty, i32_value) as &Constant
     }
-    Int64Type(_) => {
+    Int64Type(dst_ty) => {
       // For f64 to i64, reinterpret the 64-bit double as 64-bit int
       let f64_bits = self.value.reinterpret_as_uint64()
       let i64_value = f64_bits.reinterpret_as_int64()
@@ -1566,7 +1531,7 @@ pub fn ConstantFP::bitcast(
     }
     // Floating point to floating point
     FloatType(_) | DoubleType(_) | HalfType(_) | BFloatType(_) | FP128Type(_) =>
-      ConstantFP::new(dst_ty, self.value) as &Constant
+      ConstantFP::new(dst_ty.tryAsFPType().unwrap(), self.value) as &Constant
     // Other integer types
     Int1Type(_) | Int8Type(_) | Int16Type(_) =>
       // For other integer types, we need proper bit width matching
@@ -1576,7 +1541,7 @@ pub fn ConstantFP::bitcast(
 
 ///|
 pub impl Value for ConstantFP with getValueBase(self) {
-  self.base
+  ValueBase::{ uid: self.uid, vty: self.vty, users: [] }
 }
 
 ///|
@@ -1642,21 +1607,26 @@ pub impl Show for ConstantFP with output(self, logger) {
 
 ///|
 pub struct ConstantPointerNull {
-  base : ValueBase
+
+  // Unique identifier
+  uid: UInt64
+
+  // Value type, must be a pointer type
+  vty: PointerType
 } derive(Eq)
 
 ///|
-fn ConstantPointerNull::new(vty : &Type) -> ConstantPointerNull {
+fn ConstantPointerNull::new(vty : PointerType) -> ConstantPointerNull {
   guard vty.asTypeEnum() is PointerType(_) else {
     llvm_unreachable("ConstantPointerNull::new: vty is not PointerType")
   }
-  let base = ValueBase::new(vty)
-  ConstantPointerNull::{ base, }
+  let uid = valueUIDAssigner.assign()
+  ConstantPointerNull::{ uid, vty }
 }
 
 ///|
 pub impl Value for ConstantPointerNull with getValueBase(self) {
-  self.base
+  ValueBase::{ uid: self.uid, vty: self.vty, users: [] }
 }
 
 ///|

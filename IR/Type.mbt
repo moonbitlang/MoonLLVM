@@ -148,10 +148,15 @@ pub trait Type: Show + Hash {
   /// type.
   getScalarSizeInBits(Self) -> UInt = _
   getScalarType(Self) -> &Type = _
+  tryAsFPType(Self) -> &FPType? = _
   tryAsFPTypeEnum(Self) -> FPTypeEnum? = _
-  tryAsIntegerTypeEnum(Self) -> IntegerTypeEnum? = _
+  tryAsIntType(Self) -> &IntegerType? = _
+  tryAsIntTypeEnum(Self) -> IntegerTypeEnum? = _
+  tryAsPrimitiveType(Self) -> &PrimitiveType? = _
   tryAsPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum? = _
+  tryAsAggregateType(Self) -> &AggregateType? = _
   tryAsAggregateTypeEnum(Self) -> AggregateTypeEnum? = _
+  tryAsAbstractType(Self) -> &AbstractType? = _
   tryAsAbstractTypeEnum(Self) -> AbstractTypeEnum? = _
 }
 
@@ -337,6 +342,17 @@ impl Type with getScalarType(self) {
   }
 }
 
+impl Type with tryAsFPType(self) -> &FPType? {
+  match self.asTypeEnum() {
+    HalfType(half) => Some(half)
+    BFloatType(bfloat) => Some(bfloat)
+    FloatType(float) => Some(float)
+    DoubleType(double) => Some(double)
+    FP128Type(fp128) => Some(fp128)
+    _ => None
+  }
+}
+
 ///|
 impl Type with tryAsFPTypeEnum(self) -> FPTypeEnum? {
   match self.asTypeEnum() {
@@ -349,14 +365,41 @@ impl Type with tryAsFPTypeEnum(self) -> FPTypeEnum? {
   }
 }
 
+impl Type with tryAsIntType(self) -> &IntegerType? {
+  match self.asTypeEnum() {
+    Int1Type(int1) => Some(int1)
+    Int8Type(int8) => Some(int8)
+    Int16Type(int16) => Some(int16)
+    Int32Type(int32) => Some(int32)
+    Int64Type(int64) => Some(int64)
+    _ => None
+  }
+}
+
 ///|
-impl Type with tryAsIntegerTypeEnum(self) -> IntegerTypeEnum? {
+impl Type with tryAsIntTypeEnum(self) -> IntegerTypeEnum? {
   match self.asTypeEnum() {
     Int1Type(int1) => Some(Int1Type(int1))
     Int8Type(int8) => Some(Int8Type(int8))
     Int16Type(int16) => Some(Int16Type(int16))
     Int32Type(int32) => Some(Int32Type(int32))
     Int64Type(int64) => Some(Int64Type(int64))
+    _ => None
+  }
+}
+
+impl Type with tryAsPrimitiveType(self) -> &PrimitiveType? {
+  match self.asTypeEnum() {
+    HalfType(half) => Some(half)
+    BFloatType(bfloat) => Some(bfloat)
+    FloatType(float) => Some(float)
+    DoubleType(double) => Some(double)
+    FP128Type(fp128) => Some(fp128)
+    Int1Type(int1) => Some(int1)
+    Int8Type(int8) => Some(int8)
+    Int16Type(int16) => Some(int16)
+    Int32Type(int32) => Some(int32)
+    Int64Type(int64) => Some(int64)
     _ => None
   }
 }
@@ -378,6 +421,16 @@ impl Type with tryAsPrimitiveTypeEnum(self) -> PrimitiveTypeEnum? {
   }
 }
 
+impl Type with tryAsAggregateType(self) -> &AggregateType? {
+  match self.asTypeEnum() {
+    StructType(sty) => Some(sty)
+    ArrayType(arr) => Some(arr)
+    FixedVectorType(vec) => Some(vec)
+    ScalableVectorType(vec) => Some(vec)
+    _ => None
+  }
+}
+
 ///|
 impl Type with tryAsAggregateTypeEnum(self) -> AggregateTypeEnum? {
   match self.asTypeEnum() {
@@ -385,6 +438,17 @@ impl Type with tryAsAggregateTypeEnum(self) -> AggregateTypeEnum? {
     ArrayType(arr) => Some(ArrayType(arr))
     FixedVectorType(vec) => Some(FixedVectorType(vec))
     ScalableVectorType(vec) => Some(ScalableVectorType(vec))
+    _ => None
+  }
+}
+
+impl Type with tryAsAbstractType(self) -> &AbstractType? {
+  match self.asTypeEnum() {
+    VoidType(v) => Some(v)
+    LabelType(label) => Some(label)
+    MetadataType(metadata) => Some(metadata)
+    TokenType(token) => Some(token)
+    FunctionType(func) => Some(func)
     _ => None
   }
 }
@@ -426,23 +490,15 @@ impl Type with tryAsAbstractTypeEnum(self) -> AbstractTypeEnum? {
 /// guard i32ty.asIntegerTypeEnum() is Int32Type(i32ty)
 /// inspect(i32ty, content="i32")
 /// ```
-pub trait IntegerType: Type {
+pub trait IntegerType: PrimitiveType {
   asIntegerTypeEnum(Self) -> IntegerTypeEnum
-  getBitWidth(Self) -> UInt = _
   getBitMask(Self) -> UInt64 = _
   getSignBit(Self) -> UInt64 = _
   getExtendedType(Self) -> &IntegerType? = _
 }
 
-///|
-impl IntegerType with getBitWidth(self) -> UInt {
-  match self.asIntegerTypeEnum() {
-    Int1Type(_) => 1
-    Int8Type(_) => 8
-    Int16Type(_) => 16
-    Int32Type(_) => 32
-    Int64Type(_) => 64
-  }
+impl Eq for &IntegerType with op_equal(self, other) {
+  self.asIntegerTypeEnum() == other.asIntegerTypeEnum()
 }
 
 ///|
@@ -488,6 +544,16 @@ pub enum IntegerTypeEnum {
   Int64Type(Int64Type)
 } derive(Eq, Hash, Show)
 
+pub fn IntegerTypeEnum::asIntegerTypeClass(self : IntegerTypeEnum) -> &IntegerType {
+  match self {
+    Int1Type(t) => (t : &IntegerType)
+    Int8Type(t) => t
+    Int16Type(t) => t
+    Int32Type(t) => t
+    Int64Type(t) => t
+  }
+}
+
 ///|
 pub fn IntegerTypeEnum::asTypeClass(self : IntegerTypeEnum) -> &Type {
   match self {
@@ -501,13 +567,7 @@ pub fn IntegerTypeEnum::asTypeClass(self : IntegerTypeEnum) -> &Type {
 
 ///|
 pub fn IntegerTypeEnum::getBitWidth(self : IntegerTypeEnum) -> UInt {
-  match self {
-    Int1Type(_) => 1
-    Int8Type(_) => 8
-    Int16Type(_) => 16
-    Int32Type(_) => 32
-    Int64Type(_) => 64
-  }
+  self.asIntegerTypeClass().getBitWidth()
 }
 
 // ====================================================================
@@ -515,12 +575,15 @@ pub fn IntegerTypeEnum::getBitWidth(self : IntegerTypeEnum) -> UInt {
 // ====================================================================
 
 ///|
-pub trait FPType: Type {
+pub trait FPType: PrimitiveType {
   asFPTypeEnum(Self) -> FPTypeEnum
 
   /// Return the width of the mantissa of this type. 
   getFPMantissaWidth(Self) -> UInt = _
-  getBitWidth(Self) -> UInt = _
+}
+
+impl Eq for &FPType with op_equal(self, other) {
+  self.asFPTypeEnum() == other.asFPTypeEnum()
 }
 
 ///|
@@ -543,14 +606,13 @@ pub fn FPTypeEnum::asTypeClass(self : FPTypeEnum) -> &Type {
   }
 }
 
-///|
-pub fn FPTypeEnum::getBitWidth(self : FPTypeEnum) -> UInt {
+pub fn FPTypeEnum::asFPTypeClass(self : FPTypeEnum) -> &FPType {
   match self {
-    HalfType(_) => 16
-    BFloatType(_) => 16
-    FloatType(_) => 32
-    DoubleType(_) => 64
-    FP128Type(_) => 128
+    HalfType(t) => (t : &FPType)
+    BFloatType(t) => t
+    FloatType(t) => t
+    DoubleType(t) => t
+    FP128Type(t) => t
   }
 }
 
@@ -565,14 +627,13 @@ pub fn FPTypeEnum::getFPMantissaWidth(self : FPTypeEnum) -> UInt {
   }
 }
 
-///|
-impl FPType with getFPMantissaWidth(self) {
-  self.asFPTypeEnum().getFPMantissaWidth()
+pub fn FPTypeEnum::getBitWidth(self: Self) -> UInt {
+  self.asFPTypeClass().getBitWidth()
 }
 
 ///|
-impl FPType with getBitWidth(self) -> UInt {
-  self.asFPTypeEnum().getBitWidth()
+impl FPType with getFPMantissaWidth(self) {
+  self.asFPTypeEnum().getFPMantissaWidth()
 }
 
 // ====================================================================
