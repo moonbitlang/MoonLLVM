@@ -330,6 +330,25 @@ fn ValueBase::new(vty : &Type, users~ : Array[&Value] = []) -> ValueBase {
 }
 
 // =======================================================
+// NamedValue
+// =======================================================
+
+pub trait NamedValue: Value {
+  getName(Self) -> String?
+  setName(Self, name : String) -> Unit raise LLVMValueError
+  getNameOrSlot(Self) -> Either[String, UInt64]?
+  getNameOrSlotStr(Self) -> String = _
+}
+
+impl NamedValue with getNameOrSlotStr(self) {
+  match self.getNameOrSlot() {
+    Some(Left(name)) => name
+    Some(Right(slot)) => slot.to_string()
+    None => "<badref>"
+  }
+}
+
+// =======================================================
 // User
 // =======================================================
 
