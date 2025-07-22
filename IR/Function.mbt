@@ -30,7 +30,7 @@ pub struct Argument {
   vty: &Type
 
   // Users of the argument.
-  users: Array[&Value]
+  users: Array[&User]
 
   // Function that this argument belongs to.
   parent : Function
@@ -95,6 +95,13 @@ pub impl Value for Argument with asValueEnum(self) {
   Argument(self)
 }
 
+pub impl Value for Argument with getValueRepr(self) {
+  match self.getNameOrSlot().unwrap() {
+    Left(name) => "%\{name}"
+    Right(slot) => "%\{slot}"
+  }
+}
+
 ///|
 pub impl NamedValue for Argument with getName(self : Argument) -> String? {
   self.name
@@ -132,7 +139,6 @@ pub impl NamedValue for Argument with setName(
   self : Argument,
   name : String
 ) -> Unit raise LLVMValueError {
-  guard self.getName() != Some(name) else { return }
   let symbols = self.parent.symbols
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
   self.name = Some(name)
@@ -140,6 +146,8 @@ pub impl NamedValue for Argument with setName(
 }
 
 ///|
+///
+/// Note: This function is impossibly to return `None`.
 pub impl NamedValue for Argument with getNameOrSlot(self)  {
   match self.name {
     Some(name) => Some(Left(name))
@@ -153,8 +161,8 @@ pub impl NamedValue for Argument with getNameOrSlot(self)  {
 ///|
 pub impl Show for Argument with output(self, logger) {
   let ty = self.getType()
-  let label = self.getNameOrSlotStr()
-  logger.write_string("\{ty} %\{label}")
+  let label = self.getValueRepr()
+  logger.write_string("\{ty} \{label}")
 }
 
 // ====================================================================
@@ -174,7 +182,7 @@ pub struct Function {
   fty: FunctionType
 
   // Users of the function.
-  users: Array[&Value]
+  users: Array[&User]
 
   gv_base : GlobalValueBase
   program : Module
@@ -295,9 +303,9 @@ pub fn Function::addBasicBlock(
 ) -> BasicBlock {
   let name = match name {
     "" => None
-    _ => Some(name)
+    n => Some(n)
   }
-  BasicBlock::new(self, name, before~)
+  BasicBlock::new(self, name~, before~)
 }
 
 ///|
@@ -372,6 +380,10 @@ pub impl Eq for Function with op_equal(self, other) {
 ///|
 pub impl Value for Function with getValueBase(self) {
   ValueBase::{ uid: self.uid, vty: self.fty, users: self.users }
+}
+
+pub impl Value for Function with getValueRepr(self) {
+  "@\{self.name}"
 }
 
 ///|

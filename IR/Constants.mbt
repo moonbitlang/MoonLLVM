@@ -1058,6 +1058,15 @@ pub impl Value for ConstantInt with asValueEnum(self) {
   ConstantInt(self)
 }
 
+pub impl Value for ConstantInt with getValueRepr(self) {
+  let vty = self.getIntegerType()
+  let val = match vty.asIntegerTypeEnum() {
+    Int1Type(_) => if self.value != 0 { "true" } else { "false" }
+    _ => self.value.to_string()
+  }
+  "\{val}"
+}
+
 ///|
 pub impl Constant for ConstantInt with asConstantEnum(self) {
   ConstantInt(self)
@@ -1065,8 +1074,7 @@ pub impl Constant for ConstantInt with asConstantEnum(self) {
 
 ///|
 pub impl Constant for ConstantInt with valstr(self) {
-  guard self.getType().tryAsIntTypeEnum() is Some(ty)
-  match ty {
+  match self.vty.asIntegerTypeEnum() {
     Int1Type(_) => if self.value != 0 { "true" } else { "false" }
     _ => self.value.to_string()
   }
@@ -1074,7 +1082,7 @@ pub impl Constant for ConstantInt with valstr(self) {
 
 ///|
 pub impl Show for ConstantInt with output(self, logger) {
-  let val_str = self.valstr()
+  let val_str = self.getValueRepr()
   logger.write_string("\{self.getIntegerType()} \{val_str}")
 }
 
@@ -1544,6 +1552,14 @@ pub impl Value for ConstantFP with getValueBase(self) {
   ValueBase::{ uid: self.uid, vty: self.vty, users: [] }
 }
 
+pub impl Value for ConstantFP with getValueRepr(self) {
+  let val_str = self.value
+    .reinterpret_as_uint64()
+    .to_string(radix=16)
+    .to_upper()
+  "0x\{val_str}"
+}
+
 ///|
 pub impl Value for ConstantFP with asValueEnum(self) {
   ConstantFP(self)
@@ -1565,8 +1581,8 @@ pub impl Constant for ConstantFP with valstr(self) {
 
 ///|
 pub impl Show for ConstantFP with output(self, logger) {
-  let val_str = self.valstr()
-  logger.write_string("\{self.getType()} 0x\{val_str}")
+  let val_str = self.getValueRepr()
+  logger.write_string("\{self.getFPType()} \{val_str}")
 }
 
 // ====================================================================
@@ -1634,6 +1650,11 @@ pub impl Value for ConstantPointerNull with asValueEnum(self) {
   ConstantPointerNull(self)
 }
 
+pub impl Value for ConstantPointerNull with getValueRepr(self) {
+  ignore(self)
+  "null"
+}
+
 ///|
 pub impl Constant for ConstantPointerNull with asConstantEnum(self) {
   ConstantPointerNull(self)
@@ -1655,7 +1676,11 @@ pub impl Show for ConstantPointerNull with output(self, logger) {
 
 ///|
 pub struct ConstantArray {
-  base : ValueBase
+  // Unique identifier
+  uid: UInt64
+  
+  // Value type, must be an array type
+  vty: ArrayType
   data : Either[Array[&Constant], NumberArrayEnum]
 } derive(Eq)
 
@@ -1689,260 +1714,266 @@ pub struct ConstantArray {
 // TODO: use `Int8` instead of `Int` when standard library support `Int8`
 
 ///|
-fn ConstantArray::newInt8Array(vty : &Type, data : Array[Int]) -> ConstantArray {
-  guard vty.asTypeEnum() is ArrayType(arrTy) else {
-    llvm_unreachable("ConstantArray::new: vty is not ArrayType")
-  }
-  let eleCnt = arrTy.getElementCount().reinterpret_as_int()
+fn ConstantArray::newInt8Array(vty : ArrayType, data : Array[Int]) -> ConstantArray {
+  let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantArray::new: data length is not equal to element count",
     )
   }
-  guard arrTy.elementType.asTypeEnum() is Int8Type(_) else {
+  guard vty.elementType.asTypeEnum() is Int8Type(_) else {
     llvm_unreachable("ConstantArray::new: elementType is not Int8Type")
   }
   let data = data.map(i => Int8::from(i))
     |> Int8Array::from
     |> NumberArrayEnum::Int8Array
     |> Either::Right
-  let base = ValueBase::new(vty)
-  ConstantArray::{ base, data }
+  let uid = valueUIDAssigner.assign()
+  ConstantArray::{ uid, vty, data }
 }
 
 ///|
 fn ConstantArray::newInt16Array(
-  vty : &Type,
+  vty : ArrayType,
   data : Array[Int16]
 ) -> ConstantArray {
-  guard vty.asTypeEnum() is ArrayType(arrTy) else {
-    llvm_unreachable("ConstantArray::new: vty is not ArrayType")
-  }
-  let eleCnt = arrTy.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantArray::new: data length is not equal to element count",
     )
   }
-  guard arrTy.elementType.asTypeEnum() is Int16Type(_) else {
+  guard vty.elementType.asTypeEnum() is Int16Type(_) else {
     llvm_unreachable("ConstantArray::new: elementType is not Int16Type")
   }
   let data = data
     |> Int16Array::from
     |> NumberArrayEnum::Int16Array
     |> Either::Right
-  let base = ValueBase::new(vty)
-  ConstantArray::{ base, data }
+  let uid = valueUIDAssigner.assign()
+  ConstantArray::{ uid, vty, data }
 }
 
 ///|
 fn ConstantArray::newInt32Array(
-  vty : &Type,
+  vty : ArrayType,
   data : Array[Int]
 ) -> ConstantArray {
-  guard vty.asTypeEnum() is ArrayType(arrTy) else {
-    llvm_unreachable("ConstantArray::new: vty is not ArrayType")
-  }
-  let eleCnt = arrTy.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantArray::new: data length is not equal to element count",
     )
   }
-  guard arrTy.elementType.asTypeEnum() is Int32Type(_) else {
+  guard vty.elementType.asTypeEnum() is Int32Type(_) else {
     llvm_unreachable("ConstantArray::new: elementType is not Int32Type")
   }
   let data = data
     |> Int32Array::from
     |> NumberArrayEnum::Int32Array
     |> Either::Right
-  let base = ValueBase::new(vty)
-  ConstantArray::{ base, data }
+  let uid = valueUIDAssigner.assign()
+  ConstantArray::{ uid, vty, data }
 }
 
 ///|
 fn ConstantArray::newInt64Array(
-  vty : &Type,
+  vty : ArrayType,
   data : Array[Int64]
 ) -> ConstantArray {
-  guard vty.asTypeEnum() is ArrayType(arrTy) else {
-    llvm_unreachable("ConstantArray::new: vty is not ArrayType")
-  }
-  let eleCnt = arrTy.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantArray::new: data length is not equal to element count",
     )
   }
-  guard arrTy.elementType.asTypeEnum() is Int64Type(_) else {
+  guard vty.elementType.asTypeEnum() is Int64Type(_) else {
     llvm_unreachable("ConstantArray::new: elementType is not Int64Type")
   }
   let data = data
     |> Int64Array::from
     |> NumberArrayEnum::Int64Array
     |> Either::Right
-  let base = ValueBase::new(vty)
-  ConstantArray::{ base, data }
+  let uid = valueUIDAssigner.assign()
+  ConstantArray::{ uid, vty, data }
 }
 
 ///|
 fn ConstantArray::newUInt8Array(
-  vty : &Type,
+  vty : ArrayType,
   data : Array[Byte]
 ) -> ConstantArray {
-  guard vty.asTypeEnum() is ArrayType(arrTy) else {
-    llvm_unreachable("ConstantArray::new: vty is not ArrayType")
-  }
-  let eleCnt = arrTy.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantArray::new: data length is not equal to element count",
     )
   }
-  guard arrTy.elementType.asTypeEnum() is Int8Type(_) else {
+  guard vty.elementType.asTypeEnum() is Int8Type(_) else {
     llvm_unreachable("ConstantArray::new: elementType is not Int8Type")
   }
   let data = data.map(i => UInt8::from(i))
     |> UInt8Array::from
     |> NumberArrayEnum::UInt8Array
     |> Either::Right
-  let base = ValueBase::new(vty)
-  ConstantArray::{ base, data }
+  let uid = valueUIDAssigner.assign()
+  ConstantArray::{ uid, vty, data }
 }
 
 ///|
 fn ConstantArray::newUInt16Array(
-  vty : &Type,
+  vty : ArrayType,
   data : Array[UInt16]
 ) -> ConstantArray {
-  guard vty.asTypeEnum() is ArrayType(arrTy) else {
-    llvm_unreachable("ConstantArray::new: vty is not ArrayType")
-  }
-  let eleCnt = arrTy.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantArray::new: data length is not equal to element count",
     )
   }
-  guard arrTy.elementType.asTypeEnum() is Int16Type(_) else {
+  guard vty.elementType.asTypeEnum() is Int16Type(_) else {
     llvm_unreachable("ConstantArray::new: elementType is not Int16Type")
   }
   let data = data
     |> UInt16Array::from
     |> NumberArrayEnum::UInt16Array
     |> Either::Right
-  let base = ValueBase::new(vty)
-  ConstantArray::{ base, data }
+  let uid = valueUIDAssigner.assign()
+  ConstantArray::{ uid, vty, data }
 }
 
 ///|
 fn ConstantArray::newUInt32Array(
-  vty : &Type,
+  vty : ArrayType,
   data : Array[UInt]
 ) -> ConstantArray {
-  guard vty.asTypeEnum() is ArrayType(arrTy) else {
-    llvm_unreachable("ConstantArray::new: vty is not ArrayType")
-  }
-  let eleCnt = arrTy.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantArray::new: data length is not equal to element count",
     )
   }
-  guard arrTy.elementType.asTypeEnum() is Int32Type(_) else {
+  guard vty.elementType.asTypeEnum() is Int32Type(_) else {
     llvm_unreachable("ConstantArray::new: elementType is not Int32Type")
   }
   let data = data
     |> UInt32Array::from
     |> NumberArrayEnum::UInt32Array
     |> Either::Right
-  let base = ValueBase::new(vty)
-  ConstantArray::{ base, data }
+  let uid = valueUIDAssigner.assign()
+  ConstantArray::{ uid, vty, data }
 }
 
 ///|
 fn ConstantArray::newUInt64Array(
-  vty : &Type,
+  vty : ArrayType,
   data : Array[UInt64]
 ) -> ConstantArray {
-  guard vty.asTypeEnum() is ArrayType(arrTy) else {
-    llvm_unreachable("ConstantArray::new: vty is not ArrayType")
-  }
-  let eleCnt = arrTy.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantArray::new: data length is not equal to element count",
     )
   }
-  guard arrTy.elementType.asTypeEnum() is Int64Type(_) else {
+  guard vty.elementType.asTypeEnum() is Int64Type(_) else {
     llvm_unreachable("ConstantArray::new: elementType is not Int64Type")
   }
   let data = data
     |> UInt64Array::from
     |> NumberArrayEnum::UInt64Array
     |> Either::Right
-  let base = ValueBase::new(vty)
-  ConstantArray::{ base, data }
+  let uid = valueUIDAssigner.assign()
+  ConstantArray::{ uid, vty, data }
 }
 
 ///|
 fn ConstantArray::newFloatArray(
-  vty : &Type,
+  vty : ArrayType,
   data : Array[Float]
 ) -> ConstantArray {
-  guard vty.asTypeEnum() is ArrayType(arrTy) else {
-    llvm_unreachable("ConstantArray::new: vty is not ArrayType")
-  }
-  let eleCnt = arrTy.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantArray::new: data length is not equal to element count",
     )
   }
-  guard arrTy.elementType.asTypeEnum() is FloatType(_) else {
+  guard vty.elementType.asTypeEnum() is FloatType(_) else {
     llvm_unreachable("ConstantArray::new: elementType is not FloatType")
   }
   let data = data
     |> FloatArray::from
     |> NumberArrayEnum::FloatArray
     |> Either::Right
-  let base = ValueBase::new(vty)
-  ConstantArray::{ base, data }
+  let uid = valueUIDAssigner.assign()
+  ConstantArray::{ uid, vty, data }
 }
 
 ///|
 fn ConstantArray::newDoubleArray(
-  vty : &Type,
+  vty : ArrayType,
   data : Array[Double]
 ) -> ConstantArray {
-  guard vty.asTypeEnum() is ArrayType(arrTy) else {
-    llvm_unreachable("ConstantArray::new: vty is not ArrayType")
-  }
-  let eleCnt = arrTy.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantArray::new: data length is not equal to element count",
     )
   }
-  guard arrTy.elementType.asTypeEnum() is DoubleType(_) else {
+  guard vty.elementType.asTypeEnum() is DoubleType(_) else {
     llvm_unreachable("ConstantArray::new: elementType is not DoubleType")
   }
   let data = data
     |> DoubleArray::from
     |> NumberArrayEnum::DoubleArray
     |> Either::Right
-  let base = ValueBase::new(vty)
-  ConstantArray::{ base, data }
+  let uid = valueUIDAssigner.assign()
+  ConstantArray::{ uid, vty, data }
 }
 
 ///|
 impl Value for ConstantArray with getValueBase(self) {
-  self.base
+  ValueBase::{ uid: self.uid, vty: self.vty, users: [] }
 }
 
 ///|
 impl Value for ConstantArray with asValueEnum(self) {
   ConstantArray(self)
+}
+
+impl Value for ConstantArray with getValueRepr(self) {
+  match self.data {
+    Left(constants) => constants.map(c => c.to_string()).join(", ")
+    Right(arr) =>
+      match arr {
+        Int8Array(i8arr) => i8arr.iter().map(i => "i8 \{i}").join(", ")
+        Int16Array(i16arr) => i16arr.iter().map(i => "i16 \{i}").join(", ")
+        Int32Array(i32arr) => i32arr.iter().map(i => "i32 \{i}").join(", ")
+        Int64Array(i64arr) => i64arr.iter().map(i => "i64 \{i}").join(", ")
+        UInt8Array(u8arr) => u8arr.iter().map(i => "i8 \{i}").join(", ")
+        UInt16Array(u16arr) => u16arr.iter().map(i => "i16 \{i}").join(", ")
+        UInt32Array(u32arr) => u32arr.iter().map(i => "i32 \{i}").join(", ")
+        UInt64Array(u64arr) => u64arr.iter().map(i => "i64 \{i}").join(", ")
+        FloatArray(farr) => {
+          fn to_str(f : Float) {
+            let nd = f.to_double()
+            let ud = nd.reinterpret_as_uint64()
+            let sd = ud.to_string(radix=16).to_upper()
+            "float 0x\{sd}"
+          }
+
+          farr.iter().map(to_str).join(", ")
+        }
+        DoubleArray(darr) => {
+          fn to_str(nd : Double) {
+            let ud = nd.reinterpret_as_uint64()
+            let sd = ud.to_string(radix=16).to_upper()
+            "double 0x\{sd}"
+          }
+
+          darr.iter().map(to_str).join(", ")
+        }
+      }
+  }
 }
 
 ///|
@@ -1999,7 +2030,8 @@ pub impl Show for ConstantArray with output(self, logger) {
 
 ///|
 pub struct ConstantVector {
-  base : ValueBase
+  uid : UInt64
+  vty : FixedVectorType
   data : Either[Array[&Constant], NumberArrayEnum]
 } derive(Eq)
 
@@ -2034,262 +2066,268 @@ pub struct ConstantVector {
 
 ///|
 fn ConstantVector::newInt8Vector(
-  vty : &Type,
+  vty : FixedVectorType,
   data : Array[Int]
 ) -> ConstantVector {
-  guard vty.asTypeEnum() is FixedVectorType(arrTy) else {
-    llvm_unreachable("ConstantVector::new: vty is not FixedVectorType")
-  }
-  let eleCnt = arrTy.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantVector::new: data length is not equal to element count",
     )
   }
-  guard arrTy.elementType.asTypeEnum() is Int8Type(_) else {
+  guard vty.elementType.asTypeEnum() is Int8Type(_) else {
     llvm_unreachable("ConstantVector::new: elementType is not Int8Type")
   }
   let data = data.map(i => Int8::from(i))
     |> Int8Array::from
     |> NumberArrayEnum::Int8Array
     |> Either::Right
-  let base = ValueBase::new(vty)
-  ConstantVector::{ base, data }
+  let uid = valueUIDAssigner.assign()
+  ConstantVector::{ uid, vty, data }
 }
 
 ///|
 fn ConstantVector::newInt16Vector(
-  vty : &Type,
+  vty : FixedVectorType,
   data : Array[Int16]
 ) -> ConstantVector {
-  guard vty.asTypeEnum() is FixedVectorType(arrTy) else {
-    llvm_unreachable("ConstantVector::new: vty is not FixedVectorType")
-  }
-  let eleCnt = arrTy.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantVector::new: data length is not equal to element count",
     )
   }
-  guard arrTy.elementType.asTypeEnum() is Int16Type(_) else {
+  guard vty.elementType.asTypeEnum() is Int16Type(_) else {
     llvm_unreachable("ConstantVector::new: elementType is not Int16Type")
   }
   let data = data
     |> Int16Array::from
     |> NumberArrayEnum::Int16Array
     |> Either::Right
-  let base = ValueBase::new(vty)
-  ConstantVector::{ base, data }
+  let uid = valueUIDAssigner.assign()
+  ConstantVector::{ uid, vty, data }
 }
 
 ///|
 fn ConstantVector::newInt32Vector(
-  vty : &Type,
+  vty : FixedVectorType,
   data : Array[Int]
 ) -> ConstantVector {
-  guard vty.asTypeEnum() is FixedVectorType(arrTy) else {
-    llvm_unreachable("ConstantVector::new: vty is not FixedVectorType")
-  }
-  let eleCnt = arrTy.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantVector::new: data length is not equal to element count",
     )
   }
-  guard arrTy.elementType.asTypeEnum() is Int32Type(_) else {
+  guard vty.elementType.asTypeEnum() is Int32Type(_) else {
     llvm_unreachable("ConstantVector::new: elementType is not Int32Type")
   }
   let data = data
     |> Int32Array::from
     |> NumberArrayEnum::Int32Array
     |> Either::Right
-  let base = ValueBase::new(vty)
-  ConstantVector::{ base, data }
+  let uid = valueUIDAssigner.assign()
+  ConstantVector::{ uid, vty, data }
 }
 
 ///|
 fn ConstantVector::newInt64Vector(
-  vty : &Type,
+  vty : FixedVectorType,
   data : Array[Int64]
 ) -> ConstantVector {
-  guard vty.asTypeEnum() is FixedVectorType(arrTy) else {
-    llvm_unreachable("ConstantVector::new: vty is not FixedVectorType")
-  }
-  let eleCnt = arrTy.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantVector::new: data length is not equal to element count",
     )
   }
-  guard arrTy.elementType.asTypeEnum() is Int64Type(_) else {
+  guard vty.elementType.asTypeEnum() is Int64Type(_) else {
     llvm_unreachable("ConstantVector::new: elementType is not Int64Type")
   }
   let data = data
     |> Int64Array::from
     |> NumberArrayEnum::Int64Array
     |> Either::Right
-  let base = ValueBase::new(vty)
-  ConstantVector::{ base, data }
+  let uid = valueUIDAssigner.assign()
+  ConstantVector::{ uid, vty, data }
 }
 
 ///|
 fn ConstantVector::newUInt8Vector(
-  vty : &Type,
+  vty : FixedVectorType,
   data : Array[Byte]
 ) -> ConstantVector {
-  guard vty.asTypeEnum() is FixedVectorType(arrTy) else {
-    llvm_unreachable("ConstantVector::new: vty is not FixedVectorType")
-  }
-  let eleCnt = arrTy.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantVector::new: data length is not equal to element count",
     )
   }
-  guard arrTy.elementType.asTypeEnum() is Int8Type(_) else {
+  guard vty.elementType.asTypeEnum() is Int8Type(_) else {
     llvm_unreachable("ConstantVector::new: elementType is not Int8Type")
   }
   let data = data.map(i => UInt8::from(i))
     |> UInt8Array::from
     |> NumberArrayEnum::UInt8Array
     |> Either::Right
-  let base = ValueBase::new(vty)
-  ConstantVector::{ base, data }
+  let uid = valueUIDAssigner.assign()
+  ConstantVector::{ uid, vty, data }
 }
 
 ///|
 fn ConstantVector::newUInt16Vector(
-  vty : &Type,
+  vty : FixedVectorType,
   data : Array[UInt16]
 ) -> ConstantVector {
-  guard vty.asTypeEnum() is FixedVectorType(arrTy) else {
-    llvm_unreachable("ConstantVector::new: vty is not FixedVectorType")
-  }
-  let eleCnt = arrTy.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantVector::new: data length is not equal to element count",
     )
   }
-  guard arrTy.elementType.asTypeEnum() is Int16Type(_) else {
+  guard vty.elementType.asTypeEnum() is Int16Type(_) else {
     llvm_unreachable("ConstantVector::new: elementType is not Int16Type")
   }
   let data = data
     |> UInt16Array::from
     |> NumberArrayEnum::UInt16Array
     |> Either::Right
-  let base = ValueBase::new(vty)
-  ConstantVector::{ base, data }
+  let uid = valueUIDAssigner.assign()
+  ConstantVector::{ uid, vty, data }
 }
 
 ///|
 fn ConstantVector::newUInt32Vector(
-  vty : &Type,
+  vty : FixedVectorType,
   data : Array[UInt]
 ) -> ConstantVector {
-  guard vty.asTypeEnum() is FixedVectorType(arrTy) else {
-    llvm_unreachable("ConstantVector::new: vty is not FixedVectorType")
-  }
-  let eleCnt = arrTy.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantVector::new: data length is not equal to element count",
     )
   }
-  guard arrTy.elementType.asTypeEnum() is Int32Type(_) else {
+  guard vty.elementType.asTypeEnum() is Int32Type(_) else {
     llvm_unreachable("ConstantVector::new: elementType is not Int32Type")
   }
   let data = data
     |> UInt32Array::from
     |> NumberArrayEnum::UInt32Array
     |> Either::Right
-  let base = ValueBase::new(vty)
-  ConstantVector::{ base, data }
+  let uid = valueUIDAssigner.assign()
+  ConstantVector::{ uid, vty, data }
 }
 
 ///|
 fn ConstantVector::newUInt64Vector(
-  vty : &Type,
+  vty : FixedVectorType,
   data : Array[UInt64]
 ) -> ConstantVector {
-  guard vty.asTypeEnum() is FixedVectorType(arrTy) else {
-    llvm_unreachable("ConstantVector::new: vty is not FixedVectorType")
-  }
-  let eleCnt = arrTy.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantVector::new: data length is not equal to element count",
     )
   }
-  guard arrTy.elementType.asTypeEnum() is Int64Type(_) else {
+  guard vty.elementType.asTypeEnum() is Int64Type(_) else {
     llvm_unreachable("ConstantVector::new: elementType is not Int64Type")
   }
   let data = data
     |> UInt64Array::from
     |> NumberArrayEnum::UInt64Array
     |> Either::Right
-  let base = ValueBase::new(vty)
-  ConstantVector::{ base, data }
+  let uid = valueUIDAssigner.assign()
+  ConstantVector::{ uid, vty, data }
 }
 
 ///|
 fn ConstantVector::newFloatVector(
-  vty : &Type,
+  vty : FixedVectorType,
   data : Array[Float]
 ) -> ConstantVector {
-  guard vty.asTypeEnum() is FixedVectorType(arrTy) else {
-    llvm_unreachable("ConstantVector::new: vty is not FixedVectorType")
-  }
-  let eleCnt = arrTy.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantVector::new: data length is not equal to element count",
     )
   }
-  guard arrTy.elementType.asTypeEnum() is FloatType(_) else {
+  guard vty.elementType.asTypeEnum() is FloatType(_) else {
     llvm_unreachable("ConstantVector::new: elementType is not FloatType")
   }
   let data = data
     |> FloatArray::from
     |> NumberArrayEnum::FloatArray
     |> Either::Right
-  let base = ValueBase::new(vty)
-  ConstantVector::{ base, data }
+  let uid = valueUIDAssigner.assign()
+  ConstantVector::{ uid, vty, data }
 }
 
 ///|
 fn ConstantVector::newDoubleVector(
-  vty : &Type,
+  vty : FixedVectorType,
   data : Array[Double]
 ) -> ConstantVector {
-  guard vty.asTypeEnum() is FixedVectorType(arrTy) else {
-    llvm_unreachable("ConstantVector::new: vty is not FixedVectorType")
-  }
-  let eleCnt = arrTy.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantVector::new: data length is not equal to element count",
     )
   }
-  guard arrTy.elementType.asTypeEnum() is DoubleType(_) else {
+  guard vty.elementType.asTypeEnum() is DoubleType(_) else {
     llvm_unreachable("ConstantVector::new: elementType is not DoubleType")
   }
   let data = data
     |> DoubleArray::from
     |> NumberArrayEnum::DoubleArray
     |> Either::Right
-  let base = ValueBase::new(vty)
-  ConstantVector::{ base, data }
+  let uid = valueUIDAssigner.assign()
+  ConstantVector::{ uid, vty, data }
 }
 
 ///|
 impl Value for ConstantVector with getValueBase(self) {
-  self.base
+  ValueBase::{ uid: self.uid, vty: self.vty, users: [] }
 }
 
 ///|
 impl Value for ConstantVector with asValueEnum(self) {
   ConstantVector(self)
+}
+
+impl Value for ConstantVector with getValueRepr(self) {
+  match self.data {
+    Left(constants) => constants.map(c => c.to_string()).join(", ")
+    Right(arr) =>
+      match arr {
+        Int8Array(i8arr) => i8arr.iter().map(i => "i8 \{i}").join(", ")
+        Int16Array(i16arr) => i16arr.iter().map(i => "i16 \{i}").join(", ")
+        Int32Array(i32arr) => i32arr.iter().map(i => "i32 \{i}").join(", ")
+        Int64Array(i64arr) => i64arr.iter().map(i => "i64 \{i}").join(", ")
+        UInt8Array(u8arr) => u8arr.iter().map(i => "i8 \{i}").join(", ")
+        UInt16Array(u16arr) => u16arr.iter().map(i => "i16 \{i}").join(", ")
+        UInt32Array(u32arr) => u32arr.iter().map(i => "i32 \{i}").join(", ")
+        UInt64Array(u64arr) => u64arr.iter().map(i => "i64 \{i}").join(", ")
+        FloatArray(farr) => {
+          fn to_str(f : Float) {
+            let nd = f.to_double()
+            let ud = nd.reinterpret_as_uint64()
+            let sd = ud.to_string(radix=16).to_upper()
+            "float 0x\{sd}"
+          }
+
+          farr.iter().map(to_str).join(", ")
+        }
+        DoubleArray(darr) => {
+          fn to_str(nd : Double) {
+            let ud = nd.reinterpret_as_uint64()
+            let sd = ud.to_string(radix=16).to_upper()
+            "double 0x\{sd}"
+          }
+
+          darr.iter().map(to_str).join(", ")
+        }
+      }
+  }
 }
 
 ///|
@@ -2361,13 +2399,17 @@ pub impl Show for ConstantVector with output(self, logger) {
 /// inspect(struct_val, content="{ i32, float } { i32 42, float 0x40091EB851EB851F }")
 /// ```
 pub struct ConstantStruct {
-  base : ValueBase
+  // Unique identifier
+  uid : UInt64
+
+  // Value type, must be a struct type
+  vty : StructType
   elements : Array[&Constant]
 } derive(Eq)
 
 ///|
 pub fn ConstantStruct::new(
-  vty : &Type,
+  vty : StructType,
   elements : Array[&Constant]
 ) -> ConstantStruct {
   guard vty.asTypeEnum() is StructType(sty) else {
@@ -2384,8 +2426,8 @@ pub fn ConstantStruct::new(
       )
     }
   }
-  let base = ValueBase::new(vty)
-  ConstantStruct::{ base, elements: elements.copy() }
+  let uid = valueUIDAssigner.assign()
+  ConstantStruct::{ uid, vty, elements: elements.copy() }
 }
 
 ///| Get the elements of this constant struct.
@@ -2484,7 +2526,7 @@ pub fn ConstantStruct::insertValue(
     guard value.getType() == sty.elements()[first_index] else { return None }
     let new_elements = self.elements.copy()
     new_elements[first_index] = value
-    Some(ConstantStruct::new(self.getType(), new_elements))
+    Some(ConstantStruct::new(self.vty, new_elements))
   } else {
     // Recursive case: insert into the nested aggregate
     let element = self.elements[first_index]
@@ -2500,7 +2542,7 @@ pub fn ConstantStruct::insertValue(
       Some(elem) => {
         let new_elements = self.elements.copy()
         new_elements[first_index] = elem
-        Some(ConstantStruct::new(self.getType(), new_elements))
+        Some(ConstantStruct::new(self.vty, new_elements))
       }
       None => None
     }
@@ -2509,12 +2551,17 @@ pub fn ConstantStruct::insertValue(
 
 ///|
 impl Value for ConstantStruct with getValueBase(self) {
-  self.base
+  ValueBase::{ uid: self.uid, vty: self.vty, users: [] }
 }
 
 ///|
 impl Value for ConstantStruct with asValueEnum(self) {
   ConstantStruct(self)
+}
+
+///|
+impl Value for ConstantStruct with getValueRepr(self) {
+  self.elements.map(c => c.to_string()).join(", ")
 }
 
 ///|
@@ -2529,6 +2576,6 @@ impl Constant for ConstantStruct with valstr(self) {
 
 ///|
 pub impl Show for ConstantStruct with output(self, logger) {
-  let data_str = self.valstr()
+  let data_str = self.getValueRepr()
   logger.write_string("\{self.getType()} { \{data_str} }")
 }
