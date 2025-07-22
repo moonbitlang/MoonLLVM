@@ -93,7 +93,6 @@ pub fn ValueEnum::tryAsConstantEnum(self : ValueEnum) -> ConstantEnum? {
 ///|
 pub fn ValueEnum::tryAsUserEnum(self : ValueEnum) -> UserEnum? {
   match self {
-    AllocaInst(c) => AllocaInst(c) |> Some
     LoadInst(c) => LoadInst(c) |> Some
     //VAArgInst(c) => VAArgInst(c) |> Some
     ExtractValueInst(c) => ExtractValueInst(c) |> Some
@@ -150,7 +149,14 @@ pub trait Value: Show {
 
   // All values hold a context through their type.
   getContext(Self) -> Context = _
-  getValueName(Self) -> String? = _
+  //getValueName(Self) -> String? = _
+
+  addUser(Self, user : &User) -> Unit = _
+
+  // Get the string representation of the value.
+  // If the value is named value, use name or its slot as the representation.
+  // If the value is constant, use its value as the representation.
+  getValueRepr(Self) -> String
 
   /// Change the name of the value.
   ///
@@ -171,7 +177,7 @@ pub trait Value: Show {
   /// Please note that in LLVM, this API is `replaceAllUsesWith`, while here
   /// is `replaceAllUsersWith`.
   replaceAllUsersWith(Self, other : &Value) -> Unit = _
-  getUsers(Self) -> Array[&Value] = _
+  getUsers(Self) -> Array[&User] = _
 
   // It's equivalent to: LLVM: use_empty
   // Please note that in LLVM, this API is `use_empty`, while here
@@ -198,20 +204,25 @@ impl Value with getContext(self) {
 }
 
 ///|
-impl Value with getValueName(self) {
-  match self.asValueEnum() {
-    Function(f) => Some(f.name)
-    Argument(a) => a.getName()
-    BasicBlock(bb) => bb.getName()
-    v if v.tryAsConstantEnum() is Some(_) => None
-    u if u.tryAsUserEnum() is Some(u) =>
-      match u.getUserName() {
-        Some(name) => Some(name)
-        None => None
-      }
-    _ => None
-  }
+impl Value with addUser(self, user) {
+  self.getValueBase().users.push(user)
 }
+
+///|
+//impl Value with getValueName(self) {
+//  match self.asValueEnum() {
+//    Function(f) => Some(f.name)
+//    Argument(a) => a.getName()
+//    BasicBlock(bb) => bb.getName()
+//    v if v.tryAsConstantEnum() is Some(_) => None
+//    u if u.tryAsUserEnum() is Some(u) =>
+//      match u.getUserName() {
+//        Some(name) => Some(name)
+//        None => None
+//      }
+//    _ => None
+//  }
+//}
 
 ///|
 impl Value with replaceAllUsersWith(self, other : &Value) {
@@ -223,7 +234,7 @@ impl Value with replaceAllUsersWith(self, other : &Value) {
         println("ICE: Value not User, `replaceAllUsersWith`.")
         panic()
       })
-      .asClass())
+      .asUserClass())
   for user in users {
     let operands = user.getOperands()
     for i in 0..<operands.length() {
@@ -273,7 +284,6 @@ impl Value with tryAsConstantEnum(self) {
 ///|
 impl Value with tryAsUserEnum(self) {
   match self.asValueEnum() {
-    AllocaInst(c) => Some(AllocaInst(c))
     LoadInst(c) => Some(LoadInst(c))
     //VAArgInst(c) => Some(VAArgInst(c))
     ExtractValueInst(c) => Some(ExtractValueInst(c))
@@ -320,14 +330,14 @@ impl Hash for &Value with hash_combine(self, hasher) {
 struct ValueBase {
   uid : UInt64
   vty : &Type
-  users : Array[&Value]
+  users : Array[&User]
 } derive(Eq)
 
 ///|
-fn ValueBase::new(vty : &Type, users~ : Array[&Value] = []) -> ValueBase {
-  let uid = valueUIDAssigner.assign()
-  ValueBase::{ vty, users, uid }
-}
+//fn ValueBase::new(vty : &Type, users~ : Array[&Value] = []) -> ValueBase {
+//  let uid = valueUIDAssigner.assign()
+//  ValueBase::{ vty, users, uid }
+//}
 
 // =======================================================
 // NamedValue
@@ -353,39 +363,31 @@ impl NamedValue with getNameOrSlotStr(self) {
 // =======================================================
 
 ///|
-pub struct UserBase {
-  name : String?
+struct UserBase {
   operands : Array[&Value]
 } derive(Eq)
 
 ///|
-pub fn UserBase::new(name : String, operands~ : Array[&Value] = []) -> UserBase {
-  let name = match name {
-    "" => None
-    name => Some(name)
-  }
-  UserBase::{ name, operands }
-}
+//pub fn UserBase::new(operands~ : Array[&Value] = []) -> UserBase {
+//  let name = match name {
+//    "" => None
+//    name => Some(name)
+//  }
+//  UserBase::{ name, operands }
+//}
 
 ///|
 pub trait User: Value {
   asUserEnum(Self) -> UserEnum
   getUserBase(Self) -> UserBase
-  getUserName(Self) -> String? = _
   getOperands(Self) -> Array[&Value] = _
   getOperand(Self, index : Int) -> &Value? = _
   getNumOperands(Self) -> Int = _
-  addOperand(Self, operand : &Value) -> Unit = _
 }
 
 ///|
 pub impl Eq for &User with op_equal(self, other) {
-  self.getUserBase() == other.getUserBase()
-}
-
-///|
-impl User with getUserName(self) {
-  self.getUserBase().name
+  self.getValueBase().uid == other.getValueBase().uid
 }
 
 ///|
@@ -406,15 +408,8 @@ impl User with getNumOperands(self) {
 }
 
 ///|
-impl User with addOperand(self, operand : &Value) {
-  self.getUserBase().operands.push(operand)
-  operand.getValueBase().users.push(self)
-}
-
-///|
 pub enum UserEnum {
   //Instruction(Instruction)
-  AllocaInst(AllocaInst)
   LoadInst(LoadInst)
   //VAArgInst(VAArgInst)
   ExtractValueInst(ExtractValueInst)
@@ -435,10 +430,9 @@ pub enum UserEnum {
 }
 
 ///|
-pub fn UserEnum::asClass(self : Self) -> &User {
+pub fn UserEnum::asUserClass(self : Self) -> &User {
   match self {
-    AllocaInst(c) => c as &User
-    LoadInst(l) => l
+    LoadInst(l) => l as &User
     ExtractValueInst(e) => e
     BinaryInst(b) => b
     ICmpInst(c) => c
@@ -453,28 +447,6 @@ pub fn UserEnum::asClass(self : Self) -> &User {
     BranchInst(b) => b
     SwitchInst(s) => s
     CallInst(c) => c
-  }
-}
-
-///|
-pub fn UserEnum::getUserName(self : UserEnum) -> String? {
-  match self {
-    AllocaInst(c) => c.getUserName()
-    LoadInst(l) => l.getUserName()
-    ExtractValueInst(e) => e.getUserName()
-    BinaryInst(b) => b.getUserName()
-    ICmpInst(c) => c.getUserName()
-    FCmpInst(c) => c.getUserName()
-    StoreInst(s) => s.getUserName()
-    CastInst(c) => c.getUserName()
-    GetElementPtrInst(g) => g.getUserName()
-    SelectInst(s) => s.getUserName()
-    InsertValueInst(i) => i.getUserName()
-    PHINode(p) => p.getUserName()
-    ReturnInst(_) => None
-    BranchInst(_) => None
-    SwitchInst(_) => None
-    CallInst(c) => c.getUserName()
   }
 }
 
@@ -501,12 +473,12 @@ pub fn InstBase::new(
 }
 
 ///|
-pub trait Instruction: User {
+pub trait Instruction: Value {
   getInstBase(Self) -> InstBase
   asInstEnum(Self) -> InstEnum
-  getName(Self) -> String? = _
   getParent(Self) -> Function = _
   getBasicBlock(Self) -> BasicBlock? = _
+  getInstName(Self) -> String? = _
   isIndependent(Self) -> Bool = _
   next(Self) -> &Instruction? = _
   prev(Self) -> &Instruction? = _
@@ -514,10 +486,6 @@ pub trait Instruction: User {
   insertBefore(Self, &Instruction) -> Unit raise LLVMValueError = _
 }
 
-///|
-impl Instruction with getName(self) {
-  self.getUserName()
-}
 
 ///|
 impl Instruction with getParent(self) {
@@ -527,6 +495,27 @@ impl Instruction with getParent(self) {
 ///|
 impl Instruction with getBasicBlock(self) {
   self.getInstBase().bb
+}
+
+impl Instruction with getInstName(self) {
+  match self.asInstEnum() {
+    AllocaInst(i) => i.getName()
+    LoadInst(i) => i.getName()
+    ExtractValueInst(i) => i.getName()
+    CastInst(i) => i.getName()
+    BinaryInst(i) => i.getName()
+    ICmpInst(i) => i.getName()
+    FCmpInst(i) => i.getName()
+    StoreInst(_) => None
+    GetElementPtrInst(i) => i.getName()
+    SelectInst(i) => i.getName()
+    InsertValueInst(i) => i.getName()
+    PHINode(i) => i.getName()
+    ReturnInst(_) => None
+    BranchInst(_) => None
+    SwitchInst(_) => None
+    CallInst(i) => i.getName()
+  }
 }
 
 ///|

@@ -16,6 +16,7 @@ suberror LLVMTypeError {
 suberror LLVMValueError {
   DuplicateFunctionName(String)
   DuplicateArgumentName(String)
+  SetNameForVoidTypeValue
   OnlyIndependentInstructionCanBeInsert
   InValidFunctionName(String)
   TypeMismatchForBinaryOp(&Type, &Type)

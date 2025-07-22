@@ -146,7 +146,7 @@ pub fn IRBuilder::createAlloca(
     data_ty,
     self.getInsertFunction(),
     addressSpace~,
-    name,
+    name=unless(name.is_empty(), () => name),
   )
   self.insert(allocaInst)
   allocaInst
@@ -207,7 +207,7 @@ pub fn IRBuilder::createAdd(
     lhs,
     rhs,
     parent,
-    name,
+    name=unless(name.is_empty(), () => name),
     flags,
   )
   self.insert(inst)
@@ -347,7 +347,7 @@ pub fn IRBuilder::createSub(
     lhs,
     rhs,
     parent,
-    name,
+    name=unless(name.is_empty(), () => name),
     flags,
   )
   self.insert(inst)
@@ -487,7 +487,7 @@ pub fn IRBuilder::createMul(
     lhs,
     rhs,
     parent,
-    name,
+    name=unless(name.is_empty(), () => name),
     flags,
   )
   self.insert(inst)
@@ -624,7 +624,7 @@ pub fn IRBuilder::createSDiv(
     lhs,
     rhs,
     parent,
-    name,
+    name=unless(name.is_empty(), () => name),
     flags,
   )
   self.insert(inst)
@@ -723,7 +723,7 @@ pub fn IRBuilder::createUDiv(
     lhs,
     rhs,
     parent,
-    name,
+    name=unless(name.is_empty(), () => name),
     flags,
   )
   self.insert(inst)
@@ -820,7 +820,7 @@ pub fn IRBuilder::createSRem(
     lhs,
     rhs,
     parent,
-    name,
+    name=unless(name.is_empty(), () => name),
     flags,
   )
   self.insert(inst)
@@ -876,7 +876,7 @@ pub fn IRBuilder::createURem(
     lhs,
     rhs,
     parent,
-    name,
+    name=unless(name.is_empty(), () => name),
     flags,
   )
   self.insert(inst)
@@ -950,7 +950,7 @@ pub fn IRBuilder::createFAdd(
     lhs,
     rhs,
     parent,
-    name,
+    name=unless(name.is_empty(), () => name),
     fast_math_flags,
   )
   self.insert(inst)
@@ -1000,7 +1000,7 @@ pub fn IRBuilder::createFSub(
     lhs,
     rhs,
     parent,
-    name,
+    name=unless(name.is_empty(), () => name),
     fast_math_flags,
   )
   self.insert(inst)
@@ -1050,7 +1050,7 @@ pub fn IRBuilder::createFMul(
     lhs,
     rhs,
     parent,
-    name,
+    name=unless(name.is_empty(), () => name),
     fast_math_flags,
   )
   self.insert(inst)
@@ -1100,7 +1100,7 @@ pub fn IRBuilder::createFDiv(
     lhs,
     rhs,
     parent,
-    name,
+    name=unless(name.is_empty(), () => name),
     fast_math_flags,
   )
   self.insert(inst)
@@ -1150,7 +1150,7 @@ pub fn IRBuilder::createFRem(
     lhs,
     rhs,
     parent,
-    name,
+    name=unless(name.is_empty(), () => name),
     fast_math_flags,
   )
   self.insert(inst)
@@ -1204,7 +1204,7 @@ pub fn IRBuilder::createAnd(
     lhs,
     rhs,
     parent,
-    name,
+    name=unless(name.is_empty(), () => name),
     Set::new(),
   )
   self.insert(inst)
@@ -1258,7 +1258,7 @@ pub fn IRBuilder::createOr(
     lhs,
     rhs,
     parent,
-    name,
+    name=unless(name.is_empty(), () => name),
     Set::new(),
   )
   self.insert(inst)
@@ -1312,7 +1312,7 @@ pub fn IRBuilder::createXor(
     lhs,
     rhs,
     parent,
-    name,
+    name=unless(name.is_empty(), () => name),
     Set::new(),
   )
   self.insert(inst)
@@ -1375,7 +1375,7 @@ pub fn IRBuilder::createShl(
     lhs,
     rhs,
     parent,
-    name,
+    name=unless(name.is_empty(), () => name),
     flags,
   )
   self.insert(inst)
@@ -1434,7 +1434,7 @@ pub fn IRBuilder::createLShr(
     lhs,
     rhs,
     parent,
-    name,
+    name=unless(name.is_empty(), () => name),
     flags,
   )
   self.insert(inst)
@@ -1493,7 +1493,7 @@ pub fn IRBuilder::createAShr(
     lhs,
     rhs,
     parent,
-    name,
+    name=unless(name.is_empty(), () => name),
     flags,
   )
   self.insert(inst)
@@ -1571,7 +1571,7 @@ pub fn IRBuilder::createICmp(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = ICmpInst::new(pred, lhs, rhs, parent, name)
+  let inst = ICmpInst::new(pred, lhs, rhs, parent, name=unless(name.is_empty(), () => name))
   self.insert(inst)
   inst
 }
@@ -1776,7 +1776,7 @@ pub fn IRBuilder::createFCmp(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = FCmpInst::new(pred, lhs, rhs, parent, name)
+  let inst = FCmpInst::new(pred, lhs, rhs, parent, name=unless(name.is_empty(), () => name))
   self.insert(inst)
   inst
 }
@@ -1990,7 +1990,7 @@ pub fn IRBuilder::createTrunc(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newTrunc(src_val, dst_ty, parent, name)
+  let inst = CastInst::newTrunc(src_val, dst_ty, parent, name=unless(name.is_empty(), () => name))
   self.insert(inst)
   inst
 }
@@ -2036,7 +2036,7 @@ pub fn IRBuilder::createZExt(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newZExt(src_val, dst_ty, parent, name)
+  let inst = CastInst::newZExt(src_val, dst_ty, parent, name=unless(name.is_empty(), () => name))
   self.insert(inst)
   inst
 }
@@ -2082,7 +2082,7 @@ pub fn IRBuilder::createSExt(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newSExt(src_val, dst_ty, parent, name)
+  let inst = CastInst::newSExt(src_val, dst_ty, parent, name=unless(name.is_empty(), () => name))
   self.insert(inst)
   inst
 }
@@ -2127,7 +2127,7 @@ pub fn IRBuilder::createFPTrunc(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newFPTrunc(src_val, dst_ty, parent, name)
+  let inst = CastInst::newFPTrunc(src_val, dst_ty, parent, name=unless(name.is_empty(), () => name))
   self.insert(inst)
   inst
 }
@@ -2168,7 +2168,7 @@ pub fn IRBuilder::createFPExt(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newFPExt(src_val, dst_ty, parent, name)
+  let inst = CastInst::newFPExt(src_val, dst_ty, parent, name=unless(name.is_empty(), () => name))
   self.insert(inst)
   inst
 }
@@ -2213,7 +2213,7 @@ pub fn IRBuilder::createUIToFP(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newUIToFP(src_val, dst_ty, parent, name)
+  let inst = CastInst::newUIToFP(src_val, dst_ty, parent, name=unless(name.is_empty(), () => name))
   self.insert(inst)
   inst
 }
@@ -2259,7 +2259,7 @@ pub fn IRBuilder::createFPToUI(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newFPToUI(src_val, dst_ty, parent, name)
+  let inst = CastInst::newFPToUI(src_val, dst_ty, parent, name=unless(name.is_empty(), () => name))
   self.insert(inst)
   inst
 }
@@ -2300,7 +2300,7 @@ pub fn IRBuilder::createSIToFP(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newSIToFP(src_val, dst_ty, parent, name)
+  let inst = CastInst::newSIToFP(src_val, dst_ty, parent, name=unless(name.is_empty(), () => name))
   self.insert(inst)
   inst
 }
@@ -2341,7 +2341,7 @@ pub fn IRBuilder::createFPToSI(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newFPToSI(src_val, dst_ty, parent, name)
+  let inst = CastInst::newFPToSI(src_val, dst_ty, parent, name=unless(name.is_empty(), () => name))
   self.insert(inst)
   inst
 }
@@ -2381,7 +2381,7 @@ pub fn IRBuilder::createIntToPtr(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newIntToPtr(src_val, parent, name)
+  let inst = CastInst::newIntToPtr(src_val, parent, name=unless(name.is_empty(), () => name))
   self.insert(inst)
   inst
 }
@@ -2419,7 +2419,7 @@ pub fn IRBuilder::createPtrToInt(
 ) -> &Value raise Error {
   // No constant folding for PtrToInt as pointer constants are complex
   let parent = self.getInsertFunction()
-  let inst = CastInst::newPtrToInt(src_val, dst_ty, parent, name)
+  let inst = CastInst::newPtrToInt(src_val, dst_ty, parent, name=unless(name.is_empty(), () => name))
   self.insert(inst)
   inst
 }
@@ -2461,7 +2461,7 @@ pub fn IRBuilder::createBitCast(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newBitCast(src_val, dst_ty, parent, name)
+  let inst = CastInst::newBitCast(src_val, dst_ty, parent, name=unless(name.is_empty(), () => name))
   self.insert(inst)
   inst
 }
@@ -2505,7 +2505,7 @@ pub fn IRBuilder::createGEP(
 ) -> &Value raise Error {
   let parent = self.getInsertFunction()
   let inst = GetElementPtrInst::new(
-    ptr, pointeeType, indices, inbounds, parent, name,
+    ptr, pointeeType, indices, inbounds, parent, name=unless(name.is_empty(), () => name)
   )
   self.insert(inst)
   inst
@@ -2544,7 +2544,7 @@ pub fn IRBuilder::createLoad(
 ) -> &Value raise Error {
   let parent = self.getInsertFunction()
   let inst = LoadInst::new(
-    load_ty, ptr, isVolatile, atomicOrdering, parent, name,
+    load_ty, ptr, isVolatile, atomicOrdering, parent, name=unless(name.is_empty(), () => name)
   )
   self.insert(inst)
   inst
@@ -2709,7 +2709,7 @@ pub fn IRBuilder::createSelect(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = SelectInst::new(condition, trueValue, falseValue, parent, name)
+  let inst = SelectInst::new(condition, trueValue, falseValue, parent, name=unless(name.is_empty(), () => name))
   self.insert(inst)
   inst
 }
@@ -2798,7 +2798,7 @@ pub fn IRBuilder::createPHI(
   name~ : String = ""
 ) -> PHINode raise Error {
   let parent = self.getInsertFunction()
-  let phi = PHINode::new(ty, parent, name)
+  let phi = PHINode::new(ty, parent, name=unless(name.is_empty(), () => name))
   self.insert(phi)
   phi
 }
@@ -2837,7 +2837,7 @@ pub fn IRBuilder::createCall(
   name~ : String = ""
 ) -> CallInst raise Error {
   let parent = self.getInsertFunction()
-  let inst = CallInst::new(callee, args, parent, name)
+  let inst = CallInst::new(callee, args, parent, name=unless(name.is_empty(), () => name))
   self.insert(inst)
   inst
 }
@@ -2874,7 +2874,7 @@ pub fn IRBuilder::createExtractValue(
   name~ : String = ""
 ) -> &Value raise Error {
   let parent = self.getInsertFunction()
-  let inst = ExtractValueInst::new(aggregate, indices, parent, name)
+  let inst = ExtractValueInst::new(aggregate, indices, parent, name=unless(name.is_empty(), () => name))
   self.insert(inst)
   inst
 }
@@ -2913,7 +2913,7 @@ pub fn IRBuilder::createInsertValue(
   name~ : String = ""
 ) -> &Value raise Error {
   let parent = self.getInsertFunction()
-  let inst = InsertValueInst::new(aggregate, value, indices, parent, name)
+  let inst = InsertValueInst::new(aggregate, value, indices, parent, name=unless(name.is_empty(), () => name))
   self.insert(inst)
   inst
 }
