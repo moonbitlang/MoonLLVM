@@ -1226,7 +1226,7 @@ fn CastInst::newFPToUI(
   }
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new(parent)
-  let inst = CastInst::{ uid, to_ty, from_val, name, users: [], inst_base, opcode: UIToFP }
+  let inst = CastInst::{ uid, to_ty, from_val, name, users: [], inst_base, opcode: FPToUI }
   from_val.addUser(inst)
   inst
 }
@@ -1401,7 +1401,7 @@ pub impl Show for CastInst with output(self, logger) {
   let from_val_repr = self.from_val.getValueRepr()
 
   logger.write_string(
-    "  %\{repr} = \{self.opcode} \{from_ty} \{from_val_repr} to \{to_ty}",
+    "  \{repr} = \{self.opcode} \{from_ty} \{from_val_repr} to \{to_ty}",
   )
 }
 
@@ -2509,7 +2509,7 @@ pub impl Show for CallInst with output(self, logger) {
     )
   } else {
     logger.write_string(
-      "  %\{prefix} = \{call_prefix}\{ret_attrs_str} \{ret_ty} @\{callee.name}(\{args_str})",
+      "  \{prefix} = \{call_prefix}\{ret_attrs_str} \{ret_ty} @\{callee.name}(\{args_str})",
     )
   }
 }
