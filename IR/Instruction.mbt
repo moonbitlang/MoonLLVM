@@ -765,9 +765,8 @@ pub impl Show for IntPredicate with output(self, logger) {
 
 ///|
 pub struct ICmpInst {
-  //base : ValueBase
-  //user_base : UserBase
   uid: UInt64
+  vty: Int1Type
   lhs: &Value
   rhs: &Value
   mut name: String?
@@ -791,7 +790,8 @@ fn ICmpInst::new(
   }
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new(parent)
-  let inst = ICmpInst::{ uid, lhs, rhs, name, users: [], inst_base, predicate }
+  let vty = parent.getContext().getInt1Ty()
+  let inst = ICmpInst::{ uid, vty, lhs, rhs, name, users: [], inst_base, predicate }
   lhs.addUser(inst)
   rhs.addUser(inst)
   inst
@@ -801,7 +801,7 @@ fn ICmpInst::new(
 impl Value for ICmpInst with getValueBase(self) {
   ValueBase::{
     uid: self.uid,
-    vty: self.getType(),
+    vty: self.getParent().getContext().getInt1Ty(),
     users: self.users,
   }
 }
@@ -940,6 +940,7 @@ pub impl Show for FloatPredicate with output(self, logger) {
 ///|
 pub struct FCmpInst {
   uid: UInt64
+  vty: Int1Type
   lhs: &Value
   rhs: &Value
   mut name: String?
@@ -963,7 +964,8 @@ fn FCmpInst::new(
   }
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new(parent)
-  let inst = FCmpInst::{ uid, lhs, rhs, name, users:[], inst_base, predicate }
+  let vty = parent.getContext().getInt1Ty()
+  let inst = FCmpInst::{ uid, vty, lhs, rhs, name, users:[], inst_base, predicate }
   lhs.addUser(inst)
   rhs.addUser(inst)
   inst
@@ -973,7 +975,7 @@ fn FCmpInst::new(
 impl Value for FCmpInst with getValueBase(self) {
   ValueBase::{
     uid: self.uid,
-    vty: self.getType(),
+    vty: self.vty,
     users: self.users,
   }
 }
@@ -1041,7 +1043,7 @@ impl Show for FCmpInst with output(self, logger) {
   let lhs_repr = self.lhs.getValueRepr()
   let rhs_repr = self.rhs.getValueRepr()
   logger.write_string(
-    "  %\{repr} = \{self.predicate} \{lhs_ty} \{lhs_repr}, \{rhs_repr}",
+    "  \{repr} = \{self.predicate} \{lhs_ty} \{lhs_repr}, \{rhs_repr}",
   )
 }
 
@@ -1164,10 +1166,10 @@ fn CastInst::newFPTrunc(
   parent : Function,
   name~ : String? = None
 ) -> CastInst raise LLVMValueError {
-  guard from_val.getType().tryAsIntTypeEnum() is Some(from_ty) else {
+  guard from_val.getType().tryAsFPTypeEnum() is Some(from_ty) else {
     raise FPTruncCastInstTypeMismatch(from_val.getType(), to_ty)
   }
-  guard from_ty.getBitWidth() < to_ty.getBitWidth() else {
+  guard from_ty.getBitWidth() > to_ty.getBitWidth() else {
     raise FPTruncCastInstTypeMismatch(from_ty.asTypeClass(), to_ty)
   }
   let uid = valueUIDAssigner.assign()
@@ -1184,7 +1186,7 @@ fn CastInst::newFPExt(
   parent : Function,
   name~ : String? = None
 ) -> CastInst raise LLVMValueError {
-  guard from_val.getType().tryAsIntTypeEnum() is Some(from_ty) else {
+  guard from_val.getType().tryAsFPTypeEnum() is Some(from_ty) else {
     raise FPExtCastInstTypeMismatch(from_val.getType(), to_ty)
   }
   guard from_ty.getBitWidth() < to_ty.getBitWidth() else {
@@ -1412,6 +1414,7 @@ pub impl Show for CastInst with output(self, logger) {
 ///|
 pub struct GetElementPtrInst {
   uid: UInt64
+  vty: PointerType
   users: Array[&User]
   ptr: &Value
   indices: Array[&Value]
@@ -1443,8 +1446,10 @@ fn GetElementPtrInst::new(
   }
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new(parent)
+  let vty = parent.getContext().getPtrTy()
   let inst = GetElementPtrInst::{
     uid,
+    vty,
     users: [],
     ptr,
     indices,
@@ -1462,7 +1467,7 @@ fn GetElementPtrInst::new(
 impl Value for GetElementPtrInst with getValueBase(self) {
   ValueBase::{
     uid: self.uid,
-    vty: self.getContext().getPtrTy(),
+    vty: self.vty,
     users: self.users,
   }
 }
@@ -1685,6 +1690,7 @@ pub impl Show for SelectInst with output(self, logger) {
 ///|
 pub struct ReturnInst {
   uid: UInt64
+  vty: VoidType
   retVal: &Value?
   inst_base : InstBase
 }
@@ -1703,7 +1709,8 @@ fn ReturnInst::new(
   }
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new(parent)
-  let inst = ReturnInst::{ uid, retVal, inst_base }
+  let vty = parent.getContext().getVoidTy()
+  let inst = ReturnInst::{ uid, vty, retVal, inst_base }
   if retVal is Some(val) {
     val.addUser(inst)
   }
@@ -1714,7 +1721,7 @@ fn ReturnInst::new(
 pub impl Value for ReturnInst with getValueBase(self) {
   ValueBase::{
     uid: self.uid,
-    vty: self.getType(),
+    vty: self.vty, // ReturnInst does not have a value type
     users: [],
   }
 }
@@ -1775,6 +1782,8 @@ pub struct BranchInst {
   // Unique identifier
   uid: UInt64
 
+  vty: VoidType
+
   condition: &Value?
   trueBlock: BasicBlock?
   falseBlock: BasicBlock?
@@ -1797,8 +1806,10 @@ fn BranchInst::newConditional(
   }
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new(parent)
+  let vty = parent.getContext().getVoidTy()
   let inst = BranchInst::{
     uid,
+    vty,
     condition: Some(condition),
     trueBlock: Some(trueBlock),
     falseBlock: Some(falseBlock),
@@ -1817,8 +1828,10 @@ fn BranchInst::newUnconditional(
 ) -> BranchInst {
   let inst_base = InstBase::new(parent)
   let uid = valueUIDAssigner.assign()
+  let vty = parent.getContext().getVoidTy()
   let inst = BranchInst::{
     uid,
+    vty,
     condition: None,
     trueBlock: Some(targetBlock),
     falseBlock: None,
@@ -1870,7 +1883,7 @@ pub fn BranchInst::isUnconditional(self : BranchInst) -> Bool {
 pub impl Value for BranchInst with getValueBase(self) {
   ValueBase::{
     uid: self.uid,
-    vty: self.getContext().getVoidTy(), // BranchInst does not have a value type
+    vty: self.getParent().getContext().getVoidTy(), // BranchInst does not have a value type
     users: [],
   }
 }
@@ -1942,6 +1955,7 @@ pub impl Show for BranchInst with output(self, logger) {
 ///|
 pub struct SwitchInst {
   uid: UInt64
+  vty: VoidType
   condition: &Value
   defaultDest: BasicBlock
   cases: Array[(ConstantInt, BasicBlock)]
@@ -1959,7 +1973,8 @@ fn SwitchInst::new(
   }
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new(parent)
-  let inst = SwitchInst::{ uid, condition:cond, defaultDest, cases: [], inst_base }
+  let vty = parent.getContext().getVoidTy()
+  let inst = SwitchInst::{ uid, vty, condition:cond, defaultDest, cases: [], inst_base }
   cond.addUser(inst)
   defaultDest.addUser(inst)
   inst
@@ -2001,6 +2016,7 @@ pub fn SwitchInst::addCase(
     let case_cond_ty = case_cond_ty.asTypeClass()
     raise SwitchInstCaseConditionTypeMismatch(intTy, case_cond_ty)
   }
+  self.cases.push((cond, dest))
   cond.addUser(self)
   dest.addUser(self)
   match self.getBasicBlock() {
@@ -2013,7 +2029,7 @@ pub fn SwitchInst::addCase(
 pub impl Value for SwitchInst with getValueBase(self) {
   ValueBase::{
     uid: self.uid,
-    vty: self.getContext().getVoidTy(), // SwitchInst does not have a value type
+    vty: self.vty, // SwitchInst does not have a value type
     users: [],
   }
 }
