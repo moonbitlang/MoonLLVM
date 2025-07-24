@@ -177,7 +177,7 @@ pub trait Value: Show {
   /// Please note that in LLVM, this API is `replaceAllUsesWith`, while here
   /// is `replaceAllUsersWith`.
   replaceAllUsersWith(Self, other : &Value) -> Unit = _
-  getUsers(Self) -> Array[&User] = _
+  getUsers(Self) -> Array[&User]? = _
 
   // It's equivalent to: LLVM: use_empty
   // Please note that in LLVM, this API is `use_empty`, while here
@@ -209,32 +209,11 @@ impl Value with addUser(self, user) {
 }
 
 ///|
-//impl Value with getValueName(self) {
-//  match self.asValueEnum() {
-//    Function(f) => Some(f.name)
-//    Argument(a) => a.getName()
-//    BasicBlock(bb) => bb.getName()
-//    v if v.tryAsConstantEnum() is Some(_) => None
-//    u if u.tryAsUserEnum() is Some(u) =>
-//      match u.getUserName() {
-//        Some(name) => Some(name)
-//        None => None
-//      }
-//    _ => None
-//  }
-//}
-
-///|
 impl Value with replaceAllUsersWith(self, other : &Value) {
-  let users = self
-    .getUsers()
-    .map(u => u
-      .tryAsUserEnum()
-      .unwrap_or_else(() => {
-        println("ICE: Value not User, `replaceAllUsersWith`.")
-        panic()
-      })
-      .asUserClass())
+  let users = match self.getUsers() {
+    None => return
+    Some(users) => users
+  }
   for user in users {
     let operands = user.getOperands()
     for i in 0..<operands.length() {
@@ -247,7 +226,11 @@ impl Value with replaceAllUsersWith(self, other : &Value) {
 
 ///|
 impl Value with getUsers(self) {
-  self.getValueBase().users
+  if self.tryAsConstant() is Some(_) {
+    None
+  } else {
+    Some(self.getValueBase().users)
+  }
 }
 
 ///|
