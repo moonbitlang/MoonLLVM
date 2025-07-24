@@ -1,4 +1,32 @@
-///|
+///| Block of instructions in a function.
+///
+/// **Note**:
+///
+/// Use `Function::addBasicBlock` to create a new `BasicBlock`.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let i32_ty = ctx.getInt32Ty()
+///
+/// let fty = ctx.getFunctionType(i32_ty, [])
+/// let fval = mod.addFunction(fty, "ret_42")
+///
+/// let bb = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(bb)
+///
+/// let forty_two = ctx.getConstInt32(42)
+/// let _ = builder.createRet(forty_two)
+///
+/// let expect =
+///   #|entry:
+///   #|  ret i32 42
+///   #|
+///
+/// inspect(bb, content=expect)
+/// ```
 pub struct BasicBlock {
   uid : UInt64
   users : Array[&User]
@@ -23,15 +51,37 @@ fn BasicBlock::new(parent : Function, name~ : String? = None) -> BasicBlock {
   }
 }
 
-///|
+///| Get the last instruction in the basic block.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let i32_ty = ctx.getInt32Ty()
+///
+/// let fty = ctx.getFunctionType(i32_ty, [i32_ty, i32_ty])
+/// let fval = mod.addFunction(fty, "ret_42")
+///
+/// let arg0 = fval.getArg(0).unwrap()
+/// let arg1 = fval.getArg(1).unwrap()
+///
+/// let bb = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(bb)
+///
+/// let sum1 = builder.createAdd(arg0, arg1, name="sum1")
+/// let sum2 = builder.createAdd(arg0, arg1, name="sum2")
+/// let mul = builder.createMul(sum1, sum2, name="mul")
+///
+/// let _ = builder.createRet(mul)
+///
+/// inspect(bb.lastInst().unwrap(), content="  ret i32 %mul")
+/// ```
 pub fn BasicBlock::lastInst(self : BasicBlock) -> &Instruction? {
-  if self.head is None {
-    return None
-  }
-  let head = self.head.unwrap()
-  loop head.next() {
-    Some(n) => continue n.next()
-    None => break Some(head)
+  loop self.head {
+    Some(n) if n.next() is Some(n_next) => continue Some(n_next)
+    Some(n) => break Some(n)
+    None => break None
   }
 }
 

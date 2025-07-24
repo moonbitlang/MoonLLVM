@@ -2185,8 +2185,6 @@ pub impl Show for SelectInst with output(self, logger) {
 ///
 /// inspect(void_ret, content = "  ret void")
 /// ```
-
-///|
 pub struct ReturnInst {
   uid : UInt64
   vty : VoidType
