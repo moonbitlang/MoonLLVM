@@ -1,4 +1,5 @@
-package "Kaida-Amethyst/Aether/test"
+// Generated using `moon info`, DON'T EDIT IT
+package "Kaida-Amethyst/MoonLLVM/test"
 
 // Values
 
