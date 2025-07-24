@@ -104,7 +104,29 @@ pub impl Show for FastMathFlag with output(self, logger) {
 // AllocaInst
 // =======================================================
 
-///|
+///| Alloca Instruction allocates memory on the stack for a variable.
+///
+/// **Note**:
+/// 
+/// Use `IRBuilder::createAlloca` to create an `AllocaInst`.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let void_ty = ctx.getVoidTy()
+/// let i32_ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(void_ty, [])
+///
+/// let fval = mod.addFunction(fty, "foo")
+/// let bb = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(bb)
+///
+/// let inst = builder.createAlloca(i32_ty, name="var1")
+/// 
+/// inspect(inst, content = "  %var1 = alloca i32, align 4")
+/// ```
 pub struct AllocaInst {
   uid: UInt64
   vty: &Type
@@ -225,8 +247,33 @@ pub impl Show for AtomicOrdering with output(self, logger) {
   }
   logger.write_string(str)
 }
-
-///| TODO: Not full implemented, remember erase `all`.
+///| LoadInst is an instruction that loads a value from a pointer.
+///
+/// **Note**:
+///
+/// Use `IRBuilder::createLoad` to create a `LoadInst`.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let ptr_ty = ctx.getPtrTy()
+/// let i32_ty = ctx.getInt32Ty()
+///
+/// let fty = ctx.getFunctionType(i32_ty, [ptr_ty])
+/// let fval = mod.addFunction(fty, "load_an_integer")
+///
+/// let bb = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(bb)
+///
+/// let ptr = fval.getArg(0).unwrap()
+/// ptr.setName("arg0")
+///
+/// let val = builder.createLoad(i32_ty, ptr, name="val")
+/// let _ = builder.createRet(val)
+/// inspect(val, content = "  %val = load i32, ptr %arg0, align 4")
+/// ```
 pub(all) struct LoadInst {
   // --- ValueBase ---
 
@@ -388,7 +435,37 @@ pub impl Show for LoadInst with output(self, logger) {
 // StoreInst
 // =======================================================
 
-///|
+///| StoreInst is an instruction that stores a value to a pointer.
+///
+/// **Note**:
+///
+/// Use `IRBuilder::createStore` to create a `StoreInst`.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+/// 
+/// let ptr_ty = ctx.getPtrTy()
+/// let i32_ty = ctx.getInt32Ty()
+/// let void_ty = ctx.getVoidTy()
+/// 
+/// let fty = ctx.getFunctionType(void_ty, [ptr_ty, i32_ty])
+/// let fval = mod.addFunction(fty, "store_an_integer")
+/// 
+/// let bb = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(bb)
+/// 
+/// let ptr = fval.getArg(0).unwrap()
+/// ptr.setName("arg0")
+/// 
+/// let value = fval.getArg(1).unwrap()
+/// value.setName("value")
+/// 
+/// let _ = builder.createStore(value, ptr)
+///
+/// inspect(ptr, content = "  store i32 %value, ptr %arg0, align 4")
+/// ```
 pub struct StoreInst {
   // --- ValueBase ---
 
@@ -2406,11 +2483,9 @@ fn CallInst::new(
   guard arg_param_type_match else {
     raise CallInstArgTypeMismatchParamType(argTys, paramTys)
   }
-  let name = if fty.getReturnType().asTypeEnum() is VoidType(_) {
-    // 如果返回类型是void，name可以是空字符串
-    None
-  } else {
-    name
+  let name = match fty.getReturnType().asTypeEnum() {
+    VoidType(_) => None
+    _ => name
   }
   let uid = valueUIDAssigner.assign()
   let vty = fty.getReturnType()
@@ -2553,23 +2628,19 @@ pub impl Instruction for CallInst with getParent(self) {
 
 ///|
 pub impl Show for CallInst with output(self, logger) {
-  // 获取被调用函数的信息
   let callee = self.callee
   let fty = callee.getFunctionType()
   let ret_ty = fty.getReturnType()
   let is_void_ret = ret_ty.asTypeEnum() is VoidType(_)
 
-  // 格式化返回值名称或slot
   let prefix = if is_void_ret {
-    "" // 如果返回类型是void，不需要前缀
+    ""
   } else {
     self.getValueRepr()
   }
 
-  // 格式化tail call类型let tail_str = match self.tck {
   let tail_str = self.tailCallKind.to_string()
 
-  // 格式化返回值属性
   let ret_attrs = callee.getReturnAttrs()
   let ret_attrs_str = if ret_attrs.is_empty() {
     ""
@@ -2577,14 +2648,10 @@ pub impl Show for CallInst with output(self, logger) {
     " " + ret_attrs.iter().map(fn(a) { "\{a}" }).join(" ")
   }
 
-  // 格式化参数
   let arg_strs = Array::new()
   for idx, arg in self.args {
     let arg_ty = arg.getType()
     let arg_repr = arg.getValueRepr()
-
-    // 获取参数属性
-    //let arg_idx = self.callee.getParamIndex(arg)
     let arg_attrs = callee.getArgAttrs(idx.reinterpret_as_uint())
     let arg_attrs_str = if not(arg_attrs.is_empty()) {
       " " + arg_attrs.iter().map(fn(a) { "\{a}" }).join(" ")

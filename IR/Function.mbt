@@ -296,6 +296,19 @@ pub fn Function::getNumBasicBlocks(self : Function) -> Int {
 }
 
 ///|
+//pub fn Function::appendBasicBlock(
+//  self : Function,
+//  name~ : String = "",
+//  before~ : BasicBlock? = None
+//) -> BasicBlock {
+//  let name = match name {
+//    "" => None
+//    n => Some(n)
+//  }
+//  BasicBlock::new(self, name~, before~)
+//}
+
+///|
 pub fn Function::addBasicBlock(
   self : Function,
   name~ : String = "",
@@ -305,15 +318,7 @@ pub fn Function::addBasicBlock(
     "" => None
     n => Some(n)
   }
-  BasicBlock::new(self, name~, before~)
-}
-
-///|
-fn Function::appendBasicBlock(
-  self : Function,
-  bb : BasicBlock,
-  before~ : BasicBlock? = None
-) -> Unit {
+  let bb = BasicBlock::new(self, name~)
   match before {
     None => self.basicBlocks.push(bb)
     Some(before) => {
@@ -330,6 +335,7 @@ fn Function::appendBasicBlock(
       self.basicBlocks.insert(idx, bb)
     }
   }
+  bb
 }
 
 ///|
