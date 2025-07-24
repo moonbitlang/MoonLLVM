@@ -342,6 +342,7 @@ impl Type with getScalarType(self) {
   }
 }
 
+///|
 impl Type with tryAsFPType(self) -> &FPType? {
   match self.asTypeEnum() {
     HalfType(half) => Some(half)
@@ -365,6 +366,7 @@ impl Type with tryAsFPTypeEnum(self) -> FPTypeEnum? {
   }
 }
 
+///|
 impl Type with tryAsIntType(self) -> &IntegerType? {
   match self.asTypeEnum() {
     Int1Type(int1) => Some(int1)
@@ -388,6 +390,7 @@ impl Type with tryAsIntTypeEnum(self) -> IntegerTypeEnum? {
   }
 }
 
+///|
 impl Type with tryAsPrimitiveType(self) -> &PrimitiveType? {
   match self.asTypeEnum() {
     HalfType(half) => Some(half)
@@ -421,6 +424,7 @@ impl Type with tryAsPrimitiveTypeEnum(self) -> PrimitiveTypeEnum? {
   }
 }
 
+///|
 impl Type with tryAsAggregateType(self) -> &AggregateType? {
   match self.asTypeEnum() {
     StructType(sty) => Some(sty)
@@ -442,6 +446,7 @@ impl Type with tryAsAggregateTypeEnum(self) -> AggregateTypeEnum? {
   }
 }
 
+///|
 impl Type with tryAsAbstractType(self) -> &AbstractType? {
   match self.asTypeEnum() {
     VoidType(v) => Some(v)
@@ -497,6 +502,7 @@ pub trait IntegerType: PrimitiveType {
   getExtendedType(Self) -> &IntegerType? = _
 }
 
+///|
 impl Eq for &IntegerType with op_equal(self, other) {
   self.asIntegerTypeEnum() == other.asIntegerTypeEnum()
 }
@@ -544,7 +550,10 @@ pub enum IntegerTypeEnum {
   Int64Type(Int64Type)
 } derive(Eq, Hash, Show)
 
-pub fn IntegerTypeEnum::asIntegerTypeClass(self : IntegerTypeEnum) -> &IntegerType {
+///|
+pub fn IntegerTypeEnum::asIntegerTypeClass(
+  self : IntegerTypeEnum,
+) -> &IntegerType {
   match self {
     Int1Type(t) => (t : &IntegerType)
     Int8Type(t) => t
@@ -582,6 +591,7 @@ pub trait FPType: PrimitiveType {
   getFPMantissaWidth(Self) -> UInt = _
 }
 
+///|
 impl Eq for &FPType with op_equal(self, other) {
   self.asFPTypeEnum() == other.asFPTypeEnum()
 }
@@ -606,6 +616,7 @@ pub fn FPTypeEnum::asTypeClass(self : FPTypeEnum) -> &Type {
   }
 }
 
+///|
 pub fn FPTypeEnum::asFPTypeClass(self : FPTypeEnum) -> &FPType {
   match self {
     HalfType(t) => (t : &FPType)
@@ -627,7 +638,8 @@ pub fn FPTypeEnum::getFPMantissaWidth(self : FPTypeEnum) -> UInt {
   }
 }
 
-pub fn FPTypeEnum::getBitWidth(self: Self) -> UInt {
+///|
+pub fn FPTypeEnum::getBitWidth(self : Self) -> UInt {
   self.asFPTypeClass().getBitWidth()
 }
 
@@ -727,7 +739,7 @@ pub fn AggregateTypeEnum::asTypeClass(self : Self) -> &Type {
 ///|
 pub fn AggregateTypeEnum::getIndexedType(
   self : Self,
-  idxs : ArrayView[Int]
+  idxs : ArrayView[Int],
 ) -> &Type? {
   match self {
     StructType(sty) => sty.getIndexedType(idxs)
@@ -1435,7 +1447,7 @@ pub struct FunctionType {
 ///| Create a FunctionType
 fn FunctionType::new(
   returnType : &Type,
-  paramsTypes : Array[&Type]
+  paramsTypes : Array[&Type],
 ) -> FunctionType raise LLVMTypeError {
   let context = returnType.getContext()
   if not(FunctionType::isValidReturnType(returnType)) {
@@ -1565,7 +1577,7 @@ fn StructType::new(
   context : Context,
   elements : Array[&Type],
   name~ : String? = None,
-  isPacked~ : Bool = false
+  isPacked~ : Bool = false,
 ) -> StructType raise LLVMTypeError {
   if name is None && elements.is_empty() {
     raise OpaqueStructMustHaveName
@@ -1679,7 +1691,7 @@ pub fn StructType::element_iter(self : StructType) -> Iter[&Type] {
 pub fn StructType::setBody(
   self : StructType,
   elements : Array[&Type],
-  isPacked~ : Bool = false
+  isPacked~ : Bool = false,
 ) -> Unit raise LLVMTypeError {
   // only opaque struct can be set body.
   guard self.isOpaque() else { raise SetBodyForNonOpaqueStruct }
@@ -1715,7 +1727,7 @@ pub fn StructType::getName(self : StructType) -> String? {
 /// - See LLVM: `StructType::setName`.
 pub fn StructType::setName(
   self : StructType,
-  new_name : String
+  new_name : String,
 ) -> Unit raise LLVMTypeError {
   if new_name.is_empty() {
     raise StructTypeNameCannotBeEmpty
@@ -1843,7 +1855,7 @@ pub struct ArrayType {
 fn ArrayType::new(
   context : Context,
   elementType : &Type,
-  elementCount : UInt
+  elementCount : UInt,
 ) -> ArrayType raise LLVMTypeError {
   guard ArrayType::isValidElementType(elementType) else {
     raise InValidArrayElementType(elementType)
@@ -1919,7 +1931,7 @@ pub struct FixedVectorType {
 fn FixedVectorType::new(
   context : Context,
   elementType : &Type,
-  elementCount : UInt
+  elementCount : UInt,
 ) -> FixedVectorType raise LLVMTypeError {
   guard FixedVectorType::isValidElementType(elementType) else {
     raise InValidVectorElementType(elementType)
@@ -1996,7 +2008,7 @@ pub struct ScalableVectorType {
 fn ScalableVectorType::new(
   context : Context,
   elementType : &Type,
-  elementCount : UInt
+  elementCount : UInt,
 ) -> ScalableVectorType raise LLVMTypeError {
   guard ScalableVectorType::isValidElementType(elementType) else {
     raise InValidVectorElementType(elementType)
@@ -2089,7 +2101,7 @@ pub struct PointerType {
 ///|
 fn PointerType::new(
   context : Context,
-  addressSpace~ : AddressSpace = AddressSpace::default()
+  addressSpace~ : AddressSpace = AddressSpace::default(),
 ) -> PointerType {
   let base = TypeBase::new(context)
   PointerType::{ base, addressSpace }

@@ -333,6 +333,7 @@ pub trait NamedValue: Value {
   getNameOrSlotStr(Self) -> String = _
 }
 
+///|
 impl NamedValue with getNameOrSlotStr(self) {
   match self.getNameOrSlot() {
     Some(Left(name)) => name
@@ -448,7 +449,7 @@ pub struct InstBase {
 pub fn InstBase::new(
   bb~ : BasicBlock? = None,
   next~ : &Instruction? = None,
-  prev~ : &Instruction? = None
+  prev~ : &Instruction? = None,
 ) -> InstBase {
   InstBase::{ bb, next, prev }
 }
@@ -472,6 +473,7 @@ impl Instruction with getBasicBlock(self) {
   self.getInstBase().bb
 }
 
+///|
 impl Instruction with getInstName(self) {
   match self.asInstEnum() {
     AllocaInst(i) => i.getName()

@@ -24,13 +24,13 @@
 /// ```
 pub struct Argument {
   // Unique identifier for the argument.
-  uid: UInt64
+  uid : UInt64
 
   // Type of the argument.
-  vty: &Type
+  vty : &Type
 
   // Users of the argument.
-  users: Array[&User]
+  users : Array[&User]
 
   // Function that this argument belongs to.
   parent : Function
@@ -45,7 +45,7 @@ pub struct Argument {
 ///|
 fn Argument::new(vty : &Type, argNo : UInt, parent : Function) -> Argument {
   let uid = valueUIDAssigner.assign()
-  Argument::{ uid, vty, users:[], parent, argNo, name: None }
+  Argument::{ uid, vty, users: [], parent, argNo, name: None }
 }
 
 ///| Assign an attribute to the argument.
@@ -95,6 +95,7 @@ pub impl Value for Argument with asValueEnum(self) {
   Argument(self)
 }
 
+///|
 pub impl Value for Argument with getValueRepr(self) {
   match self.getNameOrSlot().unwrap() {
     Left(name) => "%\{name}"
@@ -106,7 +107,6 @@ pub impl Value for Argument with getValueRepr(self) {
 pub impl NamedValue for Argument with getName(self : Argument) -> String? {
   self.name
 }
-
 
 ///| Set name for the argument.
 ///
@@ -135,10 +135,7 @@ pub impl NamedValue for Argument with getName(self : Argument) -> String? {
 ///
 /// assert_true({try? arg1.setName("lhs")} is Err(_))
 /// ```
-pub impl NamedValue for Argument with setName(
-  self : Argument,
-  name : String
-) -> Unit raise LLVMValueError {
+pub impl NamedValue for Argument with setName(self : Argument, name : String) -> Unit raise LLVMValueError {
   let symbols = self.parent.symbols
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
   self.name = Some(name)
@@ -148,13 +145,14 @@ pub impl NamedValue for Argument with setName(
 ///|
 ///
 /// Note: This function is impossibly to return `None`.
-pub impl NamedValue for Argument with getNameOrSlot(self)  {
+pub impl NamedValue for Argument with getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
-    None => match self.parent.getSlot(self) {
-      Some(s) => Some(Right(s))
-      None => None
-    }
+    None =>
+      match self.parent.getSlot(self) {
+        Some(s) => Some(Right(s))
+        None => None
+      }
   }
 }
 
@@ -176,14 +174,13 @@ pub impl Show for Argument with output(self, logger) {
 /// - `Function` can be `&Value`, `GlobalValue`
 pub struct Function {
   // Unique identifier for the function.
-  uid: UInt64
+  uid : UInt64
 
   // Type of the function.
-  fty: FunctionType
+  fty : FunctionType
 
   // Users of the function.
-  users: Array[&User]
-
+  users : Array[&User]
   gv_base : GlobalValueBase
   program : Module
   /// index of the function in the program
@@ -211,7 +208,7 @@ fn Function::new(
   linkage~ : LinkageTypes,
   addressSpace~ : AddressSpace,
   index : UInt,
-  program : Module
+  program : Module,
 ) -> Function raise LLVMValueError {
   guard Function::isValidFunctionName(name) else {
     raise InValidFunctionName(name)
@@ -312,7 +309,7 @@ pub fn Function::getNumBasicBlocks(self : Function) -> Int {
 pub fn Function::addBasicBlock(
   self : Function,
   name~ : String = "",
-  before~ : BasicBlock? = None
+  before~ : BasicBlock? = None,
 ) -> BasicBlock {
   let name = match name {
     "" => None
@@ -388,6 +385,7 @@ pub impl Value for Function with getValueBase(self) {
   ValueBase::{ uid: self.uid, vty: self.fty, users: self.users }
 }
 
+///|
 pub impl Value for Function with getValueRepr(self) {
   "@\{self.name}"
 }

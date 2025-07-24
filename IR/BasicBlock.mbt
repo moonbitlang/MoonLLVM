@@ -1,7 +1,7 @@
 ///|
 pub struct BasicBlock {
-  uid: UInt64
-  users: Array[&User]
+  uid : UInt64
+  users : Array[&User]
   parent : Function
   mut name : String?
   mut head : &Instruction?
@@ -10,10 +10,7 @@ pub struct BasicBlock {
 }
 
 ///|
-fn BasicBlock::new(
-  parent : Function,
-  name~ : String? = None,
-) -> BasicBlock {
+fn BasicBlock::new(parent : Function, name~ : String? = None) -> BasicBlock {
   let uid = valueUIDAssigner.assign()
   BasicBlock::{
     uid,
@@ -22,7 +19,7 @@ fn BasicBlock::new(
     name,
     head: None,
     id: parent.getNumBasicBlocks(),
-    preds: []
+    preds: [],
   }
 }
 
@@ -38,11 +35,13 @@ pub fn BasicBlock::lastInst(self : BasicBlock) -> &Instruction? {
   }
 }
 
+///|
 pub fn BasicBlock::getParent(self : BasicBlock) -> Function {
   self.parent
 }
 
-pub fn BasicBlock::getLabel(self: BasicBlock) -> String {
+///|
+pub fn BasicBlock::getLabel(self : BasicBlock) -> String {
   match self.getNameOrSlot() {
     Some(Left(name)) => "\{name}"
     Some(Right(slot)) => "\{slot}"
@@ -59,10 +58,12 @@ pub impl Value for BasicBlock with getValueBase(self) {
   }
 }
 
+///|
 pub impl NamedValue for BasicBlock with getName(self) {
   self.name
 }
 
+///|
 pub impl Value for BasicBlock with getValueRepr(self) {
   match self.getNameOrSlot() {
     Some(Left(name)) => "%\{name}"
@@ -71,6 +72,7 @@ pub impl Value for BasicBlock with getValueRepr(self) {
   }
 }
 
+///|
 pub impl NamedValue for BasicBlock with setName(self, name) {
   let symbols = self.parent.symbols
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
@@ -78,13 +80,15 @@ pub impl NamedValue for BasicBlock with setName(self, name) {
   symbols.set(name, self)
 }
 
+///|
 pub impl NamedValue for BasicBlock with getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
-    None => match self.getParent().getSlot(self) {
-      Some(slot) => Some(Right(slot))
-      None => None
-    }
+    None =>
+      match self.getParent().getSlot(self) {
+        Some(slot) => Some(Right(slot))
+        None => None
+      }
   }
 }
 
@@ -110,7 +114,7 @@ pub impl Show for BasicBlock with output(self, logger) {
     str_builder.write_string(preds)
     let preds_str = str_builder.to_string()
     logger.write_string("\{preds_str}\n")
-  }else {
+  } else {
     logger.write_string("\n")
   }
   loop self.head {

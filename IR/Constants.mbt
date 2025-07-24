@@ -24,7 +24,7 @@ pub struct ConstantInt {
   uid : UInt64
 
   // Value Type
-  vty: &IntegerType
+  vty : &IntegerType
 
   // the value of this constant
   value : Int64
@@ -101,7 +101,7 @@ pub fn ConstantInt::getIntegerType(self : ConstantInt) -> &IntegerType {
 /// ```
 pub fn[T : IntegerNumber] ConstantInt::equals(
   self : ConstantInt,
-  value : T
+  value : T,
 ) -> Bool {
   self.value == value.convert_to_int64()
 }
@@ -163,12 +163,12 @@ pub fn ConstantInt::isMinValue(self : ConstantInt) -> Bool {
 /// ```
 pub fn ConstantInt::add(
   self : ConstantInt,
-  other : ConstantInt
+  other : ConstantInt,
 ) -> ConstantInt raise LLVMValueError {
   let (lty, rty) = (self.getIntegerType(), other.getIntegerType())
   guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
   let value = self.value + other.value
-  let vty = lty;
+  let vty = lty
   let value = match vty.asIntegerTypeEnum() {
     Int1Type(_) => value & 1L
     Int8Type(_) => Int8::from_int64(value).to_int64()
@@ -208,11 +208,11 @@ pub fn ConstantInt::add(
 /// ```
 pub fn ConstantInt::sub(
   self : ConstantInt,
-  other : ConstantInt
+  other : ConstantInt,
 ) -> ConstantInt raise LLVMValueError {
   let (lty, rty) = (self.getIntegerType(), other.getIntegerType())
   guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
-  let vty = lty;
+  let vty = lty
   let value = self.value - other.value
   let value = match vty.asIntegerTypeEnum() {
     Int1Type(_) => value & 1L
@@ -250,11 +250,11 @@ pub fn ConstantInt::sub(
 /// ```
 pub fn ConstantInt::mul(
   self : ConstantInt,
-  other : ConstantInt
+  other : ConstantInt,
 ) -> ConstantInt raise LLVMValueError {
   let (lty, rty) = (self.getIntegerType(), other.getIntegerType())
   guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
-  let vty = lty;
+  let vty = lty
   let value = self.value * other.value
   let value = match vty.asIntegerTypeEnum() {
     Int1Type(_) => value & 1L
@@ -292,12 +292,12 @@ pub fn ConstantInt::mul(
 /// ```
 pub fn ConstantInt::sdiv(
   self : ConstantInt,
-  other : ConstantInt
+  other : ConstantInt,
 ) -> ConstantInt raise LLVMValueError {
   let (lty, rty) = (self.getIntegerType(), other.getIntegerType())
   guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
   guard other.value != 0 else { raise DivisionByZeroError }
-  let vty = lty;
+  let vty = lty
   let value = self.value / other.value
   let value = match vty.asIntegerTypeEnum() {
     Int1Type(_) => value & 1L
@@ -358,12 +358,12 @@ pub fn ConstantInt::sdiv(
 /// ```
 pub fn ConstantInt::udiv(
   self : ConstantInt,
-  other : ConstantInt
+  other : ConstantInt,
 ) -> ConstantInt raise LLVMValueError {
   let (lty, rty) = (self.getIntegerType(), other.getIntegerType())
   guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
   guard other.value != 0L else { raise DivisionByZeroError }
-  let vty = lty;
+  let vty = lty
   let value = match vty.asIntegerTypeEnum() {
     Int1Type(_) => self.value / other.value
     Int8Type(_) => {
@@ -413,11 +413,11 @@ pub fn ConstantInt::udiv(
 /// ```
 pub fn ConstantInt::compute_and(
   self : ConstantInt,
-  other : ConstantInt
+  other : ConstantInt,
 ) -> ConstantInt raise LLVMValueError {
   let (lty, rty) = (self.getIntegerType(), other.getIntegerType())
   guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
-  let vty = lty;
+  let vty = lty
   let result_i64 = self.value & other.value
   let final_value = match vty.asIntegerTypeEnum() {
     Int1Type(_) => result_i64 & 1L
@@ -455,11 +455,11 @@ pub fn ConstantInt::compute_and(
 /// ```
 pub fn ConstantInt::or(
   self : ConstantInt,
-  other : ConstantInt
+  other : ConstantInt,
 ) -> ConstantInt raise LLVMValueError {
   let (lty, rty) = (self.getIntegerType(), other.getIntegerType())
   guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
-  let vty = lty;
+  let vty = lty
   let result_i64 = self.value | other.value
   let final_value = match vty.asIntegerTypeEnum() {
     Int1Type(_) => result_i64 & 1L
@@ -497,11 +497,11 @@ pub fn ConstantInt::or(
 /// ```
 pub fn ConstantInt::xor(
   self : ConstantInt,
-  other : ConstantInt
+  other : ConstantInt,
 ) -> ConstantInt raise LLVMValueError {
   let (lty, rty) = (self.getIntegerType(), other.getIntegerType())
   guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
-  let vty = lty;
+  let vty = lty
   let result_i64 = self.value ^ other.value
   let final_value = match vty.asIntegerTypeEnum() {
     Int1Type(_) => result_i64 & 1L
@@ -539,11 +539,11 @@ pub fn ConstantInt::xor(
 /// ```
 pub fn ConstantInt::compute_shl(
   self : ConstantInt,
-  other : ConstantInt
+  other : ConstantInt,
 ) -> ConstantInt raise LLVMValueError {
   let (lty, rty) = (self.getIntegerType(), other.getIntegerType())
   guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
-  let vty = lty;
+  let vty = lty
   let result_i64 = self.value << other.value.to_int()
   let final_value = match vty.asIntegerTypeEnum() {
     Int1Type(_) => result_i64 & 1L
@@ -581,11 +581,11 @@ pub fn ConstantInt::compute_shl(
 /// ```
 pub fn ConstantInt::lshr(
   self : ConstantInt,
-  other : ConstantInt
+  other : ConstantInt,
 ) -> ConstantInt raise LLVMValueError {
   let (lty, rty) = (self.getIntegerType(), other.getIntegerType())
   guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
-  let vty = lty;
+  let vty = lty
   let value = match vty.asIntegerTypeEnum() {
     Int1Type(_) => (self.value >> other.value.to_int()) & 1L
     Int8Type(_) => {
@@ -646,11 +646,11 @@ pub fn ConstantInt::lshr(
 /// ```
 pub fn ConstantInt::ashr(
   self : ConstantInt,
-  other : ConstantInt
+  other : ConstantInt,
 ) -> ConstantInt raise LLVMValueError {
   let (lty, rty) = (self.getIntegerType(), other.getIntegerType())
   guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
-  let vty = lty;
+  let vty = lty
   let result_i64 = self.value >> other.value.to_int()
   let final_value = match vty.asIntegerTypeEnum() {
     Int1Type(_) => result_i64 & 1L
@@ -707,11 +707,11 @@ pub fn ConstantInt::ashr(
 pub fn ConstantInt::compare(
   self : ConstantInt,
   predicate : IntPredicate,
-  other : ConstantInt
+  other : ConstantInt,
 ) -> ConstantInt raise LLVMValueError {
   let (lty, rty) = (self.getIntegerType(), other.getIntegerType())
   guard lty == rty else { raise TypeMismatchForCmpInst(lty, rty) }
-  let vty = lty;
+  let vty = lty
   let ctx = self.getType().getContext()
   let result = match predicate {
     EQ => self.value == other.value
@@ -805,7 +805,7 @@ pub fn ConstantInt::compare(
 /// ```
 pub fn ConstantInt::trunc(
   self : ConstantInt,
-  dst_ty : &IntegerType
+  dst_ty : &IntegerType,
 ) -> ConstantInt raise LLVMValueError {
   let src_ty = self.vty.asIntegerTypeEnum()
   guard src_ty.getBitWidth() > dst_ty.getBitWidth() else {
@@ -840,7 +840,7 @@ pub fn ConstantInt::trunc(
 /// ```
 pub fn ConstantInt::zext(
   self : ConstantInt,
-  dst_ty : &IntegerType
+  dst_ty : &IntegerType,
 ) -> ConstantInt raise LLVMValueError {
   let src_ty = self.vty.asIntegerTypeEnum()
   guard src_ty.getBitWidth() < dst_ty.getBitWidth() else {
@@ -883,7 +883,7 @@ pub fn ConstantInt::zext(
 /// ```
 pub fn ConstantInt::sext(
   self : ConstantInt,
-  dst_ty : &IntegerType
+  dst_ty : &IntegerType,
 ) -> ConstantInt raise LLVMValueError {
   let src_ty = self.vty.asIntegerTypeEnum()
   guard src_ty.getBitWidth() < dst_ty.getBitWidth() else {
@@ -916,10 +916,7 @@ pub fn ConstantInt::sext(
 /// let f32_0 = i64_0.uitofp(ctx.getFloatTy())
 /// assert_eq(f32_0.getValue(), 0.0)
 /// ```
-pub fn ConstantInt::uitofp(
-  self : ConstantInt,
-  dst_ty : &FPType
-) -> ConstantFP {
+pub fn ConstantInt::uitofp(self : ConstantInt, dst_ty : &FPType) -> ConstantFP {
   let src_ty = self.vty.asIntegerTypeEnum()
   // Convert unsigned integer to floating point
   let unsigned_value = match src_ty {
@@ -952,10 +949,7 @@ pub fn ConstantInt::uitofp(
 /// let f32_0 = i64_0.sitofp(ctx.getFloatTy())
 /// assert_eq(f32_0.getValue(), 0.0)
 /// ```
-pub fn ConstantInt::sitofp(
-  self : ConstantInt,
-  dst_ty : &FPType
-) -> ConstantFP {
+pub fn ConstantInt::sitofp(self : ConstantInt, dst_ty : &FPType) -> ConstantFP {
   // Convert signed integer to floating point
   let fp_value = self.value.to_double()
   ConstantFP::new(dst_ty, fp_value)
@@ -978,9 +972,7 @@ pub fn ConstantInt::sitofp(
 /// let ptr_42 = i32_42.inttoptr()
 /// inspect(ptr_42, content="ptr null") // Still null in constant folding
 /// ```
-pub fn ConstantInt::inttoptr(
-  self : ConstantInt
-) -> ConstantPointerNull {
+pub fn ConstantInt::inttoptr(self : ConstantInt) -> ConstantPointerNull {
   let ctx = self.getType().getContext()
   let ptr_ty = ctx.getPtrTy()
   ConstantPointerNull::new(ptr_ty)
@@ -1013,7 +1005,7 @@ pub fn ConstantInt::inttoptr(
 /// ```
 pub fn ConstantInt::bitcast(
   self : ConstantInt,
-  dst_ty : &PrimitiveType
+  dst_ty : &PrimitiveType,
 ) -> &Constant raise LLVMValueError {
   let src_ty = self.getType()
   guard src_ty != dst_ty else { raise BitCastInstTypeMismatch(src_ty, dst_ty) }
@@ -1058,6 +1050,7 @@ pub impl Value for ConstantInt with asValueEnum(self) {
   ConstantInt(self)
 }
 
+///|
 pub impl Value for ConstantInt with getValueRepr(self) {
   let vty = self.getIntegerType()
   let val = match vty.asIntegerTypeEnum() {
@@ -1108,6 +1101,7 @@ fn ConstantFP::new(vty : &FPType, value : Double) -> ConstantFP {
   ConstantFP::{ uid, vty, value }
 }
 
+///|
 pub fn ConstantFP::getFPType(self : ConstantFP) -> &FPType {
   self.vty
 }
@@ -1125,7 +1119,7 @@ pub fn[T : Floating] ConstantFP::equals(self : ConstantFP, value : T) -> Bool {
 ///|
 pub fn[T : Floating] ConstantFP::exactlyEquals(
   self : ConstantFP,
-  value : T
+  value : T,
 ) -> Bool {
   self.value.reinterpret_as_uint64() ==
   value.to_float64().reinterpret_as_uint64()
@@ -1151,7 +1145,7 @@ pub fn[T : Floating] ConstantFP::exactlyEquals(
 /// ```
 pub fn ConstantFP::add(
   self : ConstantFP,
-  other : ConstantFP
+  other : ConstantFP,
 ) -> ConstantFP raise LLVMValueError {
   let (lty, rty) = (self.getFPType(), other.getFPType())
   guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
@@ -1180,7 +1174,7 @@ pub fn ConstantFP::add(
 /// ```
 pub fn ConstantFP::sub(
   self : ConstantFP,
-  other : ConstantFP
+  other : ConstantFP,
 ) -> ConstantFP raise LLVMValueError {
   let (lty, rty) = (self.getFPType(), other.getFPType())
   guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
@@ -1209,7 +1203,7 @@ pub fn ConstantFP::sub(
 /// ```
 pub fn ConstantFP::mul(
   self : ConstantFP,
-  other : ConstantFP
+  other : ConstantFP,
 ) -> ConstantFP raise LLVMValueError {
   let (lty, rty) = (self.getFPType(), other.getFPType())
   guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
@@ -1238,7 +1232,7 @@ pub fn ConstantFP::mul(
 /// ```
 pub fn ConstantFP::div(
   self : ConstantFP,
-  other : ConstantFP
+  other : ConstantFP,
 ) -> ConstantFP raise LLVMValueError {
   let (lty, rty) = (self.getFPType(), other.getFPType())
   guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
@@ -1300,7 +1294,7 @@ pub fn ConstantFP::div(
 pub fn ConstantFP::compare(
   self : ConstantFP,
   predicate : FloatPredicate,
-  other : ConstantFP
+  other : ConstantFP,
 ) -> ConstantInt raise LLVMValueError {
   let (lty, rty) = (self.getFPType(), other.getFPType())
   guard lty == rty else { raise TypeMismatchForCmpInst(lty, rty) }
@@ -1359,7 +1353,7 @@ pub fn ConstantFP::compare(
 /// ```
 pub fn ConstantFP::fptrunc(
   self : ConstantFP,
-  dst_ty : &FPType
+  dst_ty : &FPType,
 ) -> ConstantFP raise LLVMValueError {
   let src_ty = self.vty
   guard src_ty.getBitWidth() > dst_ty.getBitWidth() else {
@@ -1393,7 +1387,7 @@ pub fn ConstantFP::fptrunc(
 /// ```
 pub fn ConstantFP::fpext(
   self : ConstantFP,
-  dst_ty : &FPType
+  dst_ty : &FPType,
 ) -> ConstantFP raise LLVMValueError {
   let src_ty = self.vty
   guard src_ty.getBitWidth() < dst_ty.getBitWidth() else {
@@ -1434,7 +1428,7 @@ pub fn ConstantFP::fpext(
 /// ```
 pub fn ConstantFP::fptoui(
   self : ConstantFP,
-  dst_ty : &IntegerType
+  dst_ty : &IntegerType,
 ) -> ConstantInt {
   // Convert float to unsigned integer (truncate towards zero)
   let int_value = if self.value < 0.0 {
@@ -1475,7 +1469,7 @@ pub fn ConstantFP::fptoui(
 /// ```
 pub fn ConstantFP::fptosi(
   self : ConstantFP,
-  dst_ty : &IntegerType
+  dst_ty : &IntegerType,
 ) -> ConstantInt {
   // Convert float to signed integer (truncate towards zero)
   let int_value = self.value.to_int64()
@@ -1513,7 +1507,7 @@ pub fn ConstantFP::fptosi(
 /// ```
 pub fn ConstantFP::bitcast(
   self : ConstantFP,
-  dst_ty : &PrimitiveType
+  dst_ty : &PrimitiveType,
 ) -> &Constant raise LLVMValueError {
   let src_ty = self.getType()
   guard src_ty != dst_ty else { raise BitCastInstTypeMismatch(src_ty, dst_ty) }
@@ -1552,6 +1546,7 @@ pub impl Value for ConstantFP with getValueBase(self) {
   ValueBase::{ uid: self.uid, vty: self.vty, users: [] }
 }
 
+///|
 pub impl Value for ConstantFP with getValueRepr(self) {
   let val_str = self.value
     .reinterpret_as_uint64()
@@ -1625,10 +1620,10 @@ pub impl Show for ConstantFP with output(self, logger) {
 pub struct ConstantPointerNull {
 
   // Unique identifier
-  uid: UInt64
+  uid : UInt64
 
   // Value type, must be a pointer type
-  vty: PointerType
+  vty : PointerType
 } derive(Eq)
 
 ///|
@@ -1650,6 +1645,7 @@ pub impl Value for ConstantPointerNull with asValueEnum(self) {
   ConstantPointerNull(self)
 }
 
+///|
 pub impl Value for ConstantPointerNull with getValueRepr(self) {
   ignore(self)
   "null"
@@ -1677,10 +1673,10 @@ pub impl Show for ConstantPointerNull with output(self, logger) {
 ///|
 pub struct ConstantArray {
   // Unique identifier
-  uid: UInt64
-  
+  uid : UInt64
+
   // Value type, must be an array type
-  vty: ArrayType
+  vty : ArrayType
   data : Either[Array[&Constant], NumberArrayEnum]
 } derive(Eq)
 
@@ -1714,7 +1710,10 @@ pub struct ConstantArray {
 // TODO: use `Int8` instead of `Int` when standard library support `Int8`
 
 ///|
-fn ConstantArray::newInt8Array(vty : ArrayType, data : Array[Int]) -> ConstantArray {
+fn ConstantArray::newInt8Array(
+  vty : ArrayType,
+  data : Array[Int],
+) -> ConstantArray {
   let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
     llvm_unreachable(
@@ -1735,7 +1734,7 @@ fn ConstantArray::newInt8Array(vty : ArrayType, data : Array[Int]) -> ConstantAr
 ///|
 fn ConstantArray::newInt16Array(
   vty : ArrayType,
-  data : Array[Int16]
+  data : Array[Int16],
 ) -> ConstantArray {
   let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
@@ -1757,7 +1756,7 @@ fn ConstantArray::newInt16Array(
 ///|
 fn ConstantArray::newInt32Array(
   vty : ArrayType,
-  data : Array[Int]
+  data : Array[Int],
 ) -> ConstantArray {
   let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
@@ -1779,7 +1778,7 @@ fn ConstantArray::newInt32Array(
 ///|
 fn ConstantArray::newInt64Array(
   vty : ArrayType,
-  data : Array[Int64]
+  data : Array[Int64],
 ) -> ConstantArray {
   let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
@@ -1801,7 +1800,7 @@ fn ConstantArray::newInt64Array(
 ///|
 fn ConstantArray::newUInt8Array(
   vty : ArrayType,
-  data : Array[Byte]
+  data : Array[Byte],
 ) -> ConstantArray {
   let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
@@ -1823,7 +1822,7 @@ fn ConstantArray::newUInt8Array(
 ///|
 fn ConstantArray::newUInt16Array(
   vty : ArrayType,
-  data : Array[UInt16]
+  data : Array[UInt16],
 ) -> ConstantArray {
   let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
@@ -1845,7 +1844,7 @@ fn ConstantArray::newUInt16Array(
 ///|
 fn ConstantArray::newUInt32Array(
   vty : ArrayType,
-  data : Array[UInt]
+  data : Array[UInt],
 ) -> ConstantArray {
   let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
@@ -1867,7 +1866,7 @@ fn ConstantArray::newUInt32Array(
 ///|
 fn ConstantArray::newUInt64Array(
   vty : ArrayType,
-  data : Array[UInt64]
+  data : Array[UInt64],
 ) -> ConstantArray {
   let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
@@ -1889,7 +1888,7 @@ fn ConstantArray::newUInt64Array(
 ///|
 fn ConstantArray::newFloatArray(
   vty : ArrayType,
-  data : Array[Float]
+  data : Array[Float],
 ) -> ConstantArray {
   let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
@@ -1911,7 +1910,7 @@ fn ConstantArray::newFloatArray(
 ///|
 fn ConstantArray::newDoubleArray(
   vty : ArrayType,
-  data : Array[Double]
+  data : Array[Double],
 ) -> ConstantArray {
   let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
@@ -1940,6 +1939,7 @@ impl Value for ConstantArray with asValueEnum(self) {
   ConstantArray(self)
 }
 
+///|
 impl Value for ConstantArray with getValueRepr(self) {
   match self.data {
     Left(constants) => constants.map(c => c.to_string()).join(", ")
@@ -2067,7 +2067,7 @@ pub struct ConstantVector {
 ///|
 fn ConstantVector::newInt8Vector(
   vty : FixedVectorType,
-  data : Array[Int]
+  data : Array[Int],
 ) -> ConstantVector {
   let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
@@ -2089,7 +2089,7 @@ fn ConstantVector::newInt8Vector(
 ///|
 fn ConstantVector::newInt16Vector(
   vty : FixedVectorType,
-  data : Array[Int16]
+  data : Array[Int16],
 ) -> ConstantVector {
   let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
@@ -2111,7 +2111,7 @@ fn ConstantVector::newInt16Vector(
 ///|
 fn ConstantVector::newInt32Vector(
   vty : FixedVectorType,
-  data : Array[Int]
+  data : Array[Int],
 ) -> ConstantVector {
   let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
@@ -2133,7 +2133,7 @@ fn ConstantVector::newInt32Vector(
 ///|
 fn ConstantVector::newInt64Vector(
   vty : FixedVectorType,
-  data : Array[Int64]
+  data : Array[Int64],
 ) -> ConstantVector {
   let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
@@ -2155,7 +2155,7 @@ fn ConstantVector::newInt64Vector(
 ///|
 fn ConstantVector::newUInt8Vector(
   vty : FixedVectorType,
-  data : Array[Byte]
+  data : Array[Byte],
 ) -> ConstantVector {
   let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
@@ -2177,7 +2177,7 @@ fn ConstantVector::newUInt8Vector(
 ///|
 fn ConstantVector::newUInt16Vector(
   vty : FixedVectorType,
-  data : Array[UInt16]
+  data : Array[UInt16],
 ) -> ConstantVector {
   let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
@@ -2199,7 +2199,7 @@ fn ConstantVector::newUInt16Vector(
 ///|
 fn ConstantVector::newUInt32Vector(
   vty : FixedVectorType,
-  data : Array[UInt]
+  data : Array[UInt],
 ) -> ConstantVector {
   let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
@@ -2221,7 +2221,7 @@ fn ConstantVector::newUInt32Vector(
 ///|
 fn ConstantVector::newUInt64Vector(
   vty : FixedVectorType,
-  data : Array[UInt64]
+  data : Array[UInt64],
 ) -> ConstantVector {
   let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
@@ -2243,7 +2243,7 @@ fn ConstantVector::newUInt64Vector(
 ///|
 fn ConstantVector::newFloatVector(
   vty : FixedVectorType,
-  data : Array[Float]
+  data : Array[Float],
 ) -> ConstantVector {
   let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
@@ -2265,7 +2265,7 @@ fn ConstantVector::newFloatVector(
 ///|
 fn ConstantVector::newDoubleVector(
   vty : FixedVectorType,
-  data : Array[Double]
+  data : Array[Double],
 ) -> ConstantVector {
   let eleCnt = vty.getElementCount().reinterpret_as_int()
   guard data.length() == eleCnt else {
@@ -2294,6 +2294,7 @@ impl Value for ConstantVector with asValueEnum(self) {
   ConstantVector(self)
 }
 
+///|
 impl Value for ConstantVector with getValueRepr(self) {
   match self.data {
     Left(constants) => constants.map(c => c.to_string()).join(", ")
@@ -2410,7 +2411,7 @@ pub struct ConstantStruct {
 ///|
 pub fn ConstantStruct::new(
   vty : StructType,
-  elements : Array[&Constant]
+  elements : Array[&Constant],
 ) -> ConstantStruct {
   guard vty.asTypeEnum() is StructType(sty) else {
     llvm_unreachable("ConstantStruct::new: vty is not StructType")
@@ -2438,7 +2439,7 @@ pub fn ConstantStruct::getElements(self : ConstantStruct) -> Array[&Constant] {
 ///| Get the element at the specified index.
 pub fn ConstantStruct::getElement(
   self : ConstantStruct,
-  index : Int
+  index : Int,
 ) -> &Constant? {
   if index >= 0 && index < self.elements.length() {
     Some(self.elements[index])
@@ -2468,7 +2469,7 @@ pub fn ConstantStruct::getElement(
 /// ```
 pub fn ConstantStruct::extractValue(
   self : ConstantStruct,
-  indices : ArrayView[Int]
+  indices : ArrayView[Int],
 ) -> &Constant? {
   guard indices.length() > 0 else { return None }
   let first_index = indices[0]
@@ -2514,7 +2515,7 @@ pub fn ConstantStruct::extractValue(
 pub fn ConstantStruct::insertValue(
   self : ConstantStruct,
   indices : ArrayView[Int],
-  value : &Constant
+  value : &Constant,
 ) -> ConstantStruct? {
   let first_index = indices[0]
   guard first_index >= 0 && first_index < self.elements.length() else {

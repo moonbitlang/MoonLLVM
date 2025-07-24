@@ -33,7 +33,7 @@ fn IRBuilder::new() -> IRBuilder {
 ///|
 pub fn[T : InsertPoint] IRBuilder::setInsertPoint(
   self : IRBuilder,
-  insertPt : T
+  insertPt : T,
 ) -> Unit {
   match insertPt.asInsertPtEnum() {
     BasicBlock(bb) => {
@@ -69,6 +69,7 @@ pub fn IRBuilder::getInsertFunction(self : IRBuilder) -> Function {
   self.bb.unwrap().parent
 }
 
+///|
 pub fn IRBuilder::getInsertBlock(self : IRBuilder) -> BasicBlock {
   self.bb.unwrap()
 }
@@ -98,7 +99,7 @@ pub fn IRBuilder::getInsertBlock(self : IRBuilder) -> BasicBlock {
 /// ```
 pub fn IRBuilder::createRet(
   self : IRBuilder,
-  retVal : &Value
+  retVal : &Value,
 ) -> &Instruction raise Error {
   let parent = self.getInsertFunction()
   let retInst = ReturnInst::new(Some(retVal), parent)
@@ -140,7 +141,7 @@ pub fn IRBuilder::createAlloca(
   self : IRBuilder,
   data_ty : &Type,
   addressSpace~ : AddressSpace = AddressSpace::default(),
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   let allocaInst = AllocaInst::new(
     data_ty,
@@ -188,7 +189,7 @@ pub fn IRBuilder::createAdd(
   rhs : &Value,
   name~ : String = "",
   has_nsw~ : Bool = false,
-  has_nuw~ : Bool = false
+  has_nuw~ : Bool = false,
 ) -> &Value raise Error {
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
     (Some(ConstantInt(lhs)), Some(ConstantInt(rhs))) => return lhs.add(rhs)
@@ -248,7 +249,7 @@ pub fn IRBuilder::createNSWAdd(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createAdd(lhs, rhs, name~, has_nsw=true, has_nuw=false)
 }
@@ -287,7 +288,7 @@ pub fn IRBuilder::createNUWAdd(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createAdd(lhs, rhs, name~, has_nsw=false, has_nuw=true)
 }
@@ -328,7 +329,7 @@ pub fn IRBuilder::createSub(
   rhs : &Value,
   name~ : String = "",
   has_nsw~ : Bool = false,
-  has_nuw~ : Bool = false
+  has_nuw~ : Bool = false,
 ) -> &Value raise Error {
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
     (Some(ConstantInt(lhs)), Some(ConstantInt(rhs))) => return lhs.sub(rhs)
@@ -388,7 +389,7 @@ pub fn IRBuilder::createNSWSub(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createSub(lhs, rhs, name~, has_nsw=true, has_nuw=false)
 }
@@ -427,7 +428,7 @@ pub fn IRBuilder::createNUWSub(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createSub(lhs, rhs, name~, has_nsw=false, has_nuw=true)
 }
@@ -468,7 +469,7 @@ pub fn IRBuilder::createMul(
   rhs : &Value,
   name~ : String = "",
   has_nsw~ : Bool = false,
-  has_nuw~ : Bool = false
+  has_nuw~ : Bool = false,
 ) -> &Value raise Error {
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
     (Some(ConstantInt(lhs)), Some(ConstantInt(rhs))) => return lhs.mul(rhs)
@@ -528,7 +529,7 @@ pub fn IRBuilder::createNSWMul(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createMul(lhs, rhs, name~, has_nsw=true, has_nuw=false)
 }
@@ -567,7 +568,7 @@ pub fn IRBuilder::createNUWMul(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createMul(lhs, rhs, name~, has_nsw=false, has_nuw=true)
 }
@@ -608,7 +609,7 @@ pub fn IRBuilder::createSDiv(
   lhs : &Value,
   rhs : &Value,
   name~ : String = "",
-  is_exact~ : Bool = false
+  is_exact~ : Bool = false,
 ) -> &Value raise Error {
   // match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
   //   (Some(ConstantInt(c_lhs)), Some(ConstantInt(c_rhs))) => return c_lhs.sdiv(c_rhs) // Assuming ConstantInt has sdiv!
@@ -666,7 +667,7 @@ pub fn IRBuilder::createExactSDiv(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createSDiv(lhs, rhs, name~, is_exact=true)
 }
@@ -707,7 +708,7 @@ pub fn IRBuilder::createUDiv(
   lhs : &Value,
   rhs : &Value,
   name~ : String = "",
-  is_exact~ : Bool = false
+  is_exact~ : Bool = false,
 ) -> &Value raise Error {
   // match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
   //   (Some(ConstantUInt(c_lhs)), Some(ConstantUInt(c_rhs))) => return c_lhs.udiv(c_rhs) // Assumed missing
@@ -766,7 +767,7 @@ pub fn IRBuilder::createExactUDiv(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createUDiv(lhs, rhs, name~, is_exact=true)
 }
@@ -805,7 +806,7 @@ pub fn IRBuilder::createSRem(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   // Constant folding for SRem is currently disabled due to assumed missing `ConstantInt::srem!`
   // match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
@@ -861,7 +862,7 @@ pub fn IRBuilder::createURem(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   // Constant folding for URem is currently disabled due to assumed missing `ConstantUInt::urem!`
   // match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
@@ -941,7 +942,7 @@ pub fn IRBuilder::createFAdd(
   lhs : &Value,
   rhs : &Value,
   name~ : String = "",
-  fast_math~ : Array[FastMathFlag] = []
+  fast_math~ : Array[FastMathFlag] = [],
 ) -> &Value raise Error {
   let parent = self.getInsertFunction()
   let fast_math_flags = Set::from_array(fast_math)
@@ -992,7 +993,7 @@ pub fn IRBuilder::createFSub(
   lhs : &Value,
   rhs : &Value,
   name~ : String = "",
-  fast_math_flags~ : Set[FastMathFlag] = Set::new()
+  fast_math_flags~ : Set[FastMathFlag] = Set::new(),
 ) -> &Value raise Error {
   let parent = self.getInsertFunction()
   let inst = BinaryInst::newFPMathOp(
@@ -1042,7 +1043,7 @@ pub fn IRBuilder::createFMul(
   lhs : &Value,
   rhs : &Value,
   name~ : String = "",
-  fast_math_flags~ : Set[FastMathFlag] = Set::new()
+  fast_math_flags~ : Set[FastMathFlag] = Set::new(),
 ) -> &Value raise Error {
   let parent = self.getInsertFunction()
   let inst = BinaryInst::newFPMathOp(
@@ -1092,7 +1093,7 @@ pub fn IRBuilder::createFDiv(
   lhs : &Value,
   rhs : &Value,
   name~ : String = "",
-  fast_math_flags~ : Set[FastMathFlag] = Set::new()
+  fast_math_flags~ : Set[FastMathFlag] = Set::new(),
 ) -> &Value raise Error {
   let parent = self.getInsertFunction()
   let inst = BinaryInst::newFPMathOp(
@@ -1142,7 +1143,7 @@ pub fn IRBuilder::createFRem(
   lhs : &Value,
   rhs : &Value,
   name~ : String = "",
-  fast_math_flags~ : Set[FastMathFlag] = Set::new()
+  fast_math_flags~ : Set[FastMathFlag] = Set::new(),
 ) -> &Value raise Error {
   let parent = self.getInsertFunction()
   let inst = BinaryInst::newFPMathOp(
@@ -1191,7 +1192,7 @@ pub fn IRBuilder::createAnd(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
     (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) =>
@@ -1245,7 +1246,7 @@ pub fn IRBuilder::createOr(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
     (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) =>
@@ -1299,7 +1300,7 @@ pub fn IRBuilder::createXor(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
     (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) =>
@@ -1355,7 +1356,7 @@ pub fn IRBuilder::createShl(
   rhs : &Value,
   name~ : String = "",
   has_nsw~ : Bool = false,
-  has_nuw~ : Bool = false
+  has_nuw~ : Bool = false,
 ) -> &Value raise Error {
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
     (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) =>
@@ -1417,7 +1418,7 @@ pub fn IRBuilder::createLShr(
   lhs : &Value,
   rhs : &Value,
   name~ : String = "",
-  is_exact~ : Bool = false
+  is_exact~ : Bool = false,
 ) -> &Value raise Error {
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
     (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) =>
@@ -1476,7 +1477,7 @@ pub fn IRBuilder::createAShr(
   lhs : &Value,
   rhs : &Value,
   name~ : String = "",
-  is_exact~ : Bool = false
+  is_exact~ : Bool = false,
 ) -> &Value raise Error {
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
     (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) =>
@@ -1563,7 +1564,7 @@ pub fn IRBuilder::createICmp(
   pred : IntPredicate,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
     (Some(ConstantInt(lhs)), Some(ConstantInt(rhs))) =>
@@ -1571,7 +1572,13 @@ pub fn IRBuilder::createICmp(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = ICmpInst::new(pred, lhs, rhs, parent, name=unless(name.is_empty(), () => name))
+  let inst = ICmpInst::new(
+    pred,
+    lhs,
+    rhs,
+    parent,
+    name=unless(name.is_empty(), () => name),
+  )
   self.insert(inst)
   inst
 }
@@ -1583,7 +1590,7 @@ pub fn IRBuilder::createICmpEQ(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createICmp(EQ, lhs, rhs, name~)
 }
@@ -1595,7 +1602,7 @@ pub fn IRBuilder::createICmpNE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createICmp(NE, lhs, rhs, name~)
 }
@@ -1607,7 +1614,7 @@ pub fn IRBuilder::createICmpUGT(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createICmp(UGT, lhs, rhs, name~)
 }
@@ -1619,7 +1626,7 @@ pub fn IRBuilder::createICmpUGE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createICmp(UGE, lhs, rhs, name~)
 }
@@ -1631,7 +1638,7 @@ pub fn IRBuilder::createICmpULT(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createICmp(ULT, lhs, rhs, name~)
 }
@@ -1643,7 +1650,7 @@ pub fn IRBuilder::createICmpULE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createICmp(ULE, lhs, rhs, name~)
 }
@@ -1655,7 +1662,7 @@ pub fn IRBuilder::createICmpSGT(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createICmp(SGT, lhs, rhs, name~)
 }
@@ -1667,7 +1674,7 @@ pub fn IRBuilder::createICmpSGE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createICmp(SGE, lhs, rhs, name~)
 }
@@ -1679,7 +1686,7 @@ pub fn IRBuilder::createICmpSLT(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createICmp(SLT, lhs, rhs, name~)
 }
@@ -1691,7 +1698,7 @@ pub fn IRBuilder::createICmpSLE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createICmp(SLE, lhs, rhs, name~)
 }
@@ -1768,7 +1775,7 @@ pub fn IRBuilder::createFCmp(
   pred : FloatPredicate,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
     (Some(ConstantFP(lhs)), Some(ConstantFP(rhs))) =>
@@ -1776,7 +1783,13 @@ pub fn IRBuilder::createFCmp(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = FCmpInst::new(pred, lhs, rhs, parent, name=unless(name.is_empty(), () => name))
+  let inst = FCmpInst::new(
+    pred,
+    lhs,
+    rhs,
+    parent,
+    name=unless(name.is_empty(), () => name),
+  )
   self.insert(inst)
   inst
 }
@@ -1788,7 +1801,7 @@ pub fn IRBuilder::createFCmpOEQ(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createFCmp(OEQ, lhs, rhs, name~)
 }
@@ -1800,7 +1813,7 @@ pub fn IRBuilder::createFCmpOGT(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createFCmp(OGT, lhs, rhs, name~)
 }
@@ -1812,7 +1825,7 @@ pub fn IRBuilder::createFCmpOGE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createFCmp(OGE, lhs, rhs, name~)
 }
@@ -1824,7 +1837,7 @@ pub fn IRBuilder::createFCmpOLT(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createFCmp(OLT, lhs, rhs, name~)
 }
@@ -1836,7 +1849,7 @@ pub fn IRBuilder::createFCmpOLE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createFCmp(OLE, lhs, rhs, name~)
 }
@@ -1848,7 +1861,7 @@ pub fn IRBuilder::createFCmpONE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createFCmp(ONE, lhs, rhs, name~)
 }
@@ -1860,7 +1873,7 @@ pub fn IRBuilder::createFCmpORD(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createFCmp(ORD, lhs, rhs, name~)
 }
@@ -1872,7 +1885,7 @@ pub fn IRBuilder::createFCmpUNO(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createFCmp(UNO, lhs, rhs, name~)
 }
@@ -1884,7 +1897,7 @@ pub fn IRBuilder::createFCmpUEQ(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createFCmp(UEQ, lhs, rhs, name~)
 }
@@ -1896,7 +1909,7 @@ pub fn IRBuilder::createFCmpUGT(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createFCmp(UGT, lhs, rhs, name~)
 }
@@ -1908,7 +1921,7 @@ pub fn IRBuilder::createFCmpUGE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createFCmp(UGE, lhs, rhs, name~)
 }
@@ -1920,7 +1933,7 @@ pub fn IRBuilder::createFCmpULT(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createFCmp(ULT, lhs, rhs, name~)
 }
@@ -1932,7 +1945,7 @@ pub fn IRBuilder::createFCmpULE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createFCmp(ULE, lhs, rhs, name~)
 }
@@ -1944,7 +1957,7 @@ pub fn IRBuilder::createFCmpUNE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createFCmp(UNE, lhs, rhs, name~)
 }
@@ -1983,14 +1996,19 @@ pub fn IRBuilder::createTrunc(
   self : IRBuilder,
   src_val : &Value,
   dst_ty : &IntegerType,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   match src_val.tryAsConstantEnum() {
     Some(ConstantInt(ci)) => return ci.trunc(dst_ty)
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newTrunc(src_val, dst_ty, parent, name=unless(name.is_empty(), () => name))
+  let inst = CastInst::newTrunc(
+    src_val,
+    dst_ty,
+    parent,
+    name=unless(name.is_empty(), () => name),
+  )
   self.insert(inst)
   inst
 }
@@ -2029,14 +2047,19 @@ pub fn IRBuilder::createZExt(
   self : IRBuilder,
   src_val : &Value,
   dst_ty : &IntegerType,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   match src_val.tryAsConstantEnum() {
     Some(ConstantInt(ci)) => return ci.zext(dst_ty)
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newZExt(src_val, dst_ty, parent, name=unless(name.is_empty(), () => name))
+  let inst = CastInst::newZExt(
+    src_val,
+    dst_ty,
+    parent,
+    name=unless(name.is_empty(), () => name),
+  )
   self.insert(inst)
   inst
 }
@@ -2075,14 +2098,19 @@ pub fn IRBuilder::createSExt(
   self : IRBuilder,
   src_val : &Value,
   dst_ty : &IntegerType,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   match src_val.tryAsConstantEnum() {
     Some(ConstantInt(ci)) => return ci.sext(dst_ty)
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newSExt(src_val, dst_ty, parent, name=unless(name.is_empty(), () => name))
+  let inst = CastInst::newSExt(
+    src_val,
+    dst_ty,
+    parent,
+    name=unless(name.is_empty(), () => name),
+  )
   self.insert(inst)
   inst
 }
@@ -2120,14 +2148,19 @@ pub fn IRBuilder::createFPTrunc(
   self : IRBuilder,
   src_val : &Value,
   dst_ty : &FPType,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   match src_val.tryAsConstantEnum() {
     Some(ConstantFP(cf)) => return cf.fptrunc(dst_ty)
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newFPTrunc(src_val, dst_ty, parent, name=unless(name.is_empty(), () => name))
+  let inst = CastInst::newFPTrunc(
+    src_val,
+    dst_ty,
+    parent,
+    name=unless(name.is_empty(), () => name),
+  )
   self.insert(inst)
   inst
 }
@@ -2161,14 +2194,19 @@ pub fn IRBuilder::createFPExt(
   self : IRBuilder,
   src_val : &Value,
   dst_ty : &FPType,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   match src_val.tryAsConstantEnum() {
     Some(ConstantFP(cf)) => return cf.fpext(dst_ty)
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newFPExt(src_val, dst_ty, parent, name=unless(name.is_empty(), () => name))
+  let inst = CastInst::newFPExt(
+    src_val,
+    dst_ty,
+    parent,
+    name=unless(name.is_empty(), () => name),
+  )
   self.insert(inst)
   inst
 }
@@ -2206,14 +2244,19 @@ pub fn IRBuilder::createUIToFP(
   self : IRBuilder,
   src_val : &Value,
   dst_ty : &FPType,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   match src_val.tryAsConstantEnum() {
     Some(ConstantInt(ci)) => return ci.uitofp(dst_ty)
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newUIToFP(src_val, dst_ty, parent, name=unless(name.is_empty(), () => name))
+  let inst = CastInst::newUIToFP(
+    src_val,
+    dst_ty,
+    parent,
+    name=unless(name.is_empty(), () => name),
+  )
   self.insert(inst)
   inst
 }
@@ -2252,14 +2295,19 @@ pub fn IRBuilder::createFPToUI(
   self : IRBuilder,
   src_val : &Value,
   dst_ty : &IntegerType,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   match src_val.tryAsConstantEnum() {
     Some(ConstantFP(cf)) => return cf.fptoui(dst_ty)
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newFPToUI(src_val, dst_ty, parent, name=unless(name.is_empty(), () => name))
+  let inst = CastInst::newFPToUI(
+    src_val,
+    dst_ty,
+    parent,
+    name=unless(name.is_empty(), () => name),
+  )
   self.insert(inst)
   inst
 }
@@ -2293,14 +2341,19 @@ pub fn IRBuilder::createSIToFP(
   self : IRBuilder,
   src_val : &Value,
   dst_ty : &FPType,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   match src_val.tryAsConstantEnum() {
     Some(ConstantInt(ci)) => return ci.sitofp(dst_ty)
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newSIToFP(src_val, dst_ty, parent, name=unless(name.is_empty(), () => name))
+  let inst = CastInst::newSIToFP(
+    src_val,
+    dst_ty,
+    parent,
+    name=unless(name.is_empty(), () => name),
+  )
   self.insert(inst)
   inst
 }
@@ -2334,14 +2387,19 @@ pub fn IRBuilder::createFPToSI(
   self : IRBuilder,
   src_val : &Value,
   dst_ty : &IntegerType,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   match src_val.tryAsConstantEnum() {
     Some(ConstantFP(cf)) => return cf.fptosi(dst_ty)
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newFPToSI(src_val, dst_ty, parent, name=unless(name.is_empty(), () => name))
+  let inst = CastInst::newFPToSI(
+    src_val,
+    dst_ty,
+    parent,
+    name=unless(name.is_empty(), () => name),
+  )
   self.insert(inst)
   inst
 }
@@ -2374,14 +2432,18 @@ pub fn IRBuilder::createFPToSI(
 pub fn IRBuilder::createIntToPtr(
   self : IRBuilder,
   src_val : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   match src_val.tryAsConstantEnum() {
     Some(ConstantInt(ci)) => return ci.inttoptr()
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newIntToPtr(src_val, parent, name=unless(name.is_empty(), () => name))
+  let inst = CastInst::newIntToPtr(
+    src_val,
+    parent,
+    name=unless(name.is_empty(), () => name),
+  )
   self.insert(inst)
   inst
 }
@@ -2415,11 +2477,16 @@ pub fn IRBuilder::createPtrToInt(
   self : IRBuilder,
   src_val : &Value,
   dst_ty : &IntegerType,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   // No constant folding for PtrToInt as pointer constants are complex
   let parent = self.getInsertFunction()
-  let inst = CastInst::newPtrToInt(src_val, dst_ty, parent, name=unless(name.is_empty(), () => name))
+  let inst = CastInst::newPtrToInt(
+    src_val,
+    dst_ty,
+    parent,
+    name=unless(name.is_empty(), () => name),
+  )
   self.insert(inst)
   inst
 }
@@ -2453,7 +2520,7 @@ pub fn IRBuilder::createBitCast(
   self : IRBuilder,
   src_val : &Value,
   dst_ty : &PrimitiveType,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   match src_val.tryAsConstantEnum() {
     Some(ConstantInt(ci)) => return ci.bitcast(dst_ty)
@@ -2461,7 +2528,12 @@ pub fn IRBuilder::createBitCast(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newBitCast(src_val, dst_ty, parent, name=unless(name.is_empty(), () => name))
+  let inst = CastInst::newBitCast(
+    src_val,
+    dst_ty,
+    parent,
+    name=unless(name.is_empty(), () => name),
+  )
   self.insert(inst)
   inst
 }
@@ -2501,11 +2573,16 @@ pub fn IRBuilder::createGEP(
   pointeeType : &Type,
   indices : Array[&Value],
   name~ : String = "",
-  inbounds~ : Bool = false
+  inbounds~ : Bool = false,
 ) -> &Value raise Error {
   let parent = self.getInsertFunction()
   let inst = GetElementPtrInst::new(
-    ptr, pointeeType, indices, inbounds, parent, name=unless(name.is_empty(), () => name)
+    ptr,
+    pointeeType,
+    indices,
+    inbounds,
+    parent,
+    name=unless(name.is_empty(), () => name),
   )
   self.insert(inst)
   inst
@@ -2540,11 +2617,16 @@ pub fn IRBuilder::createLoad(
   ptr : &Value,
   isVolatile~ : Bool = false,
   atomicOrdering~ : AtomicOrdering = NotAtomic,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   let parent = self.getInsertFunction()
   let inst = LoadInst::new(
-    load_ty, ptr, isVolatile, atomicOrdering, parent, name=unless(name.is_empty(), () => name)
+    load_ty,
+    ptr,
+    isVolatile,
+    atomicOrdering,
+    parent,
+    name=unless(name.is_empty(), () => name),
   )
   self.insert(inst)
   inst
@@ -2579,7 +2661,7 @@ pub fn IRBuilder::createStore(
   value : &Value,
   ptr : &Value,
   isVolatile~ : Bool = false,
-  atomicOrdering~ : AtomicOrdering = NotAtomic
+  atomicOrdering~ : AtomicOrdering = NotAtomic,
 ) -> &Instruction raise Error {
   let parent = self.getInsertFunction()
   let inst = StoreInst::new(value, ptr, isVolatile, atomicOrdering, parent)
@@ -2613,7 +2695,7 @@ pub fn IRBuilder::createStore(
 /// ```
 pub fn IRBuilder::createBr(
   self : Self,
-  dst : BasicBlock
+  dst : BasicBlock,
 ) -> &Instruction raise Error {
   let parent = self.getInsertFunction()
   let currBlock = self.getInsertBlock()
@@ -2654,7 +2736,7 @@ pub fn IRBuilder::createCondBr(
   self : Self,
   cond : &Value,
   true_dst : BasicBlock,
-  false_dst : BasicBlock
+  false_dst : BasicBlock,
 ) -> &Instruction raise Error {
   let parent = self.getInsertFunction()
   let inst = BranchInst::newConditional(cond, true_dst, false_dst, parent)
@@ -2697,7 +2779,7 @@ pub fn IRBuilder::createSelect(
   condition : &Value,
   trueValue : &Value,
   falseValue : &Value,
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   match condition.tryAsConstantEnum() {
     Some(ConstantInt(ci)) =>
@@ -2709,7 +2791,13 @@ pub fn IRBuilder::createSelect(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = SelectInst::new(condition, trueValue, falseValue, parent, name=unless(name.is_empty(), () => name))
+  let inst = SelectInst::new(
+    condition,
+    trueValue,
+    falseValue,
+    parent,
+    name=unless(name.is_empty(), () => name),
+  )
   self.insert(inst)
   inst
 }
@@ -2752,7 +2840,7 @@ pub fn IRBuilder::createSelect(
 pub fn IRBuilder::createSwitch(
   self : IRBuilder,
   cond : &Value,
-  defaultDest : BasicBlock
+  defaultDest : BasicBlock,
 ) -> SwitchInst raise Error {
   let parent = self.getInsertFunction()
   let inst = SwitchInst::new(cond, defaultDest, parent)
@@ -2795,7 +2883,7 @@ pub fn IRBuilder::createSwitch(
 pub fn IRBuilder::createPHI(
   self : IRBuilder,
   ty : &Type,
-  name~ : String = ""
+  name~ : String = "",
 ) -> PHINode raise Error {
   let parent = self.getInsertFunction()
   let phi = PHINode::new(ty, parent, name=unless(name.is_empty(), () => name))
@@ -2834,10 +2922,15 @@ pub fn IRBuilder::createCall(
   self : IRBuilder,
   callee : Function,
   args : Array[&Value],
-  name~ : String = ""
+  name~ : String = "",
 ) -> CallInst raise Error {
   let parent = self.getInsertFunction()
-  let inst = CallInst::new(callee, args, parent, name=unless(name.is_empty(), () => name))
+  let inst = CallInst::new(
+    callee,
+    args,
+    parent,
+    name=unless(name.is_empty(), () => name),
+  )
   self.insert(inst)
   inst
 }
@@ -2871,10 +2964,15 @@ pub fn IRBuilder::createExtractValue(
   self : IRBuilder,
   aggregate : &Value,
   indices : Array[Int],
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   let parent = self.getInsertFunction()
-  let inst = ExtractValueInst::new(aggregate, indices, parent, name=unless(name.is_empty(), () => name))
+  let inst = ExtractValueInst::new(
+    aggregate,
+    indices,
+    parent,
+    name=unless(name.is_empty(), () => name),
+  )
   self.insert(inst)
   inst
 }
@@ -2910,10 +3008,16 @@ pub fn IRBuilder::createInsertValue(
   aggregate : &Value,
   value : &Value,
   indices : Array[Int],
-  name~ : String = ""
+  name~ : String = "",
 ) -> &Value raise Error {
   let parent = self.getInsertFunction()
-  let inst = InsertValueInst::new(aggregate, value, indices, parent, name=unless(name.is_empty(), () => name))
+  let inst = InsertValueInst::new(
+    aggregate,
+    value,
+    indices,
+    parent,
+    name=unless(name.is_empty(), () => name),
+  )
   self.insert(inst)
   inst
 }
