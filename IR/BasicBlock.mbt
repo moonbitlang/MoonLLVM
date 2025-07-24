@@ -13,10 +13,9 @@ pub struct BasicBlock {
 fn BasicBlock::new(
   parent : Function,
   name~ : String? = None,
-  before~ : BasicBlock? = None
 ) -> BasicBlock {
   let uid = valueUIDAssigner.assign()
-  let bb = BasicBlock::{
+  BasicBlock::{
     uid,
     users: [],
     parent,
@@ -25,8 +24,6 @@ fn BasicBlock::new(
     id: parent.getNumBasicBlocks(),
     preds: []
   }
-  parent.appendBasicBlock(bb, before~)
-  bb
 }
 
 ///|
