@@ -466,6 +466,10 @@ pub trait Instruction: Value {
   prev(Self) -> &Instruction? = _
   insertAfter(Self, &Instruction) -> Unit raise LLVMValueError = _
   insertBefore(Self, &Instruction) -> Unit raise LLVMValueError = _
+  moveBefore(Self, &Instruction) -> Unit raise LLVMValueError = _
+  moveAfter(Self, &Instruction) -> Unit raise LLVMValueError = _
+  removeFromParent(Self) -> Unit raise LLVMValueError = _
+  eraseFromParent(Self) -> Unit raise LLVMValueError = _
 }
 
 ///|
@@ -552,6 +556,48 @@ impl Instruction with insertBefore(self, insertPt : &Instruction) {
       ori_prev.getInstBase().next = Some(self)
       self.getInstBase().bb = insertPt.getBasicBlock()
     }
+  }
+}
+
+///|
+impl Instruction with moveBefore(self, insertPt : &Instruction) {
+  self.removeFromParent()
+  self.insertBefore(insertPt)
+}
+
+///|
+impl Instruction with moveAfter(self, insertPt : &Instruction) {
+  self.removeFromParent()
+  self.insertAfter(insertPt)
+}
+
+///|
+impl Instruction with removeFromParent(self) {
+  let bb = match self.getBasicBlock() {
+    Some(bb) => bb
+    None => return
+  }
+  match (self.prev(), self.next()) {
+    // independent instruction, do nothing.
+    (None, None) => ()
+    (Some(prev), None) => prev.getInstBase().next = None
+    // It must be the head of the basic block.
+    (None, Some(next)) => bb.head = Some(next)
+    (Some(prev), Some(next)) => {
+      prev.getInstBase().next = Some(next)
+      next.getInstBase().prev = Some(prev)
+    }
+  }
+  self.getInstBase().bb = None
+  self.getInstBase().prev = None
+  self.getInstBase().next = None
+}
+
+///|
+impl Instruction with eraseFromParent(self) {
+  self.removeFromParent()
+  if self.getInstName() is Some(name) {
+    self.getParent().symbols.remove(name)
   }
 }
 
