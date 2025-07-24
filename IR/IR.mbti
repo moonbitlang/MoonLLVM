@@ -1,9 +1,10 @@
-package "Kaida-Amethyst/Aether/IR"
+// Generated using `moon info`, DON'T EDIT IT
+package "Kaida-Amethyst/MoonLLVM/IR"
 
 import(
-  "Kaida-Amethyst/Aether/Either"
-  "Kaida-Amethyst/Aether/int8"
-  "Kaida-Amethyst/Aether/uint8"
+  "Kaida-Amethyst/MoonLLVM/Either"
+  "Kaida-Amethyst/MoonLLVM/int8"
+  "Kaida-Amethyst/MoonLLVM/uint8"
   "moonbitlang/core/set"
 )
 
@@ -46,15 +47,18 @@ impl Eq for Align
 impl Show for Align
 
 pub struct AllocaInst {
-  base : ValueBase
-  user_base : UserBase
+  uid : UInt64
+  vty : &Type
+  users : Array[&User]
+  mut name : String?
+  parent : Function
   inst_base : InstBase
   data_ty : &Type
   align : Align
 }
 impl Instruction for AllocaInst
+impl NamedValue for AllocaInst
 impl UnaryInst for AllocaInst
-impl User for AllocaInst
 impl Value for AllocaInst
 impl Show for AllocaInst
 
@@ -71,14 +75,15 @@ impl Hash for ArgAttr
 impl Show for ArgAttr
 
 pub struct Argument {
-  base : ValueBase
+  uid : UInt64
+  vty : &Type
+  users : Array[&User]
   parent : Function
   argNo : UInt
   mut name : String?
 }
 fn Argument::addAttr(Self, ArgAttr) -> Unit
-fn Argument::getName(Self) -> String?
-fn Argument::setName(Self, String) -> Unit raise LLVMValueError
+impl NamedValue for Argument
 impl Value for Argument
 impl Show for Argument
 
@@ -140,27 +145,38 @@ impl Hash for BFloatType
 impl Show for BFloatType
 
 pub struct BasicBlock {
-  base : ValueBase
+  uid : UInt64
+  users : Array[&User]
   parent : Function
-  name : String?
+  mut name : String?
   mut head : &Instruction?
   id : Int
+  preds : Array[BasicBlock]
 }
+fn BasicBlock::getLabel(Self) -> String
+fn BasicBlock::getParent(Self) -> Function
 fn BasicBlock::lastInst(Self) -> &Instruction?
 impl InsertPoint for BasicBlock
+impl NamedValue for BasicBlock
 impl Value for BasicBlock
 impl Eq for BasicBlock
 impl Show for BasicBlock
 
 pub struct BinaryInst {
-  base : ValueBase
-  user_base : UserBase
+  uid : UInt64
+  vty : &Type
+  users : Array[&User]
+  mut name : String?
+  lhs : &Value
+  rhs : &Value
+  parent : Function
   inst_base : InstBase
   opcode : BinaryOps
   flags : @set.Set[BinaryOpFlags]
   fast_math_flags : @set.Set[FastMathFlag]
 }
 impl Instruction for BinaryInst
+impl NamedValue for BinaryInst
 impl User for BinaryInst
 impl Value for BinaryInst
 impl Show for BinaryInst
@@ -199,8 +215,12 @@ impl Hash for BinaryOps
 impl Show for BinaryOps
 
 pub struct BranchInst {
-  base : ValueBase
-  user_base : UserBase
+  uid : UInt64
+  vty : VoidType
+  condition : &Value?
+  trueBlock : BasicBlock?
+  falseBlock : BasicBlock?
+  parent : Function
   inst_base : InstBase
 }
 fn BranchInst::getCondition(Self) -> &Value?
@@ -214,10 +234,14 @@ impl Value for BranchInst
 impl Show for BranchInst
 
 pub struct CallInst {
-  base : ValueBase
-  user_base : UserBase
-  inst_base : InstBase
+  uid : UInt64
+  vty : &Type
+  users : Array[&User]
+  mut name : String?
   callee : Function
+  args : Array[&Value]
+  parent : Function
+  inst_base : InstBase
   mut tailCallKind : TailCallKind
 }
 fn CallInst::getArgOperand(Self, Int) -> &Value?
@@ -228,17 +252,23 @@ fn CallInst::getTailCallKind(Self) -> TailCallKind
 fn CallInst::isTailCall(Self) -> Bool
 fn CallInst::setTailCallKind(Self, TailCallKind) -> Unit
 impl Instruction for CallInst
+impl NamedValue for CallInst
 impl User for CallInst
 impl Value for CallInst
 impl Show for CallInst
 
 pub struct CastInst {
-  base : ValueBase
-  user_base : UserBase
+  uid : UInt64
+  to_ty : &Type
+  from_val : &Value
+  mut name : String?
+  parent : Function
+  users : Array[&User]
   inst_base : InstBase
   opcode : CastOps
 }
 impl Instruction for CastInst
+impl NamedValue for CastInst
 impl UnaryInst for CastInst
 impl User for CastInst
 impl Value for CastInst
@@ -263,7 +293,8 @@ impl Hash for CastOps
 impl Show for CastOps
 
 pub struct ConstantArray {
-  base : ValueBase
+  uid : UInt64
+  vty : ArrayType
   data : @Either.Either[Array[&Constant], NumberArrayEnum]
 }
 impl Eq for ConstantArray
@@ -280,7 +311,8 @@ pub enum ConstantEnum {
 impl Eq for ConstantEnum
 
 pub struct ConstantFP {
-  base : ValueBase
+  uid : UInt64
+  vty : &FPType
   value : Double
 }
 fn ConstantFP::add(Self, Self) -> Self raise LLVMValueError
@@ -290,9 +322,10 @@ fn ConstantFP::div(Self, Self) -> Self raise LLVMValueError
 fn[T : Floating] ConstantFP::equals(Self, T) -> Bool
 fn[T : Floating] ConstantFP::exactlyEquals(Self, T) -> Bool
 fn ConstantFP::fpext(Self, &FPType) -> Self raise LLVMValueError
-fn ConstantFP::fptosi(Self, &IntegerType) -> ConstantInt raise LLVMValueError
-fn ConstantFP::fptoui(Self, &IntegerType) -> ConstantInt raise LLVMValueError
+fn ConstantFP::fptosi(Self, &IntegerType) -> ConstantInt
+fn ConstantFP::fptoui(Self, &IntegerType) -> ConstantInt
 fn ConstantFP::fptrunc(Self, &FPType) -> Self raise LLVMValueError
+fn ConstantFP::getFPType(Self) -> &FPType
 fn ConstantFP::getValue(Self) -> Double
 fn ConstantFP::mul(Self, Self) -> Self raise LLVMValueError
 fn ConstantFP::sub(Self, Self) -> Self raise LLVMValueError
@@ -302,7 +335,8 @@ impl Eq for ConstantFP
 impl Show for ConstantFP
 
 pub struct ConstantInt {
-  base : ValueBase
+  uid : UInt64
+  vty : &IntegerType
   value : Int64
 }
 fn ConstantInt::add(Self, Self) -> Self raise LLVMValueError
@@ -314,7 +348,7 @@ fn ConstantInt::compute_shl(Self, Self) -> Self raise LLVMValueError
 fn[T : IntegerNumber] ConstantInt::equals(Self, T) -> Bool
 fn ConstantInt::getIntegerType(Self) -> &IntegerType
 fn ConstantInt::getValueAsInt64(Self) -> Int64
-fn ConstantInt::inttoptr(Self) -> ConstantPointerNull raise LLVMValueError
+fn ConstantInt::inttoptr(Self) -> ConstantPointerNull
 fn ConstantInt::isMaxValue(Self) -> Bool
 fn ConstantInt::isMinValue(Self) -> Bool
 fn ConstantInt::isNegative(Self) -> Bool
@@ -323,11 +357,11 @@ fn ConstantInt::mul(Self, Self) -> Self raise LLVMValueError
 fn ConstantInt::or(Self, Self) -> Self raise LLVMValueError
 fn ConstantInt::sdiv(Self, Self) -> Self raise LLVMValueError
 fn ConstantInt::sext(Self, &IntegerType) -> Self raise LLVMValueError
-fn ConstantInt::sitofp(Self, &FPType) -> ConstantFP raise LLVMValueError
+fn ConstantInt::sitofp(Self, &FPType) -> ConstantFP
 fn ConstantInt::sub(Self, Self) -> Self raise LLVMValueError
 fn ConstantInt::trunc(Self, &IntegerType) -> Self raise LLVMValueError
 fn ConstantInt::udiv(Self, Self) -> Self raise LLVMValueError
-fn ConstantInt::uitofp(Self, &FPType) -> ConstantFP raise LLVMValueError
+fn ConstantInt::uitofp(Self, &FPType) -> ConstantFP
 fn ConstantInt::xor(Self, Self) -> Self raise LLVMValueError
 fn ConstantInt::zext(Self, &IntegerType) -> Self raise LLVMValueError
 impl Constant for ConstantInt
@@ -336,7 +370,8 @@ impl Eq for ConstantInt
 impl Show for ConstantInt
 
 pub struct ConstantPointerNull {
-  base : ValueBase
+  uid : UInt64
+  vty : PointerType
 }
 impl Constant for ConstantPointerNull
 impl Value for ConstantPointerNull
@@ -344,19 +379,21 @@ impl Eq for ConstantPointerNull
 impl Show for ConstantPointerNull
 
 pub struct ConstantStruct {
-  base : ValueBase
+  uid : UInt64
+  vty : StructType
   elements : Array[&Constant]
 }
 fn ConstantStruct::extractValue(Self, ArrayView[Int]) -> &Constant?
 fn ConstantStruct::getElement(Self, Int) -> &Constant?
 fn ConstantStruct::getElements(Self) -> Array[&Constant]
 fn ConstantStruct::insertValue(Self, ArrayView[Int], &Constant) -> Self?
-fn ConstantStruct::new(&Type, Array[&Constant]) -> Self
+fn ConstantStruct::new(StructType, Array[&Constant]) -> Self
 impl Eq for ConstantStruct
 impl Show for ConstantStruct
 
 pub struct ConstantVector {
-  base : ValueBase
+  uid : UInt64
+  vty : FixedVectorType
   data : @Either.Either[Array[&Constant], NumberArrayEnum]
 }
 impl Eq for ConstantVector
@@ -469,25 +506,40 @@ pub(all) enum Endian {
 }
 
 pub struct ExtractValueInst {
-  base : ValueBase
-  user_base : UserBase
+  uid : UInt64
+  vty : &Type
+  users : Array[&User]
+  mut name : String?
+  aggregate : &Value
+  parent : Function
   inst_base : InstBase
   indices : Array[Int]
 }
 fn ExtractValueInst::getAggregateOperand(Self) -> &Value
 fn ExtractValueInst::getIndices(Self) -> Array[Int]
 impl Instruction for ExtractValueInst
+impl NamedValue for ExtractValueInst
 impl UnaryInst for ExtractValueInst
 impl User for ExtractValueInst
 impl Value for ExtractValueInst
 impl Show for ExtractValueInst
 
 pub struct FCmpInst {
-  base : ValueBase
-  user_base : UserBase
+  uid : UInt64
+  vty : Int1Type
+  lhs : &Value
+  rhs : &Value
+  mut name : String?
+  parent : Function
+  users : Array[&User]
   inst_base : InstBase
   predicate : FloatPredicate
 }
+impl Instruction for FCmpInst
+impl NamedValue for FCmpInst
+impl User for FCmpInst
+impl Value for FCmpInst
+impl Show for FCmpInst
 
 pub struct FP128Type {
   // private fields
@@ -506,6 +558,7 @@ pub enum FPTypeEnum {
   DoubleType(DoubleType)
   FP128Type(FP128Type)
 }
+fn FPTypeEnum::asFPTypeClass(Self) -> &FPType
 fn FPTypeEnum::asTypeClass(Self) -> &Type
 fn FPTypeEnum::getBitWidth(Self) -> UInt
 fn FPTypeEnum::getFPMantissaWidth(Self) -> UInt
@@ -592,7 +645,9 @@ impl Hash for FnAttr
 impl Show for FnAttr
 
 pub struct Function {
-  base : ValueBase
+  uid : UInt64
+  fty : FunctionType
+  users : Array[&User]
   gv_base : GlobalValueBase
   program : Module
   index : UInt
@@ -643,12 +698,22 @@ impl Hash for FunctionType
 impl Show for FunctionType
 
 pub struct GetElementPtrInst {
-  base : ValueBase
-  user_base : UserBase
+  uid : UInt64
+  vty : PointerType
+  users : Array[&User]
+  ptr : &Value
+  indices : Array[&Value]
+  mut name : String?
+  parent : Function
   inst_base : InstBase
   isInbounds : Bool
   pointeeType : &Type
 }
+impl Instruction for GetElementPtrInst
+impl NamedValue for GetElementPtrInst
+impl User for GetElementPtrInst
+impl Value for GetElementPtrInst
+impl Show for GetElementPtrInst
 
 type GlobalValueBase
 
@@ -667,11 +732,20 @@ impl Hash for HalfType
 impl Show for HalfType
 
 pub struct ICmpInst {
-  base : ValueBase
-  user_base : UserBase
+  uid : UInt64
+  vty : Int1Type
+  lhs : &Value
+  rhs : &Value
+  mut name : String?
+  parent : Function
+  users : Array[&User]
   inst_base : InstBase
   predicate : IntPredicate
 }
+impl Instruction for ICmpInst
+impl NamedValue for ICmpInst
+impl User for ICmpInst
+impl Value for ICmpInst
 
 pub struct IRBuilder {
   mut bb : BasicBlock?
@@ -755,11 +829,18 @@ fn IRBuilder::createUIToFP(Self, &Value, &FPType, name~ : String = ..) -> &Value
 fn IRBuilder::createURem(Self, &Value, &Value, name~ : String = ..) -> &Value raise
 fn IRBuilder::createXor(Self, &Value, &Value, name~ : String = ..) -> &Value raise
 fn IRBuilder::createZExt(Self, &Value, &IntegerType, name~ : String = ..) -> &Value raise
+fn IRBuilder::getInsertBlock(Self) -> BasicBlock
+fn IRBuilder::getInsertFunction(Self) -> Function
 fn[T : InsertPoint] IRBuilder::setInsertPoint(Self, T) -> Unit
 
 pub struct InsertValueInst {
-  base : ValueBase
-  user_base : UserBase
+  uid : UInt64
+  vty : &Type
+  users : Array[&User]
+  aggregate : &Value
+  insert_val : &Value
+  mut name : String?
+  parent : Function
   inst_base : InstBase
   indices : Array[Int]
 }
@@ -767,15 +848,15 @@ fn InsertValueInst::getAggregateOperand(Self) -> &Value
 fn InsertValueInst::getIndices(Self) -> Array[Int]
 fn InsertValueInst::getInsertedValueOperand(Self) -> &Value
 impl Instruction for InsertValueInst
+impl NamedValue for InsertValueInst
 impl User for InsertValueInst
 impl Value for InsertValueInst
 impl Show for InsertValueInst
 
 pub struct InstBase {
-  parent : Function
   // private fields
 }
-fn InstBase::new(Function, bb~ : BasicBlock? = .., next~ : &Instruction? = .., prev~ : &Instruction? = ..) -> Self
+fn InstBase::new(bb~ : BasicBlock? = .., next~ : &Instruction? = .., prev~ : &Instruction? = ..) -> Self
 
 pub enum InstEnum {
   AllocaInst(AllocaInst)
@@ -902,6 +983,7 @@ pub enum IntegerTypeEnum {
   Int32Type(Int32Type)
   Int64Type(Int64Type)
 }
+fn IntegerTypeEnum::asIntegerTypeClass(Self) -> &IntegerType
 fn IntegerTypeEnum::asTypeClass(Self) -> &Type
 fn IntegerTypeEnum::getBitWidth(Self) -> UInt
 impl Eq for IntegerTypeEnum
@@ -941,14 +1023,19 @@ pub(all) enum LinkageTypes {
 impl Show for LinkageTypes
 
 pub(all) struct LoadInst {
-  base : ValueBase
+  uid : UInt64
+  vty : &Type
+  users : Array[&User]
+  mut name : String?
+  ptr : &Value
+  parent : Function
   inst_base : InstBase
-  user_base : UserBase
   isVolatile : Bool
   atomicOrdering : AtomicOrdering
   align : Align
 }
 impl Instruction for LoadInst
+impl NamedValue for LoadInst
 impl UnaryInst for LoadInst
 impl User for LoadInst
 impl Value for LoadInst
@@ -997,8 +1084,12 @@ impl Hash for NumberArrayEnum
 impl Show for NumberArrayEnum
 
 pub struct PHINode {
-  base : ValueBase
-  user_base : UserBase
+  uid : UInt64
+  vty : &Type
+  users : Array[&User]
+  mut name : String?
+  incomings : Array[(&Value, BasicBlock)]
+  parent : Function
   inst_base : InstBase
 }
 fn PHINode::addIncoming(Self, &Value, BasicBlock) -> Unit raise LLVMValueError
@@ -1010,6 +1101,7 @@ fn PHINode::getIncomingValues(Self) -> Array[&Value]
 fn PHINode::getIncomings(Self) -> Array[(&Value, BasicBlock)]
 fn PHINode::getNumIncomingValues(Self) -> Int
 impl Instruction for PHINode
+impl NamedValue for PHINode
 impl User for PHINode
 impl Value for PHINode
 impl Show for PHINode
@@ -1051,8 +1143,10 @@ impl Hash for RetAttr
 impl Show for RetAttr
 
 pub struct ReturnInst {
-  base : ValueBase
-  user_base : UserBase
+  uid : UInt64
+  vty : VoidType
+  retVal : &Value?
+  parent : Function
   inst_base : InstBase
 }
 impl Instruction for ReturnInst
@@ -1074,14 +1168,21 @@ impl Hash for ScalableVectorType
 impl Show for ScalableVectorType
 
 pub struct SelectInst {
-  base : ValueBase
-  user_base : UserBase
+  uid : UInt64
+  users : Array[&User]
+  vty : &Type
+  condition : &Value
+  trueValue : &Value
+  falseValue : &Value
+  mut name : String?
+  parent : Function
   inst_base : InstBase
 }
 fn SelectInst::getCondition(Self) -> &Value
 fn SelectInst::getFalseValue(Self) -> &Value
 fn SelectInst::getTrueValue(Self) -> &Value
 impl Instruction for SelectInst
+impl NamedValue for SelectInst
 impl User for SelectInst
 impl Value for SelectInst
 impl Show for SelectInst
@@ -1094,9 +1195,12 @@ impl Show for SignedEnum
 type SlotTracker
 
 pub struct StoreInst {
-  base : ValueBase
+  uid : UInt64
+  vty : &Type
+  value : &Value
+  ptr : &Value
+  parent : Function
   inst_base : InstBase
-  user_base : UserBase
   isVolatile : Bool
   atomicOrdering : AtomicOrdering
   align : Align
@@ -1132,8 +1236,12 @@ impl Hash for StructType
 impl Show for StructType
 
 pub struct SwitchInst {
-  base : ValueBase
-  user_base : UserBase
+  uid : UInt64
+  vty : VoidType
+  condition : &Value
+  defaultDest : BasicBlock
+  cases : Array[(ConstantInt, BasicBlock)]
+  parent : Function
   inst_base : InstBase
 }
 fn SwitchInst::addCase(Self, ConstantInt, BasicBlock) -> Unit raise LLVMValueError
@@ -1250,15 +1358,10 @@ pub enum UnaryInstEnum {
   CastInst(CastInst)
 }
 
-pub struct UserBase {
-  name : String?
-  operands : Array[&Value]
-}
-fn UserBase::new(String, operands~ : Array[&Value] = ..) -> Self
+type UserBase
 impl Eq for UserBase
 
 pub enum UserEnum {
-  AllocaInst(AllocaInst)
   LoadInst(LoadInst)
   ExtractValueInst(ExtractValueInst)
   CastInst(CastInst)
@@ -1275,8 +1378,7 @@ pub enum UserEnum {
   SwitchInst(SwitchInst)
   CallInst(CallInst)
 }
-fn UserEnum::asClass(Self) -> &User
-fn UserEnum::getUserName(Self) -> String?
+fn UserEnum::asUserClass(Self) -> &User
 
 type ValueBase
 impl Eq for ValueBase
@@ -1346,10 +1448,9 @@ pub trait Constant : Value {
   valstr(Self) -> String
 }
 
-pub trait FPType : Type {
+pub trait FPType : PrimitiveType {
   asFPTypeEnum(Self) -> FPTypeEnum
   getFPMantissaWidth(Self) -> UInt
-  getBitWidth(Self) -> UInt
 }
 
 pub trait Floating : Show {
@@ -1369,12 +1470,12 @@ pub trait GlobalValue : Value {
 trait InsertPoint
 impl InsertPoint for &Instruction
 
-pub trait Instruction : User {
+pub trait Instruction : Value {
   getInstBase(Self) -> InstBase
   asInstEnum(Self) -> InstEnum
-  getName(Self) -> String?
   getParent(Self) -> Function
   getBasicBlock(Self) -> BasicBlock?
+  getInstName(Self) -> String?
   isIndependent(Self) -> Bool
   next(Self) -> &Instruction?
   prev(Self) -> &Instruction?
@@ -1392,9 +1493,8 @@ impl IntegerNumber for UInt64
 impl IntegerNumber for @int8.Int8
 impl IntegerNumber for @uint8.UInt8
 
-pub trait IntegerType : Type {
+pub trait IntegerType : PrimitiveType {
   asIntegerTypeEnum(Self) -> IntegerTypeEnum
-  getBitWidth(Self) -> UInt
   getBitMask(Self) -> UInt64
   getSignBit(Self) -> UInt64
   getExtendedType(Self) -> &IntegerType?
@@ -1402,6 +1502,13 @@ pub trait IntegerType : Type {
 
 pub trait Metadata : Show {
   asMetadataEnum(Self) -> MetadataEnum
+}
+
+pub trait NamedValue : Value {
+  getName(Self) -> String?
+  setName(Self, String) -> Unit raise LLVMValueError
+  getNameOrSlot(Self) -> @Either.Either[String, UInt64]?
+  getNameOrSlotStr(Self) -> String
 }
 
 pub trait NumberArray : Show {
@@ -1445,10 +1552,15 @@ pub trait Type : Show + Hash {
   getPrimitiveSizeInBits(Self) -> TypeSize
   getScalarSizeInBits(Self) -> UInt
   getScalarType(Self) -> &Type
+  tryAsFPType(Self) -> &FPType?
   tryAsFPTypeEnum(Self) -> FPTypeEnum?
-  tryAsIntegerTypeEnum(Self) -> IntegerTypeEnum?
+  tryAsIntType(Self) -> &IntegerType?
+  tryAsIntTypeEnum(Self) -> IntegerTypeEnum?
+  tryAsPrimitiveType(Self) -> &PrimitiveType?
   tryAsPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum?
+  tryAsAggregateType(Self) -> &AggregateType?
   tryAsAggregateTypeEnum(Self) -> AggregateTypeEnum?
+  tryAsAbstractType(Self) -> &AbstractType?
   tryAsAbstractTypeEnum(Self) -> AbstractTypeEnum?
 }
 
@@ -1469,11 +1581,9 @@ pub trait UnaryInst : Instruction {
 pub trait User : Value {
   asUserEnum(Self) -> UserEnum
   getUserBase(Self) -> UserBase
-  getUserName(Self) -> String?
   getOperands(Self) -> Array[&Value]
   getOperand(Self, Int) -> &Value?
   getNumOperands(Self) -> Int
-  addOperand(Self, &Value) -> Unit
 }
 
 pub trait Value : Show {
@@ -1481,9 +1591,10 @@ pub trait Value : Show {
   asValueEnum(Self) -> ValueEnum
   getType(Self) -> &Type
   getContext(Self) -> Context
-  getValueName(Self) -> String?
+  addUser(Self, &User) -> Unit
+  getValueRepr(Self) -> String
   replaceAllUsersWith(Self, &Value) -> Unit
-  getUsers(Self) -> Array[&Value]
+  getUsers(Self) -> Array[&User]
   user_empty(Self) -> Bool
   tryAsConstant(Self) -> &Constant?
   tryAsConstantEnum(Self) -> ConstantEnum?

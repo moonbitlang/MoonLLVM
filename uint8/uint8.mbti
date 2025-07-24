@@ -1,4 +1,5 @@
-package "Kaida-Amethyst/Aether/uint8"
+// Generated using `moon info`, DON'T EDIT IT
+package "Kaida-Amethyst/MoonLLVM/uint8"
 
 // Values
 let max_value : UInt8
