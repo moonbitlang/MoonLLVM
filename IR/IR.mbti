@@ -403,7 +403,7 @@ pub struct Context {
   key : UInt
   // private fields
 }
-fn Context::addModule(Self, String) -> Module
+fn Context::addModule(Self, String, source_file~ : String? = ..) -> Module
 fn Context::createBuilder(Self) -> IRBuilder
 fn Context::getArrayType(Self, &Type, UInt) -> ArrayType raise LLVMTypeError
 fn Context::getBFloatTy(Self) -> BFloatType
@@ -748,6 +748,7 @@ impl User for ICmpInst
 impl Value for ICmpInst
 
 pub struct IRBuilder {
+  ctx : Context
   mut bb : BasicBlock?
   mut insertPt : &Instruction?
 }
@@ -1071,12 +1072,14 @@ pub struct Module {
   context : Context
   functions : Map[String, Function]
   srcFileName : String
-  programID : String
+  moduleID : String
   dataLayout : DataLayout
 }
 fn Module::addFunction(Self, FunctionType, String, linkage~ : LinkageTypes = .., addressSpace~ : AddressSpace = ..) -> Function raise LLVMValueError
+fn Module::dump(Self) -> Unit
 fn Module::getContext(Self) -> Context
-fn Module::new(String, Context) -> Self
+fn Module::new(String, String, Context) -> Self
+impl Show for Module
 
 type NumberArrayEnum
 impl Eq for NumberArrayEnum
