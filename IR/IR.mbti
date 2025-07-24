@@ -1484,6 +1484,10 @@ pub trait Instruction : Value {
   prev(Self) -> &Instruction?
   insertAfter(Self, &Instruction) -> Unit raise LLVMValueError
   insertBefore(Self, &Instruction) -> Unit raise LLVMValueError
+  moveBefore(Self, &Instruction) -> Unit raise LLVMValueError
+  moveAfter(Self, &Instruction) -> Unit raise LLVMValueError
+  removeFromParent(Self) -> Unit raise LLVMValueError
+  eraseFromParent(Self) -> Unit raise LLVMValueError
 }
 
 trait IntegerNumber : Show
