@@ -1,5 +1,4 @@
-
-test "load instruction users" {
+test "Load Instruction users" {
   let ctx = Context::new()
   let mod = ctx.addModule("demo")
   let builder = ctx.createBuilder()
@@ -28,7 +27,7 @@ test "load instruction users" {
   inspect(inst_users[0], content = "  ret i32 %load_inst")
 }
 
-test "store instruction users" {
+test "Store Instruction users" {
   let ctx = Context::new()
   let mod = ctx.addModule("demo")
   let builder = ctx.createBuilder()
@@ -60,3 +59,15 @@ test "store instruction users" {
   assert_eq(value_users.length(), 1)
   inspect(value_users[0], content = "  store i32 %value, ptr %arg0, align 4")
 } 
+
+test "Binary Instruction Users" {
+
+}
+
+test "ICmp Instruction Users" {
+
+}
+
+test "ICmp Instruction Users" {
+
+}
