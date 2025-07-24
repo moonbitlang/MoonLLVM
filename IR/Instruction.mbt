@@ -112,6 +112,8 @@ pub struct AllocaInst {
 
   mut name: String?
 
+  parent: Function
+
   inst_base : InstBase
   data_ty : &Type
   align : Align
@@ -126,9 +128,9 @@ fn AllocaInst::new(
 ) -> AllocaInst {
   let uid = valueUIDAssigner.assign()
   let vty = data_ty.getContext().getPtrTy(addressSpace~)
-  let inst_base = InstBase::new(parent)
+  let inst_base = InstBase::new()
   let align = parent.getDataLayout().getAlignment(data_ty)
-  AllocaInst::{ uid, vty, users:[], name, inst_base, data_ty, align }
+  AllocaInst::{ uid, vty, users:[], name, parent, inst_base, data_ty, align }
 }
 
 ///|
@@ -178,6 +180,10 @@ pub impl Instruction for AllocaInst with getInstBase(self) {
 ///|
 pub impl Instruction for AllocaInst with asInstEnum(self) {
   AllocaInst(self)
+}
+
+pub impl Instruction for AllocaInst with getParent(self) {
+  self.parent
 }
 
 ///|
@@ -241,6 +247,7 @@ pub(all) struct LoadInst {
   // Pointer which this instruction loads from.
   ptr: &Value
 
+  parent: Function
   inst_base : InstBase
 
   // --- LoadInst ---
@@ -268,7 +275,7 @@ fn LoadInst::new(
     raise LoadInstCannotBeVolatileAndAtomic
   }
   let vty = load_ty
-  let inst_base = InstBase::new(parent)
+  let inst_base = InstBase::new()
   let align = parent.getDataLayout().getAlignment(load_ty)
   let uid = valueUIDAssigner.assign()
   let inst = LoadInst::{
@@ -277,6 +284,7 @@ fn LoadInst::new(
     name,
     users: [],
     ptr,
+    parent,
     inst_base,
     isVolatile,
     atomicOrdering,
@@ -349,6 +357,10 @@ pub impl Instruction for LoadInst with asInstEnum(self) {
   LoadInst(self)
 }
 
+pub impl Instruction for LoadInst with getParent(self) {
+  self.parent
+}
+
 ///|
 pub impl UnaryInst for LoadInst with asUnaryInstEnum(self) {
   LoadInst(self)
@@ -390,6 +402,8 @@ pub struct StoreInst {
   value: &Value
   ptr: &Value
 
+  parent: Function
+
   inst_base : InstBase
 
   // --- StoreInst ---
@@ -418,13 +432,14 @@ fn StoreInst::new(
   let ctx = value.getContext()
   let uid = valueUIDAssigner.assign()
   let value_ty = value.getType()
-  let inst_base = InstBase::new(parent)
+  let inst_base = InstBase::new()
   let align = parent.getDataLayout().getAlignment(value_ty)
   let inst = StoreInst::{
     uid,
     vty: ctx.getVoidTy(),
     value,
     ptr,
+    parent,
     inst_base,
     isVolatile,
     atomicOrdering,
@@ -486,6 +501,10 @@ pub impl Instruction for StoreInst with asInstEnum(self) {
   StoreInst(self)
 }
 
+pub impl Instruction for StoreInst with getParent(self) {
+  self.parent
+}
+
 ///|
 pub impl Show for StoreInst with output(self, logger) {
   let align = self.align
@@ -530,6 +549,7 @@ pub struct BinaryInst {
   lhs: &Value
   rhs: &Value
 
+  parent: Function
   inst_base : InstBase
 
   // --- BinaryInst ---
@@ -573,13 +593,14 @@ fn BinaryInst::newStandardOp(
   let vty = lhsTy
   let uid = valueUIDAssigner.assign()
 
-  let inst_base = InstBase::new(parent)
+  let inst_base = InstBase::new()
   let inst = BinaryInst::{
     uid,
     vty,
     lhs,
     rhs,
     name,
+    parent,
     users: [],
     inst_base,
     opcode,
@@ -612,13 +633,14 @@ fn BinaryInst::newFPMathOp(
   }
   let uid = valueUIDAssigner.assign()
   let vty = lhsTy
-  let inst_base = InstBase::new(parent)
+  let inst_base = InstBase::new()
   let inst = BinaryInst::{
     uid,
     vty,
     lhs,
     rhs,
     name,
+    parent,
     users: [],
     inst_base,
     opcode,
@@ -693,6 +715,10 @@ pub impl Instruction for BinaryInst with getInstBase(self) {
 ///|
 pub impl Instruction for BinaryInst with asInstEnum(self) {
   BinaryInst(self)
+}
+
+pub impl Instruction for BinaryInst with getParent(self) {
+  self.parent
 }
 
 ///|
@@ -770,6 +796,7 @@ pub struct ICmpInst {
   lhs: &Value
   rhs: &Value
   mut name: String?
+  parent: Function
   users: Array[&User]
   inst_base : InstBase
   predicate : IntPredicate
@@ -789,16 +816,16 @@ fn ICmpInst::new(
     raise TypeMismatchForICmpInst(lhsTy)
   }
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new(parent)
+  let inst_base = InstBase::new()
   let vty = parent.getContext().getInt1Ty()
-  let inst = ICmpInst::{ uid, vty, lhs, rhs, name, users: [], inst_base, predicate }
+  let inst = ICmpInst::{ uid, vty, lhs, rhs, name, parent, users: [], inst_base, predicate }
   lhs.addUser(inst)
   rhs.addUser(inst)
   inst
 }
 
 ///|
-impl Value for ICmpInst with getValueBase(self) {
+pub impl Value for ICmpInst with getValueBase(self) {
   ValueBase::{
     uid: self.uid,
     vty: self.getParent().getContext().getInt1Ty(),
@@ -807,11 +834,11 @@ impl Value for ICmpInst with getValueBase(self) {
 }
 
 ///|
-impl Value for ICmpInst with asValueEnum(self) {
+pub impl Value for ICmpInst with asValueEnum(self) {
   ICmpInst(self)
 }
 
-impl Value for ICmpInst with getValueRepr(self) {
+pub impl Value for ICmpInst with getValueRepr(self) {
   match self.getNameOrSlot() {
     Some(Left(name)) => "%\{name}"
     Some(Right(slot)) => "%\{slot}"
@@ -819,18 +846,18 @@ impl Value for ICmpInst with getValueRepr(self) {
   }
 }
 
-impl NamedValue for ICmpInst with getName(self) {
+pub impl NamedValue for ICmpInst with getName(self) {
   self.name
 }
 
-impl NamedValue for ICmpInst with setName(self, name) {
+pub impl NamedValue for ICmpInst with setName(self, name) {
   let symbols = self.getParent().symbols
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
   self.name = Some(name)
   symbols.set(name, self)
 }
 
-impl NamedValue for ICmpInst with getNameOrSlot(self) {
+pub impl NamedValue for ICmpInst with getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
     None => match self.getParent().getSlot(self) {
@@ -840,27 +867,30 @@ impl NamedValue for ICmpInst with getNameOrSlot(self) {
   }
 }
 
-
 ///|
-impl User for ICmpInst with asUserEnum(self) {
+pub impl User for ICmpInst with asUserEnum(self) {
   ICmpInst(self)
 }
 
 ///|
-impl User for ICmpInst with getUserBase(self) {
+pub impl User for ICmpInst with getUserBase(self) {
   UserBase::{
     operands: [self.lhs, self.rhs],
   }
 }
 
 ///|
-impl Instruction for ICmpInst with getInstBase(self) {
+pub impl Instruction for ICmpInst with getInstBase(self) {
   self.inst_base
 }
 
 ///|
-impl Instruction for ICmpInst with asInstEnum(self) {
+pub impl Instruction for ICmpInst with asInstEnum(self) {
   InstEnum::ICmpInst(self)
+}
+
+pub impl Instruction for ICmpInst with getParent(self) {
+  self.parent
 }
 
 ///|
@@ -944,6 +974,7 @@ pub struct FCmpInst {
   lhs: &Value
   rhs: &Value
   mut name: String?
+  parent: Function
   users: Array[&User]
   inst_base : InstBase
   predicate : FloatPredicate
@@ -963,16 +994,16 @@ fn FCmpInst::new(
     raise TypeMismatchForFCmpInst(lhsTy)
   }
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new(parent)
+  let inst_base = InstBase::new()
   let vty = parent.getContext().getInt1Ty()
-  let inst = FCmpInst::{ uid, vty, lhs, rhs, name, users:[], inst_base, predicate }
+  let inst = FCmpInst::{ uid, vty, lhs, rhs, name, parent, users:[], inst_base, predicate }
   lhs.addUser(inst)
   rhs.addUser(inst)
   inst
 }
 
 ///|
-impl Value for FCmpInst with getValueBase(self) {
+pub impl Value for FCmpInst with getValueBase(self) {
   ValueBase::{
     uid: self.uid,
     vty: self.vty,
@@ -980,7 +1011,7 @@ impl Value for FCmpInst with getValueBase(self) {
   }
 }
 
-impl Value for FCmpInst with getValueRepr(self) {
+pub impl Value for FCmpInst with getValueRepr(self) {
   match self.getNameOrSlot() {
     Some(Left(name)) => "%\{name}"
     Some(Right(slot)) => "%\{slot}"
@@ -989,22 +1020,22 @@ impl Value for FCmpInst with getValueRepr(self) {
 }
 
 ///|
-impl Value for FCmpInst with asValueEnum(self) {
+pub impl Value for FCmpInst with asValueEnum(self) {
   FCmpInst(self)
 }
 
-impl NamedValue for FCmpInst with getName(self) {
+pub impl NamedValue for FCmpInst with getName(self) {
   self.name
 }
 
-impl NamedValue for FCmpInst with setName(self, name) {
+pub impl NamedValue for FCmpInst with setName(self, name) {
   let symbols = self.getParent().symbols
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
   self.name = Some(name)
   symbols.set(name, self)
 }
 
-impl NamedValue for FCmpInst with getNameOrSlot(self) {
+pub impl NamedValue for FCmpInst with getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
     None => match self.getParent().getSlot(self) {
@@ -1015,29 +1046,33 @@ impl NamedValue for FCmpInst with getNameOrSlot(self) {
 }
 
 ///|
-impl User for FCmpInst with asUserEnum(self) {
+pub impl User for FCmpInst with asUserEnum(self) {
   FCmpInst(self)
 }
 
 ///|
-impl User for FCmpInst with getUserBase(self) {
+pub impl User for FCmpInst with getUserBase(self) {
   UserBase::{
     operands: [self.lhs, self.rhs],
   }
 }
 
 ///|
-impl Instruction for FCmpInst with getInstBase(self) {
+pub impl Instruction for FCmpInst with getInstBase(self) {
   self.inst_base
 }
 
 ///|
-impl Instruction for FCmpInst with asInstEnum(self) {
+pub impl Instruction for FCmpInst with asInstEnum(self) {
   FCmpInst(self)
 }
 
+pub impl Instruction for FCmpInst with getParent(self) {
+  self.parent
+}
+
 ///|
-impl Show for FCmpInst with output(self, logger) {
+pub impl Show for FCmpInst with output(self, logger) {
   let lhs_ty = self.lhs.getType()
   let repr = self.getValueRepr()
   let lhs_repr = self.lhs.getValueRepr()
@@ -1094,6 +1129,7 @@ pub struct CastInst {
   to_ty: &Type
   from_val: &Value
   mut name: String?
+  parent: Function
   users: Array[&User]
   inst_base : InstBase
   opcode : CastOps
@@ -1113,8 +1149,8 @@ fn CastInst::newTrunc(
     raise TruncCastInstTypeMismatch(from_ty.asTypeClass(), to_ty)
   }
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new(parent)
-  let inst = CastInst::{ uid, to_ty, from_val, name, users: [], inst_base, opcode: Trunc }
+  let inst_base = InstBase::new()
+  let inst = CastInst::{ uid, to_ty, from_val, name, parent, users: [], inst_base, opcode: Trunc }
   from_val.addUser(inst)
   inst
 }
@@ -1133,8 +1169,8 @@ fn CastInst::newZExt(
     raise ZExtCastInstTypeMismatch(from_ty.asTypeClass(), to_ty)
   }
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new(parent)
-  let inst = CastInst::{ uid, to_ty, from_val, name, users: [], inst_base, opcode: ZExt }
+  let inst_base = InstBase::new()
+  let inst = CastInst::{ uid, to_ty, from_val, name, parent, users: [], inst_base, opcode: ZExt }
   from_val.addUser(inst)
   inst
 }
@@ -1153,8 +1189,8 @@ fn CastInst::newSExt(
     raise SExtCastInstTypeMismatch(from_ty.asTypeClass(), to_ty)
   }
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new(parent)
-  let inst = CastInst::{ uid, to_ty, from_val, name, users: [], inst_base, opcode: SExt }
+  let inst_base = InstBase::new()
+  let inst = CastInst::{ uid, to_ty, from_val, name, parent, users: [], inst_base, opcode: SExt }
   from_val.addUser(inst)
   inst
 }
@@ -1173,8 +1209,8 @@ fn CastInst::newFPTrunc(
     raise FPTruncCastInstTypeMismatch(from_ty.asTypeClass(), to_ty)
   }
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new(parent)
-  let inst = CastInst::{ uid, to_ty, from_val, name, users: [], inst_base, opcode: FPTrunc }
+  let inst_base = InstBase::new()
+  let inst = CastInst::{ uid, to_ty, from_val, name, parent, users: [], inst_base, opcode: FPTrunc }
   from_val.addUser(inst)
   inst
 }
@@ -1193,8 +1229,8 @@ fn CastInst::newFPExt(
     raise FPExtCastInstTypeMismatch(from_ty.asTypeClass(), to_ty)
   }
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new(parent)
-  let inst = CastInst::{ uid, to_ty, from_val, name, users: [], inst_base, opcode: FPExt }
+  let inst_base = InstBase::new()
+  let inst = CastInst::{ uid, to_ty, from_val, name, parent, users: [], inst_base, opcode: FPExt }
   from_val.addUser(inst)
   inst
 }
@@ -1210,8 +1246,8 @@ fn CastInst::newUIToFP(
     raise UIToFPInstTypeMismatch(from_val.getType(), to_ty)
   }
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new(parent)
-  let inst = CastInst::{ uid, to_ty, from_val, name, users: [], inst_base, opcode: UIToFP }
+  let inst_base = InstBase::new()
+  let inst = CastInst::{ uid, to_ty, from_val, name, parent, users: [], inst_base, opcode: UIToFP }
   from_val.addUser(inst)
   inst
 }
@@ -1227,8 +1263,8 @@ fn CastInst::newFPToUI(
     raise FPToUIInstTypeMismatch(from_val.getType(), to_ty)
   }
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new(parent)
-  let inst = CastInst::{ uid, to_ty, from_val, name, users: [], inst_base, opcode: FPToUI }
+  let inst_base = InstBase::new()
+  let inst = CastInst::{ uid, to_ty, from_val, name, parent, users: [], inst_base, opcode: FPToUI }
   from_val.addUser(inst)
   inst
 }
@@ -1244,8 +1280,8 @@ fn CastInst::newSIToFP(
     raise SIToFPInstTypeMismatch(from_val.getType(), to_ty)
   }
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new(parent)
-  let inst = CastInst::{ uid, to_ty, from_val, name, users: [], inst_base, opcode: SIToFP }
+  let inst_base = InstBase::new()
+  let inst = CastInst::{ uid, to_ty, from_val, name, parent, users: [], inst_base, opcode: SIToFP }
   from_val.addUser(inst)
   inst
 }
@@ -1261,8 +1297,8 @@ fn CastInst::newFPToSI(
     raise FPToSIInstTypeMismatch(from_val.getType(), to_ty)
   }
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new(parent)
-  let inst = CastInst::{ uid, to_ty, from_val, name, users: [], inst_base, opcode: FPToSI }
+  let inst_base = InstBase::new()
+  let inst = CastInst::{ uid, to_ty, from_val, name, parent,  users: [], inst_base, opcode: FPToSI }
   from_val.addUser(inst)
   inst
 }
@@ -1278,8 +1314,8 @@ fn CastInst::newPtrToInt(
     raise PtrToIntCastInstTypeMismatch(from_val.getType())
   }
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new(parent)
-  let inst = CastInst::{ uid, to_ty, from_val, name, users: [], inst_base, opcode: PtrToInt }
+  let inst_base = InstBase::new()
+  let inst = CastInst::{ uid, to_ty, from_val, name, parent, users: [], inst_base, opcode: PtrToInt }
   from_val.addUser(inst)
   inst
 }
@@ -1295,8 +1331,8 @@ fn CastInst::newIntToPtr(
   }
   let to_ty = from_val.getContext().getPtrTy()
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new(parent)
-  let inst = CastInst::{ uid, to_ty, from_val, name, users: [], inst_base, opcode: IntToPtr }
+  let inst_base = InstBase::new()
+  let inst = CastInst::{ uid, to_ty, from_val, name, parent, users: [], inst_base, opcode: IntToPtr }
   from_val.addUser(inst)
   inst
 }
@@ -1319,8 +1355,8 @@ fn CastInst::newBitCast(
     raise BitCastInstTypeMismatch(src_ty, to_ty)
   }
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new(parent)
-  let inst = CastInst::{ uid, to_ty, from_val, name, users: [], inst_base, opcode: BitCast }
+  let inst_base = InstBase::new()
+  let inst = CastInst::{ uid, to_ty, from_val, name, parent, users: [], inst_base, opcode: BitCast }
   from_val.addUser(inst)
   inst
 }
@@ -1395,6 +1431,10 @@ pub impl Instruction for CastInst with asInstEnum(self) {
   CastInst(self)
 }
 
+pub impl Instruction for CastInst with getParent(self) {
+  self.parent
+}
+
 ///|
 pub impl Show for CastInst with output(self, logger) {
   let repr = self.getValueRepr()
@@ -1419,6 +1459,7 @@ pub struct GetElementPtrInst {
   ptr: &Value
   indices: Array[&Value]
   mut name: String?
+  parent: Function
   inst_base : InstBase
   isInbounds : Bool
   pointeeType : &Type
@@ -1445,7 +1486,7 @@ fn GetElementPtrInst::new(
     }
   }
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new(parent)
+  let inst_base = InstBase::new()
   let vty = parent.getContext().getPtrTy()
   let inst = GetElementPtrInst::{
     uid,
@@ -1454,6 +1495,7 @@ fn GetElementPtrInst::new(
     ptr,
     indices,
     name,
+    parent,
     inst_base,
     isInbounds,
     pointeeType,
@@ -1464,7 +1506,7 @@ fn GetElementPtrInst::new(
 }
 
 ///|
-impl Value for GetElementPtrInst with getValueBase(self) {
+pub impl Value for GetElementPtrInst with getValueBase(self) {
   ValueBase::{
     uid: self.uid,
     vty: self.vty,
@@ -1472,7 +1514,7 @@ impl Value for GetElementPtrInst with getValueBase(self) {
   }
 }
 
-impl Value for GetElementPtrInst with getValueRepr(self) {
+pub impl Value for GetElementPtrInst with getValueRepr(self) {
   match self.getNameOrSlot() {
     Some(Left(name)) => "%\{name}"
     Some(Right(slot)) => "%\{slot}"
@@ -1481,22 +1523,22 @@ impl Value for GetElementPtrInst with getValueRepr(self) {
 }
 
 ///|
-impl Value for GetElementPtrInst with asValueEnum(self) {
+pub impl Value for GetElementPtrInst with asValueEnum(self) {
   GetElementPtrInst(self)
 }
 
-impl NamedValue for GetElementPtrInst with getName(self) {
+pub impl NamedValue for GetElementPtrInst with getName(self) {
   self.name
 }
 
-impl NamedValue for GetElementPtrInst with setName(self, name) {
+pub impl NamedValue for GetElementPtrInst with setName(self, name) {
   let symbols = self.getParent().symbols
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
   self.name = Some(name)
   symbols.set(name, self)
 }
 
-impl NamedValue for GetElementPtrInst with getNameOrSlot(self) {
+pub impl NamedValue for GetElementPtrInst with getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
     None => match self.getParent().getSlot(self) {
@@ -1507,29 +1549,33 @@ impl NamedValue for GetElementPtrInst with getNameOrSlot(self) {
 }
 
 ///|
-impl User for GetElementPtrInst with asUserEnum(self) {
+pub impl User for GetElementPtrInst with asUserEnum(self) {
   GetElementPtrInst(self)
 }
 
 ///|
-impl User for GetElementPtrInst with getUserBase(self) {
+pub impl User for GetElementPtrInst with getUserBase(self) {
   UserBase::{
     operands: [self.ptr] + self.indices,
   }
 }
 
 ///|
-impl Instruction for GetElementPtrInst with getInstBase(self) {
+pub impl Instruction for GetElementPtrInst with getInstBase(self) {
   self.inst_base
 }
 
 ///|
-impl Instruction for GetElementPtrInst with asInstEnum(self) {
+pub impl Instruction for GetElementPtrInst with asInstEnum(self) {
   InstEnum::GetElementPtrInst(self)
 }
 
+pub impl Instruction for GetElementPtrInst with getParent(self) {
+  self.parent
+}
+
 ///|
-impl Show for GetElementPtrInst with output(self, logger) {
+pub impl Show for GetElementPtrInst with output(self, logger) {
   let repr = self.getValueRepr()
   let ptr_repr = self.ptr.getValueRepr()
   let indices_reprs = Array::new()
@@ -1560,6 +1606,7 @@ pub struct SelectInst {
   trueValue: &Value
   falseValue: &Value
   mut name: String?
+  parent: Function
   inst_base : InstBase
 }
 
@@ -1579,8 +1626,8 @@ fn SelectInst::new(
     raise SelectInstTypeMismatch(vty, falseValue.getType())
   }
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new(parent)
-  let inst = SelectInst::{ uid, vty, condition, trueValue, falseValue, name, users:[], inst_base }
+  let inst_base = InstBase::new()
+  let inst = SelectInst::{ uid, vty, condition, trueValue, falseValue, name, parent, users:[], inst_base }
   condition.addUser(inst)
   trueValue.addUser(inst)
   falseValue.addUser(inst)
@@ -1667,6 +1714,10 @@ pub impl Instruction for SelectInst with asInstEnum(self) {
   InstEnum::SelectInst(self)
 }
 
+pub impl Instruction for SelectInst with getParent(self) {
+  self.parent
+}
+
 ///|
 pub impl Show for SelectInst with output(self, logger) {
   let repr = self.getValueRepr()
@@ -1692,6 +1743,7 @@ pub struct ReturnInst {
   uid: UInt64
   vty: VoidType
   retVal: &Value?
+  parent: Function
   inst_base : InstBase
 }
 
@@ -1708,9 +1760,9 @@ fn ReturnInst::new(
     raise TypeMismatchForReturnInst(vty, parent.getReturnType())
   }
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new(parent)
+  let inst_base = InstBase::new()
   let vty = parent.getContext().getVoidTy()
-  let inst = ReturnInst::{ uid, vty, retVal, inst_base }
+  let inst = ReturnInst::{ uid, vty, retVal, parent, inst_base }
   if retVal is Some(val) {
     val.addUser(inst)
   }
@@ -1762,6 +1814,10 @@ pub impl Instruction for ReturnInst with asInstEnum(self) {
   ReturnInst(self)
 }
 
+pub impl Instruction for ReturnInst with getParent(self) {
+  self.parent
+}
+
 ///|
 pub impl Show for ReturnInst with output(self, logger) {
   let retStr = match self.retVal {
@@ -1788,6 +1844,8 @@ pub struct BranchInst {
   trueBlock: BasicBlock?
   falseBlock: BasicBlock?
 
+  parent: Function
+
   inst_base : InstBase
 }
 
@@ -1805,7 +1863,7 @@ fn BranchInst::newConditional(
     raise BranchInstConditionNotBoolean(condition.getType())
   }
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new(parent)
+  let inst_base = InstBase::new()
   let vty = parent.getContext().getVoidTy()
   let inst = BranchInst::{
     uid,
@@ -1813,6 +1871,7 @@ fn BranchInst::newConditional(
     condition: Some(condition),
     trueBlock: Some(trueBlock),
     falseBlock: Some(falseBlock),
+    parent,
     inst_base
   }
   condition.addUser(inst)
@@ -1826,7 +1885,7 @@ fn BranchInst::newUnconditional(
   targetBlock : BasicBlock,
   parent : Function
 ) -> BranchInst {
-  let inst_base = InstBase::new(parent)
+  let inst_base = InstBase::new()
   let uid = valueUIDAssigner.assign()
   let vty = parent.getContext().getVoidTy()
   let inst = BranchInst::{
@@ -1835,6 +1894,7 @@ fn BranchInst::newUnconditional(
     condition: None,
     trueBlock: Some(targetBlock),
     falseBlock: None,
+    parent,
     inst_base
   }
   targetBlock.addUser(inst)
@@ -1933,6 +1993,10 @@ pub impl Instruction for BranchInst with asInstEnum(self) {
   InstEnum::BranchInst(self)
 }
 
+pub impl Instruction for BranchInst with getParent(self) {
+  self.parent
+}
+
 ///|
 pub impl Show for BranchInst with output(self, logger) {
   if self.isConditional() {
@@ -1959,6 +2023,7 @@ pub struct SwitchInst {
   condition: &Value
   defaultDest: BasicBlock
   cases: Array[(ConstantInt, BasicBlock)]
+  parent: Function
   inst_base : InstBase
 }
 
@@ -1972,9 +2037,9 @@ fn SwitchInst::new(
     raise SwitchInstConditionNotInteger(cond.getType())
   }
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new(parent)
+  let inst_base = InstBase::new()
   let vty = parent.getContext().getVoidTy()
-  let inst = SwitchInst::{ uid, vty, condition:cond, defaultDest, cases: [], inst_base }
+  let inst = SwitchInst::{ uid, vty, condition:cond, defaultDest, cases: [], parent, inst_base }
   cond.addUser(inst)
   defaultDest.addUser(inst)
   inst
@@ -2071,6 +2136,10 @@ pub impl Instruction for SwitchInst with asInstEnum(self) {
   InstEnum::SwitchInst(self)
 }
 
+pub impl Instruction for SwitchInst with getParent(self) {
+  self.parent
+}
+
 ///|
 pub impl Show for SwitchInst with output(self, logger) {
   let condition = self.getCondition()
@@ -2116,14 +2185,16 @@ pub struct PHINode {
   mut name: String?
 
   incomings: Array[(&Value, BasicBlock)]
+
+  parent: Function
   inst_base : InstBase
 }
 
 ///|
 fn PHINode::new(vty : &Type, parent : Function, name~ : String? = None) -> PHINode {
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new(parent)
-  PHINode::{ uid, vty, users: [], name, incomings: [], inst_base }
+  let inst_base = InstBase::new()
+  PHINode::{ uid, vty, users: [], name, incomings: [], parent, inst_base }
 }
 
 ///|
@@ -2253,6 +2324,10 @@ pub impl Instruction for PHINode with asInstEnum(self) {
   InstEnum::PHINode(self)
 }
 
+pub impl Instruction for PHINode with getParent(self) {
+  self.parent
+}
+
 ///|
 pub impl Show for PHINode with output(self, logger) {
   let repr = self.getValueRepr()
@@ -2302,6 +2377,7 @@ pub struct CallInst {
 
   callee : Function
   args: Array[&Value]
+  parent : Function
   inst_base : InstBase
   mut tailCallKind : TailCallKind
 }
@@ -2338,7 +2414,7 @@ fn CallInst::new(
   }
   let uid = valueUIDAssigner.assign()
   let vty = fty.getReturnType()
-  let inst_base = InstBase::new(parent)
+  let inst_base = InstBase::new()
   let inst = CallInst::{
     uid,
     vty,
@@ -2346,6 +2422,7 @@ fn CallInst::new(
     name,
     callee,
     args,
+    parent,
     inst_base,
     tailCallKind: NoTail,
   }
@@ -2470,6 +2547,10 @@ pub impl Instruction for CallInst with asInstEnum(self) {
   InstEnum::CallInst(self)
 }
 
+pub impl Instruction for CallInst with getParent(self) {
+  self.parent
+}
+
 ///|
 pub impl Show for CallInst with output(self, logger) {
   // 获取被调用函数的信息
@@ -2541,6 +2622,7 @@ pub struct ExtractValueInst {
   users: Array[&User]
   mut name: String?
   aggregate : &Value
+  parent : Function
   inst_base : InstBase
   indices : Array[Int]
 }
@@ -2567,8 +2649,8 @@ fn ExtractValueInst::new(
   //let base = ValueBase::new(result_ty)
   let uid = valueUIDAssigner.assign()
   let vty = result_ty
-  let inst_base = InstBase::new(parent)
-  let inst = ExtractValueInst::{ uid, vty, users:[], name, aggregate, inst_base, indices }
+  let inst_base = InstBase::new()
+  let inst = ExtractValueInst::{ uid, vty, users:[], name, aggregate, parent, inst_base, indices }
   aggregate.addUser(inst)
   inst
 }
@@ -2648,6 +2730,10 @@ pub impl Instruction for ExtractValueInst with asInstEnum(self) {
   InstEnum::ExtractValueInst(self)
 }
 
+pub impl Instruction for ExtractValueInst with getParent(self) {
+  self.parent
+}
+
 ///|
 pub impl UnaryInst for ExtractValueInst with asUnaryInstEnum(self) {
   UnaryInstEnum::ExtractValueInst(self)
@@ -2677,6 +2763,7 @@ pub struct InsertValueInst {
   aggregate : &Value
   insert_val : &Value
   mut name: String?
+  parent : Function
   inst_base : InstBase
   indices : Array[Int]
 }
@@ -2702,8 +2789,8 @@ fn InsertValueInst::new(
   }
   let uid = valueUIDAssigner.assign()
   let vty = agg_ty.asTypeClass()
-  let inst_base = InstBase::new(parent)
-  let inst = InsertValueInst::{ uid, vty, users:[], aggregate, insert_val, name, inst_base, indices }
+  let inst_base = InstBase::new()
+  let inst = InsertValueInst::{ uid, vty, users:[], aggregate, insert_val, name, parent, inst_base, indices }
   aggregate.addUser(inst)
   insert_val.addUser(inst)
   inst
@@ -2789,6 +2876,10 @@ pub impl Instruction for InsertValueInst with getInstBase(self) {
 ///|
 pub impl Instruction for InsertValueInst with asInstEnum(self) {
   InstEnum::InsertValueInst(self)
+}
+
+pub impl Instruction for InsertValueInst with getParent(self) {
+  self.parent
 }
 
 ///|

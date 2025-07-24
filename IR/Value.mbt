@@ -456,7 +456,6 @@ pub fn UserEnum::asUserClass(self : Self) -> &User {
 
 ///|
 pub struct InstBase {
-  parent : Function
   priv mut bb : BasicBlock?
   priv mut next : &Instruction?
   priv mut prev : &Instruction?
@@ -464,19 +463,18 @@ pub struct InstBase {
 
 ///|
 pub fn InstBase::new(
-  parent : Function,
   bb~ : BasicBlock? = None,
   next~ : &Instruction? = None,
   prev~ : &Instruction? = None
 ) -> InstBase {
-  InstBase::{ parent, bb, next, prev }
+  InstBase::{ bb, next, prev }
 }
 
 ///|
 pub trait Instruction: Value {
   getInstBase(Self) -> InstBase
   asInstEnum(Self) -> InstEnum
-  getParent(Self) -> Function = _
+  getParent(Self) -> Function
   getBasicBlock(Self) -> BasicBlock? = _
   getInstName(Self) -> String? = _
   isIndependent(Self) -> Bool = _
@@ -484,12 +482,6 @@ pub trait Instruction: Value {
   prev(Self) -> &Instruction? = _
   insertAfter(Self, &Instruction) -> Unit raise LLVMValueError = _
   insertBefore(Self, &Instruction) -> Unit raise LLVMValueError = _
-}
-
-
-///|
-impl Instruction with getParent(self) {
-  self.getInstBase().parent
 }
 
 ///|
