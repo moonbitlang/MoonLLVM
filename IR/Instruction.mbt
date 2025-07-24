@@ -128,14 +128,11 @@ pub impl Show for FastMathFlag with output(self, logger) {
 /// inspect(inst, content = "  %var1 = alloca i32, align 4")
 /// ```
 pub struct AllocaInst {
-  uid: UInt64
-  vty: &Type
-  users: Array[&User]
-
-  mut name: String?
-
-  parent: Function
-
+  uid : UInt64
+  vty : &Type
+  users : Array[&User]
+  mut name : String?
+  parent : Function
   inst_base : InstBase
   data_ty : &Type
   align : Align
@@ -146,13 +143,13 @@ fn AllocaInst::new(
   data_ty : &Type,
   parent : Function,
   addressSpace~ : AddressSpace,
-  name~ : String? = None
+  name~ : String? = None,
 ) -> AllocaInst {
   let uid = valueUIDAssigner.assign()
   let vty = data_ty.getContext().getPtrTy(addressSpace~)
   let inst_base = InstBase::new()
   let align = parent.getDataLayout().getAlignment(data_ty)
-  AllocaInst::{ uid, vty, users:[], name, parent, inst_base, data_ty, align }
+  AllocaInst::{ uid, vty, users: [], name, parent, inst_base, data_ty, align }
 }
 
 ///|
@@ -160,6 +157,7 @@ pub impl Value for AllocaInst with getValueBase(self) {
   ValueBase::{ uid: self.uid, vty: self.vty, users: self.users }
 }
 
+///|
 pub impl Value for AllocaInst with getValueRepr(self) {
   match self.getNameOrSlot() {
     Some(Left(name)) => "%\{name}"
@@ -173,10 +171,12 @@ pub impl Value for AllocaInst with asValueEnum(self) {
   AllocaInst(self)
 }
 
+///|
 pub impl NamedValue for AllocaInst with getName(self) {
   self.name
 }
 
+///|
 pub impl NamedValue for AllocaInst with setName(self, name) {
   let symbols = self.getParent().symbols
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
@@ -184,13 +184,15 @@ pub impl NamedValue for AllocaInst with setName(self, name) {
   symbols.set(name, self)
 }
 
+///|
 pub impl NamedValue for AllocaInst with getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
-    None => match self.getParent().getSlot(self) {
-      Some(slot) => Some(Right(slot))
-      None => None
-    }
+    None =>
+      match self.getParent().getSlot(self) {
+        Some(slot) => Some(Right(slot))
+        None => None
+      }
   }
 }
 
@@ -204,6 +206,7 @@ pub impl Instruction for AllocaInst with asInstEnum(self) {
   AllocaInst(self)
 }
 
+///|
 pub impl Instruction for AllocaInst with getParent(self) {
   self.parent
 }
@@ -279,23 +282,22 @@ pub(all) struct LoadInst {
   // --- ValueBase ---
 
   // Unique identifier
-  uid: UInt64
+  uid : UInt64
 
   // Type of the value
-  vty: &Type
+  vty : &Type
 
   // Users of this value
-  users: Array[&User]
+  users : Array[&User]
 
   // Name of the value
-  mut name: String?
+  mut name : String?
 
   // --- UserBase ---
 
   // Pointer which this instruction loads from.
-  ptr: &Value
-
-  parent: Function
+  ptr : &Value
+  parent : Function
   inst_base : InstBase
 
   // --- LoadInst ---
@@ -311,7 +313,7 @@ fn LoadInst::new(
   isVolatile : Bool,
   atomicOrdering : AtomicOrdering,
   parent : Function,
-  name~ : String? = None
+  name~ : String? = None,
 ) -> LoadInst raise LLVMValueError {
   guard ptr.getType().asTypeEnum() is PointerType(_) else {
     raise LoadInstShouldLoadFromAPointer(ptr.getType())
@@ -349,13 +351,10 @@ pub impl Value for LoadInst with asValueEnum(self) {
 
 ///|
 pub impl Value for LoadInst with getValueBase(self) {
-  ValueBase::{
-    uid: self.uid,
-    vty: self.vty,
-    users: self.users,
-  }
+  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users }
 }
 
+///|
 pub impl Value for LoadInst with getValueRepr(self) {
   match self.getNameOrSlot() {
     Some(Left(name)) => "%\{name}"
@@ -364,10 +363,12 @@ pub impl Value for LoadInst with getValueRepr(self) {
   }
 }
 
+///|
 pub impl NamedValue for LoadInst with getName(self) {
   self.name
 }
 
+///|
 pub impl NamedValue for LoadInst with setName(self, name) {
   let symbols = self.getParent().symbols
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
@@ -375,13 +376,15 @@ pub impl NamedValue for LoadInst with setName(self, name) {
   symbols.set(name, self)
 }
 
+///|
 pub impl NamedValue for LoadInst with getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
-    None => match self.getParent().getSlot(self) {
-      Some(slot) => Some(Right(slot))
-      None => None
-    }
+    None =>
+      match self.getParent().getSlot(self) {
+        Some(slot) => Some(Right(slot))
+        None => None
+      }
   }
 }
 
@@ -405,6 +408,7 @@ pub impl Instruction for LoadInst with asInstEnum(self) {
   LoadInst(self)
 }
 
+///|
 pub impl Instruction for LoadInst with getParent(self) {
   self.parent
 }
@@ -420,7 +424,6 @@ pub impl Show for LoadInst with output(self, logger) {
   let repr = self.getValueRepr()
   let ptr_repr = self.ptr.getValueRepr()
   let load_ty = self.getType()
-
   let str = match (self.isVolatile, self.atomicOrdering) {
     (true, _) =>
       "  \{repr} = load volatile \{load_ty}, ptr \{ptr_repr}, \{align}"
@@ -471,17 +474,15 @@ pub struct StoreInst {
   // --- ValueBase ---
 
   // Unique identifier
-  uid: UInt64
+  uid : UInt64
 
   // Type of the value
-  vty: &Type
+  vty : &Type
 
   // --- UserBase ---
-  value: &Value
-  ptr: &Value
-
-  parent: Function
-
+  value : &Value
+  ptr : &Value
+  parent : Function
   inst_base : InstBase
 
   // --- StoreInst ---
@@ -496,7 +497,7 @@ fn StoreInst::new(
   ptr : &Value,
   isVolatile : Bool,
   atomicOrdering : AtomicOrdering,
-  parent : Function
+  parent : Function,
 ) -> StoreInst raise LLVMValueError {
   guard ptr.getType().asTypeEnum() is PointerType(_) else {
     raise StoreInstShouldStoreToAPointer(ptr.getType())
@@ -543,6 +544,7 @@ pub impl Value for StoreInst with asValueEnum(self) {
   StoreInst(self)
 }
 
+///|
 pub impl Value for StoreInst with getValueRepr(self) {
   ignore(self)
   ""
@@ -550,11 +552,7 @@ pub impl Value for StoreInst with getValueRepr(self) {
 
 ///|
 pub impl Value for StoreInst with getValueBase(self) {
-  ValueBase::{
-    uid: self.uid,
-    vty: self.vty,
-    users: [],
-  }
+  ValueBase::{ uid: self.uid, vty: self.vty, users: [] }
 }
 
 ///|
@@ -564,9 +562,7 @@ pub impl User for StoreInst with asUserEnum(self) {
 
 ///|
 pub impl User for StoreInst with getUserBase(self) {
-  UserBase::{
-    operands: [self.value, self.ptr],
-  }
+  UserBase::{ operands: [self.value, self.ptr] }
 }
 
 ///|
@@ -579,6 +575,7 @@ pub impl Instruction for StoreInst with asInstEnum(self) {
   StoreInst(self)
 }
 
+///|
 pub impl Instruction for StoreInst with getParent(self) {
   self.parent
 }
@@ -589,7 +586,7 @@ pub impl Show for StoreInst with output(self, logger) {
   let value = self.getValueOperand()
   let ptr = self.getPointerOperand()
   let value_ty = value.getType()
-  let value_repr =value.getValueRepr()
+  let value_repr = value.getValueRepr()
   let ptr_repr = ptr.getValueRepr()
   let str = match (self.isVolatile, self.atomicOrdering) {
     (true, _) =>
@@ -646,28 +643,27 @@ pub impl Show for StoreInst with output(self, logger) {
 /// let xor_result = builder.createXor(arg1, arg2, name="xor_result")
 /// inspect(xor_result, content = "  %xor_result = xor i32 %0, %1")
 /// ```
+
 ///|
 pub struct BinaryInst {
   // --- ValueBase ---
 
   // Unique identifier
-  uid: UInt64
+  uid : UInt64
 
   // Type of the value
-  vty: &Type
+  vty : &Type
 
   // Users of this value
-  users: Array[&User]
+  users : Array[&User]
 
   // Name of the value
-  mut name: String?
-
+  mut name : String?
 
   // --- UserBase ---
-  lhs: &Value
-  rhs: &Value
-
-  parent: Function
+  lhs : &Value
+  rhs : &Value
+  parent : Function
   inst_base : InstBase
 
   // --- BinaryInst ---
@@ -683,7 +679,7 @@ fn BinaryInst::newStandardOp(
   rhs : &Value,
   parent : Function,
   name~ : String? = None,
-  flags : Set[BinaryOpFlags]
+  flags : Set[BinaryOpFlags],
 ) -> BinaryInst raise LLVMValueError {
   guard opcode
     is (Add
@@ -710,7 +706,6 @@ fn BinaryInst::newStandardOp(
   }
   let vty = lhsTy
   let uid = valueUIDAssigner.assign()
-
   let inst_base = InstBase::new()
   let inst = BinaryInst::{
     uid,
@@ -737,7 +732,7 @@ fn BinaryInst::newFPMathOp(
   rhs : &Value,
   parent : Function,
   name~ : String? = None,
-  fast_math_flags : Set[FastMathFlag]
+  fast_math_flags : Set[FastMathFlag],
 ) -> BinaryInst raise LLVMValueError {
   guard opcode is (FAdd | FSub | FMul | FDiv | FRem) else {
     llvm_unreachable(
@@ -772,11 +767,7 @@ fn BinaryInst::newFPMathOp(
 
 ///|
 pub impl Value for BinaryInst with getValueBase(self) {
-  ValueBase::{
-    uid: self.uid,
-    vty: self.vty,
-    users: self.users,
-  }
+  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users }
 }
 
 ///|
@@ -784,6 +775,7 @@ pub impl Value for BinaryInst with asValueEnum(self) {
   BinaryInst(self)
 }
 
+///|
 pub impl Value for BinaryInst with getValueRepr(self) {
   match self.getNameOrSlot() {
     Some(Left(name)) => "%\{name}"
@@ -792,10 +784,12 @@ pub impl Value for BinaryInst with getValueRepr(self) {
   }
 }
 
+///|
 pub impl NamedValue for BinaryInst with getName(self) {
   self.name
 }
 
+///|
 pub impl NamedValue for BinaryInst with setName(self, name) {
   let symbols = self.getParent().symbols
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
@@ -803,13 +797,15 @@ pub impl NamedValue for BinaryInst with setName(self, name) {
   symbols.set(name, self)
 }
 
+///|
 pub impl NamedValue for BinaryInst with getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
-    None => match self.getParent().getSlot(self) {
-      Some(slot) => Some(Right(slot))
-      None => None
-    }
+    None =>
+      match self.getParent().getSlot(self) {
+        Some(slot) => Some(Right(slot))
+        None => None
+      }
   }
 }
 
@@ -820,9 +816,7 @@ pub impl User for BinaryInst with asUserEnum(self) {
 
 ///|
 pub impl User for BinaryInst with getUserBase(self) {
-  UserBase::{
-    operands: [self.lhs, self.rhs],
-  }
+  UserBase::{ operands: [self.lhs, self.rhs] }
 }
 
 ///|
@@ -835,6 +829,7 @@ pub impl Instruction for BinaryInst with asInstEnum(self) {
   BinaryInst(self)
 }
 
+///|
 pub impl Instruction for BinaryInst with getParent(self) {
   self.parent
 }
@@ -941,15 +936,16 @@ pub impl Show for IntPredicate with output(self, logger) {
 /// let ugt_cmp = builder.createICmp(UGT, arg1, arg2, name="ugt_cmp")
 /// inspect(ugt_cmp, content = "  %ugt_cmp = icmp ugt i32 %0, %1")
 /// ```
+
 ///|
 pub struct ICmpInst {
-  uid: UInt64
-  vty: Int1Type
-  lhs: &Value
-  rhs: &Value
-  mut name: String?
-  parent: Function
-  users: Array[&User]
+  uid : UInt64
+  vty : Int1Type
+  lhs : &Value
+  rhs : &Value
+  mut name : String?
+  parent : Function
+  users : Array[&User]
   inst_base : InstBase
   predicate : IntPredicate
 }
@@ -960,7 +956,7 @@ fn ICmpInst::new(
   lhs : &Value,
   rhs : &Value,
   parent : Function,
-  name~ : String? = None
+  name~ : String? = None,
 ) -> ICmpInst raise LLVMValueError {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else { raise TypeMismatchForCmpInst(lhsTy, rhsTy) }
@@ -970,7 +966,17 @@ fn ICmpInst::new(
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new()
   let vty = parent.getContext().getInt1Ty()
-  let inst = ICmpInst::{ uid, vty, lhs, rhs, name, parent, users: [], inst_base, predicate }
+  let inst = ICmpInst::{
+    uid,
+    vty,
+    lhs,
+    rhs,
+    name,
+    parent,
+    users: [],
+    inst_base,
+    predicate,
+  }
   lhs.addUser(inst)
   rhs.addUser(inst)
   inst
@@ -990,6 +996,7 @@ pub impl Value for ICmpInst with asValueEnum(self) {
   ICmpInst(self)
 }
 
+///|
 pub impl Value for ICmpInst with getValueRepr(self) {
   match self.getNameOrSlot() {
     Some(Left(name)) => "%\{name}"
@@ -998,10 +1005,12 @@ pub impl Value for ICmpInst with getValueRepr(self) {
   }
 }
 
+///|
 pub impl NamedValue for ICmpInst with getName(self) {
   self.name
 }
 
+///|
 pub impl NamedValue for ICmpInst with setName(self, name) {
   let symbols = self.getParent().symbols
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
@@ -1009,13 +1018,15 @@ pub impl NamedValue for ICmpInst with setName(self, name) {
   symbols.set(name, self)
 }
 
+///|
 pub impl NamedValue for ICmpInst with getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
-    None => match self.getParent().getSlot(self) {
-      Some(slot) => Some(Right(slot))
-      None => None
-    }
+    None =>
+      match self.getParent().getSlot(self) {
+        Some(slot) => Some(Right(slot))
+        None => None
+      }
   }
 }
 
@@ -1026,9 +1037,7 @@ pub impl User for ICmpInst with asUserEnum(self) {
 
 ///|
 pub impl User for ICmpInst with getUserBase(self) {
-  UserBase::{
-    operands: [self.lhs, self.rhs],
-  }
+  UserBase::{ operands: [self.lhs, self.rhs] }
 }
 
 ///|
@@ -1041,6 +1050,7 @@ pub impl Instruction for ICmpInst with asInstEnum(self) {
   InstEnum::ICmpInst(self)
 }
 
+///|
 pub impl Instruction for ICmpInst with getParent(self) {
   self.parent
 }
@@ -1153,15 +1163,16 @@ pub impl Show for FloatPredicate with output(self, logger) {
 /// let uno_cmp = builder.createFCmp(UNO, arg1, arg2, name="uno_cmp")
 /// inspect(uno_cmp, content = "  %uno_cmp = fcmp uno float %0, %1")
 /// ```
+
 ///|
 pub struct FCmpInst {
-  uid: UInt64
-  vty: Int1Type
-  lhs: &Value
-  rhs: &Value
-  mut name: String?
-  parent: Function
-  users: Array[&User]
+  uid : UInt64
+  vty : Int1Type
+  lhs : &Value
+  rhs : &Value
+  mut name : String?
+  parent : Function
+  users : Array[&User]
   inst_base : InstBase
   predicate : FloatPredicate
 }
@@ -1172,7 +1183,7 @@ fn FCmpInst::new(
   lhs : &Value,
   rhs : &Value,
   parent : Function,
-  name~ : String? = None
+  name~ : String? = None,
 ) -> FCmpInst raise LLVMValueError {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else { raise TypeMismatchForCmpInst(lhsTy, rhsTy) }
@@ -1182,7 +1193,17 @@ fn FCmpInst::new(
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new()
   let vty = parent.getContext().getInt1Ty()
-  let inst = FCmpInst::{ uid, vty, lhs, rhs, name, parent, users:[], inst_base, predicate }
+  let inst = FCmpInst::{
+    uid,
+    vty,
+    lhs,
+    rhs,
+    name,
+    parent,
+    users: [],
+    inst_base,
+    predicate,
+  }
   lhs.addUser(inst)
   rhs.addUser(inst)
   inst
@@ -1190,13 +1211,10 @@ fn FCmpInst::new(
 
 ///|
 pub impl Value for FCmpInst with getValueBase(self) {
-  ValueBase::{
-    uid: self.uid,
-    vty: self.vty,
-    users: self.users,
-  }
+  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users }
 }
 
+///|
 pub impl Value for FCmpInst with getValueRepr(self) {
   match self.getNameOrSlot() {
     Some(Left(name)) => "%\{name}"
@@ -1210,10 +1228,12 @@ pub impl Value for FCmpInst with asValueEnum(self) {
   FCmpInst(self)
 }
 
+///|
 pub impl NamedValue for FCmpInst with getName(self) {
   self.name
 }
 
+///|
 pub impl NamedValue for FCmpInst with setName(self, name) {
   let symbols = self.getParent().symbols
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
@@ -1221,13 +1241,15 @@ pub impl NamedValue for FCmpInst with setName(self, name) {
   symbols.set(name, self)
 }
 
+///|
 pub impl NamedValue for FCmpInst with getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
-    None => match self.getParent().getSlot(self) {
-      Some(slot) => Some(Right(slot))
-      None => None
-    }
+    None =>
+      match self.getParent().getSlot(self) {
+        Some(slot) => Some(Right(slot))
+        None => None
+      }
   }
 }
 
@@ -1238,9 +1260,7 @@ pub impl User for FCmpInst with asUserEnum(self) {
 
 ///|
 pub impl User for FCmpInst with getUserBase(self) {
-  UserBase::{
-    operands: [self.lhs, self.rhs],
-  }
+  UserBase::{ operands: [self.lhs, self.rhs] }
 }
 
 ///|
@@ -1253,6 +1273,7 @@ pub impl Instruction for FCmpInst with asInstEnum(self) {
   FCmpInst(self)
 }
 
+///|
 pub impl Instruction for FCmpInst with getParent(self) {
   self.parent
 }
@@ -1341,14 +1362,15 @@ pub impl Show for CastOps with output(self, logger) {
 /// let bitcast = builder.createBitCast(trunc, f32_ty, name="bits")
 /// inspect(bitcast, content = "  %bits = bitcast i32 %truncated to float")
 /// ```
+
 ///|
 pub struct CastInst {
-  uid: UInt64
-  to_ty: &Type
-  from_val: &Value
-  mut name: String?
-  parent: Function
-  users: Array[&User]
+  uid : UInt64
+  to_ty : &Type
+  from_val : &Value
+  mut name : String?
+  parent : Function
+  users : Array[&User]
   inst_base : InstBase
   opcode : CastOps
 }
@@ -1358,7 +1380,7 @@ fn CastInst::newTrunc(
   from_val : &Value,
   to_ty : &IntegerType,
   parent : Function,
-  name~ : String? = None
+  name~ : String? = None,
 ) -> CastInst raise LLVMValueError {
   guard from_val.getType().tryAsIntTypeEnum() is Some(from_ty) else {
     raise TruncCastInstTypeMismatch(from_val.getType(), to_ty)
@@ -1368,7 +1390,16 @@ fn CastInst::newTrunc(
   }
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new()
-  let inst = CastInst::{ uid, to_ty, from_val, name, parent, users: [], inst_base, opcode: Trunc }
+  let inst = CastInst::{
+    uid,
+    to_ty,
+    from_val,
+    name,
+    parent,
+    users: [],
+    inst_base,
+    opcode: Trunc,
+  }
   from_val.addUser(inst)
   inst
 }
@@ -1378,7 +1409,7 @@ fn CastInst::newZExt(
   from_val : &Value,
   to_ty : &IntegerType,
   parent : Function,
-  name~ : String? = None
+  name~ : String? = None,
 ) -> CastInst raise LLVMValueError {
   guard from_val.getType().tryAsIntTypeEnum() is Some(from_ty) else {
     raise ZExtCastInstTypeMismatch(from_val.getType(), to_ty)
@@ -1388,7 +1419,16 @@ fn CastInst::newZExt(
   }
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new()
-  let inst = CastInst::{ uid, to_ty, from_val, name, parent, users: [], inst_base, opcode: ZExt }
+  let inst = CastInst::{
+    uid,
+    to_ty,
+    from_val,
+    name,
+    parent,
+    users: [],
+    inst_base,
+    opcode: ZExt,
+  }
   from_val.addUser(inst)
   inst
 }
@@ -1398,7 +1438,7 @@ fn CastInst::newSExt(
   from_val : &Value,
   to_ty : &IntegerType,
   parent : Function,
-  name~ : String? = None
+  name~ : String? = None,
 ) -> CastInst raise LLVMValueError {
   guard from_val.getType().tryAsIntTypeEnum() is Some(from_ty) else {
     raise SExtCastInstTypeMismatch(from_val.getType(), to_ty)
@@ -1408,7 +1448,16 @@ fn CastInst::newSExt(
   }
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new()
-  let inst = CastInst::{ uid, to_ty, from_val, name, parent, users: [], inst_base, opcode: SExt }
+  let inst = CastInst::{
+    uid,
+    to_ty,
+    from_val,
+    name,
+    parent,
+    users: [],
+    inst_base,
+    opcode: SExt,
+  }
   from_val.addUser(inst)
   inst
 }
@@ -1418,7 +1467,7 @@ fn CastInst::newFPTrunc(
   from_val : &Value,
   to_ty : &FPType,
   parent : Function,
-  name~ : String? = None
+  name~ : String? = None,
 ) -> CastInst raise LLVMValueError {
   guard from_val.getType().tryAsFPTypeEnum() is Some(from_ty) else {
     raise FPTruncCastInstTypeMismatch(from_val.getType(), to_ty)
@@ -1428,7 +1477,16 @@ fn CastInst::newFPTrunc(
   }
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new()
-  let inst = CastInst::{ uid, to_ty, from_val, name, parent, users: [], inst_base, opcode: FPTrunc }
+  let inst = CastInst::{
+    uid,
+    to_ty,
+    from_val,
+    name,
+    parent,
+    users: [],
+    inst_base,
+    opcode: FPTrunc,
+  }
   from_val.addUser(inst)
   inst
 }
@@ -1438,7 +1496,7 @@ fn CastInst::newFPExt(
   from_val : &Value,
   to_ty : &FPType,
   parent : Function,
-  name~ : String? = None
+  name~ : String? = None,
 ) -> CastInst raise LLVMValueError {
   guard from_val.getType().tryAsFPTypeEnum() is Some(from_ty) else {
     raise FPExtCastInstTypeMismatch(from_val.getType(), to_ty)
@@ -1448,7 +1506,16 @@ fn CastInst::newFPExt(
   }
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new()
-  let inst = CastInst::{ uid, to_ty, from_val, name, parent, users: [], inst_base, opcode: FPExt }
+  let inst = CastInst::{
+    uid,
+    to_ty,
+    from_val,
+    name,
+    parent,
+    users: [],
+    inst_base,
+    opcode: FPExt,
+  }
   from_val.addUser(inst)
   inst
 }
@@ -1458,14 +1525,23 @@ fn CastInst::newUIToFP(
   from_val : &Value,
   to_ty : &FPType,
   parent : Function,
-  name~ : String? = None
+  name~ : String? = None,
 ) -> CastInst raise LLVMValueError {
   guard from_val.getType().tryAsIntTypeEnum() is Some(_) else {
     raise UIToFPInstTypeMismatch(from_val.getType(), to_ty)
   }
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new()
-  let inst = CastInst::{ uid, to_ty, from_val, name, parent, users: [], inst_base, opcode: UIToFP }
+  let inst = CastInst::{
+    uid,
+    to_ty,
+    from_val,
+    name,
+    parent,
+    users: [],
+    inst_base,
+    opcode: UIToFP,
+  }
   from_val.addUser(inst)
   inst
 }
@@ -1475,14 +1551,23 @@ fn CastInst::newFPToUI(
   from_val : &Value,
   to_ty : &IntegerType,
   parent : Function,
-  name~ : String? = None
+  name~ : String? = None,
 ) -> CastInst raise LLVMValueError {
   guard from_val.getType().tryAsFPTypeEnum() is Some(_) else {
     raise FPToUIInstTypeMismatch(from_val.getType(), to_ty)
   }
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new()
-  let inst = CastInst::{ uid, to_ty, from_val, name, parent, users: [], inst_base, opcode: FPToUI }
+  let inst = CastInst::{
+    uid,
+    to_ty,
+    from_val,
+    name,
+    parent,
+    users: [],
+    inst_base,
+    opcode: FPToUI,
+  }
   from_val.addUser(inst)
   inst
 }
@@ -1492,14 +1577,23 @@ fn CastInst::newSIToFP(
   from_val : &Value,
   to_ty : &FPType,
   parent : Function,
-  name~ : String? = None
+  name~ : String? = None,
 ) -> CastInst raise LLVMValueError {
   guard from_val.getType().tryAsIntTypeEnum() is Some(_) else {
     raise SIToFPInstTypeMismatch(from_val.getType(), to_ty)
   }
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new()
-  let inst = CastInst::{ uid, to_ty, from_val, name, parent, users: [], inst_base, opcode: SIToFP }
+  let inst = CastInst::{
+    uid,
+    to_ty,
+    from_val,
+    name,
+    parent,
+    users: [],
+    inst_base,
+    opcode: SIToFP,
+  }
   from_val.addUser(inst)
   inst
 }
@@ -1509,14 +1603,23 @@ fn CastInst::newFPToSI(
   from_val : &Value,
   to_ty : &IntegerType,
   parent : Function,
-  name~ : String? = None
+  name~ : String? = None,
 ) -> CastInst raise LLVMValueError {
   guard from_val.getType().tryAsFPTypeEnum() is Some(_) else {
     raise FPToSIInstTypeMismatch(from_val.getType(), to_ty)
   }
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new()
-  let inst = CastInst::{ uid, to_ty, from_val, name, parent,  users: [], inst_base, opcode: FPToSI }
+  let inst = CastInst::{
+    uid,
+    to_ty,
+    from_val,
+    name,
+    parent,
+    users: [],
+    inst_base,
+    opcode: FPToSI,
+  }
   from_val.addUser(inst)
   inst
 }
@@ -1526,14 +1629,23 @@ fn CastInst::newPtrToInt(
   from_val : &Value,
   to_ty : &IntegerType,
   parent : Function,
-  name~ : String? = None
+  name~ : String? = None,
 ) -> CastInst raise LLVMValueError {
   guard from_val.getType().asTypeEnum() is PointerType(_) else {
     raise PtrToIntCastInstTypeMismatch(from_val.getType())
   }
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new()
-  let inst = CastInst::{ uid, to_ty, from_val, name, parent, users: [], inst_base, opcode: PtrToInt }
+  let inst = CastInst::{
+    uid,
+    to_ty,
+    from_val,
+    name,
+    parent,
+    users: [],
+    inst_base,
+    opcode: PtrToInt,
+  }
   from_val.addUser(inst)
   inst
 }
@@ -1542,7 +1654,7 @@ fn CastInst::newPtrToInt(
 fn CastInst::newIntToPtr(
   from_val : &Value,
   parent : Function,
-  name~ : String? = None
+  name~ : String? = None,
 ) -> CastInst raise LLVMValueError {
   guard from_val.getType().tryAsIntTypeEnum() is Some(_) else {
     raise IntToPtrCastInstTypeMismatch(from_val.getType())
@@ -1550,7 +1662,16 @@ fn CastInst::newIntToPtr(
   let to_ty = from_val.getContext().getPtrTy()
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new()
-  let inst = CastInst::{ uid, to_ty, from_val, name, parent, users: [], inst_base, opcode: IntToPtr }
+  let inst = CastInst::{
+    uid,
+    to_ty,
+    from_val,
+    name,
+    parent,
+    users: [],
+    inst_base,
+    opcode: IntToPtr,
+  }
   from_val.addUser(inst)
   inst
 }
@@ -1562,7 +1683,7 @@ fn CastInst::newBitCast(
   from_val : &Value,
   to_ty : &PrimitiveType,
   parent : Function,
-  name~ : String? = None
+  name~ : String? = None,
 ) -> CastInst raise LLVMValueError {
   let src_ty = from_val.getType()
   guard src_ty != to_ty else { raise BitCastInstTypeMismatch(src_ty, to_ty) }
@@ -1574,20 +1695,26 @@ fn CastInst::newBitCast(
   }
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new()
-  let inst = CastInst::{ uid, to_ty, from_val, name, parent, users: [], inst_base, opcode: BitCast }
+  let inst = CastInst::{
+    uid,
+    to_ty,
+    from_val,
+    name,
+    parent,
+    users: [],
+    inst_base,
+    opcode: BitCast,
+  }
   from_val.addUser(inst)
   inst
 }
 
 ///|
 pub impl Value for CastInst with getValueBase(self) {
-  ValueBase::{
-    uid: self.uid,
-    vty: self.to_ty,
-    users: self.users,
-  }
+  ValueBase::{ uid: self.uid, vty: self.to_ty, users: self.users }
 }
 
+///|
 pub impl Value for CastInst with getValueRepr(self) {
   match self.getNameOrSlot() {
     Some(Left(name)) => "%\{name}"
@@ -1601,10 +1728,12 @@ pub impl Value for CastInst with asValueEnum(self) {
   CastInst(self)
 }
 
+///|
 pub impl NamedValue for CastInst with getName(self) {
   self.name
 }
 
+///|
 pub impl NamedValue for CastInst with setName(self, name) {
   let symbols = self.getParent().symbols
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
@@ -1612,13 +1741,15 @@ pub impl NamedValue for CastInst with setName(self, name) {
   symbols.set(name, self)
 }
 
+///|
 pub impl NamedValue for CastInst with getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
-    None => match self.getParent().getSlot(self) {
-      Some(slot) => Some(Right(slot))
-      None => None
-    }
+    None =>
+      match self.getParent().getSlot(self) {
+        Some(slot) => Some(Right(slot))
+        None => None
+      }
   }
 }
 
@@ -1629,9 +1760,7 @@ pub impl User for CastInst with asUserEnum(self) {
 
 ///|
 pub impl User for CastInst with getUserBase(self) {
-  UserBase::{
-    operands: [self.from_val],
-  }
+  UserBase::{ operands: [self.from_val] }
 }
 
 ///|
@@ -1649,6 +1778,7 @@ pub impl Instruction for CastInst with asInstEnum(self) {
   CastInst(self)
 }
 
+///|
 pub impl Instruction for CastInst with getParent(self) {
   self.parent
 }
@@ -1659,7 +1789,6 @@ pub impl Show for CastInst with output(self, logger) {
   let to_ty = self.to_ty
   let from_ty = self.from_val.getType()
   let from_val_repr = self.from_val.getValueRepr()
-
   logger.write_string(
     "  \{repr} = \{self.opcode} \{from_ty} \{from_val_repr} to \{to_ty}",
   )
@@ -1697,15 +1826,16 @@ pub impl Show for CastInst with output(self, logger) {
 /// inspect(gep, content = "  %elem_ptr = getelementptr inbounds [10 x i32], ptr %0, i32 0, i32 2")
 /// assert_true(gep.asValueEnum() is GetElementPtrInst(_))
 /// ```
+
 ///|
 pub struct GetElementPtrInst {
-  uid: UInt64
-  vty: PointerType
-  users: Array[&User]
-  ptr: &Value
-  indices: Array[&Value]
-  mut name: String?
-  parent: Function
+  uid : UInt64
+  vty : PointerType
+  users : Array[&User]
+  ptr : &Value
+  indices : Array[&Value]
+  mut name : String?
+  parent : Function
   inst_base : InstBase
   isInbounds : Bool
   pointeeType : &Type
@@ -1718,7 +1848,7 @@ fn GetElementPtrInst::new(
   indices : Array[&Value],
   isInbounds : Bool,
   parent : Function,
-  name~ : String? = None
+  name~ : String? = None,
 ) -> GetElementPtrInst raise LLVMValueError {
   guard ptr.getType().asTypeEnum() is PointerType(_) else {
     raise GetElementPtrInstValueTypeNotPtr(ptr.getType())
@@ -1753,13 +1883,10 @@ fn GetElementPtrInst::new(
 
 ///|
 pub impl Value for GetElementPtrInst with getValueBase(self) {
-  ValueBase::{
-    uid: self.uid,
-    vty: self.vty,
-    users: self.users,
-  }
+  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users }
 }
 
+///|
 pub impl Value for GetElementPtrInst with getValueRepr(self) {
   match self.getNameOrSlot() {
     Some(Left(name)) => "%\{name}"
@@ -1773,10 +1900,12 @@ pub impl Value for GetElementPtrInst with asValueEnum(self) {
   GetElementPtrInst(self)
 }
 
+///|
 pub impl NamedValue for GetElementPtrInst with getName(self) {
   self.name
 }
 
+///|
 pub impl NamedValue for GetElementPtrInst with setName(self, name) {
   let symbols = self.getParent().symbols
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
@@ -1784,13 +1913,15 @@ pub impl NamedValue for GetElementPtrInst with setName(self, name) {
   symbols.set(name, self)
 }
 
+///|
 pub impl NamedValue for GetElementPtrInst with getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
-    None => match self.getParent().getSlot(self) {
-      Some(slot) => Some(Right(slot))
-      None => None
-    }
+    None =>
+      match self.getParent().getSlot(self) {
+        Some(slot) => Some(Right(slot))
+        None => None
+      }
   }
 }
 
@@ -1801,9 +1932,7 @@ pub impl User for GetElementPtrInst with asUserEnum(self) {
 
 ///|
 pub impl User for GetElementPtrInst with getUserBase(self) {
-  UserBase::{
-    operands: [self.ptr] + self.indices,
-  }
+  UserBase::{ operands: [self.ptr] + self.indices }
 }
 
 ///|
@@ -1816,6 +1945,7 @@ pub impl Instruction for GetElementPtrInst with asInstEnum(self) {
   InstEnum::GetElementPtrInst(self)
 }
 
+///|
 pub impl Instruction for GetElementPtrInst with getParent(self) {
   self.parent
 }
@@ -1825,9 +1955,9 @@ pub impl Show for GetElementPtrInst with output(self, logger) {
   let repr = self.getValueRepr()
   let ptr_repr = self.ptr.getValueRepr()
   let indices_reprs = Array::new()
-  self.indices.each(index =>
-    indices_reprs.push("\{index.getType()} \{index.getValueRepr()}")
-  )
+  self.indices.each(index => indices_reprs.push(
+    "\{index.getType()} \{index.getValueRepr()}",
+  ))
   let indices_repr = if indices_reprs.length() > 0 {
     ", " + indices_reprs.join(", ")
   } else {
@@ -1870,16 +2000,17 @@ pub impl Show for GetElementPtrInst with output(self, logger) {
 /// inspect(select, content = "  %result = select i1 %0, i32 %1, i32 %2")
 /// assert_true(select.asValueEnum() is SelectInst(_))
 /// ```
+
 ///|
 pub struct SelectInst {
-  uid: UInt64
-  users: Array[&User]
-  vty: &Type
-  condition: &Value
-  trueValue: &Value
-  falseValue: &Value
-  mut name: String?
-  parent: Function
+  uid : UInt64
+  users : Array[&User]
+  vty : &Type
+  condition : &Value
+  trueValue : &Value
+  falseValue : &Value
+  mut name : String?
+  parent : Function
   inst_base : InstBase
 }
 
@@ -1889,7 +2020,7 @@ fn SelectInst::new(
   trueValue : &Value,
   falseValue : &Value,
   parent : Function,
-  name~ : String? = None
+  name~ : String? = None,
 ) -> SelectInst raise LLVMValueError {
   guard condition.getType().tryAsIntTypeEnum() is Some(Int1Type(_)) else {
     raise SelectInstConditionNotBoolean(condition.getType())
@@ -1900,7 +2031,17 @@ fn SelectInst::new(
   }
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new()
-  let inst = SelectInst::{ uid, vty, condition, trueValue, falseValue, name, parent, users:[], inst_base }
+  let inst = SelectInst::{
+    uid,
+    vty,
+    condition,
+    trueValue,
+    falseValue,
+    name,
+    parent,
+    users: [],
+    inst_base,
+  }
   condition.addUser(inst)
   trueValue.addUser(inst)
   falseValue.addUser(inst)
@@ -1924,13 +2065,10 @@ pub fn SelectInst::getFalseValue(self : SelectInst) -> &Value {
 
 ///|
 pub impl Value for SelectInst with getValueBase(self) {
-  ValueBase::{
-    uid: self.uid,
-    vty: self.vty,
-    users: self.users,
-  }
+  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users }
 }
 
+///|
 pub impl Value for SelectInst with getValueRepr(self) {
   match self.getNameOrSlot() {
     Some(Left(name)) => "%\{name}"
@@ -1944,10 +2082,12 @@ pub impl Value for SelectInst with asValueEnum(self) {
   SelectInst(self)
 }
 
+///|
 pub impl NamedValue for SelectInst with getName(self) {
   self.name
 }
 
+///|
 pub impl NamedValue for SelectInst with setName(self, name) {
   let symbols = self.getParent().symbols
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
@@ -1955,13 +2095,15 @@ pub impl NamedValue for SelectInst with setName(self, name) {
   symbols.set(name, self)
 }
 
+///|
 pub impl NamedValue for SelectInst with getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
-    None => match self.getParent().getSlot(self) {
-      Some(slot) => Some(Right(slot))
-      None => None
-    }
+    None =>
+      match self.getParent().getSlot(self) {
+        Some(slot) => Some(Right(slot))
+        None => None
+      }
   }
 }
 
@@ -1972,9 +2114,7 @@ pub impl User for SelectInst with asUserEnum(self) {
 
 ///|
 pub impl User for SelectInst with getUserBase(self) {
-  UserBase::{
-    operands: [self.condition, self.trueValue, self.falseValue],
-  }
+  UserBase::{ operands: [self.condition, self.trueValue, self.falseValue] }
 }
 
 ///|
@@ -1987,6 +2127,7 @@ pub impl Instruction for SelectInst with asInstEnum(self) {
   InstEnum::SelectInst(self)
 }
 
+///|
 pub impl Instruction for SelectInst with getParent(self) {
   self.parent
 }
@@ -2044,19 +2185,20 @@ pub impl Show for SelectInst with output(self, logger) {
 ///
 /// inspect(void_ret, content = "  ret void")
 /// ```
+
 ///|
 pub struct ReturnInst {
-  uid: UInt64
-  vty: VoidType
-  retVal: &Value?
-  parent: Function
+  uid : UInt64
+  vty : VoidType
+  retVal : &Value?
+  parent : Function
   inst_base : InstBase
 }
 
 ///|
 fn ReturnInst::new(
   retVal : &Value?,
-  parent : Function
+  parent : Function,
 ) -> ReturnInst raise LLVMValueError {
   let vty = match retVal {
     Some(val) => val.getType()
@@ -2089,6 +2231,7 @@ pub impl Value for ReturnInst with asValueEnum(self) {
   ReturnInst(self)
 }
 
+///|
 pub impl Value for ReturnInst with getValueRepr(self) {
   ignore(self)
   ""
@@ -2105,9 +2248,7 @@ pub impl User for ReturnInst with getUserBase(self) {
     Some(val) => [val]
     None => []
   }
-  UserBase::{
-    operands,
-  }
+  UserBase::{ operands, }
 }
 
 ///|
@@ -2120,6 +2261,7 @@ pub impl Instruction for ReturnInst with asInstEnum(self) {
   ReturnInst(self)
 }
 
+///|
 pub impl Instruction for ReturnInst with getParent(self) {
   self.parent
 }
@@ -2127,7 +2269,7 @@ pub impl Instruction for ReturnInst with getParent(self) {
 ///|
 pub impl Show for ReturnInst with output(self, logger) {
   let retStr = match self.retVal {
-    Some(val) => "\{val.getType()} \{val.getValueRepr()}" 
+    Some(val) => "\{val.getType()} \{val.getValueRepr()}"
     None => "void"
   }
   logger.write_string("  ret \{retStr}")
@@ -2169,21 +2311,18 @@ pub impl Show for ReturnInst with output(self, logger) {
 ///
 /// inspect(uncond_br, content = "  br label %false_branch")
 /// ```
+
 ///|
 pub struct BranchInst {
   // --- ValueBase ---
 
   // Unique identifier
-  uid: UInt64
-
-  vty: VoidType
-
-  condition: &Value?
-  trueBlock: BasicBlock?
-  falseBlock: BasicBlock?
-
-  parent: Function
-
+  uid : UInt64
+  vty : VoidType
+  condition : &Value?
+  trueBlock : BasicBlock?
+  falseBlock : BasicBlock?
+  parent : Function
   inst_base : InstBase
 }
 
@@ -2192,7 +2331,7 @@ fn BranchInst::newConditional(
   condition : &Value,
   trueBlock : BasicBlock,
   falseBlock : BasicBlock,
-  parent : Function
+  parent : Function,
 ) -> BranchInst raise LLVMValueError {
   guard condition.getType().tryAsIntTypeEnum() is Some(intTy) else {
     raise BranchInstConditionNotBoolean(condition.getType())
@@ -2210,7 +2349,7 @@ fn BranchInst::newConditional(
     trueBlock: Some(trueBlock),
     falseBlock: Some(falseBlock),
     parent,
-    inst_base
+    inst_base,
   }
   condition.addUser(inst)
   trueBlock.addUser(inst)
@@ -2221,7 +2360,7 @@ fn BranchInst::newConditional(
 ///|
 fn BranchInst::newUnconditional(
   targetBlock : BasicBlock,
-  parent : Function
+  parent : Function,
 ) -> BranchInst {
   let inst_base = InstBase::new()
   let uid = valueUIDAssigner.assign()
@@ -2233,7 +2372,7 @@ fn BranchInst::newUnconditional(
     trueBlock: Some(targetBlock),
     falseBlock: None,
     parent,
-    inst_base
+    inst_base,
   }
   targetBlock.addUser(inst)
   inst
@@ -2291,6 +2430,7 @@ pub impl Value for BranchInst with asValueEnum(self) {
   BranchInst(self)
 }
 
+///|
 pub impl Value for BranchInst with getValueRepr(self) {
   ignore(self)
   ""
@@ -2303,7 +2443,7 @@ pub impl User for BranchInst with asUserEnum(self) {
 
 ///|
 pub impl User for BranchInst with getUserBase(self) {
-  let operands: Array[&Value] = []
+  let operands : Array[&Value] = []
   match self.condition {
     Some(cond) => operands.push(cond)
     None => ()
@@ -2316,9 +2456,7 @@ pub impl User for BranchInst with getUserBase(self) {
     Some(block) => operands.push(block)
     None => ()
   }
-  UserBase::{
-    operands,
-  }
+  UserBase::{ operands, }
 }
 
 ///|
@@ -2331,6 +2469,7 @@ pub impl Instruction for BranchInst with asInstEnum(self) {
   InstEnum::BranchInst(self)
 }
 
+///|
 pub impl Instruction for BranchInst with getParent(self) {
   self.parent
 }
@@ -2393,12 +2532,12 @@ pub impl Show for BranchInst with output(self, logger) {
 /// assert_true(switch.asValueEnum() is SwitchInst(_))
 /// ```
 pub struct SwitchInst {
-  uid: UInt64
-  vty: VoidType
-  condition: &Value
-  defaultDest: BasicBlock
-  cases: Array[(ConstantInt, BasicBlock)]
-  parent: Function
+  uid : UInt64
+  vty : VoidType
+  condition : &Value
+  defaultDest : BasicBlock
+  cases : Array[(ConstantInt, BasicBlock)]
+  parent : Function
   inst_base : InstBase
 }
 
@@ -2406,7 +2545,7 @@ pub struct SwitchInst {
 fn SwitchInst::new(
   cond : &Value,
   defaultDest : BasicBlock,
-  parent : Function
+  parent : Function,
 ) -> SwitchInst raise LLVMValueError {
   guard cond.getType().tryAsIntTypeEnum() is Some(_) else {
     raise SwitchInstConditionNotInteger(cond.getType())
@@ -2414,7 +2553,15 @@ fn SwitchInst::new(
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new()
   let vty = parent.getContext().getVoidTy()
-  let inst = SwitchInst::{ uid, vty, condition:cond, defaultDest, cases: [], parent, inst_base }
+  let inst = SwitchInst::{
+    uid,
+    vty,
+    condition: cond,
+    defaultDest,
+    cases: [],
+    parent,
+    inst_base,
+  }
   cond.addUser(inst)
   defaultDest.addUser(inst)
   inst
@@ -2438,7 +2585,7 @@ pub fn SwitchInst::getNumCases(self : Self) -> Int {
 ///|
 pub fn SwitchInst::getCase(
   self : Self,
-  idx : Int
+  idx : Int,
 ) -> (ConstantInt, BasicBlock)? {
   self.cases.get(idx)
 }
@@ -2447,7 +2594,7 @@ pub fn SwitchInst::getCase(
 pub fn SwitchInst::addCase(
   self : Self,
   cond : ConstantInt,
-  dest : BasicBlock
+  dest : BasicBlock,
 ) -> Unit raise LLVMValueError {
   guard self.getCondition().getType().tryAsIntTypeEnum() is Some(intTy)
   guard cond.getType().tryAsIntTypeEnum() is Some(case_cond_ty)
@@ -2479,6 +2626,7 @@ pub impl Value for SwitchInst with asValueEnum(self) {
   SwitchInst(self)
 }
 
+///|
 pub impl Value for SwitchInst with getValueRepr(self) {
   ignore(self)
   ""
@@ -2491,13 +2639,14 @@ pub impl User for SwitchInst with asUserEnum(self) {
 
 ///|
 pub impl User for SwitchInst with getUserBase(self) {
-  let operands: Array[&Value] = [self.condition, self.defaultDest]
+  let operands : Array[&Value] = [self.condition, self.defaultDest]
   self.cases.each(case => {
     operands.push(case.0) // case condition
     operands.push(case.1) // case destination
   })
   UserBase::{
-    operands: [self.condition, self.defaultDest] + self.cases.map(case => case.1),
+    operands: [self.condition, self.defaultDest] +
+    self.cases.map(case => case.1),
   }
 }
 
@@ -2511,6 +2660,7 @@ pub impl Instruction for SwitchInst with asInstEnum(self) {
   InstEnum::SwitchInst(self)
 }
 
+///|
 pub impl Instruction for SwitchInst with getParent(self) {
   self.parent
 }
@@ -2581,20 +2731,21 @@ pub impl Show for SwitchInst with output(self, logger) {
 /// assert_true(phi.asValueEnum() is PHINode(_))
 /// ```
 pub struct PHINode {
-  uid: UInt64
-  vty: &Type
-  users: Array[&User]
-
-  mut name: String?
-
-  incomings: Array[(&Value, BasicBlock)]
-
-  parent: Function
+  uid : UInt64
+  vty : &Type
+  users : Array[&User]
+  mut name : String?
+  incomings : Array[(&Value, BasicBlock)]
+  parent : Function
   inst_base : InstBase
 }
 
 ///|
-fn PHINode::new(vty : &Type, parent : Function, name~ : String? = None) -> PHINode {
+fn PHINode::new(
+  vty : &Type,
+  parent : Function,
+  name~ : String? = None,
+) -> PHINode {
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new()
   PHINode::{ uid, vty, users: [], name, incomings: [], parent, inst_base }
@@ -2607,7 +2758,7 @@ pub fn PHINode::getNumIncomingValues(self : PHINode) -> Int {
 
 ///|
 pub fn PHINode::getIncomingValue(self : PHINode, idx : Int) -> &Value? {
-  match self.incomings.get(idx){
+  match self.incomings.get(idx) {
     Some((value, _)) => Some(value)
     None => None
   }
@@ -2645,7 +2796,7 @@ pub fn PHINode::getIncomingBlocks(self : PHINode) -> Array[BasicBlock] {
 pub fn PHINode::addIncoming(
   self : PHINode,
   value : &Value,
-  block : BasicBlock
+  block : BasicBlock,
 ) -> Unit raise LLVMValueError {
   guard value.getType() == self.getType() else {
     raise PHINodeIncomingValueTypeMismatch(value.getType(), self.getType())
@@ -2657,13 +2808,10 @@ pub fn PHINode::addIncoming(
 
 ///|
 pub impl Value for PHINode with getValueBase(self) {
-  ValueBase::{
-    uid: self.uid,
-    vty: self.vty,
-    users: self.users,
-  }
+  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users }
 }
 
+///|
 pub impl Value for PHINode with getValueRepr(self) {
   match self.getNameOrSlot() {
     Some(Left(name)) => "%\{name}"
@@ -2672,10 +2820,12 @@ pub impl Value for PHINode with getValueRepr(self) {
   }
 }
 
+///|
 pub impl NamedValue for PHINode with getName(self) {
   self.name
 }
 
+///|
 pub impl NamedValue for PHINode with setName(self, name) {
   let symbols = self.getParent().symbols
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
@@ -2683,13 +2833,15 @@ pub impl NamedValue for PHINode with setName(self, name) {
   symbols.set(name, self)
 }
 
+///|
 pub impl NamedValue for PHINode with getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
-    None => match self.getParent().getSlot(self) {
-      Some(slot) => Some(Right(slot))
-      None => None
-    }
+    None =>
+      match self.getParent().getSlot(self) {
+        Some(slot) => Some(Right(slot))
+        None => None
+      }
   }
 }
 
@@ -2705,16 +2857,12 @@ pub impl User for PHINode with asUserEnum(self) {
 
 ///|
 pub impl User for PHINode with getUserBase(self) {
-  let operands: Array[&Value] = []
-  self.incomings.each(
-    incoming => {
-      operands.push(incoming.0)
-      operands.push(incoming.1)
-    }
-  )
-  UserBase::{
-    operands,
-  }
+  let operands : Array[&Value] = []
+  self.incomings.each(incoming => {
+    operands.push(incoming.0)
+    operands.push(incoming.1)
+  })
+  UserBase::{ operands, }
 }
 
 ///|
@@ -2727,6 +2875,7 @@ pub impl Instruction for PHINode with asInstEnum(self) {
   InstEnum::PHINode(self)
 }
 
+///|
 pub impl Instruction for PHINode with getParent(self) {
   self.parent
 }
@@ -2805,13 +2954,12 @@ pub impl Show for TailCallKind with output(self, logger) {
 /// inspect(void_call, content = "  call void @void_func()")
 /// ```
 pub struct CallInst {
-  uid: UInt64
-  vty: &Type
-  users: Array[&User]
-  mut name: String?
-
+  uid : UInt64
+  vty : &Type
+  users : Array[&User]
+  mut name : String?
   callee : Function
-  args: Array[&Value]
+  args : Array[&Value]
   parent : Function
   inst_base : InstBase
   mut tailCallKind : TailCallKind
@@ -2822,7 +2970,7 @@ fn CallInst::new(
   callee : Function,
   args : Array[&Value],
   parent : Function,
-  name~ : String? = None
+  name~ : String? = None,
 ) -> CallInst raise LLVMValueError {
   let fty = callee.getFunctionType()
   let expected_params = fty.getNumParams().reinterpret_as_int()
@@ -2877,7 +3025,7 @@ pub fn CallInst::getTailCallKind(self : CallInst) -> TailCallKind {
 ///|
 pub fn CallInst::setTailCallKind(
   self : CallInst,
-  tailCallKind : TailCallKind
+  tailCallKind : TailCallKind,
 ) -> Unit {
   self.tailCallKind = tailCallKind
 }
@@ -2908,11 +3056,7 @@ pub fn CallInst::getNumArgs(self : Self) -> Int {
 
 ///|
 pub impl Value for CallInst with getValueBase(self) {
-  ValueBase::{
-    uid: self.uid,
-    vty: self.vty,
-    users: self.users,
-  }
+  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users }
 }
 
 ///|
@@ -2920,6 +3064,7 @@ pub impl Value for CallInst with asValueEnum(self) {
   CallInst(self)
 }
 
+///|
 pub impl Value for CallInst with getValueRepr(self) {
   if self.vty.asTypeEnum() is VoidType(_) {
     return ""
@@ -2931,23 +3076,27 @@ pub impl Value for CallInst with getValueRepr(self) {
   }
 }
 
+///|
 pub impl NamedValue for CallInst with getName(self) {
   self.name
 }
 
+///|
 pub impl NamedValue for CallInst with getNameOrSlot(self) {
   if self.vty.asTypeEnum() is VoidType(_) {
     return None
   }
   match self.name {
     Some(name) => Some(Left(name))
-    None => match self.getParent().getSlot(self) {
-      Some(slot) => Some(Right(slot))
-      None => None
-    }
+    None =>
+      match self.getParent().getSlot(self) {
+        Some(slot) => Some(Right(slot))
+        None => None
+      }
   }
 }
 
+///|
 pub impl NamedValue for CallInst with setName(self, name) {
   if self.vty.asTypeEnum() is VoidType(_) {
     raise SetNameForVoidTypeValue
@@ -2965,9 +3114,7 @@ pub impl User for CallInst with asUserEnum(self) {
 
 ///|
 pub impl User for CallInst with getUserBase(self) {
-  UserBase::{
-    operands: [self.callee] + self.args,
-  }
+  UserBase::{ operands: [self.callee] + self.args }
 }
 
 ///|
@@ -2980,6 +3127,7 @@ pub impl Instruction for CallInst with asInstEnum(self) {
   InstEnum::CallInst(self)
 }
 
+///|
 pub impl Instruction for CallInst with getParent(self) {
   self.parent
 }
@@ -2990,22 +3138,14 @@ pub impl Show for CallInst with output(self, logger) {
   let fty = callee.getFunctionType()
   let ret_ty = fty.getReturnType()
   let is_void_ret = ret_ty.asTypeEnum() is VoidType(_)
-
-  let prefix = if is_void_ret {
-    ""
-  } else {
-    self.getValueRepr()
-  }
-
+  let prefix = if is_void_ret { "" } else { self.getValueRepr() }
   let tail_str = self.tailCallKind.to_string()
-
   let ret_attrs = callee.getReturnAttrs()
   let ret_attrs_str = if ret_attrs.is_empty() {
     ""
   } else {
     " " + ret_attrs.iter().map(fn(a) { "\{a}" }).join(" ")
   }
-
   let arg_strs = Array::new()
   for idx, arg in self.args {
     let arg_ty = arg.getType()
@@ -3016,7 +3156,6 @@ pub impl Show for CallInst with output(self, logger) {
     } else {
       ""
     }
-
     arg_strs.push("\{arg_ty}\{arg_attrs_str} \{arg_repr}")
   }
   let args_str = arg_strs.join(", ")
@@ -3066,10 +3205,10 @@ pub impl Show for CallInst with output(self, logger) {
 /// assert_true(extract.asValueEnum() is ExtractValueInst(_))
 /// ```
 pub struct ExtractValueInst {
-  uid: UInt64
-  vty: &Type
-  users: Array[&User]
-  mut name: String?
+  uid : UInt64
+  vty : &Type
+  users : Array[&User]
+  mut name : String?
   aggregate : &Value
   parent : Function
   inst_base : InstBase
@@ -3081,7 +3220,7 @@ fn ExtractValueInst::new(
   aggregate : &Value,
   indices : Array[Int],
   parent : Function,
-  name~ : String? = None
+  name~ : String? = None,
 ) -> ExtractValueInst raise LLVMValueError {
   guard not(indices.is_empty()) else {
     raise ExtractValueInstRequiresNonEmptyIndices
@@ -3099,7 +3238,16 @@ fn ExtractValueInst::new(
   let uid = valueUIDAssigner.assign()
   let vty = result_ty
   let inst_base = InstBase::new()
-  let inst = ExtractValueInst::{ uid, vty, users:[], name, aggregate, parent, inst_base, indices }
+  let inst = ExtractValueInst::{
+    uid,
+    vty,
+    users: [],
+    name,
+    aggregate,
+    parent,
+    inst_base,
+    indices,
+  }
   aggregate.addUser(inst)
   inst
 }
@@ -3116,13 +3264,10 @@ pub fn ExtractValueInst::getIndices(self : ExtractValueInst) -> Array[Int] {
 
 ///|
 pub impl Value for ExtractValueInst with getValueBase(self) {
-  ValueBase::{
-    uid: self.uid,
-    vty: self.vty,
-    users: self.users,
-  }
+  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users }
 }
 
+///|
 pub impl Value for ExtractValueInst with getValueRepr(self) {
   match self.getNameOrSlot() {
     Some(Left(name)) => "%\{name}"
@@ -3136,10 +3281,12 @@ pub impl Value for ExtractValueInst with asValueEnum(self) {
   ExtractValueInst(self)
 }
 
+///|
 pub impl NamedValue for ExtractValueInst with getName(self) {
   self.name
 }
 
+///|
 pub impl NamedValue for ExtractValueInst with setName(self, name) {
   let symbols = self.getParent().symbols
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
@@ -3147,13 +3294,15 @@ pub impl NamedValue for ExtractValueInst with setName(self, name) {
   symbols.set(name, self)
 }
 
+///|
 pub impl NamedValue for ExtractValueInst with getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
-    None => match self.getParent().getSlot(self) {
-      Some(slot) => Some(Right(slot))
-      None => None
-    }
+    None =>
+      match self.getParent().getSlot(self) {
+        Some(slot) => Some(Right(slot))
+        None => None
+      }
   }
 }
 
@@ -3164,9 +3313,7 @@ pub impl User for ExtractValueInst with asUserEnum(self) {
 
 ///|
 pub impl User for ExtractValueInst with getUserBase(self) {
-  UserBase::{
-    operands: [self.aggregate],
-  }
+  UserBase::{ operands: [self.aggregate] }
 }
 
 ///|
@@ -3179,6 +3326,7 @@ pub impl Instruction for ExtractValueInst with asInstEnum(self) {
   InstEnum::ExtractValueInst(self)
 }
 
+///|
 pub impl Instruction for ExtractValueInst with getParent(self) {
   self.parent
 }
@@ -3231,12 +3379,12 @@ pub impl Show for ExtractValueInst with output(self, logger) {
 /// assert_true(insert.asValueEnum() is InsertValueInst(_))
 /// ```
 pub struct InsertValueInst {
-  uid: UInt64
-  vty: &Type
-  users: Array[&User]
+  uid : UInt64
+  vty : &Type
+  users : Array[&User]
   aggregate : &Value
   insert_val : &Value
-  mut name: String?
+  mut name : String?
   parent : Function
   inst_base : InstBase
   indices : Array[Int]
@@ -3248,12 +3396,11 @@ fn InsertValueInst::new(
   insert_val : &Value,
   indices : Array[Int],
   parent : Function,
-  name~ : String? = None
+  name~ : String? = None,
 ) -> InsertValueInst raise LLVMValueError {
   guard not(indices.is_empty()) else {
     raise InsertValueInstRequiresNonEmptyIndices
   }
-
   let agg_ty = aggregate.getType()
   guard agg_ty.tryAsAggregateTypeEnum() is Some(agg_ty) else {
     raise InsertValueInstInvalidAggregateType(agg_ty)
@@ -3264,7 +3411,17 @@ fn InsertValueInst::new(
   let uid = valueUIDAssigner.assign()
   let vty = agg_ty.asTypeClass()
   let inst_base = InstBase::new()
-  let inst = InsertValueInst::{ uid, vty, users:[], aggregate, insert_val, name, parent, inst_base, indices }
+  let inst = InsertValueInst::{
+    uid,
+    vty,
+    users: [],
+    aggregate,
+    insert_val,
+    name,
+    parent,
+    inst_base,
+    indices,
+  }
   aggregate.addUser(inst)
   insert_val.addUser(inst)
   inst
@@ -3277,7 +3434,7 @@ pub fn InsertValueInst::getAggregateOperand(self : InsertValueInst) -> &Value {
 
 ///|
 pub fn InsertValueInst::getInsertedValueOperand(
-  self : InsertValueInst
+  self : InsertValueInst,
 ) -> &Value {
   self.insert_val
 }
@@ -3289,11 +3446,7 @@ pub fn InsertValueInst::getIndices(self : InsertValueInst) -> Array[Int] {
 
 ///|
 pub impl Value for InsertValueInst with getValueBase(self) {
-  ValueBase::{
-    uid: self.uid,
-    vty: self.vty,
-    users: self.users,
-  }
+  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users }
 }
 
 ///|
@@ -3301,6 +3454,7 @@ pub impl Value for InsertValueInst with asValueEnum(self) {
   InsertValueInst(self)
 }
 
+///|
 pub impl Value for InsertValueInst with getValueRepr(self) {
   match self.getNameOrSlot() {
     Some(Left(name)) => "%\{name}"
@@ -3309,10 +3463,12 @@ pub impl Value for InsertValueInst with getValueRepr(self) {
   }
 }
 
+///|
 pub impl NamedValue for InsertValueInst with getName(self) {
   self.name
 }
 
+///|
 pub impl NamedValue for InsertValueInst with setName(self, name) {
   let symbols = self.getParent().symbols
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
@@ -3320,13 +3476,15 @@ pub impl NamedValue for InsertValueInst with setName(self, name) {
   symbols.set(name, self)
 }
 
+///|
 pub impl NamedValue for InsertValueInst with getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
-    None => match self.getParent().getSlot(self) {
-      Some(slot) => Some(Right(slot))
-      None => None
-    }
+    None =>
+      match self.getParent().getSlot(self) {
+        Some(slot) => Some(Right(slot))
+        None => None
+      }
   }
 }
 
@@ -3337,9 +3495,7 @@ pub impl User for InsertValueInst with asUserEnum(self) {
 
 ///|
 pub impl User for InsertValueInst with getUserBase(self) {
-  UserBase::{
-    operands: [self.aggregate, self.getInsertedValueOperand()],
-  }
+  UserBase::{ operands: [self.aggregate, self.getInsertedValueOperand()] }
 }
 
 ///|
@@ -3352,6 +3508,7 @@ pub impl Instruction for InsertValueInst with asInstEnum(self) {
   InstEnum::InsertValueInst(self)
 }
 
+///|
 pub impl Instruction for InsertValueInst with getParent(self) {
   self.parent
 }

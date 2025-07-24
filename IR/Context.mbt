@@ -238,7 +238,7 @@ pub fn Context::getInt64Ty(self : Context) -> Int64Type {
 /// ```
 pub fn Context::getPtrTy(
   self : Context,
-  addressSpace~ : AddressSpace = AddressSpace::default()
+  addressSpace~ : AddressSpace = AddressSpace::default(),
 ) -> PointerType {
   match self.pimpl.unwrap().pointerTypes.get(addressSpace) {
     Some(ty) => ty
@@ -271,7 +271,7 @@ pub fn Context::getPtrTy(
 pub fn Context::getFunctionType(
   self : Context,
   returnType : &Type,
-  paramTypes : Array[&Type]
+  paramTypes : Array[&Type],
 ) -> FunctionType raise LLVMTypeError {
   ignore(self)
   FunctionType::new(returnType, paramTypes)
@@ -306,7 +306,7 @@ pub fn Context::getStructType(
   self : Context,
   elements : Array[&Type],
   name~ : String = "",
-  isPacked~ : Bool = false
+  isPacked~ : Bool = false,
 ) -> StructType raise LLVMTypeError {
   let name = unless(name.is_empty(), fn() { name })
   StructType::new(self, elements, name~, isPacked~)
@@ -353,7 +353,7 @@ pub fn Context::getStructTypeByName(self : Self, name : String) -> StructType? {
 pub fn Context::getArrayType(
   self : Context,
   elementType : &Type,
-  numElements : UInt
+  numElements : UInt,
 ) -> ArrayType raise LLVMTypeError {
   ArrayType::new(self, elementType, numElements)
 }
@@ -372,7 +372,7 @@ pub fn Context::getArrayType(
 pub fn Context::getFixedVectorType(
   self : Context,
   elementType : &Type,
-  elementQuantity : UInt
+  elementQuantity : UInt,
 ) -> FixedVectorType raise LLVMTypeError {
   FixedVectorType::new(self, elementType, elementQuantity)
 }
@@ -391,7 +391,7 @@ pub fn Context::getFixedVectorType(
 pub fn Context::getScalableVectorType(
   self : Context,
   elementType : &Type,
-  elementQuantity : UInt
+  elementQuantity : UInt,
 ) -> ScalableVectorType raise LLVMTypeError {
   ScalableVectorType::new(self, elementType, elementQuantity)
 }
@@ -543,7 +543,7 @@ pub fn Context::getConstDouble(self : Context, value : Double) -> ConstantFP {
 /// ```
 pub fn Context::getConstZeroFloat(
   self : Context,
-  isNegative~ : Bool = false
+  isNegative~ : Bool = false,
 ) -> ConstantFP {
   let uv = match isNegative {
     false => 0UL
@@ -571,7 +571,7 @@ pub fn Context::getConstZeroFloat(
 /// ```
 pub fn Context::getConstZeroDouble(
   self : Context,
-  isNegative~ : Bool = false
+  isNegative~ : Bool = false,
 ) -> ConstantFP {
   let uv = match isNegative {
     false => 0UL
@@ -599,7 +599,7 @@ pub fn Context::getConstZeroDouble(
 /// ```
 pub fn Context::getConstNaNFloat(
   self : Context,
-  isNegative~ : Bool = false
+  isNegative~ : Bool = false,
 ) -> ConstantFP {
   let uv = match isNegative {
     false => 0x7FF8_0000_0000_0000UL
@@ -627,7 +627,7 @@ pub fn Context::getConstNaNFloat(
 /// ```
 pub fn Context::getConstQNaNFloat(
   self : Context,
-  isNegative~ : Bool = false
+  isNegative~ : Bool = false,
 ) -> ConstantFP {
   let uv = match isNegative {
     false => 0x7FF8_0000_0000_0000UL
@@ -655,7 +655,7 @@ pub fn Context::getConstQNaNFloat(
 /// ```
 pub fn Context::getConstSNaNFloat(
   self : Context,
-  isNegative~ : Bool = false
+  isNegative~ : Bool = false,
 ) -> ConstantFP {
   let uv = match isNegative {
     false => 0x7FF4_0000_0000_0000UL
@@ -683,7 +683,7 @@ pub fn Context::getConstSNaNFloat(
 /// ```
 pub fn Context::getConstInfFloat(
   self : Context,
-  isNegative~ : Bool = false
+  isNegative~ : Bool = false,
 ) -> ConstantFP {
   let uv = match isNegative {
     false => 0x7FF0_0000_0000_0000UL
@@ -711,7 +711,7 @@ pub fn Context::getConstInfFloat(
 /// ```
 pub fn Context::getConstNaNDouble(
   self : Context,
-  isNegative~ : Bool = false
+  isNegative~ : Bool = false,
 ) -> ConstantFP {
   let uv = match isNegative {
     false => 0x7FF8_0000_0000_0000UL
@@ -739,7 +739,7 @@ pub fn Context::getConstNaNDouble(
 /// ```
 pub fn Context::getConstQNaNDouble(
   self : Context,
-  isNegative~ : Bool = false
+  isNegative~ : Bool = false,
 ) -> ConstantFP {
   let uv = match isNegative {
     false => 0x7FF8_0000_0000_0000UL
@@ -767,7 +767,7 @@ pub fn Context::getConstQNaNDouble(
 /// ```
 pub fn Context::getConstSNaNDouble(
   self : Context,
-  isNegative~ : Bool = false
+  isNegative~ : Bool = false,
 ) -> ConstantFP {
   let uv = match isNegative {
     false => 0x7FF4_0000_0000_0000UL
@@ -795,7 +795,7 @@ pub fn Context::getConstSNaNDouble(
 /// ```
 pub fn Context::getConstInfDouble(
   self : Context,
-  isNegative~ : Bool = false
+  isNegative~ : Bool = false,
 ) -> ConstantFP {
   let uv = match isNegative {
     false => 0x7FF0_0000_0000_0000UL
@@ -822,7 +822,7 @@ pub fn Context::getConstInfDouble(
 /// ```
 pub fn Context::getConstInt8Array(
   self : Context,
-  data : Array[Int]
+  data : Array[Int],
 ) -> ConstantArray {
   let ty = (try? self.getArrayType(
     self.getInt8Ty(),
@@ -844,7 +844,7 @@ pub fn Context::getConstInt8Array(
 /// ```
 pub fn Context::getConstInt16Array(
   self : Context,
-  data : Array[Int16]
+  data : Array[Int16],
 ) -> ConstantArray {
   let ty = (try? self.getArrayType(
     self.getInt16Ty(),
@@ -866,7 +866,7 @@ pub fn Context::getConstInt16Array(
 /// ```
 pub fn Context::getConstInt32Array(
   self : Context,
-  data : Array[Int]
+  data : Array[Int],
 ) -> ConstantArray {
   let ty = (try? self.getArrayType(
     self.getInt32Ty(),
@@ -888,7 +888,7 @@ pub fn Context::getConstInt32Array(
 /// ```
 pub fn Context::getConstInt64Array(
   self : Context,
-  data : Array[Int64]
+  data : Array[Int64],
 ) -> ConstantArray {
   let ty = (try? self.getArrayType(
     self.getInt64Ty(),
@@ -910,7 +910,7 @@ pub fn Context::getConstInt64Array(
 /// ```
 pub fn Context::getConstUInt8Array(
   self : Context,
-  data : Array[Byte]
+  data : Array[Byte],
 ) -> ConstantArray {
   let len = data.length().reinterpret_as_uint()
   let ty = (try? self.getArrayType(self.getInt8Ty(), len)).unwrap()
@@ -930,7 +930,7 @@ pub fn Context::getConstUInt8Array(
 /// ```
 pub fn Context::getConstUInt16Array(
   self : Context,
-  data : Array[UInt16]
+  data : Array[UInt16],
 ) -> ConstantArray {
   let len = data.length().reinterpret_as_uint()
   let ty = (try? self.getArrayType(self.getInt16Ty(), len)).unwrap()
@@ -950,7 +950,7 @@ pub fn Context::getConstUInt16Array(
 /// ```
 pub fn Context::getConstUInt32Array(
   self : Context,
-  data : Array[UInt]
+  data : Array[UInt],
 ) -> ConstantArray {
   let len = data.length().reinterpret_as_uint()
   let ty = (try? self.getArrayType(self.getInt32Ty(), len)).unwrap()
@@ -970,7 +970,7 @@ pub fn Context::getConstUInt32Array(
 /// ```
 pub fn Context::getConstUInt64Array(
   self : Context,
-  data : Array[UInt64]
+  data : Array[UInt64],
 ) -> ConstantArray {
   let len = data.length().reinterpret_as_uint()
   let ty = (try? self.getArrayType(self.getInt64Ty(), len)).unwrap()
@@ -993,7 +993,7 @@ pub fn Context::getConstUInt64Array(
 /// ```
 pub fn Context::getConstFloatArray(
   self : Context,
-  data : Array[Float]
+  data : Array[Float],
 ) -> ConstantArray {
   let len = data.length().reinterpret_as_uint()
   let ty = (try? self.getArrayType(self.getFloatTy(), len)).unwrap()
@@ -1017,7 +1017,7 @@ pub fn Context::getConstFloatArray(
 /// ```
 pub fn Context::getConstDoubleArray(
   self : Context,
-  data : Array[Double]
+  data : Array[Double],
 ) -> ConstantArray {
   let len = data.length().reinterpret_as_uint()
   let ty = (try? self.getArrayType(self.getDoubleTy(), len)).unwrap()
@@ -1044,7 +1044,7 @@ pub fn Context::getConstDoubleArray(
 /// ```
 pub fn Context::getConstInt8Vector(
   self : Context,
-  data : Array[Int]
+  data : Array[Int],
 ) -> ConstantVector {
   let len = data.length().reinterpret_as_uint()
   let ty = (try? self.getFixedVectorType(self.getInt8Ty(), len)).unwrap()
@@ -1064,7 +1064,7 @@ pub fn Context::getConstInt8Vector(
 /// ```
 pub fn Context::getConstInt16Vector(
   self : Context,
-  data : Array[Int16]
+  data : Array[Int16],
 ) -> ConstantVector {
   let len = data.length().reinterpret_as_uint()
   let ty = (try? self.getFixedVectorType(self.getInt16Ty(), len)).unwrap()
@@ -1084,7 +1084,7 @@ pub fn Context::getConstInt16Vector(
 /// ```
 pub fn Context::getConstInt32Vector(
   self : Context,
-  data : Array[Int]
+  data : Array[Int],
 ) -> ConstantVector {
   let len = data.length().reinterpret_as_uint()
   let ty = (try? self.getFixedVectorType(self.getInt32Ty(), len)).unwrap()
@@ -1104,7 +1104,7 @@ pub fn Context::getConstInt32Vector(
 /// ```
 pub fn Context::getConstInt64Vector(
   self : Context,
-  data : Array[Int64]
+  data : Array[Int64],
 ) -> ConstantVector {
   let len = data.length().reinterpret_as_uint()
   let ty = (try? self.getFixedVectorType(self.getInt64Ty(), len)).unwrap()
@@ -1124,7 +1124,7 @@ pub fn Context::getConstInt64Vector(
 /// ```
 pub fn Context::getConstUInt8Vector(
   self : Context,
-  data : Array[Byte]
+  data : Array[Byte],
 ) -> ConstantVector {
   let ty = (try? self.getFixedVectorType(
     self.getInt8Ty(),
@@ -1146,7 +1146,7 @@ pub fn Context::getConstUInt8Vector(
 /// ```
 pub fn Context::getConstUInt16Vector(
   self : Context,
-  data : Array[UInt16]
+  data : Array[UInt16],
 ) -> ConstantVector {
   let ty = (try? self.getFixedVectorType(
     self.getInt16Ty(),
@@ -1168,7 +1168,7 @@ pub fn Context::getConstUInt16Vector(
 /// ```
 pub fn Context::getConstUInt32Vector(
   self : Context,
-  data : Array[UInt]
+  data : Array[UInt],
 ) -> ConstantVector {
   let ty = (try? self.getFixedVectorType(
     self.getInt32Ty(),
@@ -1190,7 +1190,7 @@ pub fn Context::getConstUInt32Vector(
 /// ```
 pub fn Context::getConstUInt64Vector(
   self : Context,
-  data : Array[UInt64]
+  data : Array[UInt64],
 ) -> ConstantVector {
   let ty = (try? self.getFixedVectorType(
     self.getInt64Ty(),
@@ -1215,7 +1215,7 @@ pub fn Context::getConstUInt64Vector(
 /// ```
 pub fn Context::getConstFloatVector(
   self : Context,
-  data : Array[Float]
+  data : Array[Float],
 ) -> ConstantVector {
   let ty = (try? self.getFixedVectorType(
     self.getFloatTy(),
@@ -1241,7 +1241,7 @@ pub fn Context::getConstFloatVector(
 /// ```
 pub fn Context::getConstDoubleVector(
   self : Context,
-  data : Array[Double]
+  data : Array[Double],
 ) -> ConstantVector {
   let ty = (try? self.getFixedVectorType(
     self.getDoubleTy(),
@@ -1262,7 +1262,7 @@ pub fn Context::getConstDoubleVector(
 /// ```
 pub fn Context::getConstZero(
   self : Context,
-  ty : &Type
+  ty : &Type,
 ) -> &Constant raise LLVMValueError {
   match ty.asTypeEnum() {
     // Integer Types

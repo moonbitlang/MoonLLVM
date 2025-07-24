@@ -27,7 +27,7 @@ pub fn Module::addFunction(
   fty : FunctionType,
   name : String,
   linkage~ : LinkageTypes = ExternalLinkage,
-  addressSpace~ : AddressSpace = AddressSpace(0)
+  addressSpace~ : AddressSpace = AddressSpace(0),
 ) -> Function raise LLVMValueError {
   guard not(self.functions.contains(name)) else {
     raise DuplicateFunctionName(name)

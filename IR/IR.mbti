@@ -1594,7 +1594,7 @@ pub trait Value : Show {
   addUser(Self, &User) -> Unit
   getValueRepr(Self) -> String
   replaceAllUsersWith(Self, &Value) -> Unit
-  getUsers(Self) -> Array[&User]
+  getUsers(Self) -> Array[&User]?
   user_empty(Self) -> Bool
   tryAsConstant(Self) -> &Constant?
   tryAsConstantEnum(Self) -> ConstantEnum?
