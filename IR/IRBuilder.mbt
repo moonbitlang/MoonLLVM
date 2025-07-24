@@ -21,13 +21,14 @@ pub impl InsertPoint for &Instruction with asInsertPtEnum(self) {
 
 ///|
 pub struct IRBuilder {
+  ctx : Context
   mut bb : BasicBlock?
   mut insertPt : &Instruction?
 }
 
 ///|
-fn IRBuilder::new() -> IRBuilder {
-  IRBuilder::{ bb: None, insertPt: None }
+fn IRBuilder::new(ctx : Context) -> IRBuilder {
+  IRBuilder::{ ctx, bb: None, insertPt: None }
 }
 
 ///|

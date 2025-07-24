@@ -1,22 +1,23 @@
-// Program is equivalent to llvm `Module`
-// we use `Program` instead of `Module` is because `Module` is a keyword in Moonbit.
-
 ///|
 pub struct Module {
   context : Context
   functions : Map[String, Function]
   srcFileName : String
-  programID : String
+  moduleID : String
   dataLayout : DataLayout
 }
 
 ///|
-pub fn Module::new(programID : String, ctx : Context) -> Module {
+pub fn Module::new(
+  moduleID : String,
+  srcFileName : String,
+  ctx : Context,
+) -> Module {
   Module::{
     context: ctx,
     functions: Map::new(),
-    srcFileName: programID,
-    programID,
+    srcFileName,
+    moduleID,
     dataLayout: DataLayout::new(Little),
   }
 }
@@ -41,4 +42,16 @@ pub fn Module::addFunction(
 ///|
 pub fn Module::getContext(self : Module) -> Context {
   self.context
+}
+
+///|
+pub impl Show for Module with output(self, logger) {
+  logger.write_string(";; ModuleID = '\{self.moduleID}'\n")
+  logger.write_string(";; Source File = \"\{self.srcFileName}\"\n\n")
+  self.functions.values().each(f => logger.write_string(f.to_string()))
+}
+
+///|
+pub fn Module::dump(self : Module) -> Unit {
+  println(self)
 }

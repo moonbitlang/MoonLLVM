@@ -37,6 +37,7 @@ test "complex arithmetic operations" {
     #|  %final = sub i32 %mul_abc, %div_ab
     #|  ret i32 %final
     #|}
+    #|
   inspect(fval, content=expect)
 }
 
@@ -111,6 +112,7 @@ test "nested conditional statements" {
     #|inner_else:                                     ; preds = %positive
     #|  ret i32 50
     #|}
+    #|
   inspect(fval, content=expect)
 }
 
@@ -183,6 +185,7 @@ test "simple loop structure" {
     #|exit:                                     ; preds = %loop
     #|  ret i32 %sum
     #|}
+    #|
   inspect(fval, content=expect)
 }
 
@@ -221,6 +224,7 @@ test "floating point operations" {
     #|  %div_result = fdiv float %add_ab, %sub_ab
     #|  ret float %div_result
     #|}
+    #|
   inspect(fval, content=expect)
 }
 
@@ -257,6 +261,7 @@ test "type conversion operations" {
     #|  %result = fadd float %i_to_float, %1
     #|  ret float %result
     #|}
+    #|
   inspect(fval, content=expect)
 }
 
@@ -295,6 +300,7 @@ test "bitwise operations" {
     #|  %final = or i32 %and_ab, %xor_ab
     #|  ret i32 %final
     #|}
+    #|
   inspect(fval, content=expect)
 }
 
@@ -344,6 +350,7 @@ test "memory operations" {
     #|  %final = load i32, ptr %local, align 4
     #|  ret i32 %final
     #|}
+    #|
   inspect(fval, content=expect)
 }
 
@@ -409,6 +416,7 @@ test "switch statement" {
     #|default:                                     ; preds = %entry
     #|  ret i32 0
     #|}
+    #|
   inspect(fval, content=expect)
 }
 
@@ -454,6 +462,7 @@ test "comparison operations" {
     #|  %result = select i1 %a_gt_b, i32 1, i32 %inner
     #|  ret i32 %result
     #|}
+    #|
   inspect(fval, content=expect)
 }
 
@@ -512,6 +521,7 @@ test "function call test" {
     #|  %final = add i32 %call1, %call2
     #|  ret i32 %final
     #|}
+    #|
   inspect(caller_func, content=expect)
 }
 
@@ -597,6 +607,7 @@ test "shift operations" {
     #|  %ashr = ashr i32 %lshr, %1
     #|  ret i32 %ashr
     #|}
+    #|
   inspect(fval, content=expect)
 }
 
@@ -633,6 +644,7 @@ test "GEP pointer arithmetic" {
     #|  %element_val = load i32, ptr %element_ptr, align 4
     #|  ret i32 %element_val
     #|}
+    #|
   inspect(fval, content=expect)
 }
 
@@ -725,6 +737,7 @@ test "nested loops simplified" {
     #|exit:                                     ; preds = %loop
     #|  ret i32 %result
     #|}
+    #|
   inspect(fval, content=expect)
 }
 
@@ -762,6 +775,7 @@ test "atomic memory operations" {
     #|  store atomic i32 %1, ptr %0 release, align 4
     #|  ret i32 %atomic_load
     #|}
+    #|
   inspect(fval, content=expect)
 }
 
@@ -799,6 +813,7 @@ test "volatile memory operations" {
     #|  store volatile i32 42, ptr %0, align 4
     #|  ret i32 %vol_load
     #|}
+    #|
   inspect(fval, content=expect)
 }
 
@@ -847,6 +862,7 @@ test "struct operations with extract/insert value" {
     #|  %new_struct = insertvalue %TestStruct %0, i32 %sum, 2
     #|  ret %TestStruct %new_struct
     #|}
+    #|
   inspect(fval, content=expect)
 }
 
@@ -881,6 +897,7 @@ test "floating point comparisons" {
     #|  %result = or i1 %oeq, %ogt
     #|  ret i1 %result
     #|}
+    #|
   inspect(fval, content=expect)
 }
 
@@ -920,6 +937,7 @@ test "type conversion chains" {
     #|  %to_f64 = fpext float %to_f32 to double
     #|  ret double %to_f64
     #|}
+    #|
   inspect(fval, content=expect)
 }
 

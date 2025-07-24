@@ -81,16 +81,23 @@ pub impl Hash for Context with hash_combine(self, hasher) {
 }
 
 ///|
-pub fn Context::addModule(self : Context, programID : String) -> Module {
-  let prog = Module::new(programID, self)
+pub fn Context::addModule(
+  self : Context,
+  moduleID : String,
+  source_file~ : String? = None,
+) -> Module {
+  let source_file = match source_file {
+    Some(f) => f
+    None => moduleID
+  }
+  let prog = Module::new(moduleID, source_file, self)
   self.pimpl.unwrap().ownedPrograms.push(prog)
   prog
 }
 
 ///|
 pub fn Context::createBuilder(self : Context) -> IRBuilder {
-  ignore(self)
-  IRBuilder::new()
+  IRBuilder::new(self)
 }
 
 ///| Get the half type from context.
