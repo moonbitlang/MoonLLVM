@@ -214,3 +214,97 @@ test "FCmp Instruction Users" {
   inspect(arg1_users[2], content = "  %fgt_result = fcmp ogt float %0, %1")
   inspect(arg1_users[3], content = "  %flt_result = fcmp olt float %0, %1")
 }
+
+test "Cast Instruction Users" {
+  let ctx = Context::new()
+  let mod = ctx.addModule("demo")
+  let builder = ctx.createBuilder()
+
+  let void_ty = ctx.getVoidTy()
+  let ptr_ty = ctx.getPtrTy()
+  let i32_ty = ctx.getInt32Ty()
+  let i64_ty = ctx.getInt64Ty()
+  let f32_ty = ctx.getFloatTy()
+  let f64_ty = ctx.getDoubleTy()
+
+  let fty = ctx.getFunctionType(void_ty, [ptr_ty])
+  let fval = mod.addFunction(fty, "cast_integer_to_float")
+
+  let bb = fval.addBasicBlock(name="entry")
+  builder.setInsertPoint(bb)
+
+  let ptr = fval.getArg(0).unwrap()
+  let ptr_users = ptr.getUsers()
+
+  // Trunc
+  let i64_val = builder.createLoad(i64_ty, ptr, name="i64_val")
+  let _ = builder.createTrunc(i64_val, i32_ty, name="i64_trunc_to_i32")
+  assert_eq(ptr_users.length(), 1)
+  inspect(i64_val.getUsers()[0], content = "  %i64_trunc_to_i32 = trunc i64 %i64_val to i32")
+  
+  // ZExt
+  let i32_val = builder.createLoad(i32_ty, ptr, name="i32_val")
+  let _ = builder.createZExt(i32_val, i64_ty, name="i32_zext_to_i64")
+  assert_eq(ptr_users.length(), 2)
+  inspect(i32_val.getUsers()[0], content = "  %i32_zext_to_i64 = zext i32 %i32_val to i64")
+
+  // SExt
+  let i16_val = builder.createLoad(i32_ty, ptr, name="i16_val")
+  let _ = builder.createSExt(i16_val, i64_ty, name="i16_sext_to_i64")
+  assert_eq(ptr_users.length(), 3)
+  inspect(i16_val.getUsers()[0], content = "  %i16_sext_to_i64 = sext i32 %i16_val to i64")
+
+  // FPTrunc
+  let f64_val = builder.createLoad(f64_ty, ptr, name="f64_val")
+  let _ = builder.createFPTrunc(f64_val, f32_ty, name="f64_fptrunc_to_f32")
+  assert_eq(ptr_users.length(), 4)
+  inspect(f64_val.getUsers()[0], content = "  %f64_fptrunc_to_f32 = fptrunc double %f64_val to float")
+
+  // FPExt
+  let f32_val = builder.createLoad(f32_ty, ptr, name="f32_val")
+  let _ = builder.createFPExt(f32_val, f64_ty, name="f32_fpext_to_f64")
+  assert_eq(ptr_users.length(), 5)
+  inspect(f32_val.getUsers()[0], content = "  %f32_fpext_to_f64 = fpext float %f32_val to double")
+
+  // UIToFP
+  let ui32_val = builder.createLoad(i32_ty, ptr, name="ui32_val")
+  let _ = builder.createUIToFP(ui32_val, f32_ty, name="ui32_uitofp_to_f32")
+  assert_eq(ptr_users.length(), 6)
+  inspect(ui32_val.getUsers()[0], content = "  %ui32_uitofp_to_f32 = uitofp i32 %ui32_val to float")
+
+  // FPToUI
+  let fp_val = builder.createLoad(f32_ty, ptr, name="fp_val")
+  let _ = builder.createFPToUI(fp_val, i32_ty, name="fp_fptoui_to_i32")
+  assert_eq(ptr_users.length(), 7)
+  inspect(fp_val.getUsers()[0], content = "  %fp_fptoui_to_i32 = fptoui float %fp_val to i32")
+
+  // SIToFP
+  let si32_val = builder.createLoad(i32_ty, ptr, name="si32_val")
+  let _ = builder.createSIToFP(si32_val, f32_ty, name="si32_sitofp_to_f32")
+  assert_eq(ptr_users.length(), 8)
+  inspect(si32_val.getUsers()[0], content = "  %si32_sitofp_to_f32 = sitofp i32 %si32_val to float")
+
+  // FPToSI
+  let fp2_val = builder.createLoad(f32_ty, ptr, name="fp2_val")
+  let _ = builder.createFPToSI(fp2_val, i32_ty, name="fp2_fptosi_to_i32")
+  assert_eq(ptr_users.length(), 9)
+  inspect(fp2_val.getUsers()[0], content = "  %fp2_fptosi_to_i32 = fptosi float %fp2_val to i32")
+
+  // PtrToInt
+  let ptr_val = builder.createLoad(ptr_ty, ptr, name="ptr_val")
+  let _ = builder.createPtrToInt(ptr_val, i64_ty, name="ptr_ptrtoint_to_i64")
+  assert_eq(ptr_users.length(), 10)
+  inspect(ptr_val.getUsers()[0], content = "  %ptr_ptrtoint_to_i64 = ptrtoint ptr %ptr_val to i64")
+
+  // IntToPtr
+  let int_val = builder.createLoad(i64_ty, ptr, name="int_val")
+  let _ = builder.createIntToPtr(int_val, name="int_inttoptr_to_ptr")
+  assert_eq(ptr_users.length(), 11)
+  inspect(int_val.getUsers()[0], content = "  %int_inttoptr_to_ptr = inttoptr i64 %int_val to ptr")
+  
+  // BitCast
+  let f64_val = builder.createLoad(f64_ty, ptr, name="f64_val2")
+  let _ = builder.createBitCast(f64_val, i64_ty, name="f64_bitcast_to_i64")
+  assert_eq(ptr_users.length(), 12)
+  inspect(f64_val.getUsers()[0], content = "  %f64_bitcast_to_i64 = bitcast double %f64_val2 to i64")
+}
