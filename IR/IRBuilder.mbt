@@ -102,6 +102,14 @@ pub fn IRBuilder::createRet(
   self : IRBuilder,
   retVal : &Value,
 ) -> &Instruction raise Error {
+  let vty = retVal.getType()
+  let parent = self.getInsertFunction()
+  guard vty == parent.getReturnType() else {
+    let msg = "Misuse `IRBuilder::createRet`, " +
+      "the return value type must match the function's return type, " +
+      "got `\{vty}` but expected `\{parent.getReturnType()}`"
+    raise LLVMValueError(msg)
+  }
   let parent = self.getInsertFunction()
   let retInst = ReturnInst::new(Some(retVal), parent)
   self.insert(retInst)
@@ -132,6 +140,12 @@ pub fn IRBuilder::createRet(
 /// ```
 pub fn IRBuilder::createRetVoid(self : IRBuilder) -> &Instruction raise Error {
   let parent = self.getInsertFunction()
+  let void_ty = parent.getContext().getVoidTy()
+  guard parent.getReturnType() == void_ty else {
+    let msg = "Misuse `IRBuilder::createRetVoid`, " +
+      "function return type is \{parent.getReturnType()}"
+    raise LLVMValueError(msg)
+  }
   let retInst = ReturnInst::new(None, parent)
   self.insert(retInst)
   retInst
@@ -143,7 +157,7 @@ pub fn IRBuilder::createAlloca(
   data_ty : &Type,
   addressSpace~ : AddressSpace = AddressSpace::default(),
   name~ : String = "",
-) -> &Value raise Error {
+) -> AllocaInst raise Error {
   let allocaInst = AllocaInst::new(
     data_ty,
     self.getInsertFunction(),
@@ -192,6 +206,19 @@ pub fn IRBuilder::createAdd(
   has_nsw~ : Bool = false,
   has_nuw~ : Bool = false,
 ) -> &Value raise Error {
+  let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
+  guard lhsTy == rhsTy else {
+    let msg = "Misuse `IRBuilder::createAdd`, " +
+      "the type of both operands must be the same, " +
+      "got `{lhsTy} and {rhsTy}`"
+    raise LLVMValueError(msg)
+  }
+  guard lhsTy.tryAsIntTypeEnum() is Some(_) else {
+    let msg = "Misuse `IRBuilder::createAdd`, " +
+      "the type of both operands must be integer types, " +
+      "got `{lhsTy}`"
+    raise LLVMValueError(msg)
+  }
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
     (Some(ConstantInt(lhs)), Some(ConstantInt(rhs))) => return lhs.add(rhs)
     _ => ()
@@ -332,6 +359,19 @@ pub fn IRBuilder::createSub(
   has_nsw~ : Bool = false,
   has_nuw~ : Bool = false,
 ) -> &Value raise Error {
+  let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
+  guard lhsTy == rhsTy else {
+    let msg = "Misuse `IRBuilder::createSub`, " +
+      "the type of both operands must be the same, " +
+      "got `{lhsTy} and {rhsTy}`"
+    raise LLVMValueError(msg)
+  }
+  guard lhsTy.tryAsIntTypeEnum() is Some(_) else {
+    let msg = "Misuse `IRBuilder::createSub`, " +
+      "the type of both operands must be integer types, " +
+      "got `{lhsTy}`"
+    raise LLVMValueError(msg)
+  }
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
     (Some(ConstantInt(lhs)), Some(ConstantInt(rhs))) => return lhs.sub(rhs)
     _ => ()
@@ -472,6 +512,19 @@ pub fn IRBuilder::createMul(
   has_nsw~ : Bool = false,
   has_nuw~ : Bool = false,
 ) -> &Value raise Error {
+  let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
+  guard lhsTy == rhsTy else {
+    let msg = "Misuse `IRBuilder::createMul`, " +
+      "the type of both operands must be the same, " +
+      "got `{lhsTy} and {rhsTy}`"
+    raise LLVMValueError(msg)
+  }
+  guard lhsTy.tryAsIntTypeEnum() is Some(_) else {
+    let msg = "Misuse `IRBuilder::createMul`, " +
+      "the type of both operands must be integer types, " +
+      "got `{lhsTy}`"
+    raise LLVMValueError(msg)
+  }
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
     (Some(ConstantInt(lhs)), Some(ConstantInt(rhs))) => return lhs.mul(rhs)
     _ => ()
@@ -612,6 +665,20 @@ pub fn IRBuilder::createSDiv(
   name~ : String = "",
   is_exact~ : Bool = false,
 ) -> &Value raise Error {
+  let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
+  guard lhsTy == rhsTy else {
+    let msg = "Misuse `IRBuilder::createSDiv`, " +
+      "the type of both operands must be the same, " +
+      "got `{lhsTy} and {rhsTy}`"
+    raise LLVMValueError(msg)
+  }
+  guard lhsTy.tryAsIntTypeEnum() is Some(_) else {
+    let msg = "Misuse `IRBuilder::createSDiv`, " +
+      "the type of both operands must be integer types, " +
+      "got `{lhsTy}`"
+    raise LLVMValueError(msg)
+  }
+
   // match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
   //   (Some(ConstantInt(c_lhs)), Some(ConstantInt(c_rhs))) => return c_lhs.sdiv(c_rhs) // Assuming ConstantInt has sdiv!
   //   _ => ()
@@ -711,6 +778,19 @@ pub fn IRBuilder::createUDiv(
   name~ : String = "",
   is_exact~ : Bool = false,
 ) -> &Value raise Error {
+  let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
+  guard lhsTy == rhsTy else {
+    let msg = "Misuse `IRBuilder::createUDiv`, " +
+      "the type of both operands must be the same, " +
+      "got `{lhsTy} and {rhsTy}`"
+    raise LLVMValueError(msg)
+  }
+  guard lhsTy.tryAsIntTypeEnum() is Some(_) else {
+    let msg = "Misuse `IRBuilder::createUDiv`, " +
+      "the type of both operands must be integer types, " +
+      "got `{lhsTy}`"
+    raise LLVMValueError(msg)
+  }
   // match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
   //   (Some(ConstantUInt(c_lhs)), Some(ConstantUInt(c_rhs))) => return c_lhs.udiv(c_rhs) // Assumed missing
   //   _ => ()
@@ -809,6 +889,19 @@ pub fn IRBuilder::createSRem(
   rhs : &Value,
   name~ : String = "",
 ) -> &Value raise Error {
+  let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
+  guard lhsTy == rhsTy else {
+    let msg = "Misuse `IRBuilder::createSRem`, " +
+      "the type of both operands must be the same, " +
+      "got `{lhsTy} and {rhsTy}`"
+    raise LLVMValueError(msg)
+  }
+  guard lhsTy.tryAsIntTypeEnum() is Some(_) else {
+    let msg = "Misuse `IRBuilder::createSRem`, " +
+      "the type of both operands must be integer types, " +
+      "got `{lhsTy}`"
+    raise LLVMValueError(msg)
+  }
   // Constant folding for SRem is currently disabled due to assumed missing `ConstantInt::srem!`
   // match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
   //   (Some(ConstantInt(c_lhs)), Some(ConstantInt(c_rhs))) => return c_lhs.srem(c_rhs)
@@ -865,6 +958,19 @@ pub fn IRBuilder::createURem(
   rhs : &Value,
   name~ : String = "",
 ) -> &Value raise Error {
+  let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
+  guard lhsTy == rhsTy else {
+    let msg = "Misuse `IRBuilder::createURem`, " +
+      "the type of both operands must be the same, " +
+      "got `{lhsTy} and {rhsTy}`"
+    raise LLVMValueError(msg)
+  }
+  guard lhsTy.tryAsIntTypeEnum() is Some(_) else {
+    let msg = "Misuse `IRBuilder::createURem`, " +
+      "the type of both operands must be integer types, " +
+      "got `{lhsTy}`"
+    raise LLVMValueError(msg)
+  }
   // Constant folding for URem is currently disabled due to assumed missing `ConstantUInt::urem!`
   // match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
   //   (Some(ConstantUInt(c_lhs)), Some(ConstantUInt(c_rhs))) => return c_lhs.urem(c_rhs)
@@ -945,6 +1051,19 @@ pub fn IRBuilder::createFAdd(
   name~ : String = "",
   fast_math~ : Array[FastMathFlag] = [],
 ) -> &Value raise Error {
+  let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
+  guard lhsTy == rhsTy else {
+    let msg = "Misuse `IRBuilder::createFAdd`, " +
+      "the type of both operands must be the same, " +
+      "got `{lhsTy} and {rhsTy}`"
+    raise LLVMValueError(msg)
+  }
+  guard lhsTy.tryAsFPTypeEnum() is Some(_) else {
+    let msg = "Misuse `IRBuilder::createFAdd`, " +
+      "the type of both operands must be floating-point types, " +
+      "got `{lhsTy}`"
+    raise LLVMValueError(msg)
+  }
   let parent = self.getInsertFunction()
   let fast_math_flags = Set::from_array(fast_math)
   let inst = BinaryInst::newFPMathOp(
@@ -996,6 +1115,19 @@ pub fn IRBuilder::createFSub(
   name~ : String = "",
   fast_math_flags~ : Set[FastMathFlag] = Set::new(),
 ) -> &Value raise Error {
+  let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
+  guard lhsTy == rhsTy else {
+    let msg = "Misuse `IRBuilder::createFSub`, " +
+      "the type of both operands must be the same, " +
+      "got `{lhsTy} and {rhsTy}`"
+    raise LLVMValueError(msg)
+  }
+  guard lhsTy.tryAsFPTypeEnum() is Some(_) else {
+    let msg = "Misuse `IRBuilder::createFSub`, " +
+      "the type of both operands must be floating-point types, " +
+      "got `{lhsTy}`"
+    raise LLVMValueError(msg)
+  }
   let parent = self.getInsertFunction()
   let inst = BinaryInst::newFPMathOp(
     BinaryOps::FSub,
@@ -1046,6 +1178,19 @@ pub fn IRBuilder::createFMul(
   name~ : String = "",
   fast_math_flags~ : Set[FastMathFlag] = Set::new(),
 ) -> &Value raise Error {
+  let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
+  guard lhsTy == rhsTy else {
+    let msg = "Misuse `IRBuilder::createFMul`, " +
+      "the type of both operands must be the same, " +
+      "got `{lhsTy} and {rhsTy}`"
+    raise LLVMValueError(msg)
+  }
+  guard lhsTy.tryAsFPTypeEnum() is Some(_) else {
+    let msg = "Misuse `IRBuilder::createFMul`, " +
+      "the type of both operands must be floating-point types, " +
+      "got `{lhsTy}`"
+    raise LLVMValueError(msg)
+  }
   let parent = self.getInsertFunction()
   let inst = BinaryInst::newFPMathOp(
     BinaryOps::FMul,
@@ -1096,6 +1241,19 @@ pub fn IRBuilder::createFDiv(
   name~ : String = "",
   fast_math_flags~ : Set[FastMathFlag] = Set::new(),
 ) -> &Value raise Error {
+  let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
+  guard lhsTy == rhsTy else {
+    let msg = "Misuse `IRBuilder::createFDiv`, " +
+      "the type of both operands must be the same, " +
+      "got `{lhsTy} and {rhsTy}`"
+    raise LLVMValueError(msg)
+  }
+  guard lhsTy.tryAsFPTypeEnum() is Some(_) else {
+    let msg = "Misuse `IRBuilder::createFDiv`, " +
+      "the type of both operands must be floating-point types, " +
+      "got `{lhsTy}`"
+    raise LLVMValueError(msg)
+  }
   let parent = self.getInsertFunction()
   let inst = BinaryInst::newFPMathOp(
     BinaryOps::FDiv,
@@ -1146,6 +1304,19 @@ pub fn IRBuilder::createFRem(
   name~ : String = "",
   fast_math_flags~ : Set[FastMathFlag] = Set::new(),
 ) -> &Value raise Error {
+  let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
+  guard lhsTy == rhsTy else {
+    let msg = "Misuse `IRBuilder::createFRem`, " +
+      "the type of both operands must be the same, " +
+      "got `{lhsTy} and {rhsTy}`"
+    raise LLVMValueError(msg)
+  }
+  guard lhsTy.tryAsFPTypeEnum() is Some(_) else {
+    let msg = "Misuse `IRBuilder::createFRem`, " +
+      "the type of both operands must be floating-point types, " +
+      "got `{lhsTy}`"
+    raise LLVMValueError(msg)
+  }
   let parent = self.getInsertFunction()
   let inst = BinaryInst::newFPMathOp(
     BinaryOps::FRem,
@@ -1195,6 +1366,19 @@ pub fn IRBuilder::createAnd(
   rhs : &Value,
   name~ : String = "",
 ) -> &Value raise Error {
+  let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
+  guard lhsTy == rhsTy else {
+    let msg = "Misuse `IRBuilder::createAnd`, " +
+      "the type of both operands must be the same, " +
+      "got `{lhsTy} and {rhsTy}`"
+    raise LLVMValueError(msg)
+  }
+  guard lhsTy.tryAsIntTypeEnum() is Some(_) else {
+    let msg = "Misuse `IRBuilder::createAnd`, " +
+      "the type of both operands must be integer types, " +
+      "got `{lhsTy}`"
+    raise LLVMValueError(msg)
+  }
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
     (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) =>
       return lhs_ci.compute_and(rhs_ci)
@@ -1249,6 +1433,19 @@ pub fn IRBuilder::createOr(
   rhs : &Value,
   name~ : String = "",
 ) -> &Value raise Error {
+  let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
+  guard lhsTy == rhsTy else {
+    let msg = "Misuse `IRBuilder::createOr`, " +
+      "the type of both operands must be the same, " +
+      "got `{lhsTy} and {rhsTy}`"
+    raise LLVMValueError(msg)
+  }
+  guard lhsTy.tryAsIntTypeEnum() is Some(_) else {
+    let msg = "Misuse `IRBuilder::createOr`, " +
+      "the type of both operands must be integer types, " +
+      "got `{lhsTy}`"
+    raise LLVMValueError(msg)
+  }
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
     (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) =>
       return lhs_ci.or(rhs_ci)
@@ -1303,6 +1500,19 @@ pub fn IRBuilder::createXor(
   rhs : &Value,
   name~ : String = "",
 ) -> &Value raise Error {
+  let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
+  guard lhsTy == rhsTy else {
+    let msg = "Misuse `IRBuilder::createXor`, " +
+      "the type of both operands must be the same, " +
+      "got `{lhsTy} and {rhsTy}`"
+    raise LLVMValueError(msg)
+  }
+  guard lhsTy.tryAsIntTypeEnum() is Some(_) else {
+    let msg = "Misuse `IRBuilder::createXor`, " +
+      "the type of both operands must be integer types, " +
+      "got `{lhsTy}`"
+    raise LLVMValueError(msg)
+  }
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
     (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) =>
       return lhs_ci.xor(rhs_ci)
@@ -1359,6 +1569,19 @@ pub fn IRBuilder::createShl(
   has_nsw~ : Bool = false,
   has_nuw~ : Bool = false,
 ) -> &Value raise Error {
+  let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
+  guard lhsTy == rhsTy else {
+    let msg = "Misuse `IRBuilder::createShl`, " +
+      "the type of both operands must be the same, " +
+      "got `{lhsTy} and {rhsTy}`"
+    raise LLVMValueError(msg)
+  }
+  guard lhsTy.tryAsIntTypeEnum() is Some(_) else {
+    let msg = "Misuse `IRBuilder::createShl`, " +
+      "the type of both operands must be integer types, " +
+      "got `{lhsTy}`"
+    raise LLVMValueError(msg)
+  }
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
     (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) =>
       return lhs_ci.compute_shl(rhs_ci)
@@ -1421,6 +1644,19 @@ pub fn IRBuilder::createLShr(
   name~ : String = "",
   is_exact~ : Bool = false,
 ) -> &Value raise Error {
+  let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
+  guard lhsTy == rhsTy else {
+    let msg = "Misuse `IRBuilder::createLShr`, " +
+      "the type of both operands must be the same, " +
+      "got `{lhsTy} and {rhsTy}`"
+    raise LLVMValueError(msg)
+  }
+  guard lhsTy.tryAsIntTypeEnum() is Some(_) else {
+    let msg = "Misuse `IRBuilder::createLShr`, " +
+      "the type of both operands must be integer types, " +
+      "got `{lhsTy}`"
+    raise LLVMValueError(msg)
+  }
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
     (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) =>
       return lhs_ci.lshr(rhs_ci)
@@ -1480,6 +1716,19 @@ pub fn IRBuilder::createAShr(
   name~ : String = "",
   is_exact~ : Bool = false,
 ) -> &Value raise Error {
+  let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
+  guard lhsTy == rhsTy else {
+    let msg = "Misuse `IRBuilder::createAShr`, " +
+      "the type of both operands must be the same, " +
+      "got `{lhsTy} and {rhsTy}`"
+    raise LLVMValueError(msg)
+  }
+  guard lhsTy.tryAsIntTypeEnum() is Some(_) else {
+    let msg = "Misuse `IRBuilder::createAShr`, " +
+      "the type of both operands must be integer types, " +
+      "got `{lhsTy}`"
+    raise LLVMValueError(msg)
+  }
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
     (Some(ConstantInt(lhs_ci)), Some(ConstantInt(rhs_ci))) =>
       return lhs_ci.ashr(rhs_ci)
@@ -1567,6 +1816,19 @@ pub fn IRBuilder::createICmp(
   rhs : &Value,
   name~ : String = "",
 ) -> &Value raise Error {
+  let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
+  guard lhsTy == rhsTy else {
+    let msg = "Misuse `IRBuilder::createICmp`, " +
+      "the type of both operands must be the same, " +
+      "got `{lhsTy} and {rhsTy}`"
+    raise LLVMValueError(msg)
+  }
+  guard lhsTy.tryAsIntTypeEnum() is Some(_) else {
+    let msg = "Misuse `IRBuilder::createICmp`, " +
+      "the type of both operands must be integer types, " +
+      "got `{lhsTy}`"
+    raise LLVMValueError(msg)
+  }
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
     (Some(ConstantInt(lhs)), Some(ConstantInt(rhs))) =>
       return lhs.compare(pred, rhs)
@@ -1778,6 +2040,19 @@ pub fn IRBuilder::createFCmp(
   rhs : &Value,
   name~ : String = "",
 ) -> &Value raise Error {
+  let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
+  guard lhsTy == rhsTy else {
+    let msg = "Misuse `IRBuilder::createFCmp`, " +
+      "the type of both operands must be the same, " +
+      "got `{lhsTy} and {rhsTy}`"
+    raise LLVMValueError(msg)
+  }
+  guard lhsTy.tryAsFPTypeEnum() is Some(_) else {
+    let msg = "Misuse `IRBuilder::createFCmp`, " +
+      "the type of both operands must be floating-point types, " +
+      "got `{lhsTy}`"
+    raise LLVMValueError(msg)
+  }
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
     (Some(ConstantFP(lhs)), Some(ConstantFP(rhs))) =>
       return lhs.compare(pred, rhs)
@@ -1999,6 +2274,18 @@ pub fn IRBuilder::createTrunc(
   dst_ty : &IntegerType,
   name~ : String = "",
 ) -> &Value raise Error {
+  guard src_val.getType().tryAsIntTypeEnum() is Some(src_ty) else {
+    let msg = "Misuse `IRBuilder::createTrunc`, " +
+      "the source value must be an integer type, " +
+      "got `\{src_val.getType()}`"
+    raise LLVMValueError(msg)
+  }
+  guard src_ty.getBitWidth() > dst_ty.getBitWidth() else {
+    let msg = "Misuse `IRBuilder::createTrunc`, " +
+      "the destination type must be smaller than the source type, " +
+      "got `\{src_ty.getBitWidth()} bits` and `\{dst_ty.getBitWidth()} bits`"
+    raise LLVMValueError(msg)
+  }
   match src_val.tryAsConstantEnum() {
     Some(ConstantInt(ci)) => return ci.trunc(dst_ty)
     _ => ()
@@ -2050,6 +2337,18 @@ pub fn IRBuilder::createZExt(
   dst_ty : &IntegerType,
   name~ : String = "",
 ) -> &Value raise Error {
+  guard src_val.getType().tryAsIntTypeEnum() is Some(src_ty) else {
+    let msg = "Misuse `IRBuilder::createZExt`, " +
+      "the source value must be an integer type, " +
+      "got `\{src_val.getType()}`"
+    raise LLVMValueError(msg)
+  }
+  guard src_ty.getBitWidth() < dst_ty.getBitWidth() else {
+    let msg = "Misuse `IRBuilder::createZExt`, " +
+      "the destination type must be larger than the source type, " +
+      "got `\{src_ty.getBitWidth()} bits` and `\{dst_ty.getBitWidth()} bits`"
+    raise LLVMValueError(msg)
+  }
   match src_val.tryAsConstantEnum() {
     Some(ConstantInt(ci)) => return ci.zext(dst_ty)
     _ => ()
@@ -2101,6 +2400,18 @@ pub fn IRBuilder::createSExt(
   dst_ty : &IntegerType,
   name~ : String = "",
 ) -> &Value raise Error {
+  guard src_val.getType().tryAsIntTypeEnum() is Some(src_ty) else {
+    let msg = "Misuse `IRBuilder::createSExt`, " +
+      "the source value must be an integer type, " +
+      "got `\{src_val.getType()}`"
+    raise LLVMValueError(msg)
+  }
+  guard src_ty.getBitWidth() < dst_ty.getBitWidth() else {
+    let msg = "Misuse `IRBuilder::createSExt`, " +
+      "the destination type must be larger than the source type, " +
+      "got `\{src_ty.getBitWidth()} bits` and `\{dst_ty.getBitWidth()} bits`"
+    raise LLVMValueError(msg)
+  }
   match src_val.tryAsConstantEnum() {
     Some(ConstantInt(ci)) => return ci.sext(dst_ty)
     _ => ()
@@ -2151,6 +2462,18 @@ pub fn IRBuilder::createFPTrunc(
   dst_ty : &FPType,
   name~ : String = "",
 ) -> &Value raise Error {
+  guard src_val.getType().tryAsFPTypeEnum() is Some(src_ty) else {
+    let msg = "Misuse `IRBuilder::createFPTrunc`, " +
+      "the source value must be a floating-point type, " +
+      "got `\{src_val.getType()}`"
+    raise LLVMValueError(msg)
+  }
+  guard src_ty.getBitWidth() > dst_ty.getBitWidth() else {
+    let msg = "Misuse `IRBuilder::createFPTrunc`, " +
+      "the destination type must be smaller than the source type, " +
+      "got `\{src_ty.getBitWidth()} bits` and `\{dst_ty.getBitWidth()} bits`"
+    raise LLVMValueError(msg)
+  }
   match src_val.tryAsConstantEnum() {
     Some(ConstantFP(cf)) => return cf.fptrunc(dst_ty)
     _ => ()
@@ -2197,6 +2520,18 @@ pub fn IRBuilder::createFPExt(
   dst_ty : &FPType,
   name~ : String = "",
 ) -> &Value raise Error {
+  guard src_val.getType().tryAsFPTypeEnum() is Some(src_ty) else {
+    let msg = "Misuse `IRBuilder::createFPExt`, " +
+      "the source value must be a floating-point type, " +
+      "got `\{src_val.getType()}`"
+    raise LLVMValueError(msg)
+  }
+  guard src_ty.getBitWidth() < dst_ty.getBitWidth() else {
+    let msg = "Misuse `IRBuilder::createFPExt`, " +
+      "the destination type must be larger than the source type, " +
+      "got `\{src_ty.getBitWidth()} bits` and `\{dst_ty.getBitWidth()} bits`"
+    raise LLVMValueError(msg)
+  }
   match src_val.tryAsConstantEnum() {
     Some(ConstantFP(cf)) => return cf.fpext(dst_ty)
     _ => ()
@@ -2247,6 +2582,12 @@ pub fn IRBuilder::createUIToFP(
   dst_ty : &FPType,
   name~ : String = "",
 ) -> &Value raise Error {
+  guard src_val.getType().tryAsIntTypeEnum() is Some(_) else {
+    let msg = "Misuse `IRBuilder::createUIToFP`, " +
+      "the source value must be an unsigned integer type, " +
+      "got `\{src_val.getType()}`"
+    raise LLVMValueError(msg)
+  }
   match src_val.tryAsConstantEnum() {
     Some(ConstantInt(ci)) => return ci.uitofp(dst_ty)
     _ => ()
@@ -2298,6 +2639,12 @@ pub fn IRBuilder::createFPToUI(
   dst_ty : &IntegerType,
   name~ : String = "",
 ) -> &Value raise Error {
+  guard src_val.getType().tryAsFPTypeEnum() is Some(_) else {
+    let msg = "Misuse `IRBuilder::createFPToUI`, " +
+      "the source value must be a floating-point type, " +
+      "got `\{src_val.getType()}`"
+    raise LLVMValueError(msg)
+  }
   match src_val.tryAsConstantEnum() {
     Some(ConstantFP(cf)) => return cf.fptoui(dst_ty)
     _ => ()
@@ -2344,6 +2691,12 @@ pub fn IRBuilder::createSIToFP(
   dst_ty : &FPType,
   name~ : String = "",
 ) -> &Value raise Error {
+  guard src_val.getType().tryAsIntTypeEnum() is Some(_) else {
+    let msg = "Misuse `IRBuilder::createSIToFP`, " +
+      "the source value must be a signed integer type, " +
+      "got `\{src_val.getType()}`"
+    raise LLVMValueError(msg)
+  }
   match src_val.tryAsConstantEnum() {
     Some(ConstantInt(ci)) => return ci.sitofp(dst_ty)
     _ => ()
@@ -2390,6 +2743,12 @@ pub fn IRBuilder::createFPToSI(
   dst_ty : &IntegerType,
   name~ : String = "",
 ) -> &Value raise Error {
+  guard src_val.getType().tryAsFPTypeEnum() is Some(_) else {
+    let msg = "Misuse `IRBuilder::createFPToSI`, " +
+      "the source value must be a floating-point type, " +
+      "got `\{src_val.getType()}`"
+    raise LLVMValueError(msg)
+  }
   match src_val.tryAsConstantEnum() {
     Some(ConstantFP(cf)) => return cf.fptosi(dst_ty)
     _ => ()
@@ -2435,6 +2794,12 @@ pub fn IRBuilder::createIntToPtr(
   src_val : &Value,
   name~ : String = "",
 ) -> &Value raise Error {
+  guard src_val.getType().tryAsIntTypeEnum() is Some(_) else {
+    let msg = "Misuse `IRBuilder::createIntToPtr`, " +
+      "the source value must be an integer type, " +
+      "got `\{src_val.getType()}`"
+    raise LLVMValueError(msg)
+  }
   match src_val.tryAsConstantEnum() {
     Some(ConstantInt(ci)) => return ci.inttoptr()
     _ => ()
@@ -2481,6 +2846,12 @@ pub fn IRBuilder::createPtrToInt(
   name~ : String = "",
 ) -> &Value raise Error {
   // No constant folding for PtrToInt as pointer constants are complex
+  guard src_val.getType().asTypeEnum() is PointerType(_) else {
+    let msg = "Misuse `IRBuilder::createPtrToInt`, " +
+      "the source value must be a pointer type, " +
+      "got `\{src_val.getType()}`"
+    raise LLVMValueError(msg)
+  }
   let parent = self.getInsertFunction()
   let inst = CastInst::newPtrToInt(
     src_val,
@@ -2523,6 +2894,25 @@ pub fn IRBuilder::createBitCast(
   dst_ty : &PrimitiveType,
   name~ : String = "",
 ) -> &Value raise Error {
+  let src_ty = src_val.getType()
+  guard src_ty != dst_ty else {
+    let msg = "Misuse `IRBuilder::createBitCast`, " +
+      "the source and destination types must be different, " +
+      "got \{src_ty} and \{dst_ty}"
+    raise LLVMValueError(msg)
+  }
+  guard src_ty.tryAsPrimitiveTypeEnum() is Some(src_ty_prim) else {
+    let msg = "Misuse `IRBuilder::createBitCast`, " +
+      "the source value must be a primitive type, " +
+      "got \{src_ty}"
+    raise LLVMValueError(msg)
+  }
+  guard src_ty_prim.getBitWidth() == dst_ty.getBitWidth() else {
+    let msg = "Misuse `IRBuilder::createBitCast`, " +
+      "the source and destination types must have the same bit width, " +
+      "got \{src_ty_prim.getBitWidth()} bits and \{dst_ty.getBitWidth()} bits"
+    raise LLVMValueError(msg)
+  }
   match src_val.tryAsConstantEnum() {
     Some(ConstantInt(ci)) => return ci.bitcast(dst_ty)
     Some(ConstantFP(cf)) => return cf.bitcast(dst_ty)
@@ -2576,6 +2966,26 @@ pub fn IRBuilder::createGEP(
   name~ : String = "",
   inbounds~ : Bool = false,
 ) -> &Value raise Error {
+  guard ptr.getType().asTypeEnum() is PointerType(_) else {
+    let msg = "Misuse `IRBuilder::createGEP`: " +
+      "getelementptr instruction must operate on a pointer, " +
+      "got \{ptr.getType()}"
+    raise LLVMValueError(msg)
+  }
+  guard pointeeType.isValidGEPType() else {
+    let msg = "Misuse `IRBuilder::createGEP`: " +
+      "getelementptr instruction must operate on a valid pointee type, " +
+      "got \{pointeeType}"
+    raise LLVMValueError(msg)
+  }
+  for idx in indices {
+    guard idx.getType().tryAsIntTypeEnum() is Some(_) else {
+      let msg = "Misuse `IRBuilder::createGEP`: " +
+        "getelementptr instruction indices must be integer types, " +
+        "got \{idx.getType()}"
+      raise LLVMValueError(msg)
+    }
+  }
   let parent = self.getInsertFunction()
   let inst = GetElementPtrInst::new(
     ptr,
@@ -2620,6 +3030,23 @@ pub fn IRBuilder::createLoad(
   atomicOrdering~ : AtomicOrdering = NotAtomic,
   name~ : String = "",
 ) -> &Value raise Error {
+  guard ptr.getType().asTypeEnum() is PointerType(_) else {
+    let msg = "Misuse `IRBuilder::createLoad`: " +
+      "load instruction must load from a pointer, " +
+      "got \{ptr.getType()}"
+    raise LLVMValueError(msg)
+  }
+  guard load_ty.tryAsAbstractTypeEnum() is None else {
+    let msg = "Misuse `IRBuilder::createLoad`: " +
+      "load instruction must load to a concrete type, " +
+      "got \{load_ty}"
+    raise LLVMValueError(msg)
+  }
+  guard not(isVolatile && not(atomicOrdering is NotAtomic)) else {
+    let msg = "Misuse `IRBuilder::createLoad`: " +
+      "load instruction cannot be both volatile and atomic"
+    raise LLVMValueError(msg)
+  }
   let parent = self.getInsertFunction()
   let inst = LoadInst::new(
     load_ty,
@@ -2664,6 +3091,23 @@ pub fn IRBuilder::createStore(
   isVolatile~ : Bool = false,
   atomicOrdering~ : AtomicOrdering = NotAtomic,
 ) -> &Instruction raise Error {
+  guard ptr.getType().asTypeEnum() is PointerType(_) else {
+    let msg = "Misuse `IRBuilder::createStore`: " +
+      "store instruction must store to a pointer, " +
+      "got \{ptr.getType()}"
+    raise LLVMValueError(msg)
+  }
+  guard value.getType().tryAsAbstractTypeEnum() is None else {
+    let msg = "Misuse `IRBuilder::createStore`: " +
+      "store instruction cannot store an abstract type, " +
+      "got \{value.getType()}"
+    raise LLVMValueError(msg)
+  }
+  guard not(isVolatile && not(atomicOrdering is NotAtomic)) else {
+    let msg = "Misuse `IRBuilder::createStore`: " +
+      "store instruction cannot be both volatile and atomic"
+    raise LLVMValueError(msg)
+  }
   let parent = self.getInsertFunction()
   let inst = StoreInst::new(value, ptr, isVolatile, atomicOrdering, parent)
   self.insert(inst)
@@ -2739,6 +3183,12 @@ pub fn IRBuilder::createCondBr(
   true_dst : BasicBlock,
   false_dst : BasicBlock,
 ) -> &Instruction raise Error {
+  guard cond.getType().tryAsIntTypeEnum() is Some(Int1Type(_)) else {
+    let msg = "Misuse `IRBuilder::createCondBr`, " +
+      "the condition must be an i1 (boolean) type, " +
+      "got \{cond.getType()}"
+    raise LLVMValueError(msg)
+  }
   let parent = self.getInsertFunction()
   let inst = BranchInst::newConditional(cond, true_dst, false_dst, parent)
   self.insert(inst)
@@ -2782,6 +3232,19 @@ pub fn IRBuilder::createSelect(
   falseValue : &Value,
   name~ : String = "",
 ) -> &Value raise Error {
+  guard condition.getType().tryAsIntTypeEnum() is Some(Int1Type(_)) else {
+    let msg = "Misuse `IRBuilder::createSelect`, " +
+      "the condition must be an i1 (boolean) type, " +
+      "got \{condition.getType()}"
+    raise LLVMValueError(msg)
+  }
+  let vty = trueValue.getType()
+  guard vty == falseValue.getType() else {
+    let msg = "Misuse `IRBuilder::createSelect`, " +
+      "the true and false values must have the same type, " +
+      "got \{vty} and \{falseValue.getType()}"
+    raise LLVMValueError(msg)
+  }
   match condition.tryAsConstantEnum() {
     Some(ConstantInt(ci)) =>
       if ci.getValue() != 0L {
@@ -2843,6 +3306,12 @@ pub fn IRBuilder::createSwitch(
   cond : &Value,
   defaultDest : BasicBlock,
 ) -> SwitchInst raise Error {
+  guard cond.getType().tryAsIntTypeEnum() is Some(_) else {
+    let msg = "Misuse `IRBuilder::createSwitch`, " +
+      "the condition must be an integer type, " +
+      "got \{cond.getType()}"
+    raise LLVMValueError(msg)
+  }
   let parent = self.getInsertFunction()
   let inst = SwitchInst::new(cond, defaultDest, parent)
   self.insert(inst)
@@ -2925,6 +3394,29 @@ pub fn IRBuilder::createCall(
   args : Array[&Value],
   name~ : String = "",
 ) -> CallInst raise Error {
+  let fty = callee.getFunctionType()
+  let expected_params = fty.getNumParams().reinterpret_as_int()
+  guard args.length() == expected_params else {
+    let msg = "Misuse `IRBuilder::createCall`, " +
+      "expected \{expected_params} arguments, " +
+      "got \{args.length()} arguments"
+    raise LLVMValueError(msg)
+  }
+  let argTys = args.map(arg => arg.getType())
+  let paramTys = callee.getParamTypes()
+  let arg_param_type_match = argTys
+    .zip(paramTys)
+    .iter()
+    .all(arg_param => {
+      let (arg_ty, param_ty) = arg_param
+      arg_ty == param_ty
+    })
+  guard arg_param_type_match else {
+    let msg = "Misuse `IRBuilder::createCall`, " +
+      "argument types do not match function parameter types, " +
+      "got \{argTys} but expected \{paramTys}"
+    raise LLVMValueError(msg)
+  }
   let parent = self.getInsertFunction()
   let inst = CallInst::new(
     callee,
@@ -2967,6 +3459,24 @@ pub fn IRBuilder::createExtractValue(
   indices : Array[Int],
   name~ : String = "",
 ) -> &Value raise Error {
+  guard not(indices.is_empty()) else {
+    let msg = "Misuse `IRBuilder::createExtractValue`, " +
+      "indices must not be empty"
+    raise LLVMValueError(msg)
+  }
+  let agg_ty = aggregate.getType()
+  guard agg_ty.tryAsAggregateTypeEnum() is Some(agg_ty) else {
+    let msg = "Misuse `IRBuilder::createExtractValue`, " +
+      "the aggregate must be an aggregate type, " +
+      "got \{agg_ty}"
+    raise LLVMValueError(msg)
+  }
+  guard agg_ty.getIndexedType(indices) is Some(_) else {
+    let msg = "Misuse `IRBuilder::createExtractValue`, " +
+      "invalid index for aggregate type \{agg_ty}, " +
+      "indices: \{indices}"
+    raise LLVMValueError(msg)
+  }
   let parent = self.getInsertFunction()
   let inst = ExtractValueInst::new(
     aggregate,
@@ -3011,6 +3521,24 @@ pub fn IRBuilder::createInsertValue(
   indices : Array[Int],
   name~ : String = "",
 ) -> &Value raise Error {
+  guard not(indices.is_empty()) else {
+    let msg = "Misuse `IRBuilder::createInsertValue`, " +
+      "indices must not be empty"
+    raise LLVMValueError(msg)
+  }
+  let agg_ty = aggregate.getType()
+  guard agg_ty.tryAsAggregateTypeEnum() is Some(agg_ty) else {
+    let msg = "Misuse `IRBuilder::createInsertValue`, " +
+      "the aggregate must be an aggregate type, " +
+      "got \{agg_ty}"
+    raise LLVMValueError(msg)
+  }
+  guard agg_ty.getIndexedType(indices) is Some(_) else {
+    let msg = "Misuse `IRBuilder::createInsertValue`, " +
+      "invalid index for aggregate type \{agg_ty}, " +
+      "indices: \{indices}"
+    raise LLVMValueError(msg)
+  }
   let parent = self.getInsertFunction()
   let inst = InsertValueInst::new(
     aggregate,

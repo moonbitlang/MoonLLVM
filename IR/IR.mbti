@@ -750,7 +750,7 @@ pub struct IRBuilder {
 }
 fn IRBuilder::createAShr(Self, &Value, &Value, name~ : String = .., is_exact~ : Bool = ..) -> &Value raise
 fn IRBuilder::createAdd(Self, &Value, &Value, name~ : String = .., has_nsw~ : Bool = .., has_nuw~ : Bool = ..) -> &Value raise
-fn IRBuilder::createAlloca(Self, &Type, addressSpace~ : AddressSpace = .., name~ : String = ..) -> &Value raise
+fn IRBuilder::createAlloca(Self, &Type, addressSpace~ : AddressSpace = .., name~ : String = ..) -> AllocaInst raise
 fn IRBuilder::createAnd(Self, &Value, &Value, name~ : String = ..) -> &Value raise
 fn IRBuilder::createBitCast(Self, &Value, &PrimitiveType, name~ : String = ..) -> &Value raise
 fn IRBuilder::createBr(Self, BasicBlock) -> &Instruction raise
@@ -991,7 +991,7 @@ type LLVMContextImpl
 type LLVMTypeError
 impl Show for LLVMTypeError
 
-type LLVMValueError
+pub suberror LLVMValueError String
 impl Show for LLVMValueError
 
 pub struct LabelType {

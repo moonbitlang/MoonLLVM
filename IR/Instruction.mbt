@@ -145,8 +145,22 @@ pub impl Value for AllocaInst with getName(self) {
 /// inspect(inst.getName(), content = "Some(\"var1\")")
 /// ```
 pub impl Value for AllocaInst with setName(self, name) {
+  if name is "" {
+    let msg = "Misuse `AllocaInst::setName`: name cannot be empty."
+    raise LLVMValueError(msg)
+  }
+  if isInValidName(name) {
+    let msg = "Misuse `AllocaInst::setName`: " +
+      "name '\{name}' contains illegal characters, " +
+      "only alphanumeric characters and underscores are allowed."
+    raise LLVMValueError(msg)
+  }
   let symbols = self.getParent().symbols
-  guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
+  guard not(symbols.contains(name)) else {
+    let msg = "Misuse `AllocaInst::setName`: " +
+      "name '\{name}' already exists in the parent function"
+    raise LLVMValueError(msg)
+  }
   self.name = Some(name)
   symbols.set(name, self)
 }
@@ -292,16 +306,7 @@ fn LoadInst::new(
   atomicOrdering : AtomicOrdering,
   parent : Function,
   name~ : String? = None,
-) -> LoadInst raise LLVMValueError {
-  guard ptr.getType().asTypeEnum() is PointerType(_) else {
-    raise LoadInstShouldLoadFromAPointer(ptr.getType())
-  }
-  guard load_ty.tryAsAbstractTypeEnum() is None else {
-    raise LoadInstCannotLoadToAnAbstractType(load_ty)
-  }
-  guard not(isVolatile && not(atomicOrdering is NotAtomic)) else {
-    raise LoadInstCannotBeVolatileAndAtomic
-  }
+) -> LoadInst {
   let vty = load_ty
   let inst_base = InstBase::new()
   let align = parent.getDataLayout().getAlignment(load_ty)
@@ -348,8 +353,25 @@ pub impl Value for LoadInst with getName(self) {
 
 ///|
 pub impl Value for LoadInst with setName(self, name) {
+  if name is "" {
+    let msg = "Misuse `LoadInst::setName`: name cannot be empty."
+    raise LLVMValueError(msg)
+  }
+  let contain_illegal_chars = !name
+    .iter()
+    .all(c => c.is_ascii_alphabetic() || c.is_ascii_digit() || c == '_')
+  if contain_illegal_chars {
+    let msg = "Misuse `LoadInst::setName`: " +
+      "name '\{name}' contains illegal characters, " +
+      "only alphanumeric characters and underscores are allowed."
+    raise LLVMValueError(msg)
+  }
   let symbols = self.getParent().symbols
-  guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
+  guard not(symbols.contains(name)) else {
+    let msg = "Misuse `LoadInst::setName`: " +
+      "name '\{name}' already exists in the parent function"
+    raise LLVMValueError(msg)
+  }
   self.name = Some(name)
   symbols.set(name, self)
 }
@@ -487,16 +509,7 @@ fn StoreInst::new(
   isVolatile : Bool,
   atomicOrdering : AtomicOrdering,
   parent : Function,
-) -> StoreInst raise LLVMValueError {
-  guard ptr.getType().asTypeEnum() is PointerType(_) else {
-    raise StoreInstShouldStoreToAPointer(ptr.getType())
-  }
-  guard value.getType().tryAsAbstractTypeEnum() is None else {
-    raise StoreInstCannotStoreAnAbstractType(value.getType())
-  }
-  guard not(isVolatile && not(atomicOrdering is NotAtomic)) else {
-    raise StoreInstCannotBeVolatileAndAtomic
-  }
+) -> StoreInst {
   let ctx = value.getContext()
   let uid = valueUIDAssigner.assign()
   let value_ty = value.getType()
@@ -551,7 +564,9 @@ pub impl Value for StoreInst with getName(self) {
 
 ///|
 pub impl Value for StoreInst with setName(_, _) {
-  raise CouldNotSetNameForStoreInst
+  let msg = "Calling always failed function `StoreInst::setName`. " +
+    "Set name for StoreInst is not allowed."
+  raise LLVMValueError(msg)
 }
 
 ///|
@@ -791,7 +806,7 @@ fn BinaryInst::newStandardOp(
   parent : Function,
   name~ : String? = None,
   flags : Set[BinaryOpFlags],
-) -> BinaryInst raise LLVMValueError {
+) -> BinaryInst {
   guard opcode
     is (Add
     | Sub
@@ -811,10 +826,8 @@ fn BinaryInst::newStandardOp(
     )
   }
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
-  guard lhsTy == rhsTy else { raise TypeMismatchForBinaryOp(lhsTy, rhsTy) }
-  guard lhsTy.tryAsIntTypeEnum() is Some(_) else {
-    raise TypeNotSupportForBinaryOp(lhsTy, opcode)
-  }
+  guard lhsTy == rhsTy
+  guard lhsTy.tryAsIntTypeEnum() is Some(_)
   let vty = lhsTy
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new()
@@ -844,17 +857,15 @@ fn BinaryInst::newFPMathOp(
   parent : Function,
   name~ : String? = None,
   fast_math_flags : Set[FastMathFlag],
-) -> BinaryInst raise LLVMValueError {
+) -> BinaryInst {
   guard opcode is (FAdd | FSub | FMul | FDiv | FRem) else {
     llvm_unreachable(
       "Should not call BinaryInst::newFPMathOp with opcode \{opcode}",
     )
   }
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
-  guard lhsTy == rhsTy else { raise TypeMismatchForBinaryOp(lhsTy, rhsTy) }
-  guard lhsTy.tryAsFPTypeEnum() is Some(_) else {
-    raise TypeNotSupportForBinaryOp(lhsTy, opcode)
-  }
+  guard lhsTy == rhsTy
+  guard lhsTy.tryAsFPTypeEnum() is Some(_)
   let uid = valueUIDAssigner.assign()
   let vty = lhsTy
   let inst_base = InstBase::new()
@@ -902,8 +913,25 @@ pub impl Value for BinaryInst with getName(self) {
 
 ///|
 pub impl Value for BinaryInst with setName(self, name) {
+  if name is "" {
+    let msg = "Misuse `BinaryInst::setName`: name cannot be empty."
+    raise LLVMValueError(msg)
+  }
+  let contain_illegal_chars = !name
+    .iter()
+    .all(c => c.is_ascii_alphabetic() || c.is_ascii_digit() || c == '_')
+  if contain_illegal_chars {
+    let msg = "Misuse `BinaryInst::setName`: " +
+      "name '\{name}' contains illegal characters, " +
+      "only alphanumeric characters and underscores are allowed."
+    raise LLVMValueError(msg)
+  }
   let symbols = self.getParent().symbols
-  guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
+  guard not(symbols.contains(name)) else {
+    let msg = "Misuse `BinaryInst::setName`: " +
+      "name '\{name}' already exists in the parent function"
+    raise LLVMValueError(msg)
+  }
   self.name = Some(name)
   symbols.set(name, self)
 }
@@ -1077,12 +1105,10 @@ fn ICmpInst::new(
   rhs : &Value,
   parent : Function,
   name~ : String? = None,
-) -> ICmpInst raise LLVMValueError {
+) -> ICmpInst {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
-  guard lhsTy == rhsTy else { raise TypeMismatchForCmpInst(lhsTy, rhsTy) }
-  guard lhsTy.tryAsIntTypeEnum() is Some(_) else {
-    raise TypeMismatchForICmpInst(lhsTy)
-  }
+  guard lhsTy == rhsTy
+  guard lhsTy.tryAsIntTypeEnum() is Some(_)
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new()
   let vty = parent.getContext().getInt1Ty()
@@ -1132,8 +1158,25 @@ pub impl Value for ICmpInst with getName(self) {
 
 ///|
 pub impl Value for ICmpInst with setName(self, name) {
+  if name is "" {
+    let msg = "Misuse `ICmpInst::setName`: name cannot be empty."
+    raise LLVMValueError(msg)
+  }
+  let contain_illegal_chars = !name
+    .iter()
+    .all(c => c.is_ascii_alphabetic() || c.is_ascii_digit() || c == '_')
+  if contain_illegal_chars {
+    let msg = "Misuse `ICmpInst::setName`: " +
+      "name '\{name}' contains illegal characters, " +
+      "only alphanumeric characters and underscores are allowed."
+    raise LLVMValueError(msg)
+  }
   let symbols = self.getParent().symbols
-  guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
+  guard not(symbols.contains(name)) else {
+    let msg = "Misuse `ICmpInst::setName`: " +
+      "name '\{name}' already exists in the parent function"
+    raise LLVMValueError(msg)
+  }
   self.name = Some(name)
   symbols.set(name, self)
 }
@@ -1313,12 +1356,10 @@ fn FCmpInst::new(
   rhs : &Value,
   parent : Function,
   name~ : String? = None,
-) -> FCmpInst raise LLVMValueError {
+) -> FCmpInst {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
-  guard lhsTy == rhsTy else { raise TypeMismatchForCmpInst(lhsTy, rhsTy) }
-  guard lhsTy.tryAsFPTypeEnum() is Some(_) else {
-    raise TypeMismatchForFCmpInst(lhsTy)
-  }
+  guard lhsTy == rhsTy
+  guard lhsTy.tryAsFPTypeEnum() is Some(_)
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new()
   let vty = parent.getContext().getInt1Ty()
@@ -1364,8 +1405,25 @@ pub impl Value for FCmpInst with getName(self) {
 
 ///|
 pub impl Value for FCmpInst with setName(self, name) {
+  if name is "" {
+    let msg = "Misuse `FCmpInst::setName`: name cannot be empty."
+    raise LLVMValueError(msg)
+  }
+  let contain_illegal_chars = !name
+    .iter()
+    .all(c => c.is_ascii_alphabetic() || c.is_ascii_digit() || c == '_')
+  if contain_illegal_chars {
+    let msg = "Misuse `FCmpInst::setName`: " +
+      "name '\{name}' contains illegal characters, " +
+      "only alphanumeric characters and underscores are allowed."
+    raise LLVMValueError(msg)
+  }
   let symbols = self.getParent().symbols
-  guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
+  guard not(symbols.contains(name)) else {
+    let msg = "Misuse `FCmpInst::setName`: " +
+      "name '\{name}' already exists in the parent function"
+    raise LLVMValueError(msg)
+  }
   self.name = Some(name)
   symbols.set(name, self)
 }
@@ -1519,13 +1577,9 @@ fn CastInst::newTrunc(
   to_ty : &IntegerType,
   parent : Function,
   name~ : String? = None,
-) -> CastInst raise LLVMValueError {
-  guard from_val.getType().tryAsIntTypeEnum() is Some(from_ty) else {
-    raise TruncCastInstTypeMismatch(from_val.getType(), to_ty)
-  }
-  guard from_ty.getBitWidth() > to_ty.getBitWidth() else {
-    raise TruncCastInstTypeMismatch(from_ty.asTypeClass(), to_ty)
-  }
+) -> CastInst {
+  guard from_val.getType().tryAsIntTypeEnum() is Some(from_ty)
+  guard from_ty.getBitWidth() > to_ty.getBitWidth()
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new()
   let inst = CastInst::{
@@ -1548,13 +1602,9 @@ fn CastInst::newZExt(
   to_ty : &IntegerType,
   parent : Function,
   name~ : String? = None,
-) -> CastInst raise LLVMValueError {
-  guard from_val.getType().tryAsIntTypeEnum() is Some(from_ty) else {
-    raise ZExtCastInstTypeMismatch(from_val.getType(), to_ty)
-  }
-  guard from_ty.getBitWidth() < to_ty.getBitWidth() else {
-    raise ZExtCastInstTypeMismatch(from_ty.asTypeClass(), to_ty)
-  }
+) -> CastInst {
+  guard from_val.getType().tryAsIntTypeEnum() is Some(from_ty)
+  guard from_ty.getBitWidth() < to_ty.getBitWidth()
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new()
   let inst = CastInst::{
@@ -1577,13 +1627,7 @@ fn CastInst::newSExt(
   to_ty : &IntegerType,
   parent : Function,
   name~ : String? = None,
-) -> CastInst raise LLVMValueError {
-  guard from_val.getType().tryAsIntTypeEnum() is Some(from_ty) else {
-    raise SExtCastInstTypeMismatch(from_val.getType(), to_ty)
-  }
-  guard from_ty.getBitWidth() < to_ty.getBitWidth() else {
-    raise SExtCastInstTypeMismatch(from_ty.asTypeClass(), to_ty)
-  }
+) -> CastInst {
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new()
   let inst = CastInst::{
@@ -1606,13 +1650,7 @@ fn CastInst::newFPTrunc(
   to_ty : &FPType,
   parent : Function,
   name~ : String? = None,
-) -> CastInst raise LLVMValueError {
-  guard from_val.getType().tryAsFPTypeEnum() is Some(from_ty) else {
-    raise FPTruncCastInstTypeMismatch(from_val.getType(), to_ty)
-  }
-  guard from_ty.getBitWidth() > to_ty.getBitWidth() else {
-    raise FPTruncCastInstTypeMismatch(from_ty.asTypeClass(), to_ty)
-  }
+) -> CastInst {
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new()
   let inst = CastInst::{
@@ -1635,13 +1673,7 @@ fn CastInst::newFPExt(
   to_ty : &FPType,
   parent : Function,
   name~ : String? = None,
-) -> CastInst raise LLVMValueError {
-  guard from_val.getType().tryAsFPTypeEnum() is Some(from_ty) else {
-    raise FPExtCastInstTypeMismatch(from_val.getType(), to_ty)
-  }
-  guard from_ty.getBitWidth() < to_ty.getBitWidth() else {
-    raise FPExtCastInstTypeMismatch(from_ty.asTypeClass(), to_ty)
-  }
+) -> CastInst {
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new()
   let inst = CastInst::{
@@ -1664,10 +1696,7 @@ fn CastInst::newUIToFP(
   to_ty : &FPType,
   parent : Function,
   name~ : String? = None,
-) -> CastInst raise LLVMValueError {
-  guard from_val.getType().tryAsIntTypeEnum() is Some(_) else {
-    raise UIToFPInstTypeMismatch(from_val.getType(), to_ty)
-  }
+) -> CastInst {
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new()
   let inst = CastInst::{
@@ -1690,10 +1719,7 @@ fn CastInst::newFPToUI(
   to_ty : &IntegerType,
   parent : Function,
   name~ : String? = None,
-) -> CastInst raise LLVMValueError {
-  guard from_val.getType().tryAsFPTypeEnum() is Some(_) else {
-    raise FPToUIInstTypeMismatch(from_val.getType(), to_ty)
-  }
+) -> CastInst {
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new()
   let inst = CastInst::{
@@ -1716,10 +1742,7 @@ fn CastInst::newSIToFP(
   to_ty : &FPType,
   parent : Function,
   name~ : String? = None,
-) -> CastInst raise LLVMValueError {
-  guard from_val.getType().tryAsIntTypeEnum() is Some(_) else {
-    raise SIToFPInstTypeMismatch(from_val.getType(), to_ty)
-  }
+) -> CastInst {
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new()
   let inst = CastInst::{
@@ -1742,10 +1765,7 @@ fn CastInst::newFPToSI(
   to_ty : &IntegerType,
   parent : Function,
   name~ : String? = None,
-) -> CastInst raise LLVMValueError {
-  guard from_val.getType().tryAsFPTypeEnum() is Some(_) else {
-    raise FPToSIInstTypeMismatch(from_val.getType(), to_ty)
-  }
+) -> CastInst {
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new()
   let inst = CastInst::{
@@ -1768,10 +1788,7 @@ fn CastInst::newPtrToInt(
   to_ty : &IntegerType,
   parent : Function,
   name~ : String? = None,
-) -> CastInst raise LLVMValueError {
-  guard from_val.getType().asTypeEnum() is PointerType(_) else {
-    raise PtrToIntCastInstTypeMismatch(from_val.getType())
-  }
+) -> CastInst {
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new()
   let inst = CastInst::{
@@ -1793,10 +1810,7 @@ fn CastInst::newIntToPtr(
   from_val : &Value,
   parent : Function,
   name~ : String? = None,
-) -> CastInst raise LLVMValueError {
-  guard from_val.getType().tryAsIntTypeEnum() is Some(_) else {
-    raise IntToPtrCastInstTypeMismatch(from_val.getType())
-  }
+) -> CastInst {
   let to_ty = from_val.getContext().getPtrTy()
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new()
@@ -1822,15 +1836,7 @@ fn CastInst::newBitCast(
   to_ty : &PrimitiveType,
   parent : Function,
   name~ : String? = None,
-) -> CastInst raise LLVMValueError {
-  let src_ty = from_val.getType()
-  guard src_ty != to_ty else { raise BitCastInstTypeMismatch(src_ty, to_ty) }
-  guard src_ty.tryAsPrimitiveTypeEnum() is Some(src_ty_prim) else {
-    raise BitCastOnlyAcceptPrimitiveTypes(src_ty)
-  }
-  guard src_ty_prim.getBitWidth() == to_ty.getBitWidth() else {
-    raise BitCastInstTypeMismatch(src_ty, to_ty)
-  }
+) -> CastInst {
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new()
   let inst = CastInst::{
@@ -1873,8 +1879,25 @@ pub impl Value for CastInst with getName(self) {
 
 ///|
 pub impl Value for CastInst with setName(self, name) {
+  if name is "" {
+    let msg = "Misuse `CastInst::setName`: name cannot be empty."
+    raise LLVMValueError(msg)
+  }
+  let contain_illegal_chars = !name
+    .iter()
+    .all(c => c.is_ascii_alphabetic() || c.is_ascii_digit() || c == '_')
+  if contain_illegal_chars {
+    let msg = "Misuse `CastInst::setName`: " +
+      "name '\{name}' contains illegal characters, " +
+      "only alphanumeric characters and underscores are allowed."
+    raise LLVMValueError(msg)
+  }
   let symbols = self.getParent().symbols
-  guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
+  guard not(symbols.contains(name)) else {
+    let msg = "Misuse `CastInst::setName`: " +
+      "name '\{name}' already exists in the parent function"
+    raise LLVMValueError(msg)
+  }
   self.name = Some(name)
   symbols.set(name, self)
 }
@@ -1996,18 +2019,7 @@ fn GetElementPtrInst::new(
   isInbounds : Bool,
   parent : Function,
   name~ : String? = None,
-) -> GetElementPtrInst raise LLVMValueError {
-  guard ptr.getType().asTypeEnum() is PointerType(_) else {
-    raise GetElementPtrInstValueTypeNotPtr(ptr.getType())
-  }
-  guard pointeeType.isValidGEPType() else {
-    raise GetElementPtrInstNotValidPointeeType(pointeeType)
-  }
-  for idx in indices {
-    guard idx.getType().tryAsIntTypeEnum() is Some(_) else {
-      raise GetElementPtrInstIndexNotInteger(idx.getType())
-    }
-  }
+) -> GetElementPtrInst {
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new()
   let vty = parent.getContext().getPtrTy()
@@ -2054,8 +2066,25 @@ pub impl Value for GetElementPtrInst with getName(self) {
 
 ///|
 pub impl Value for GetElementPtrInst with setName(self, name) {
+  if name is "" {
+    let msg = "Misuse `GetElementPtrInst::setName`: name cannot be empty."
+    raise LLVMValueError(msg)
+  }
+  let contain_illegal_chars = !name
+    .iter()
+    .all(c => c.is_ascii_alphabetic() || c.is_ascii_digit() || c == '_')
+  if contain_illegal_chars {
+    let msg = "Misuse `GetElementPtrInst::setName`: " +
+      "name '\{name}' contains illegal characters, " +
+      "only alphanumeric characters and underscores are allowed."
+    raise LLVMValueError(msg)
+  }
   let symbols = self.getParent().symbols
-  guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
+  guard not(symbols.contains(name)) else {
+    let msg = "Misuse `GetElementPtrInst::setName`: " +
+      "name '\{name}' already exists in the parent function"
+    raise LLVMValueError(msg)
+  }
   self.name = Some(name)
   symbols.set(name, self)
 }
@@ -2177,14 +2206,8 @@ fn SelectInst::new(
   falseValue : &Value,
   parent : Function,
   name~ : String? = None,
-) -> SelectInst raise LLVMValueError {
-  guard condition.getType().tryAsIntTypeEnum() is Some(Int1Type(_)) else {
-    raise SelectInstConditionNotBoolean(condition.getType())
-  }
+) -> SelectInst {
   let vty = trueValue.getType()
-  guard vty == falseValue.getType() else {
-    raise SelectInstTypeMismatch(vty, falseValue.getType())
-  }
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new()
   let inst = SelectInst::{
@@ -2245,8 +2268,25 @@ pub impl Value for SelectInst with getName(self) {
 
 ///|
 pub impl Value for SelectInst with setName(self, name) {
+  if name is "" {
+    let msg = "Misuse `SelectInst::setName`: name cannot be empty."
+    raise LLVMValueError(msg)
+  }
+  let contain_illegal_chars = !name
+    .iter()
+    .all(c => c.is_ascii_alphabetic() || c.is_ascii_digit() || c == '_')
+  if contain_illegal_chars {
+    let msg = "Misuse `SelectInst::setName`: " +
+      "name '\{name}' contains illegal characters, " +
+      "only alphanumeric characters and underscores are allowed."
+    raise LLVMValueError(msg)
+  }
   let symbols = self.getParent().symbols
-  guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
+  guard not(symbols.contains(name)) else {
+    let msg = "Misuse `SelectInst::setName`: " +
+      "name '\{name}' already exists in the parent function"
+    raise LLVMValueError(msg)
+  }
   self.name = Some(name)
   symbols.set(name, self)
 }
@@ -2361,17 +2401,7 @@ pub struct ReturnInst {
 }
 
 ///|
-fn ReturnInst::new(
-  retVal : &Value?,
-  parent : Function,
-) -> ReturnInst raise LLVMValueError {
-  let vty = match retVal {
-    Some(val) => val.getType()
-    None => parent.getContext().getVoidTy()
-  }
-  guard vty == parent.getReturnType() else {
-    raise TypeMismatchForReturnInst(vty, parent.getReturnType())
-  }
+fn ReturnInst::new(retVal : &Value?, parent : Function) -> ReturnInst {
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new()
   let vty = parent.getContext().getVoidTy()
@@ -2408,7 +2438,9 @@ pub impl Value for ReturnInst with getName(_) {
 
 ///|
 pub impl Value for ReturnInst with setName(_, _) {
-  raise CouldNotSetNameForReturnInst
+  let msg = "Calling always failed function `ReturnInst::setName`. " +
+    "Set name for ReturnInst is not allowed."
+  raise LLVMValueError(msg)
 }
 
 ///|
@@ -2514,13 +2546,7 @@ fn BranchInst::newConditional(
   trueBlock : BasicBlock,
   falseBlock : BasicBlock,
   parent : Function,
-) -> BranchInst raise LLVMValueError {
-  guard condition.getType().tryAsIntTypeEnum() is Some(intTy) else {
-    raise BranchInstConditionNotBoolean(condition.getType())
-  }
-  guard intTy.getBitWidth() == 1 else {
-    raise BranchInstConditionNotBoolean(condition.getType())
-  }
+) -> BranchInst {
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new()
   let vty = parent.getContext().getVoidTy()
@@ -2624,7 +2650,9 @@ pub impl Value for BranchInst with getName(_) {
 
 ///|
 pub impl Value for BranchInst with setName(_, _) {
-  raise CouldNotSetNameForBranchInst
+  let msg = "Calling always failed function `ReturnInst::setName`. " +
+    "Set name for ReturnInst is not allowed."
+  raise LLVMValueError(msg)
 }
 
 ///|
@@ -2747,10 +2775,7 @@ fn SwitchInst::new(
   cond : &Value,
   defaultDest : BasicBlock,
   parent : Function,
-) -> SwitchInst raise LLVMValueError {
-  guard cond.getType().tryAsIntTypeEnum() is Some(_) else {
-    raise SwitchInstConditionNotInteger(cond.getType())
-  }
+) -> SwitchInst {
   let uid = valueUIDAssigner.assign()
   let inst_base = InstBase::new()
   let vty = parent.getContext().getVoidTy()
@@ -2798,11 +2823,15 @@ pub fn SwitchInst::addCase(
   dest : BasicBlock,
 ) -> Unit raise LLVMValueError {
   guard self.getCondition().getType().tryAsIntTypeEnum() is Some(intTy)
-  guard cond.getType().tryAsIntTypeEnum() is Some(case_cond_ty)
+  guard cond.getType().tryAsIntTypeEnum() is Some(case_cond_ty) else {
+    let msg = "SwitchInst case condition type mismatch: " +
+      "expected integer type, got \{cond.getType()}"
+    raise LLVMValueError(msg)
+  }
   guard intTy == case_cond_ty else {
-    let intTy = intTy.asTypeClass()
-    let case_cond_ty = case_cond_ty.asTypeClass()
-    raise SwitchInstCaseConditionTypeMismatch(intTy, case_cond_ty)
+    let msg = "SwitchInst case condition type mismatch: " +
+      "expected \{intTy}, got \{case_cond_ty}"
+    raise LLVMValueError(msg)
   }
   self.cases.push((cond, dest))
   cond.addUser(self)
@@ -2839,7 +2868,9 @@ pub impl Value for SwitchInst with getName(_) {
 
 ///|
 pub impl Value for SwitchInst with setName(_, _) {
-  raise CouldNotSetNameForSwitchInst
+  let msg = "Calling always failed function `SwitchInst::setName`. " +
+    "Set name for SwitchInst is not allowed."
+  raise LLVMValueError(msg)
 }
 
 ///|
@@ -3019,7 +3050,9 @@ pub fn PHINode::addIncoming(
   block : BasicBlock,
 ) -> Unit raise LLVMValueError {
   guard value.getType() == self.getType() else {
-    raise PHINodeIncomingValueTypeMismatch(value.getType(), self.getType())
+    let msg = "PHINode incoming value type mismatch: " +
+      "expected \{self.getType()}, got \{value.getType()}"
+    raise LLVMValueError(msg)
   }
   self.incomings.push((value, block))
   value.addUser(self)
@@ -3047,8 +3080,22 @@ pub impl Value for PHINode with getName(self) {
 
 ///|
 pub impl Value for PHINode with setName(self, name) {
+  if name is "" {
+    let msg = "Misuse `PHINode::setName`: name cannot be empty."
+    raise LLVMValueError(msg)
+  }
+  if isInValidName(name) {
+    let msg = "Misuse `PHINode::setName`: " +
+      "name '\{name}' contains illegal characters, " +
+      "only alphanumeric characters and underscores are allowed."
+    raise LLVMValueError(msg)
+  }
   let symbols = self.getParent().symbols
-  guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
+  guard not(symbols.contains(name)) else {
+    let msg = "Misuse `PHINode::setName`: " +
+      "name '\{name}' already exists in the parent function"
+    raise LLVMValueError(msg)
+  }
   self.name = Some(name)
   symbols.set(name, self)
 }
@@ -3202,24 +3249,8 @@ fn CallInst::new(
   args : Array[&Value],
   parent : Function,
   name~ : String? = None,
-) -> CallInst raise LLVMValueError {
+) -> CallInst {
   let fty = callee.getFunctionType()
-  let expected_params = fty.getNumParams().reinterpret_as_int()
-  guard args.length() == expected_params else {
-    raise CallInstArgCountMismatch(expected_params, args.length())
-  }
-  let argTys = args.map(arg => arg.getType())
-  let paramTys = callee.getParamTypes()
-  let arg_param_type_match = argTys
-    .zip(paramTys)
-    .iter()
-    .all(arg_param => {
-      let (arg_ty, param_ty) = arg_param
-      arg_ty == param_ty
-    })
-  guard arg_param_type_match else {
-    raise CallInstArgTypeMismatchParamType(argTys, paramTys)
-  }
   let name = match fty.getReturnType().asTypeEnum() {
     VoidType(_) => None
     _ => name
@@ -3330,10 +3361,22 @@ pub impl Value for CallInst with getNameOrSlot(self) {
 ///|
 pub impl Value for CallInst with setName(self, name) {
   if self.vty.asTypeEnum() is VoidType(_) {
-    raise SetNameForVoidTypeValue
+    let msg = "Misuse `CallInst::setName`: " +
+      "cannot set name for CallInst with void return type."
+    raise LLVMValueError(msg)
+  }
+  if isInValidName(name) {
+    let msg = "Misuse `CallInst::setName`: " +
+      "name '\{name}' contains illegal characters, " +
+      "only alphanumeric characters and underscores are allowed."
+    raise LLVMValueError(msg)
   }
   let symbols = self.getParent().symbols
-  guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
+  guard not(symbols.contains(name)) else {
+    let msg = "Misuse `CallInst::setName`: " +
+      "name '\{name}' already exists in the parent function"
+    raise LLVMValueError(msg)
+  }
   self.name = Some(name)
   symbols.set(name, self)
 }
@@ -3463,20 +3506,10 @@ fn ExtractValueInst::new(
   indices : Array[Int],
   parent : Function,
   name~ : String? = None,
-) -> ExtractValueInst raise LLVMValueError {
-  guard not(indices.is_empty()) else {
-    raise ExtractValueInstRequiresNonEmptyIndices
-  }
-
-  // 验证聚合类型
+) -> ExtractValueInst {
   let agg_ty = aggregate.getType()
-  guard agg_ty.tryAsAggregateTypeEnum() is Some(agg_ty) else {
-    raise ExtractValueInstInvalidAggregateType(agg_ty)
-  }
-  guard agg_ty.getIndexedType(indices) is Some(result_ty) else {
-    raise ExtractValueInstInvalidIndex(agg_ty.asTypeClass(), indices)
-  }
-  //let base = ValueBase::new(result_ty)
+  guard agg_ty.tryAsAggregateTypeEnum() is Some(agg_ty)
+  guard agg_ty.getIndexedType(indices) is Some(result_ty)
   let uid = valueUIDAssigner.assign()
   let vty = result_ty
   let inst_base = InstBase::new()
@@ -3530,8 +3563,18 @@ pub impl Value for ExtractValueInst with getName(self) {
 
 ///|
 pub impl Value for ExtractValueInst with setName(self, name) {
+  if isInValidName(name) {
+    let msg = "Misuse `ExtractValueInst::setName`: " +
+      "name '\{name}' contains illegal characters, " +
+      "only alphanumeric characters and underscores are allowed."
+    raise LLVMValueError(msg)
+  }
   let symbols = self.getParent().symbols
-  guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
+  guard not(symbols.contains(name)) else {
+    let msg = "Misuse `ExtractValueInst::setName`: " +
+      "name '\{name}' already exists in the parent function"
+    raise LLVMValueError(msg)
+  }
   self.name = Some(name)
   symbols.set(name, self)
 }
@@ -3650,17 +3693,10 @@ fn InsertValueInst::new(
   indices : Array[Int],
   parent : Function,
   name~ : String? = None,
-) -> InsertValueInst raise LLVMValueError {
-  guard not(indices.is_empty()) else {
-    raise InsertValueInstRequiresNonEmptyIndices
-  }
+) -> InsertValueInst {
   let agg_ty = aggregate.getType()
-  guard agg_ty.tryAsAggregateTypeEnum() is Some(agg_ty) else {
-    raise InsertValueInstInvalidAggregateType(agg_ty)
-  }
-  guard agg_ty.getIndexedType(indices) is Some(_) else {
-    raise InsertValueInstInvalidIndex(agg_ty.asTypeClass(), indices)
-  }
+  guard agg_ty.tryAsAggregateTypeEnum() is Some(agg_ty)
+  guard agg_ty.getIndexedType(indices) is Some(_)
   let uid = valueUIDAssigner.assign()
   let vty = agg_ty.asTypeClass()
   let inst_base = InstBase::new()
@@ -3723,8 +3759,18 @@ pub impl Value for InsertValueInst with getName(self) {
 
 ///|
 pub impl Value for InsertValueInst with setName(self, name) {
+  if isInValidName(name) {
+    let msg = "Misuse `InsertValueInst::setName`: " +
+      "name '\{name}' contains illegal characters, " +
+      "only alphanumeric characters and underscores are allowed."
+    raise LLVMValueError(msg)
+  }
   let symbols = self.getParent().symbols
-  guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
+  guard not(symbols.contains(name)) else {
+    let msg = "Misuse `InsertValueInst::setName`: " +
+      "name '\{name}' already exists in the parent function"
+    raise LLVMValueError(msg)
+  }
   self.name = Some(name)
   symbols.set(name, self)
 }

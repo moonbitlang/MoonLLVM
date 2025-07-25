@@ -30,8 +30,17 @@ pub fn Module::addFunction(
   linkage~ : LinkageTypes = ExternalLinkage,
   addressSpace~ : AddressSpace = AddressSpace(0),
 ) -> Function raise LLVMValueError {
-  guard not(self.functions.contains(name)) else {
-    raise DuplicateFunctionName(name)
+  if name.is_empty() {
+    let msg = "Misuse `Module::addFunction`: function name cannot be empty."
+    raise LLVMValueError(msg)
+  }
+  guard !isInValidName(name) else {
+    let msg = "Misuse `Module::addFunction`: function name '\{name}' is invalid."
+    raise LLVMValueError(msg)
+  }
+  guard !self.functions.contains(name) else {
+    let msg = "Misuse `Module::addFunction`: function '\{name}' already exists in the module."
+    raise LLVMValueError(msg)
   }
   let index = self.functions.size().reinterpret_as_uint()
   let f = Function::new(fty, name, linkage~, addressSpace~, index, self)
