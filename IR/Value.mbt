@@ -168,6 +168,7 @@ pub trait Value: Show {
   //setName(Self, name: String) -> Unit raise LLVMValueError = _
   getName(Self) -> String?
   setName(Self, name : String) -> Unit raise LLVMValueError
+  removeName(Self) -> Unit raise LLVMValueError
   getNameOrSlot(Self) -> Either[String, UInt64]?
   getNameOrSlotStr(Self) -> String = _
 

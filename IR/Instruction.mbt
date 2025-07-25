@@ -71,10 +71,7 @@ pub impl Value for AllocaInst with getValueBase(self) {
 /// builder.setInsertPoint(bb)
 ///
 /// let inst = builder.createAlloca(i32_ty)
-///
 /// inspect(inst.getValueRepr(), content = "%0")
-///
-/// guard inst.asValueEnum() is AllocaInst(inst)
 ///
 /// inst.setName("var1")
 /// inspect(inst.getValueRepr(), content = "%var1")
@@ -92,17 +89,77 @@ pub impl Value for AllocaInst with asValueEnum(self) {
   AllocaInst(self)
 }
 
-///|
+///| Get the name of the instruction.
+///
+/// **Note**:
+///
+/// If the instruction has no name, return `None`.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let void_ty = ctx.getVoidTy()
+/// let i32_ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(void_ty, [])
+///
+/// let fval = mod.addFunction(fty, "foo")
+/// let bb = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(bb)
+///
+/// let inst = builder.createAlloca(i32_ty)
+/// inspect(inst.getName(), content = "None")
+///
+/// inst.setName("var1")
+/// inspect(inst.getName(), content = "Some(\"var1\")")
+/// ```
 pub impl Value for AllocaInst with getName(self) {
   self.name
 }
 
-///|
+///| Set the name of the instruction.
+///
+/// **Note**:
+///
+/// If the name has already been used in the parent function,
+/// it will raise Error.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let void_ty = ctx.getVoidTy()
+/// let i32_ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(void_ty, [])
+///
+/// let fval = mod.addFunction(fty, "foo")
+/// let bb = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(bb)
+///
+/// let inst = builder.createAlloca(i32_ty)
+/// inspect(inst.getName(), content = "None")
+///
+/// inst.setName("var1")
+/// inspect(inst.getName(), content = "Some(\"var1\")")
+/// ```
 pub impl Value for AllocaInst with setName(self, name) {
   let symbols = self.getParent().symbols
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
   self.name = Some(name)
   symbols.set(name, self)
+}
+
+///|
+pub impl Value for AllocaInst with removeName(self) {
+  match self.name {
+    None => ()
+    Some(name) => {
+      self.getParent().symbols.remove(name)
+      self.name = None
+    }
+  }
 }
 
 ///|
@@ -298,6 +355,17 @@ pub impl Value for LoadInst with setName(self, name) {
 }
 
 ///|
+pub impl Value for LoadInst with removeName(self) {
+  match self.name {
+    None => ()
+    Some(name) => {
+      self.getParent().symbols.remove(name)
+      self.name = None
+    }
+  }
+}
+
+///|
 pub impl Value for LoadInst with getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
@@ -484,6 +552,11 @@ pub impl Value for StoreInst with getName(self) {
 ///|
 pub impl Value for StoreInst with setName(_, _) {
   raise CouldNotSetNameForStoreInst
+}
+
+///|
+pub impl Value for StoreInst with removeName(_) {
+  ()
 }
 
 ///|
@@ -836,6 +909,17 @@ pub impl Value for BinaryInst with setName(self, name) {
 }
 
 ///|
+pub impl Value for BinaryInst with removeName(self) {
+  match self.name {
+    None => ()
+    Some(name) => {
+      self.getParent().symbols.remove(name)
+      self.name = None
+    }
+  }
+}
+
+///|
 pub impl Value for BinaryInst with getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
@@ -1052,6 +1136,17 @@ pub impl Value for ICmpInst with setName(self, name) {
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
   self.name = Some(name)
   symbols.set(name, self)
+}
+
+///|
+pub impl Value for ICmpInst with removeName(self) {
+  match self.name {
+    None => ()
+    Some(name) => {
+      self.getParent().symbols.remove(name)
+      self.name = None
+    }
+  }
 }
 
 ///|
@@ -1273,6 +1368,17 @@ pub impl Value for FCmpInst with setName(self, name) {
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
   self.name = Some(name)
   symbols.set(name, self)
+}
+
+///|
+pub impl Value for FCmpInst with removeName(self) {
+  match self.name {
+    None => ()
+    Some(name) => {
+      self.getParent().symbols.remove(name)
+      self.name = None
+    }
+  }
 }
 
 ///|
@@ -1774,6 +1880,17 @@ pub impl Value for CastInst with setName(self, name) {
 }
 
 ///|
+pub impl Value for CastInst with removeName(self) {
+  match self.name {
+    None => ()
+    Some(name) => {
+      self.getParent().symbols.remove(name)
+      self.name = None
+    }
+  }
+}
+
+///|
 pub impl Value for CastInst with getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
@@ -1941,6 +2058,17 @@ pub impl Value for GetElementPtrInst with setName(self, name) {
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
   self.name = Some(name)
   symbols.set(name, self)
+}
+
+///|
+pub impl Value for GetElementPtrInst with removeName(self) {
+  match self.name {
+    None => ()
+    Some(name) => {
+      self.getParent().symbols.remove(name)
+      self.name = None
+    }
+  }
 }
 
 ///|
@@ -2124,6 +2252,17 @@ pub impl Value for SelectInst with setName(self, name) {
 }
 
 ///|
+pub impl Value for SelectInst with removeName(self) {
+  match self.name {
+    None => ()
+    Some(name) => {
+      self.getParent().symbols.remove(name)
+      self.name = None
+    }
+  }
+}
+
+///|
 pub impl Value for SelectInst with getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
@@ -2270,6 +2409,11 @@ pub impl Value for ReturnInst with getName(_) {
 ///|
 pub impl Value for ReturnInst with setName(_, _) {
   raise CouldNotSetNameForReturnInst
+}
+
+///|
+pub impl Value for ReturnInst with removeName(_) {
+  ()
 }
 
 ///|
@@ -2484,6 +2628,11 @@ pub impl Value for BranchInst with setName(_, _) {
 }
 
 ///|
+pub impl Value for BranchInst with removeName(_) {
+  ()
+}
+
+///|
 pub impl Value for BranchInst with getNameOrSlot(_) {
   None
 }
@@ -2694,6 +2843,11 @@ pub impl Value for SwitchInst with setName(_, _) {
 }
 
 ///|
+pub impl Value for SwitchInst with removeName(_) {
+  ()
+}
+
+///|
 pub impl Value for SwitchInst with getNameOrSlot(_) {
   None
 }
@@ -2897,6 +3051,17 @@ pub impl Value for PHINode with setName(self, name) {
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
   self.name = Some(name)
   symbols.set(name, self)
+}
+
+///|
+pub impl Value for PHINode with removeName(self) {
+  match self.name {
+    None => ()
+    Some(name) => {
+      self.getParent().symbols.remove(name)
+      self.name = None
+    }
+  }
 }
 
 ///|
@@ -3174,6 +3339,17 @@ pub impl Value for CallInst with setName(self, name) {
 }
 
 ///|
+pub impl Value for CallInst with removeName(self) {
+  match self.name {
+    None => ()
+    Some(name) => {
+      self.getParent().symbols.remove(name)
+      self.name = None
+    }
+  }
+}
+
+///|
 pub impl User for CallInst with asUserEnum(self) {
   CallInst(self)
 }
@@ -3361,6 +3537,17 @@ pub impl Value for ExtractValueInst with setName(self, name) {
 }
 
 ///|
+pub impl Value for ExtractValueInst with removeName(self) {
+  match self.name {
+    None => ()
+    Some(name) => {
+      self.getParent().symbols.remove(name)
+      self.name = None
+    }
+  }
+}
+
+///|
 pub impl Value for ExtractValueInst with getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
@@ -3540,6 +3727,17 @@ pub impl Value for InsertValueInst with setName(self, name) {
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
   self.name = Some(name)
   symbols.set(name, self)
+}
+
+///|
+pub impl Value for InsertValueInst with removeName(self) {
+  match self.name {
+    None => ()
+    Some(name) => {
+      self.getParent().symbols.remove(name)
+      self.name = None
+    }
+  }
 }
 
 ///|
