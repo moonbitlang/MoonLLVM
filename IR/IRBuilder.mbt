@@ -2090,7 +2090,7 @@ pub fn IRBuilder::createFCmp(
 
 ///| Create OEQ (Ordered Equal) Comparison Instruction for floating-point values.
 ///
-/// It's equivalent to `IRBuilder::createCmp(FCMP_OEQ, ...)`.
+/// It's equivalent to `IRBuilder::createFCmp(OEQ, ...)`.
 pub fn IRBuilder::createFCmpOEQ(
   self : IRBuilder,
   lhs : &Value,
@@ -2102,7 +2102,7 @@ pub fn IRBuilder::createFCmpOEQ(
 
 ///| Create OGT (Ordered Greater Than) Comparison Instruction for floating-point values.
 ///
-/// It's equivalent to `IRBuilder::createCmp(FCMP_OGT, ...)`.
+/// It's equivalent to `IRBuilder::createFCmp(OGT, ...)`.
 pub fn IRBuilder::createFCmpOGT(
   self : IRBuilder,
   lhs : &Value,
@@ -2114,7 +2114,7 @@ pub fn IRBuilder::createFCmpOGT(
 
 ///| Create OGE (Ordered Greater Than or Equal) Comparison Instruction for floating-point values.
 ///
-/// It's equivalent to `IRBuilder::createCmp(OGE, ...)`.
+/// It's equivalent to `IRBuilder::createFCmp(OGE, ...)`.
 pub fn IRBuilder::createFCmpOGE(
   self : IRBuilder,
   lhs : &Value,
@@ -2126,7 +2126,7 @@ pub fn IRBuilder::createFCmpOGE(
 
 ///| Create OLT (Ordered Less Than) Comparison Instruction for floating-point values.
 ///
-/// It's equivalent to `IRBuilder::createCmp(OLT, ...)`.
+/// It's equivalent to `IRBuilder::createFCmp(OLT, ...)`.
 pub fn IRBuilder::createFCmpOLT(
   self : IRBuilder,
   lhs : &Value,
@@ -2138,7 +2138,7 @@ pub fn IRBuilder::createFCmpOLT(
 
 ///| Create OLE (Ordered Less Than or Equal) Comparison Instruction for floating-point values.
 ///
-/// It's equivalent to `IRBuilder::createCmp(OLE, ...)`.
+/// It's equivalent to `IRBuilder::createFCmp(OLE, ...)`.
 pub fn IRBuilder::createFCmpOLE(
   self : IRBuilder,
   lhs : &Value,
@@ -2150,7 +2150,7 @@ pub fn IRBuilder::createFCmpOLE(
 
 ///| Create ONE (Ordered Not Equal) Comparison Instruction for floating-point values.
 ///
-/// It's equivalent to `IRBuilder::createCmp(ONE, ...)`.
+/// It's equivalent to `IRBuilder::createFCmp(ONE, ...)`.
 pub fn IRBuilder::createFCmpONE(
   self : IRBuilder,
   lhs : &Value,
@@ -2162,7 +2162,7 @@ pub fn IRBuilder::createFCmpONE(
 
 ///| Create ORD (Ordered) Comparison Instruction for floating-point values.
 ///
-/// It's equivalent to `IRBuilder::createCmp(ORD, ...)`.
+/// It's equivalent to `IRBuilder::createFCmp(ORD, ...)`.
 pub fn IRBuilder::createFCmpORD(
   self : IRBuilder,
   lhs : &Value,
@@ -2174,7 +2174,7 @@ pub fn IRBuilder::createFCmpORD(
 
 ///| Create UNO (Unordered) Comparison Instruction for floating-point values.
 ///
-/// It's equivalent to `IRBuilder::createCmp(UNO, ...)`.
+/// It's equivalent to `IRBuilder::createFCmp(UNO, ...)`.
 pub fn IRBuilder::createFCmpUNO(
   self : IRBuilder,
   lhs : &Value,
@@ -2186,7 +2186,7 @@ pub fn IRBuilder::createFCmpUNO(
 
 ///| Create UEQ (Unordered Equal) Comparison Instruction for floating-point values.
 ///
-/// It's equivalent to `IRBuilder::createCmp(UEQ, ...)`.
+/// It's equivalent to `IRBuilder::createFCmp(UEQ, ...)`.
 pub fn IRBuilder::createFCmpUEQ(
   self : IRBuilder,
   lhs : &Value,
@@ -2198,7 +2198,7 @@ pub fn IRBuilder::createFCmpUEQ(
 
 ///| Create UGT (Unordered Greater Than) Comparison Instruction for floating-point values.
 ///
-/// It's equivalent to `IRBuilder::createCmp(UGT, ...)`.
+/// It's equivalent to `IRBuilder::createFCmp(UGT, ...)`.
 pub fn IRBuilder::createFCmpUGT(
   self : IRBuilder,
   lhs : &Value,
@@ -2210,7 +2210,7 @@ pub fn IRBuilder::createFCmpUGT(
 
 ///| Create UGE (Unordered Greater Than or Equal) Comparison Instruction for floating-point values.
 ///
-/// It's equivalent to `IRBuilder::createCmp(UGE, ...)`.
+/// It's equivalent to `IRBuilder::createFCmp(UGE, ...)`.
 pub fn IRBuilder::createFCmpUGE(
   self : IRBuilder,
   lhs : &Value,
@@ -2222,7 +2222,7 @@ pub fn IRBuilder::createFCmpUGE(
 
 ///| Create ULT (Unordered Less Than) Comparison Instruction for floating-point values.
 ///
-/// It's equivalent to `IRBuilder::createCmp(ULT, ...)`.
+/// It's equivalent to `IRBuilder::createFCmp(ULT, ...)`.
 pub fn IRBuilder::createFCmpULT(
   self : IRBuilder,
   lhs : &Value,
@@ -2234,7 +2234,7 @@ pub fn IRBuilder::createFCmpULT(
 
 ///| Create ULE (Unordered Less Than or Equal) Comparison Instruction for floating-point values.
 ///
-/// It's equivalent to `IRBuilder::createCmp(ULE, ...)`.
+/// It's equivalent to `IRBuilder::createFCmp(ULE, ...)`.
 pub fn IRBuilder::createFCmpULE(
   self : IRBuilder,
   lhs : &Value,
