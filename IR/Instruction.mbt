@@ -2754,7 +2754,7 @@ pub impl Show for SwitchInst with output(self, logger) {
     if self.getCase(i) is Some((case_value, case_dest)) {
       let case_dest_repr = case_dest.getValueRepr()
       logger.write_string(
-        "\n    \{condition_ty} \{case_value.valstr()}, label \{case_dest_repr}",
+        "\n    \{condition_ty} \{case_value.getValueRepr()}, label \{case_dest_repr}",
       )
     }
   }

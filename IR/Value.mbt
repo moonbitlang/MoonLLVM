@@ -735,7 +735,6 @@ pub enum ConstantEnum {
 ///|
 pub trait Constant: Value {
   asConstantEnum(Self) -> ConstantEnum
-  valstr(Self) -> String
 }
 
 ///|

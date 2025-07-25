@@ -1081,14 +1081,6 @@ pub impl Constant for ConstantInt with asConstantEnum(self) {
 }
 
 ///|
-pub impl Constant for ConstantInt with valstr(self) {
-  match self.vty.asIntegerTypeEnum() {
-    Int1Type(_) => if self.value != 0 { "true" } else { "false" }
-    _ => self.value.to_string()
-  }
-}
-
-///|
 pub impl Show for ConstantInt with output(self, logger) {
   let val_str = self.getValueRepr()
   logger.write_string("\{self.getIntegerType()} \{val_str}")
@@ -1596,15 +1588,6 @@ pub impl Constant for ConstantFP with asConstantEnum(self) {
 }
 
 ///|
-pub impl Constant for ConstantFP with valstr(self) {
-  let val_str = self.value
-    .reinterpret_as_uint64()
-    .to_string(radix=16)
-    .to_upper()
-  val_str
-}
-
-///|
 pub impl Show for ConstantFP with output(self, logger) {
   let val_str = self.getValueRepr()
   logger.write_string("\{self.getFPType()} \{val_str}")
@@ -1698,11 +1681,6 @@ pub impl Value for ConstantPointerNull with getNameOrSlot(_) {
 ///|
 pub impl Constant for ConstantPointerNull with asConstantEnum(self) {
   ConstantPointerNull(self)
-}
-
-///|
-pub impl Constant for ConstantPointerNull with valstr(_) {
-  "null"
 }
 
 ///|
@@ -2041,45 +2019,8 @@ impl Constant for ConstantArray with asConstantEnum(self) {
 }
 
 ///|
-impl Constant for ConstantArray with valstr(self) {
-  match self.data {
-    Left(constants) => constants.map(c => c.to_string()).join(", ")
-    Right(arr) =>
-      match arr {
-        Int8Array(i8arr) => i8arr.iter().map(i => "i8 \{i}").join(", ")
-        Int16Array(i16arr) => i16arr.iter().map(i => "i16 \{i}").join(", ")
-        Int32Array(i32arr) => i32arr.iter().map(i => "i32 \{i}").join(", ")
-        Int64Array(i64arr) => i64arr.iter().map(i => "i64 \{i}").join(", ")
-        UInt8Array(u8arr) => u8arr.iter().map(i => "i8 \{i}").join(", ")
-        UInt16Array(u16arr) => u16arr.iter().map(i => "i16 \{i}").join(", ")
-        UInt32Array(u32arr) => u32arr.iter().map(i => "i32 \{i}").join(", ")
-        UInt64Array(u64arr) => u64arr.iter().map(i => "i64 \{i}").join(", ")
-        FloatArray(farr) => {
-          fn to_str(f : Float) {
-            let nd = f.to_double()
-            let ud = nd.reinterpret_as_uint64()
-            let sd = ud.to_string(radix=16).to_upper()
-            "float 0x\{sd}"
-          }
-
-          farr.iter().map(to_str).join(", ")
-        }
-        DoubleArray(darr) => {
-          fn to_str(nd : Double) {
-            let ud = nd.reinterpret_as_uint64()
-            let sd = ud.to_string(radix=16).to_upper()
-            "double 0x\{sd}"
-          }
-
-          darr.iter().map(to_str).join(", ")
-        }
-      }
-  }
-}
-
-///|
 pub impl Show for ConstantArray with output(self, logger) {
-  let data_str = self.valstr()
+  let data_str = self.getValueRepr()
   logger.write_string("\{self.getType()} [\{data_str}]")
 }
 
@@ -2411,45 +2352,8 @@ pub impl Constant for ConstantVector with asConstantEnum(self) {
 }
 
 ///|
-pub impl Constant for ConstantVector with valstr(self) {
-  match self.data {
-    Left(constants) => constants.map(c => c.to_string()).join(", ")
-    Right(arr) =>
-      match arr {
-        Int8Array(i8arr) => i8arr.iter().map(i => "i8 \{i}").join(", ")
-        Int16Array(i16arr) => i16arr.iter().map(i => "i16 \{i}").join(", ")
-        Int32Array(i32arr) => i32arr.iter().map(i => "i32 \{i}").join(", ")
-        Int64Array(i64arr) => i64arr.iter().map(i => "i64 \{i}").join(", ")
-        UInt8Array(u8arr) => u8arr.iter().map(i => "i8 \{i}").join(", ")
-        UInt16Array(u16arr) => u16arr.iter().map(i => "i16 \{i}").join(", ")
-        UInt32Array(u32arr) => u32arr.iter().map(i => "i32 \{i}").join(", ")
-        UInt64Array(u64arr) => u64arr.iter().map(i => "i64 \{i}").join(", ")
-        FloatArray(farr) => {
-          fn to_str(f : Float) {
-            let nd = f.to_double()
-            let ud = nd.reinterpret_as_uint64()
-            let sd = ud.to_string(radix=16).to_upper()
-            "float 0x\{sd}"
-          }
-
-          farr.iter().map(to_str).join(", ")
-        }
-        DoubleArray(darr) => {
-          fn to_str(nd : Double) {
-            let ud = nd.reinterpret_as_uint64()
-            let sd = ud.to_string(radix=16).to_upper()
-            "double 0x\{sd}"
-          }
-
-          darr.iter().map(to_str).join(", ")
-        }
-      }
-  }
-}
-
-///|
 pub impl Show for ConstantVector with output(self, logger) {
-  let data_str = self.valstr()
+  let data_str = self.getValueRepr()
   logger.write_string("\{self.getType()} <\{data_str}>")
 }
 
@@ -2657,11 +2561,6 @@ pub impl Value for ConstantStruct with getNameOrSlot(_) {
 ///|
 pub impl Constant for ConstantStruct with asConstantEnum(self) {
   ConstantStruct(self)
-}
-
-///|
-pub impl Constant for ConstantStruct with valstr(self) {
-  self.elements.map(c => c.to_string()).join(", ")
 }
 
 ///|
