@@ -346,21 +346,71 @@ pub impl Value for LoadInst with getValueRepr(self) {
   }
 }
 
-///|
+///| Get the name of the instruction.
+///
+/// **Note**:
+///
+/// If the instruction has no name, return `None`.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let ptr_ty = ctx.getPtrTy()
+/// let i32_ty = ctx.getInt32Ty()
+///
+/// let fty = ctx.getFunctionType(i32_ty, [ptr_ty])
+/// let fval = mod.addFunction(fty, "load_an_integer")
+/// let bb = fval.addBasicBlock(name="entry")
+///
+/// builder.setInsertPoint(bb)
+/// let ptr = fval.getArg(0).unwrap()
+///
+/// let val = builder.createLoad(i32_ty, ptr)
+/// inspect(val.getName(), content = "None")
+///
+/// val.setName("val")
+/// inspect(val.getName(), content = "Some(\"val\")")
+/// ```
 pub impl Value for LoadInst with getName(self) {
   self.name
 }
 
-///|
+///| Set the name of the instruction.
+///
+/// **Note**:
+///
+/// If the name has already been used in the parent function,
+/// it will raise Error.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let ptr_ty = ctx.getPtrTy()
+/// let i32_ty = ctx.getInt32Ty()
+///
+/// let fty = ctx.getFunctionType(i32_ty, [ptr_ty])
+/// let fval = mod.addFunction(fty, "load_an_integer")
+/// let bb = fval.addBasicBlock(name="entry")
+///
+/// builder.setInsertPoint(bb)
+/// let ptr = fval.getArg(0).unwrap()
+///
+/// let val = builder.createLoad(i32_ty, ptr)
+/// inspect(val.getName(), content = "None")
+///
+/// val.setName("val")
+/// inspect(val.getName(), content = "Some(\"val\")")
+/// ```
 pub impl Value for LoadInst with setName(self, name) {
   if name is "" {
     let msg = "Misuse `LoadInst::setName`: name cannot be empty."
     raise LLVMValueError(msg)
   }
-  let contain_illegal_chars = !name
-    .iter()
-    .all(c => c.is_ascii_alphabetic() || c.is_ascii_digit() || c == '_')
-  if contain_illegal_chars {
+  if isInValidName(name) {
     let msg = "Misuse `LoadInst::setName`: " +
       "name '\{name}' contains illegal characters, " +
       "only alphanumeric characters and underscores are allowed."
@@ -906,21 +956,68 @@ pub impl Value for BinaryInst with getValueRepr(self) {
   }
 }
 
-///|
+///| Get the name of the instruction.
+///
+/// **Note**:
+///
+/// If the instruction has no name, return `None`.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let i32_ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32_ty, [i32_ty, i32_ty])
+///
+/// let fval = mod.addFunction(fty, "binary_ops_demo")
+/// let bb = fval.addBasicBlock(name="entry")
+///
+/// let arg1 = fval.getArg(0).unwrap()
+/// let arg2 = fval.getArg(1).unwrap()
+///
+/// builder.setInsertPoint(bb)
+/// let add = builder.createAdd(arg1, arg2)
+///
+/// inspect(add.getName(), content = "None")
+///
+/// add.setName("sum")
+/// inspect(add.getName(), content = "Some(\"sum\")")
+/// ```
 pub impl Value for BinaryInst with getName(self) {
   self.name
 }
 
-///|
+///| Set the name of the instruction.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let i32_ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32_ty, [i32_ty, i32_ty])
+///
+/// let fval = mod.addFunction(fty, "binary_ops_demo")
+/// let bb = fval.addBasicBlock(name="entry")
+///
+/// let arg1 = fval.getArg(0).unwrap()
+/// let arg2 = fval.getArg(1).unwrap()
+///
+/// builder.setInsertPoint(bb)
+/// let add = builder.createAdd(arg1, arg2)
+///
+/// inspect(add.getName(), content = "None")
+///
+/// add.setName("sum")
+/// inspect(add.getName(), content = "Some(\"sum\")")
+/// ```
 pub impl Value for BinaryInst with setName(self, name) {
   if name is "" {
     let msg = "Misuse `BinaryInst::setName`: name cannot be empty."
     raise LLVMValueError(msg)
   }
-  let contain_illegal_chars = !name
-    .iter()
-    .all(c => c.is_ascii_alphabetic() || c.is_ascii_digit() || c == '_')
-  if contain_illegal_chars {
+  if isInValidName(name) {
     let msg = "Misuse `BinaryInst::setName`: " +
       "name '\{name}' contains illegal characters, " +
       "only alphanumeric characters and underscores are allowed."
@@ -1151,21 +1248,71 @@ pub impl Value for ICmpInst with getValueRepr(self) {
   }
 }
 
-///|
+///| Get the name of the instruction.
+///
+/// **Note**:
+///
+/// If the instruction has no name, return `None`.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let i32_ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32_ty, [i32_ty, i32_ty])
+///
+/// let fval = mod.addFunction(fty, "icmp_demo")
+/// let bb = fval.addBasicBlock(name="entry")
+/// let arg1 = fval.getArg(0).unwrap()
+/// let arg2 = fval.getArg(1).unwrap()
+///
+/// builder.setInsertPoint(bb)
+/// let eq_cmp = builder.createICmp(EQ, arg1, arg2)
+///
+/// inspect(eq_cmp.getName(), content = "None")
+///
+/// eq_cmp.setName("eq_cmp")
+/// inspect(eq_cmp.getName(), content = "Some(\"eq_cmp\")")
+/// ```
 pub impl Value for ICmpInst with getName(self) {
   self.name
 }
 
-///|
+///| Set the name of the instruction.
+///
+/// **Note**:
+///
+/// If the name has already been used in the parent function,
+/// it will raise Error.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let i32_ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32_ty, [i32_ty, i32_ty])
+///
+/// let fval = mod.addFunction(fty, "icmp_demo")
+/// let bb = fval.addBasicBlock(name="entry")
+/// let arg1 = fval.getArg(0).unwrap()
+/// let arg2 = fval.getArg(1).unwrap()
+///
+/// builder.setInsertPoint(bb)
+/// let eq_cmp = builder.createICmp(EQ, arg1, arg2)
+///
+/// inspect(eq_cmp.getName(), content = "None")
+///
+/// eq_cmp.setName("eq_cmp")
+/// inspect(eq_cmp.getName(), content = "Some(\"eq_cmp\")")
+/// ```
 pub impl Value for ICmpInst with setName(self, name) {
   if name is "" {
     let msg = "Misuse `ICmpInst::setName`: name cannot be empty."
     raise LLVMValueError(msg)
   }
-  let contain_illegal_chars = !name
-    .iter()
-    .all(c => c.is_ascii_alphabetic() || c.is_ascii_digit() || c == '_')
-  if contain_illegal_chars {
+  if isInValidName(name) {
     let msg = "Misuse `ICmpInst::setName`: " +
       "name '\{name}' contains illegal characters, " +
       "only alphanumeric characters and underscores are allowed."
@@ -1398,21 +1545,71 @@ pub impl Value for FCmpInst with asValueEnum(self) {
   FCmpInst(self)
 }
 
-///|
+///| Get the name of the instruction.
+///
+/// **Note**:
+///
+/// If the instruction has no name, return `None`.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let f32_ty = ctx.getFloatTy()
+/// let fty = ctx.getFunctionType(f32_ty, [f32_ty, f32_ty])
+///
+/// let fval = mod.addFunction(fty, "fcmp_demo")
+/// let bb = fval.addBasicBlock(name="entry")
+/// let arg1 = fval.getArg(0).unwrap()
+/// let arg2 = fval.getArg(1).unwrap()
+///
+/// builder.setInsertPoint(bb)
+/// let oeq_cmp = builder.createFCmp(OEQ, arg1, arg2)
+///
+/// inspect(oeq_cmp.getName(), content = "None")
+///
+/// oeq_cmp.setName("oeq_cmp")
+/// inspect(oeq_cmp.getName(), content = "Some(\"oeq_cmp\")")
+/// ```
 pub impl Value for FCmpInst with getName(self) {
   self.name
 }
 
-///|
+///| Set the name of the instruction.
+///
+/// **Note**:
+///
+/// If the name has already been used in the parent function,
+/// it will raise Error.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let f32_ty = ctx.getFloatTy()
+/// let fty = ctx.getFunctionType(f32_ty, [f32_ty, f32_ty])
+///
+/// let fval = mod.addFunction(fty, "fcmp_demo")
+/// let bb = fval.addBasicBlock(name="entry")
+/// let arg1 = fval.getArg(0).unwrap()
+/// let arg2 = fval.getArg(1).unwrap()
+///
+/// builder.setInsertPoint(bb)
+/// let oeq_cmp = builder.createFCmp(OEQ, arg1, arg2)
+///
+/// inspect(oeq_cmp.getName(), content = "None")
+///
+/// oeq_cmp.setName("oeq_cmp")
+/// inspect(oeq_cmp.getName(), content = "Some(\"oeq_cmp\")")
+/// ```
 pub impl Value for FCmpInst with setName(self, name) {
   if name is "" {
     let msg = "Misuse `FCmpInst::setName`: name cannot be empty."
     raise LLVMValueError(msg)
   }
-  let contain_illegal_chars = !name
-    .iter()
-    .all(c => c.is_ascii_alphabetic() || c.is_ascii_digit() || c == '_')
-  if contain_illegal_chars {
+  if isInValidName(name) {
     let msg = "Misuse `FCmpInst::setName`: " +
       "name '\{name}' contains illegal characters, " +
       "only alphanumeric characters and underscores are allowed."
@@ -1872,21 +2069,71 @@ pub impl Value for CastInst with asValueEnum(self) {
   CastInst(self)
 }
 
-///|
+///| Get the name of the instruction.
+///
+/// **Note**:
+///
+/// If the instruction has no name, return `None`.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let i32_ty = ctx.getInt32Ty()
+/// let i64_ty = ctx.getInt64Ty()
+/// let fty = ctx.getFunctionType(i32_ty, [i64_ty])
+///
+/// let fval = mod.addFunction(fty, "cast_demo")
+/// let bb = fval.addBasicBlock(name="entry")
+/// let arg = fval.getArg(0).unwrap()
+///
+/// builder.setInsertPoint(bb)
+/// let trunc = builder.createTrunc(arg, i32_ty)
+///
+/// inspect(trunc.getName(), content = "None")
+///
+/// trunc.setName("truncated")
+/// inspect(trunc.getName(), content = "Some(\"truncated\")")
+/// ```
 pub impl Value for CastInst with getName(self) {
   self.name
 }
 
-///|
+///| Set the name of the instruction.
+///
+/// **Note**:
+///
+/// If the name has already been used in the parent function,
+/// it will raise Error.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let i32_ty = ctx.getInt32Ty()
+/// let i64_ty = ctx.getInt64Ty()
+/// let fty = ctx.getFunctionType(i32_ty, [i64_ty])
+///
+/// let fval = mod.addFunction(fty, "cast_demo")
+/// let bb = fval.addBasicBlock(name="entry")
+/// let arg = fval.getArg(0).unwrap()
+///
+/// builder.setInsertPoint(bb)
+/// let trunc = builder.createTrunc(arg, i32_ty)
+///
+/// inspect(trunc.getName(), content = "None")
+///
+/// trunc.setName("truncated")
+/// inspect(trunc.getName(), content = "Some(\"truncated\")")
+/// ```
 pub impl Value for CastInst with setName(self, name) {
   if name is "" {
     let msg = "Misuse `CastInst::setName`: name cannot be empty."
     raise LLVMValueError(msg)
   }
-  let contain_illegal_chars = !name
-    .iter()
-    .all(c => c.is_ascii_alphabetic() || c.is_ascii_digit() || c == '_')
-  if contain_illegal_chars {
+  if isInValidName(name) {
     let msg = "Misuse `CastInst::setName`: " +
       "name '\{name}' contains illegal characters, " +
       "only alphanumeric characters and underscores are allowed."
@@ -2059,21 +2306,77 @@ pub impl Value for GetElementPtrInst with asValueEnum(self) {
   GetElementPtrInst(self)
 }
 
-///|
+///| Get the name of the instruction.
+///
+/// **Note**:
+///
+/// If the instruction has no name, return `None`.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let i32_ty = ctx.getInt32Ty()
+/// let array_ty = ctx.getArrayType(i32_ty, 10)
+/// let ptr_ty = ctx.getPtrTy()
+/// let fty = ctx.getFunctionType(ptr_ty, [ptr_ty])
+///
+/// let fval = mod.addFunction(fty, "gep_demo")
+/// let bb = fval.addBasicBlock(name="entry")
+/// let arg = fval.getArg(0).unwrap()
+/// let zero = ctx.getConstInt32(0)
+/// let two = ctx.getConstInt32(2)
+///
+/// builder.setInsertPoint(bb)
+/// let gep = builder.createGEP(arg, array_ty, [zero, two])
+///
+/// inspect(gep.getName(), content = "None")
+///
+/// gep.setName("elem_ptr")
+/// inspect(gep.getName(), content = "Some(\"elem_ptr\")")
+/// ```
 pub impl Value for GetElementPtrInst with getName(self) {
   self.name
 }
 
-///|
+///| Set the name of the instruction.
+///
+/// **Note**:
+///
+/// If the name has already been used in the parent function,
+/// it will raise Error.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let i32_ty = ctx.getInt32Ty()
+/// let array_ty = ctx.getArrayType(i32_ty, 10)
+/// let ptr_ty = ctx.getPtrTy()
+/// let fty = ctx.getFunctionType(ptr_ty, [ptr_ty])
+///
+/// let fval = mod.addFunction(fty, "gep_demo")
+/// let bb = fval.addBasicBlock(name="entry")
+/// let arg = fval.getArg(0).unwrap()
+/// let zero = ctx.getConstInt32(0)
+/// let two = ctx.getConstInt32(2)
+///
+/// builder.setInsertPoint(bb)
+/// let gep = builder.createGEP(arg, array_ty, [zero, two])
+///
+/// inspect(gep.getName(), content = "None")
+///
+/// gep.setName("elem_ptr")
+/// inspect(gep.getName(), content = "Some(\"elem_ptr\")")
+/// ```
 pub impl Value for GetElementPtrInst with setName(self, name) {
   if name is "" {
     let msg = "Misuse `GetElementPtrInst::setName`: name cannot be empty."
     raise LLVMValueError(msg)
   }
-  let contain_illegal_chars = !name
-    .iter()
-    .all(c => c.is_ascii_alphabetic() || c.is_ascii_digit() || c == '_')
-  if contain_illegal_chars {
+  if isInValidName(name) {
     let msg = "Misuse `GetElementPtrInst::setName`: " +
       "name '\{name}' contains illegal characters, " +
       "only alphanumeric characters and underscores are allowed."
@@ -2261,21 +2564,75 @@ pub impl Value for SelectInst with asValueEnum(self) {
   SelectInst(self)
 }
 
-///|
+///| Get the name of the instruction.
+///
+/// **Note**:
+///
+/// If the instruction has no name, return `None`.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let i1_ty = ctx.getInt1Ty()
+/// let i32_ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32_ty, [i1_ty, i32_ty, i32_ty])
+///
+/// let fval = mod.addFunction(fty, "select_demo")
+/// let bb = fval.addBasicBlock(name="entry")
+/// let cond = fval.getArg(0).unwrap()
+/// let true_val = fval.getArg(1).unwrap()
+/// let false_val = fval.getArg(2).unwrap()
+///
+/// builder.setInsertPoint(bb)
+/// let select = builder.createSelect(cond, true_val, false_val)
+///
+/// inspect(select.getName(), content = "None")
+///
+/// select.setName("result")
+/// inspect(select.getName(), content = "Some(\"result\")")
+/// ```
 pub impl Value for SelectInst with getName(self) {
   self.name
 }
 
-///|
+///| Set the name of the instruction.
+///
+/// **Note**:
+///
+/// If the name has already been used in the parent function,
+/// it will raise Error.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let i1_ty = ctx.getInt1Ty()
+/// let i32_ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32_ty, [i1_ty, i32_ty, i32_ty])
+///
+/// let fval = mod.addFunction(fty, "select_demo")
+/// let bb = fval.addBasicBlock(name="entry")
+/// let cond = fval.getArg(0).unwrap()
+/// let true_val = fval.getArg(1).unwrap()
+/// let false_val = fval.getArg(2).unwrap()
+///
+/// builder.setInsertPoint(bb)
+/// let select = builder.createSelect(cond, true_val, false_val)
+///
+/// inspect(select.getName(), content = "None")
+///
+/// select.setName("result")
+/// inspect(select.getName(), content = "Some(\"result\")")
+/// ```
 pub impl Value for SelectInst with setName(self, name) {
   if name is "" {
     let msg = "Misuse `SelectInst::setName`: name cannot be empty."
     raise LLVMValueError(msg)
   }
-  let contain_illegal_chars = !name
-    .iter()
-    .all(c => c.is_ascii_alphabetic() || c.is_ascii_digit() || c == '_')
-  if contain_illegal_chars {
+  if isInValidName(name) {
     let msg = "Misuse `SelectInst::setName`: " +
       "name '\{name}' contains illegal characters, " +
       "only alphanumeric characters and underscores are allowed."
@@ -3073,12 +3430,61 @@ pub impl Value for PHINode with getValueRepr(self) {
   }
 }
 
-///|
+///| Get the name of the instruction.
+///
+/// **Note**:
+///
+/// If the instruction has no name, return `None`.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let i32_ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32_ty, [])
+///
+/// let fval = mod.addFunction(fty, "phi_demo")
+/// let entry_bb = fval.addBasicBlock(name="entry")
+///
+/// builder.setInsertPoint(entry_bb)
+/// let phi = builder.createPHI(i32_ty)
+///
+/// inspect(phi.getName(), content = "None")
+///
+/// phi.setName("result")
+/// inspect(phi.getName(), content = "Some(\"result\")")
+/// ```
 pub impl Value for PHINode with getName(self) {
   self.name
 }
 
-///|
+///| Set the name of the instruction.
+///
+/// **Note**:
+///
+/// If the name has already been used in the parent function,
+/// it will raise Error.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let i32_ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32_ty, [])
+///
+/// let fval = mod.addFunction(fty, "phi_demo")
+/// let merge_bb = fval.addBasicBlock(name="merge")
+///
+/// builder.setInsertPoint(merge_bb)
+/// let phi = builder.createPHI(i32_ty)
+///
+/// inspect(phi.getName(), content = "None")
+///
+/// phi.setName("result")
+/// inspect(phi.getName(), content = "Some(\"result\")")
+/// ```
 pub impl Value for PHINode with setName(self, name) {
   if name is "" {
     let msg = "Misuse `PHINode::setName`: name cannot be empty."
@@ -3338,7 +3744,35 @@ pub impl Value for CallInst with getValueRepr(self) {
   }
 }
 
-///|
+///| Get the name of the instruction.
+///
+/// **Note**:
+///
+/// If the instruction has no name, return `None`.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let i32_ty = ctx.getInt32Ty()
+/// let add_fty = ctx.getFunctionType(i32_ty, [i32_ty, i32_ty])
+/// let main_fty = ctx.getFunctionType(i32_ty, [])
+///
+/// let add_func = mod.addFunction(add_fty, "add")
+/// let main_func = mod.addFunction(main_fty, "main")
+/// let bb = main_func.addBasicBlock(name="entry")
+/// let arg1 = ctx.getConstInt32(10)
+/// let arg2 = ctx.getConstInt32(20)
+///
+/// builder.setInsertPoint(bb)
+/// let call = builder.createCall(add_func, [arg1, arg2])
+///
+/// inspect(call.getName(), content = "None")
+///
+/// call.setName("sum")
+/// inspect(call.getName(), content = "Some(\"sum\")")
+/// ```
 pub impl Value for CallInst with getName(self) {
   self.name
 }
@@ -3358,7 +3792,36 @@ pub impl Value for CallInst with getNameOrSlot(self) {
   }
 }
 
-///|
+///| Set the name of the instruction.
+///
+/// **Note**:
+///
+/// If the name has already been used in the parent function,
+/// it will raise Error. Cannot set name for CallInst with void return type.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let i32_ty = ctx.getInt32Ty()
+/// let add_fty = ctx.getFunctionType(i32_ty, [i32_ty, i32_ty])
+/// let main_fty = ctx.getFunctionType(i32_ty, [])
+///
+/// let add_func = mod.addFunction(add_fty, "add")
+/// let main_func = mod.addFunction(main_fty, "main")
+/// let bb = main_func.addBasicBlock(name="entry")
+/// let arg1 = ctx.getConstInt32(10)
+/// let arg2 = ctx.getConstInt32(20)
+///
+/// builder.setInsertPoint(bb)
+/// let call = builder.createCall(add_func, [arg1, arg2])
+///
+/// inspect(call.getName(), content = "None")
+///
+/// call.setName("sum")
+/// inspect(call.getName(), content = "Some(\"sum\")")
+/// ```
 pub impl Value for CallInst with setName(self, name) {
   if self.vty.asTypeEnum() is VoidType(_) {
     let msg = "Misuse `CallInst::setName`: " +
@@ -3470,7 +3933,7 @@ pub impl Show for CallInst with output(self, logger) {
 ///
 /// Use `IRBuilder::createExtractValue` to create an `ExtractValueInst`.
 ///
-/// ```moonbit skip
+/// ```moonbit
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -3556,12 +4019,65 @@ pub impl Value for ExtractValueInst with asValueEnum(self) {
   ExtractValueInst(self)
 }
 
-///|
+///| Get the name of the instruction.
+///
+/// **Note**:
+///
+/// If the instruction has no name, return `None`.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let i32_ty = ctx.getInt32Ty()
+/// let struct_ty = ctx.getStructType([i32_ty, i32_ty])
+/// let fty = ctx.getFunctionType(i32_ty, [struct_ty])
+///
+/// let fval = mod.addFunction(fty, "extractvalue_demo")
+/// let bb = fval.addBasicBlock(name="entry")
+/// let aggregate = fval.getArg(0).unwrap()
+///
+/// builder.setInsertPoint(bb)
+/// let extract = builder.createExtractValue(aggregate, [0])
+///
+/// inspect(extract.getName(), content = "None")
+///
+/// extract.setName("field")
+/// inspect(extract.getName(), content = "Some(\"field\")")
+/// ```
 pub impl Value for ExtractValueInst with getName(self) {
   self.name
 }
 
-///|
+///| Set the name of the instruction.
+///
+/// **Note**:
+///
+/// If the name has already been used in the parent function,
+/// it will raise Error.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let i32_ty = ctx.getInt32Ty()
+/// let struct_ty = ctx.getStructType([i32_ty, i32_ty])
+/// let fty = ctx.getFunctionType(i32_ty, [struct_ty])
+///
+/// let fval = mod.addFunction(fty, "extractvalue_demo")
+/// let bb = fval.addBasicBlock(name="entry")
+/// let aggregate = fval.getArg(0).unwrap()
+///
+/// builder.setInsertPoint(bb)
+/// let extract = builder.createExtractValue(aggregate, [0])
+///
+/// inspect(extract.getName(), content = "None")
+///
+/// extract.setName("field")
+/// inspect(extract.getName(), content = "Some(\"field\")")
+/// ```
 pub impl Value for ExtractValueInst with setName(self, name) {
   if isInValidName(name) {
     let msg = "Misuse `ExtractValueInst::setName`: " +
@@ -3654,7 +4170,7 @@ pub impl Show for ExtractValueInst with output(self, logger) {
 ///
 /// Use `IRBuilder::createInsertValue` to create an `InsertValueInst`.
 ///
-/// ```moonbit skip
+/// ```moonbit
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -3752,12 +4268,67 @@ pub impl Value for InsertValueInst with getValueRepr(self) {
   }
 }
 
-///|
+///| Get the name of the instruction.
+///
+/// **Note**:
+///
+/// If the instruction has no name, return `None`.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let i32_ty = ctx.getInt32Ty()
+/// let struct_ty = ctx.getStructType([i32_ty, i32_ty])
+/// let fty = ctx.getFunctionType(struct_ty, [struct_ty, i32_ty])
+///
+/// let fval = mod.addFunction(fty, "insertvalue_demo")
+/// let bb = fval.addBasicBlock(name="entry")
+/// let aggregate = fval.getArg(0).unwrap()
+/// let new_value = fval.getArg(1).unwrap()
+///
+/// builder.setInsertPoint(bb)
+/// let insert = builder.createInsertValue(aggregate, new_value, [1])
+///
+/// inspect(insert.getName(), content = "None")
+///
+/// insert.setName("updated")
+/// inspect(insert.getName(), content = "Some(\"updated\")")
+/// ```
 pub impl Value for InsertValueInst with getName(self) {
   self.name
 }
 
-///|
+///| Set the name of the instruction.
+///
+/// **Note**:
+///
+/// If the name has already been used in the parent function,
+/// it will raise Error.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let i32_ty = ctx.getInt32Ty()
+/// let struct_ty = ctx.getStructType([i32_ty, i32_ty])
+/// let fty = ctx.getFunctionType(struct_ty, [struct_ty, i32_ty])
+///
+/// let fval = mod.addFunction(fty, "insertvalue_demo")
+/// let bb = fval.addBasicBlock(name="entry")
+/// let aggregate = fval.getArg(0).unwrap()
+/// let new_value = fval.getArg(1).unwrap()
+///
+/// builder.setInsertPoint(bb)
+/// let insert = builder.createInsertValue(aggregate, new_value, [1])
+///
+/// inspect(insert.getName(), content = "None")
+///
+/// insert.setName("updated")
+/// inspect(insert.getName(), content = "Some(\"updated\")")
+/// ```
 pub impl Value for InsertValueInst with setName(self, name) {
   if isInValidName(name) {
     let msg = "Misuse `InsertValueInst::setName`: " +
