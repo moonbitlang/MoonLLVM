@@ -151,7 +151,25 @@ pub fn IRBuilder::createRetVoid(self : IRBuilder) -> &Instruction raise Error {
   retInst
 }
 
-///|
+///| Create an Alloca Instruction.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let void_ty = ctx.getVoidTy()
+/// let i32_ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(void_ty, [])
+///
+/// let fval = mod.addFunction(fty, "foo")
+/// let bb = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(bb)
+///
+/// let inst = builder.createAlloca(i32_ty, name="var1")
+/// 
+/// inspect(inst, content = "  %var1 = alloca i32, align 4")
+/// ```
 pub fn IRBuilder::createAlloca(
   self : IRBuilder,
   data_ty : &Type,
