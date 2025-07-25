@@ -1314,7 +1314,10 @@ pub fn Context::getConstZero(
       llvm_unreachable(
         "getConstZero: Unimplemented for FixedVectorType \{t.to_string()}",
       )
-    _ => raise TypeCouldNotBeCreatedZeroValue(ty)
+    _ => {
+      let msg = "Misuse `Context::getConstZero`: Cannot create zero value for type \{ty.to_string()}"
+      raise LLVMValueError(msg)
+    }
   }
 }
 

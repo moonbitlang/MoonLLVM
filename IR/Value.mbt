@@ -597,7 +597,9 @@ impl Instruction with prev(self) {
 ///|
 impl Instruction with insertAfter(self, insertPt : &Instruction) {
   guard self.isIndependent() else {
-    raise OnlyIndependentInstructionCanBeInsert
+    raise LLVMValueError(
+      "Misuse `Instruction::insertAfter`, Only independent instruction can be inserted",
+    )
   }
   match insertPt.next() {
     None => {
@@ -618,7 +620,9 @@ impl Instruction with insertAfter(self, insertPt : &Instruction) {
 ///|
 impl Instruction with insertBefore(self, insertPt : &Instruction) {
   guard self.isIndependent() else {
-    raise OnlyIndependentInstructionCanBeInsert
+    raise LLVMValueError(
+      "Misuse `Instruction::insertAfter`, Only independent instruction can be inserted",
+    )
   }
   match insertPt.prev() {
     None => {

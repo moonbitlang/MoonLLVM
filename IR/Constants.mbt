@@ -166,7 +166,10 @@ pub fn ConstantInt::add(
   other : ConstantInt,
 ) -> ConstantInt raise LLVMValueError {
   let (lty, rty) = (self.getIntegerType(), other.getIntegerType())
-  guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
+  guard lty == rty else {
+    let msg = "Type mismatch for ConstantInt addition: \{lty} vs \{rty}"
+    raise LLVMValueError(msg)
+  }
   let value = self.value + other.value
   let vty = lty
   let value = match vty.asIntegerTypeEnum() {
@@ -211,7 +214,10 @@ pub fn ConstantInt::sub(
   other : ConstantInt,
 ) -> ConstantInt raise LLVMValueError {
   let (lty, rty) = (self.getIntegerType(), other.getIntegerType())
-  guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
+  guard lty == rty else {
+    let msg = "Type mismatch for ConstantInt subtraction: \{lty} vs \{rty}"
+    raise LLVMValueError(msg)
+  }
   let vty = lty
   let value = self.value - other.value
   let value = match vty.asIntegerTypeEnum() {
@@ -253,7 +259,10 @@ pub fn ConstantInt::mul(
   other : ConstantInt,
 ) -> ConstantInt raise LLVMValueError {
   let (lty, rty) = (self.getIntegerType(), other.getIntegerType())
-  guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
+  guard lty == rty else {
+    let msg = "Type mismatch for ConstantInt multiplication: \{lty} vs \{rty}"
+    raise LLVMValueError(msg)
+  }
   let vty = lty
   let value = self.value * other.value
   let value = match vty.asIntegerTypeEnum() {
@@ -295,8 +304,14 @@ pub fn ConstantInt::sdiv(
   other : ConstantInt,
 ) -> ConstantInt raise LLVMValueError {
   let (lty, rty) = (self.getIntegerType(), other.getIntegerType())
-  guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
-  guard other.value != 0 else { raise DivisionByZeroError }
+  guard lty == rty else {
+    let msg = "Type mismatch for ConstantInt signed division: \{lty} vs \{rty}"
+    raise LLVMValueError(msg)
+  }
+  guard other.value != 0 else {
+    let msg = "Division by zero in ConstantInt signed division"
+    raise LLVMValueError(msg)
+  }
   let vty = lty
   let value = self.value / other.value
   let value = match vty.asIntegerTypeEnum() {
@@ -361,8 +376,14 @@ pub fn ConstantInt::udiv(
   other : ConstantInt,
 ) -> ConstantInt raise LLVMValueError {
   let (lty, rty) = (self.getIntegerType(), other.getIntegerType())
-  guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
-  guard other.value != 0L else { raise DivisionByZeroError }
+  guard lty == rty else {
+    let msg = "Type mismatch for ConstantInt unsigned division: \{lty} vs \{rty}"
+    raise LLVMValueError(msg)
+  }
+  guard other.value != 0L else {
+    let msg = "Division by zero in ConstantInt unsigned division"
+    raise LLVMValueError(msg)
+  }
   let vty = lty
   let value = match vty.asIntegerTypeEnum() {
     Int1Type(_) => self.value / other.value
@@ -416,7 +437,10 @@ pub fn ConstantInt::compute_and(
   other : ConstantInt,
 ) -> ConstantInt raise LLVMValueError {
   let (lty, rty) = (self.getIntegerType(), other.getIntegerType())
-  guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
+  guard lty == rty else {
+    let msg = "Type mismatch for ConstantInt bitwise AND: \{lty} vs \{rty}"
+    raise LLVMValueError(msg)
+  }
   let vty = lty
   let result_i64 = self.value & other.value
   let final_value = match vty.asIntegerTypeEnum() {
@@ -458,7 +482,10 @@ pub fn ConstantInt::or(
   other : ConstantInt,
 ) -> ConstantInt raise LLVMValueError {
   let (lty, rty) = (self.getIntegerType(), other.getIntegerType())
-  guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
+  guard lty == rty else {
+    let msg = "Type mismatch for ConstantInt bitwise OR: \{lty} vs \{rty}"
+    raise LLVMValueError(msg)
+  }
   let vty = lty
   let result_i64 = self.value | other.value
   let final_value = match vty.asIntegerTypeEnum() {
@@ -500,7 +527,10 @@ pub fn ConstantInt::xor(
   other : ConstantInt,
 ) -> ConstantInt raise LLVMValueError {
   let (lty, rty) = (self.getIntegerType(), other.getIntegerType())
-  guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
+  guard lty == rty else {
+    let msg = "Type mismatch for ConstantInt bitwise XOR: \{lty} vs \{rty}"
+    raise LLVMValueError(msg)
+  }
   let vty = lty
   let result_i64 = self.value ^ other.value
   let final_value = match vty.asIntegerTypeEnum() {
@@ -542,7 +572,10 @@ pub fn ConstantInt::compute_shl(
   other : ConstantInt,
 ) -> ConstantInt raise LLVMValueError {
   let (lty, rty) = (self.getIntegerType(), other.getIntegerType())
-  guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
+  guard lty == rty else {
+    let msg = "Type mismatch for ConstantInt left shift: \{lty} vs \{rty}"
+    raise LLVMValueError(msg)
+  }
   let vty = lty
   let result_i64 = self.value << other.value.to_int()
   let final_value = match vty.asIntegerTypeEnum() {
@@ -584,7 +617,10 @@ pub fn ConstantInt::lshr(
   other : ConstantInt,
 ) -> ConstantInt raise LLVMValueError {
   let (lty, rty) = (self.getIntegerType(), other.getIntegerType())
-  guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
+  guard lty == rty else {
+    let msg = "Type mismatch for ConstantInt logical right shift: \{lty} vs \{rty}"
+    raise LLVMValueError(msg)
+  }
   let vty = lty
   let value = match vty.asIntegerTypeEnum() {
     Int1Type(_) => (self.value >> other.value.to_int()) & 1L
@@ -649,7 +685,10 @@ pub fn ConstantInt::ashr(
   other : ConstantInt,
 ) -> ConstantInt raise LLVMValueError {
   let (lty, rty) = (self.getIntegerType(), other.getIntegerType())
-  guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
+  guard lty == rty else {
+    let msg = "Type mismatch for ConstantInt arithmetic right shift: \{lty} vs \{rty}"
+    raise LLVMValueError(msg)
+  }
   let vty = lty
   let result_i64 = self.value >> other.value.to_int()
   let final_value = match vty.asIntegerTypeEnum() {
@@ -710,7 +749,10 @@ pub fn ConstantInt::compare(
   other : ConstantInt,
 ) -> ConstantInt raise LLVMValueError {
   let (lty, rty) = (self.getIntegerType(), other.getIntegerType())
-  guard lty == rty else { raise TypeMismatchForCmpInst(lty, rty) }
+  guard lty == rty else {
+    let msg = "Type mismatch for ConstantInt comparison: \{lty} vs \{rty}"
+    raise LLVMValueError(msg)
+  }
   let vty = lty
   let ctx = self.getType().getContext()
   let result = match predicate {
@@ -809,7 +851,8 @@ pub fn ConstantInt::trunc(
 ) -> ConstantInt raise LLVMValueError {
   let src_ty = self.vty.asIntegerTypeEnum()
   guard src_ty.getBitWidth() > dst_ty.getBitWidth() else {
-    raise TruncCastInstTypeMismatch(src_ty.asTypeClass(), dst_ty)
+    let msg = "Truncation cast type mismatch: cannot truncate from \{src_ty.asTypeClass()} (bit width \{src_ty.getBitWidth()}) to \{dst_ty} (bit width \{dst_ty.getBitWidth()})"
+    raise LLVMValueError(msg)
   }
   ConstantInt::new(dst_ty, self.value)
 }
@@ -844,7 +887,8 @@ pub fn ConstantInt::zext(
 ) -> ConstantInt raise LLVMValueError {
   let src_ty = self.vty.asIntegerTypeEnum()
   guard src_ty.getBitWidth() < dst_ty.getBitWidth() else {
-    raise ZExtCastInstTypeMismatch(src_ty.asTypeClass(), dst_ty)
+    let msg = "Zero extension cast type mismatch: cannot zero extend from \{src_ty.asTypeClass()} (bit width \{src_ty.getBitWidth()}) to \{dst_ty} (bit width \{dst_ty.getBitWidth()})"
+    raise LLVMValueError(msg)
   }
   // Zero extension: treat the value as unsigned
   let unsigned_value = match src_ty {
@@ -887,7 +931,8 @@ pub fn ConstantInt::sext(
 ) -> ConstantInt raise LLVMValueError {
   let src_ty = self.vty.asIntegerTypeEnum()
   guard src_ty.getBitWidth() < dst_ty.getBitWidth() else {
-    raise SExtCastInstTypeMismatch(src_ty.asTypeClass(), dst_ty)
+    let msg = "Sign extension cast type mismatch: cannot sign extend from \{src_ty.asTypeClass()} (bit width \{src_ty.getBitWidth()}) to \{dst_ty} (bit width \{dst_ty.getBitWidth()})"
+    raise LLVMValueError(msg)
   }
   // Sign extension: need special handling for i1
   let extended_value = match src_ty {
@@ -1008,12 +1053,17 @@ pub fn ConstantInt::bitcast(
   dst_ty : &PrimitiveType,
 ) -> &Constant raise LLVMValueError {
   let src_ty = self.getType()
-  guard src_ty != dst_ty else { raise BitCastInstTypeMismatch(src_ty, dst_ty) }
+  guard src_ty != dst_ty else {
+    let msg = "Bitcast type mismatch: source type \{src_ty} is the same as destination type \{dst_ty}"
+    raise LLVMValueError(msg)
+  }
   guard src_ty.tryAsPrimitiveTypeEnum() is Some(src_ty_prim) else {
-    raise BitCastOnlyAcceptPrimitiveTypes(src_ty)
+    let msg = "Bitcast only accepts primitive types: source type \{src_ty} is not a primitive type"
+    raise LLVMValueError(msg)
   }
   guard src_ty_prim.getBitWidth() == dst_ty.getBitWidth() else {
-    raise BitCastInstTypeMismatch(src_ty, dst_ty)
+    let msg = "Bitcast type mismatch: source type \{src_ty} (bit width \{src_ty_prim.getBitWidth()}) and destination type \{dst_ty} (bit width \{dst_ty.getBitWidth()}) have different bit widths"
+    raise LLVMValueError(msg)
   }
   match dst_ty.asPrimitiveTypeEnum() {
     // Integer to integer
@@ -1067,7 +1117,9 @@ pub impl Value for ConstantInt with getName(_) {
 
 ///|
 pub impl Value for ConstantInt with setName(_, _) {
-  raise CouldNotSetNameForConstant
+  let msg = "Calling always failed function `ConstantInt::setName`. " +
+    "Set name for ConstantInt is not allowed."
+  raise LLVMValueError(msg)
 }
 
 ///|
@@ -1160,7 +1212,10 @@ pub fn ConstantFP::add(
   other : ConstantFP,
 ) -> ConstantFP raise LLVMValueError {
   let (lty, rty) = (self.getFPType(), other.getFPType())
-  guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
+  guard lty == rty else {
+    let msg = "Type mismatch for ConstantFP addition: \{lty} vs \{rty}"
+    raise LLVMValueError(msg)
+  }
   let vty = lty
   let value = self.value + other.value
   ConstantFP::new(vty, value)
@@ -1189,7 +1244,10 @@ pub fn ConstantFP::sub(
   other : ConstantFP,
 ) -> ConstantFP raise LLVMValueError {
   let (lty, rty) = (self.getFPType(), other.getFPType())
-  guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
+  guard lty == rty else {
+    let msg = "Type mismatch for ConstantFP subtraction: \{lty} vs \{rty}"
+    raise LLVMValueError(msg)
+  }
   let vty = lty
   let value = self.value - other.value
   ConstantFP::new(vty, value)
@@ -1218,7 +1276,10 @@ pub fn ConstantFP::mul(
   other : ConstantFP,
 ) -> ConstantFP raise LLVMValueError {
   let (lty, rty) = (self.getFPType(), other.getFPType())
-  guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
+  guard lty == rty else {
+    let msg = "Type mismatch for ConstantFP multiplication: \{lty} vs \{rty}"
+    raise LLVMValueError(msg)
+  }
   let vty = lty
   let value = self.value * other.value
   ConstantFP::new(vty, value)
@@ -1247,7 +1308,10 @@ pub fn ConstantFP::div(
   other : ConstantFP,
 ) -> ConstantFP raise LLVMValueError {
   let (lty, rty) = (self.getFPType(), other.getFPType())
-  guard lty == rty else { raise TypeMismatchForBinaryOp(lty, rty) }
+  guard lty == rty else {
+    let msg = "Type mismatch for ConstantFP division: \{lty} vs \{rty}"
+    raise LLVMValueError(msg)
+  }
   let vty = lty
   let value = self.value / other.value
   ConstantFP::new(vty, value)
@@ -1309,7 +1373,10 @@ pub fn ConstantFP::compare(
   other : ConstantFP,
 ) -> ConstantInt raise LLVMValueError {
   let (lty, rty) = (self.getFPType(), other.getFPType())
-  guard lty == rty else { raise TypeMismatchForCmpInst(lty, rty) }
+  guard lty == rty else {
+    let msg = "Type mismatch for ConstantFP comparison: \{lty} vs \{rty}"
+    raise LLVMValueError(msg)
+  }
   let self_val = self.value
   let other_val = other.value
   let self_is_nan = self_val.is_nan()
@@ -1369,7 +1436,8 @@ pub fn ConstantFP::fptrunc(
 ) -> ConstantFP raise LLVMValueError {
   let src_ty = self.vty
   guard src_ty.getBitWidth() > dst_ty.getBitWidth() else {
-    raise FPTruncCastInstTypeMismatch(src_ty, dst_ty)
+    let msg = "Floating-point truncation cast type mismatch: cannot truncate from \{src_ty} (bit width \{src_ty.getBitWidth()}) to \{dst_ty} (bit width \{dst_ty.getBitWidth()})"
+    raise LLVMValueError(msg)
   }
   // For truncation, we simply use the current value (precision loss handled by Double)
   ConstantFP::new(dst_ty, self.value)
@@ -1403,7 +1471,8 @@ pub fn ConstantFP::fpext(
 ) -> ConstantFP raise LLVMValueError {
   let src_ty = self.vty
   guard src_ty.getBitWidth() < dst_ty.getBitWidth() else {
-    raise FPExtCastInstTypeMismatch(src_ty, dst_ty)
+    let msg = "Floating-point extension cast type mismatch: cannot extend from \{src_ty} (bit width \{src_ty.getBitWidth()}) to \{dst_ty} (bit width \{dst_ty.getBitWidth()})"
+    raise LLVMValueError(msg)
   }
   // For extension, we simply use the current value (no precision loss)
   ConstantFP::new(dst_ty, self.value)
@@ -1522,12 +1591,17 @@ pub fn ConstantFP::bitcast(
   dst_ty : &PrimitiveType,
 ) -> &Constant raise LLVMValueError {
   let src_ty = self.getType()
-  guard src_ty != dst_ty else { raise BitCastInstTypeMismatch(src_ty, dst_ty) }
+  guard src_ty != dst_ty else {
+    let msg = "Bitcast type mismatch: source type \{src_ty} is the same as destination type \{dst_ty}"
+    raise LLVMValueError(msg)
+  }
   guard src_ty.tryAsPrimitiveTypeEnum() is Some(src_ty_prim) else {
-    raise BitCastOnlyAcceptPrimitiveTypes(src_ty)
+    let msg = "Bitcast only accepts primitive types: source type \{src_ty} is not a primitive type"
+    raise LLVMValueError(msg)
   }
   guard src_ty_prim.getBitWidth() == dst_ty.getBitWidth() else {
-    raise BitCastInstTypeMismatch(src_ty, dst_ty)
+    let msg = "Bitcast type mismatch: source type \{src_ty} (bit width \{src_ty_prim.getBitWidth()}) and destination type \{dst_ty} (bit width \{dst_ty.getBitWidth()}) have different bit widths"
+    raise LLVMValueError(msg)
   }
   match dst_ty.asPrimitiveTypeEnum() {
     // Floating point to integer
@@ -1547,9 +1621,11 @@ pub fn ConstantFP::bitcast(
     FloatType(_) | DoubleType(_) | HalfType(_) | BFloatType(_) | FP128Type(_) =>
       ConstantFP::new(dst_ty.tryAsFPType().unwrap(), self.value) as &Constant
     // Other integer types
-    Int1Type(_) | Int8Type(_) | Int16Type(_) =>
+    Int1Type(_) | Int8Type(_) | Int16Type(_) => {
       // For other integer types, we need proper bit width matching
-      raise BitCastInstTypeMismatch(src_ty, dst_ty)
+      let msg = "Bitcast type mismatch: source type \{src_ty} and destination type \{dst_ty} have incompatible types for bitcast"
+      raise LLVMValueError(msg)
+    }
   }
 }
 
@@ -1579,7 +1655,9 @@ pub impl Value for ConstantFP with getName(_) {
 
 ///|
 pub impl Value for ConstantFP with setName(_, _) {
-  raise CouldNotSetNameForConstant
+  let msg = "Calling always failed function `ConstantFP::setName`. " +
+    "Set name for ConstantFP is not allowed."
+  raise LLVMValueError(msg)
 }
 
 ///|
@@ -1680,7 +1758,9 @@ pub impl Value for ConstantPointerNull with getName(_) {
 
 ///|
 pub impl Value for ConstantPointerNull with setName(_, _) {
-  raise CouldNotSetNameForConstant
+  let msg = "Calling always failed function `ConstantPointerNull::setName`. " +
+    "Set name for ConstantPointerNull is not allowed."
+  raise LLVMValueError(msg)
 }
 
 ///|
@@ -2020,7 +2100,9 @@ pub impl Value for ConstantArray with getName(_) {
 
 ///|
 pub impl Value for ConstantArray with setName(_, _) {
-  raise CouldNotSetNameForConstant
+  let msg = "Calling always failed function `ConstantArray::setName`. " +
+    "Set name for ConstantArray is not allowed."
+  raise LLVMValueError(msg)
 }
 
 ///|
@@ -2358,7 +2440,9 @@ pub impl Value for ConstantVector with getName(_) {
 
 ///|
 pub impl Value for ConstantVector with setName(_, _) {
-  raise CouldNotSetNameForConstant
+  let msg = "Calling always failed function `ConstantVector::setName`. " +
+    "Set name for ConstantVector is not allowed."
+  raise LLVMValueError(msg)
 }
 
 ///|
@@ -2575,7 +2659,9 @@ pub impl Value for ConstantStruct with getName(_) {
 
 ///|
 pub impl Value for ConstantStruct with setName(_, _) {
-  raise CouldNotSetNameForConstant
+  let msg = "Calling always failed function `ConstantStruct::setName`. " +
+    "Set name for ConstantStruct is not allowed."
+  raise LLVMValueError(msg)
 }
 
 ///|

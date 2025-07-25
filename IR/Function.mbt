@@ -136,8 +136,25 @@ pub impl Value for Argument with getName(self : Argument) -> String? {
 /// assert_true({try? arg1.setName("lhs")} is Err(_))
 /// ```
 pub impl Value for Argument with setName(self : Argument, name : String) -> Unit raise LLVMValueError {
+  if name.is_empty() {
+    raise LLVMValueError("Argument name cannot be empty")
+  }
+  if isInValidName(name) {
+    let msg = "Misuse `Argument::setName`: " +
+      "name '\{name}' contains illegal characters, " +
+      "only alphanumeric characters and underscores are allowed."
+    raise LLVMValueError(msg)
+  }
   let symbols = self.parent.symbols
-  guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
+  guard not(symbols.contains(name)) else {
+    let msg = "Misuse `Argument::setName`: " +
+      "name '\{name}' already exists in the function's symbols."
+    raise LLVMValueError(msg)
+  }
+  match self.name {
+    Some(old_name) => symbols.remove(old_name)
+    None => ()
+  }
   self.name = Some(name)
   symbols.set(name, self)
 }
@@ -220,10 +237,7 @@ fn Function::new(
   addressSpace~ : AddressSpace,
   index : UInt,
   program : Module,
-) -> Function raise LLVMValueError {
-  guard Function::isValidFunctionName(name) else {
-    raise InValidFunctionName(name)
-  }
+) -> Function {
   let uid = valueUIDAssigner.assign()
   let users = []
   let gv_base = GlobalValueBase::{ linkage, }
@@ -260,14 +274,6 @@ fn Function::new(
 }
 
 // TODO: Not fully implemented.
-
-///|
-fn Function::isValidFunctionName(name : String) -> Bool {
-  match name {
-    "" => false
-    _ => true
-  }
-}
 
 ///|
 pub fn Function::getFunctionType(self : Function) -> FunctionType {
@@ -419,10 +425,16 @@ pub impl Value for Function with getNameOrSlot(self) {
 
 ///|
 pub impl Value for Function with setName(self, name) -> Unit raise LLVMValueError {
-  let symbols = self.symbols
-  guard not(symbols.contains(self.name)) else {
-    raise DuplicateFunctionName(self.name)
+  if name is "" {
+    raise LLVMValueError("Misuse `Function::setName`: name cannot be empty")
   }
+  if isInValidName(name) {
+    let msg = "Misuse `Function::setName`: " +
+      "name '\{name}' contains illegal characters, " +
+      "only alphanumeric characters and underscores are allowed."
+    raise LLVMValueError(msg)
+  }
+  let symbols = self.symbols
   symbols.remove(self.name)
   self.name = name
   symbols.set(name, self)
@@ -430,7 +442,9 @@ pub impl Value for Function with setName(self, name) -> Unit raise LLVMValueErro
 
 ///|
 pub impl Value for Function with removeName(_) {
-  raise CouldNotRemoveFunctionName
+  let msg = "Calling always failed function `Function::removeName`. " +
+    "remove function name is not allowed."
+  raise LLVMValueError(msg)
 }
 
 ///|

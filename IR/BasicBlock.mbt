@@ -154,8 +154,22 @@ pub impl Value for BasicBlock with getValueRepr(self) {
 
 ///|
 pub impl Value for BasicBlock with setName(self, name) {
-  let symbols = self.parent.symbols
-  guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
+  if name is "" {
+    let msg = "Misuse `BasicBlock::setName`: name cannot be empty."
+    raise LLVMValueError(msg)
+  }
+  if isInValidName(name) {
+    let msg = "Misuse `BasicBlock::setName`: " +
+      "name '\{name}' contains illegal characters, " +
+      "only alphanumeric characters and underscores are allowed."
+    raise LLVMValueError(msg)
+  }
+  let symbols = self.getParent().symbols
+  guard not(symbols.contains(name)) else {
+    let msg = "Misuse `BasicBlock::setName`: " +
+      "name '\{name}' already exists in the parent function"
+    raise LLVMValueError(msg)
+  }
   self.name = Some(name)
   symbols.set(name, self)
 }
