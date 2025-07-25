@@ -1,105 +1,3 @@
-///|
-pub enum BinaryOps {
-  // Standard binary operators.
-  Add
-  FAdd
-  Sub
-  FSub
-  Mul
-  FMul
-  SDiv
-  UDiv
-  FDiv
-  URem
-  SRem
-  FRem
-
-  // Logical operators
-  Shl
-  LShr
-  AShr
-  And
-  Or
-  Xor
-} derive(Hash, Eq)
-
-///|
-pub impl Show for BinaryOps with output(self, logger) {
-  let str = match self {
-    Add => "add"
-    FAdd => "fadd"
-    Sub => "sub"
-    FSub => "fsub"
-    Mul => "mul"
-    FMul => "fmul"
-    SDiv => "sdiv"
-    UDiv => "udiv"
-    FDiv => "fdiv"
-    URem => "urem"
-    SRem => "srem"
-    FRem => "frem"
-    Shl => "shl"
-    LShr => "lshr"
-    AShr => "ashr"
-    And => "and"
-    Or => "or"
-    Xor => "xor"
-  }
-  logger.write_string(str)
-}
-
-///|
-pub enum BinaryOpFlags {
-
-  // Only add, sub, mul, and shl
-  // could have NoUnsignedWrap and NoSignedWrap flags.
-  NoUnsignedWrap
-  NoSignedWrap
-
-  // only sdiv, udiv, ashr, lshr
-  // could have Exact flag.
-  Exact
-
-  // Only Or could have Disjoint flag.
-  //Disjoint
-} derive(Hash, Eq)
-
-///|
-pub impl Show for BinaryOpFlags with output(self, logger) {
-  let str = match self {
-    NoUnsignedWrap => "nuw"
-    NoSignedWrap => "nsw"
-    Exact => "exact"
-    //Disjoint => "disjoint"
-  }
-  logger.write_string(str)
-}
-
-///|
-pub(all) enum FastMathFlag {
-  AllowReassoc
-  NoNaNs
-  NoInfs
-  NoSignedZeros
-  AllowReciprocal
-  AllowContract
-  ApproxFunc
-} derive(Hash, Eq)
-
-///|
-pub impl Show for FastMathFlag with output(self, logger) {
-  let str = match self {
-    AllowReassoc => "reassoc"
-    NoNaNs => "nnan"
-    NoInfs => "ninf"
-    NoSignedZeros => "nsz"
-    AllowReciprocal => "arcp"
-    AllowContract => "contract"
-    ApproxFunc => "afn"
-  }
-  logger.write_string(str)
-}
-
 // =======================================================
 // AllocaInst
 // =======================================================
@@ -152,12 +50,35 @@ fn AllocaInst::new(
   AllocaInst::{ uid, vty, users: [], name, parent, inst_base, data_ty, align }
 }
 
-///|
+///| AllocaInst is one of `Value`.
 pub impl Value for AllocaInst with getValueBase(self) {
   ValueBase::{ uid: self.uid, vty: self.vty, users: self.users }
 }
 
-///|
+///| Get simple representation of the value.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let void_ty = ctx.getVoidTy()
+/// let i32_ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(void_ty, [])
+///
+/// let fval = mod.addFunction(fty, "foo")
+/// let bb = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(bb)
+///
+/// let inst = builder.createAlloca(i32_ty)
+///
+/// inspect(inst.getValueRepr(), content = "%0")
+///
+/// guard inst.asValueEnum() is AllocaInst(inst)
+///
+/// inst.setName("var1")
+/// inspect(inst.getValueRepr(), content = "%var1")
+/// ```
 pub impl Value for AllocaInst with getValueRepr(self) {
   match self.getNameOrSlot() {
     Some(Left(name)) => "%\{name}"
@@ -172,12 +93,12 @@ pub impl Value for AllocaInst with asValueEnum(self) {
 }
 
 ///|
-pub impl NamedValue for AllocaInst with getName(self) {
+pub impl Value for AllocaInst with getName(self) {
   self.name
 }
 
 ///|
-pub impl NamedValue for AllocaInst with setName(self, name) {
+pub impl Value for AllocaInst with setName(self, name) {
   let symbols = self.getParent().symbols
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
   self.name = Some(name)
@@ -185,7 +106,7 @@ pub impl NamedValue for AllocaInst with setName(self, name) {
 }
 
 ///|
-pub impl NamedValue for AllocaInst with getNameOrSlot(self) {
+pub impl Value for AllocaInst with getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
     None =>
@@ -364,12 +285,12 @@ pub impl Value for LoadInst with getValueRepr(self) {
 }
 
 ///|
-pub impl NamedValue for LoadInst with getName(self) {
+pub impl Value for LoadInst with getName(self) {
   self.name
 }
 
 ///|
-pub impl NamedValue for LoadInst with setName(self, name) {
+pub impl Value for LoadInst with setName(self, name) {
   let symbols = self.getParent().symbols
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
   self.name = Some(name)
@@ -377,7 +298,7 @@ pub impl NamedValue for LoadInst with setName(self, name) {
 }
 
 ///|
-pub impl NamedValue for LoadInst with getNameOrSlot(self) {
+pub impl Value for LoadInst with getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
     None =>
@@ -545,14 +466,29 @@ pub impl Value for StoreInst with asValueEnum(self) {
 }
 
 ///|
-pub impl Value for StoreInst with getValueRepr(self) {
-  ignore(self)
+pub impl Value for StoreInst with getValueRepr(_) {
   ""
 }
 
 ///|
 pub impl Value for StoreInst with getValueBase(self) {
   ValueBase::{ uid: self.uid, vty: self.vty, users: [] }
+}
+
+///|
+pub impl Value for StoreInst with getName(self) {
+  ignore(self)
+  None
+}
+
+///|
+pub impl Value for StoreInst with setName(_, _) {
+  raise CouldNotSetNameForStoreInst
+}
+
+///|
+pub impl Value for StoreInst with getNameOrSlot(_) {
+  None
 }
 
 ///|
@@ -602,6 +538,108 @@ pub impl Show for StoreInst with output(self, logger) {
 // =======================================================
 // BinaryInstructions
 // =======================================================
+
+///|
+pub enum BinaryOps {
+  // Standard binary operators.
+  Add
+  FAdd
+  Sub
+  FSub
+  Mul
+  FMul
+  SDiv
+  UDiv
+  FDiv
+  URem
+  SRem
+  FRem
+
+  // Logical operators
+  Shl
+  LShr
+  AShr
+  And
+  Or
+  Xor
+} derive(Hash, Eq)
+
+///|
+pub impl Show for BinaryOps with output(self, logger) {
+  let str = match self {
+    Add => "add"
+    FAdd => "fadd"
+    Sub => "sub"
+    FSub => "fsub"
+    Mul => "mul"
+    FMul => "fmul"
+    SDiv => "sdiv"
+    UDiv => "udiv"
+    FDiv => "fdiv"
+    URem => "urem"
+    SRem => "srem"
+    FRem => "frem"
+    Shl => "shl"
+    LShr => "lshr"
+    AShr => "ashr"
+    And => "and"
+    Or => "or"
+    Xor => "xor"
+  }
+  logger.write_string(str)
+}
+
+///|
+pub enum BinaryOpFlags {
+
+  // Only add, sub, mul, and shl
+  // could have NoUnsignedWrap and NoSignedWrap flags.
+  NoUnsignedWrap
+  NoSignedWrap
+
+  // only sdiv, udiv, ashr, lshr
+  // could have Exact flag.
+  Exact
+
+  // Only Or could have Disjoint flag.
+  //Disjoint
+} derive(Hash, Eq)
+
+///|
+pub impl Show for BinaryOpFlags with output(self, logger) {
+  let str = match self {
+    NoUnsignedWrap => "nuw"
+    NoSignedWrap => "nsw"
+    Exact => "exact"
+    //Disjoint => "disjoint"
+  }
+  logger.write_string(str)
+}
+
+///|
+pub(all) enum FastMathFlag {
+  AllowReassoc
+  NoNaNs
+  NoInfs
+  NoSignedZeros
+  AllowReciprocal
+  AllowContract
+  ApproxFunc
+} derive(Hash, Eq)
+
+///|
+pub impl Show for FastMathFlag with output(self, logger) {
+  let str = match self {
+    AllowReassoc => "reassoc"
+    NoNaNs => "nnan"
+    NoInfs => "ninf"
+    NoSignedZeros => "nsz"
+    AllowReciprocal => "arcp"
+    AllowContract => "contract"
+    ApproxFunc => "afn"
+  }
+  logger.write_string(str)
+}
 
 ///| BinaryInst represents a binary operation instruction that performs arithmetic or logical operations on two operands.
 ///
@@ -785,12 +823,12 @@ pub impl Value for BinaryInst with getValueRepr(self) {
 }
 
 ///|
-pub impl NamedValue for BinaryInst with getName(self) {
+pub impl Value for BinaryInst with getName(self) {
   self.name
 }
 
 ///|
-pub impl NamedValue for BinaryInst with setName(self, name) {
+pub impl Value for BinaryInst with setName(self, name) {
   let symbols = self.getParent().symbols
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
   self.name = Some(name)
@@ -798,7 +836,7 @@ pub impl NamedValue for BinaryInst with setName(self, name) {
 }
 
 ///|
-pub impl NamedValue for BinaryInst with getNameOrSlot(self) {
+pub impl Value for BinaryInst with getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
     None =>
@@ -936,8 +974,6 @@ pub impl Show for IntPredicate with output(self, logger) {
 /// let ugt_cmp = builder.createICmp(UGT, arg1, arg2, name="ugt_cmp")
 /// inspect(ugt_cmp, content = "  %ugt_cmp = icmp ugt i32 %0, %1")
 /// ```
-
-///|
 pub struct ICmpInst {
   uid : UInt64
   vty : Int1Type
@@ -1006,12 +1042,12 @@ pub impl Value for ICmpInst with getValueRepr(self) {
 }
 
 ///|
-pub impl NamedValue for ICmpInst with getName(self) {
+pub impl Value for ICmpInst with getName(self) {
   self.name
 }
 
 ///|
-pub impl NamedValue for ICmpInst with setName(self, name) {
+pub impl Value for ICmpInst with setName(self, name) {
   let symbols = self.getParent().symbols
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
   self.name = Some(name)
@@ -1019,7 +1055,7 @@ pub impl NamedValue for ICmpInst with setName(self, name) {
 }
 
 ///|
-pub impl NamedValue for ICmpInst with getNameOrSlot(self) {
+pub impl Value for ICmpInst with getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
     None =>
@@ -1163,8 +1199,6 @@ pub impl Show for FloatPredicate with output(self, logger) {
 /// let uno_cmp = builder.createFCmp(UNO, arg1, arg2, name="uno_cmp")
 /// inspect(uno_cmp, content = "  %uno_cmp = fcmp uno float %0, %1")
 /// ```
-
-///|
 pub struct FCmpInst {
   uid : UInt64
   vty : Int1Type
@@ -1229,12 +1263,12 @@ pub impl Value for FCmpInst with asValueEnum(self) {
 }
 
 ///|
-pub impl NamedValue for FCmpInst with getName(self) {
+pub impl Value for FCmpInst with getName(self) {
   self.name
 }
 
 ///|
-pub impl NamedValue for FCmpInst with setName(self, name) {
+pub impl Value for FCmpInst with setName(self, name) {
   let symbols = self.getParent().symbols
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
   self.name = Some(name)
@@ -1242,7 +1276,7 @@ pub impl NamedValue for FCmpInst with setName(self, name) {
 }
 
 ///|
-pub impl NamedValue for FCmpInst with getNameOrSlot(self) {
+pub impl Value for FCmpInst with getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
     None =>
@@ -1362,8 +1396,6 @@ pub impl Show for CastOps with output(self, logger) {
 /// let bitcast = builder.createBitCast(trunc, f32_ty, name="bits")
 /// inspect(bitcast, content = "  %bits = bitcast i32 %truncated to float")
 /// ```
-
-///|
 pub struct CastInst {
   uid : UInt64
   to_ty : &Type
@@ -1729,12 +1761,12 @@ pub impl Value for CastInst with asValueEnum(self) {
 }
 
 ///|
-pub impl NamedValue for CastInst with getName(self) {
+pub impl Value for CastInst with getName(self) {
   self.name
 }
 
 ///|
-pub impl NamedValue for CastInst with setName(self, name) {
+pub impl Value for CastInst with setName(self, name) {
   let symbols = self.getParent().symbols
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
   self.name = Some(name)
@@ -1742,7 +1774,7 @@ pub impl NamedValue for CastInst with setName(self, name) {
 }
 
 ///|
-pub impl NamedValue for CastInst with getNameOrSlot(self) {
+pub impl Value for CastInst with getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
     None =>
@@ -1826,8 +1858,6 @@ pub impl Show for CastInst with output(self, logger) {
 /// inspect(gep, content = "  %elem_ptr = getelementptr inbounds [10 x i32], ptr %0, i32 0, i32 2")
 /// assert_true(gep.asValueEnum() is GetElementPtrInst(_))
 /// ```
-
-///|
 pub struct GetElementPtrInst {
   uid : UInt64
   vty : PointerType
@@ -1901,12 +1931,12 @@ pub impl Value for GetElementPtrInst with asValueEnum(self) {
 }
 
 ///|
-pub impl NamedValue for GetElementPtrInst with getName(self) {
+pub impl Value for GetElementPtrInst with getName(self) {
   self.name
 }
 
 ///|
-pub impl NamedValue for GetElementPtrInst with setName(self, name) {
+pub impl Value for GetElementPtrInst with setName(self, name) {
   let symbols = self.getParent().symbols
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
   self.name = Some(name)
@@ -1914,7 +1944,7 @@ pub impl NamedValue for GetElementPtrInst with setName(self, name) {
 }
 
 ///|
-pub impl NamedValue for GetElementPtrInst with getNameOrSlot(self) {
+pub impl Value for GetElementPtrInst with getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
     None =>
@@ -2000,8 +2030,6 @@ pub impl Show for GetElementPtrInst with output(self, logger) {
 /// inspect(select, content = "  %result = select i1 %0, i32 %1, i32 %2")
 /// assert_true(select.asValueEnum() is SelectInst(_))
 /// ```
-
-///|
 pub struct SelectInst {
   uid : UInt64
   users : Array[&User]
@@ -2083,12 +2111,12 @@ pub impl Value for SelectInst with asValueEnum(self) {
 }
 
 ///|
-pub impl NamedValue for SelectInst with getName(self) {
+pub impl Value for SelectInst with getName(self) {
   self.name
 }
 
 ///|
-pub impl NamedValue for SelectInst with setName(self, name) {
+pub impl Value for SelectInst with setName(self, name) {
   let symbols = self.getParent().symbols
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
   self.name = Some(name)
@@ -2096,7 +2124,7 @@ pub impl NamedValue for SelectInst with setName(self, name) {
 }
 
 ///|
-pub impl NamedValue for SelectInst with getNameOrSlot(self) {
+pub impl Value for SelectInst with getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
     None =>
@@ -2230,9 +2258,23 @@ pub impl Value for ReturnInst with asValueEnum(self) {
 }
 
 ///|
-pub impl Value for ReturnInst with getValueRepr(self) {
-  ignore(self)
+pub impl Value for ReturnInst with getValueRepr(_) {
   ""
+}
+
+///|
+pub impl Value for ReturnInst with getName(_) {
+  None
+}
+
+///|
+pub impl Value for ReturnInst with setName(_, _) {
+  raise CouldNotSetNameForReturnInst
+}
+
+///|
+pub impl Value for ReturnInst with getNameOrSlot(_) {
+  None
 }
 
 ///|
@@ -2309,8 +2351,6 @@ pub impl Show for ReturnInst with output(self, logger) {
 ///
 /// inspect(uncond_br, content = "  br label %false_branch")
 /// ```
-
-///|
 pub struct BranchInst {
   // --- ValueBase ---
 
@@ -2429,9 +2469,23 @@ pub impl Value for BranchInst with asValueEnum(self) {
 }
 
 ///|
-pub impl Value for BranchInst with getValueRepr(self) {
-  ignore(self)
+pub impl Value for BranchInst with getValueRepr(_) {
   ""
+}
+
+///|
+pub impl Value for BranchInst with getName(_) {
+  None
+}
+
+///|
+pub impl Value for BranchInst with setName(_, _) {
+  raise CouldNotSetNameForBranchInst
+}
+
+///|
+pub impl Value for BranchInst with getNameOrSlot(_) {
+  None
 }
 
 ///|
@@ -2625,9 +2679,23 @@ pub impl Value for SwitchInst with asValueEnum(self) {
 }
 
 ///|
-pub impl Value for SwitchInst with getValueRepr(self) {
-  ignore(self)
+pub impl Value for SwitchInst with getValueRepr(_) {
   ""
+}
+
+///|
+pub impl Value for SwitchInst with getName(_) {
+  None
+}
+
+///|
+pub impl Value for SwitchInst with setName(_, _) {
+  raise CouldNotSetNameForSwitchInst
+}
+
+///|
+pub impl Value for SwitchInst with getNameOrSlot(_) {
+  None
 }
 
 ///|
@@ -2819,12 +2887,12 @@ pub impl Value for PHINode with getValueRepr(self) {
 }
 
 ///|
-pub impl NamedValue for PHINode with getName(self) {
+pub impl Value for PHINode with getName(self) {
   self.name
 }
 
 ///|
-pub impl NamedValue for PHINode with setName(self, name) {
+pub impl Value for PHINode with setName(self, name) {
   let symbols = self.getParent().symbols
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
   self.name = Some(name)
@@ -2832,7 +2900,7 @@ pub impl NamedValue for PHINode with setName(self, name) {
 }
 
 ///|
-pub impl NamedValue for PHINode with getNameOrSlot(self) {
+pub impl Value for PHINode with getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
     None =>
@@ -3075,12 +3143,12 @@ pub impl Value for CallInst with getValueRepr(self) {
 }
 
 ///|
-pub impl NamedValue for CallInst with getName(self) {
+pub impl Value for CallInst with getName(self) {
   self.name
 }
 
 ///|
-pub impl NamedValue for CallInst with getNameOrSlot(self) {
+pub impl Value for CallInst with getNameOrSlot(self) {
   if self.vty.asTypeEnum() is VoidType(_) {
     return None
   }
@@ -3095,7 +3163,7 @@ pub impl NamedValue for CallInst with getNameOrSlot(self) {
 }
 
 ///|
-pub impl NamedValue for CallInst with setName(self, name) {
+pub impl Value for CallInst with setName(self, name) {
   if self.vty.asTypeEnum() is VoidType(_) {
     raise SetNameForVoidTypeValue
   }
@@ -3280,12 +3348,12 @@ pub impl Value for ExtractValueInst with asValueEnum(self) {
 }
 
 ///|
-pub impl NamedValue for ExtractValueInst with getName(self) {
+pub impl Value for ExtractValueInst with getName(self) {
   self.name
 }
 
 ///|
-pub impl NamedValue for ExtractValueInst with setName(self, name) {
+pub impl Value for ExtractValueInst with setName(self, name) {
   let symbols = self.getParent().symbols
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
   self.name = Some(name)
@@ -3293,7 +3361,7 @@ pub impl NamedValue for ExtractValueInst with setName(self, name) {
 }
 
 ///|
-pub impl NamedValue for ExtractValueInst with getNameOrSlot(self) {
+pub impl Value for ExtractValueInst with getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
     None =>
@@ -3462,12 +3530,12 @@ pub impl Value for InsertValueInst with getValueRepr(self) {
 }
 
 ///|
-pub impl NamedValue for InsertValueInst with getName(self) {
+pub impl Value for InsertValueInst with getName(self) {
   self.name
 }
 
 ///|
-pub impl NamedValue for InsertValueInst with setName(self, name) {
+pub impl Value for InsertValueInst with setName(self, name) {
   let symbols = self.getParent().symbols
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
   self.name = Some(name)
@@ -3475,7 +3543,7 @@ pub impl NamedValue for InsertValueInst with setName(self, name) {
 }
 
 ///|
-pub impl NamedValue for InsertValueInst with getNameOrSlot(self) {
+pub impl Value for InsertValueInst with getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
     None =>

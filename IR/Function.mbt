@@ -104,7 +104,7 @@ pub impl Value for Argument with getValueRepr(self) {
 }
 
 ///|
-pub impl NamedValue for Argument with getName(self : Argument) -> String? {
+pub impl Value for Argument with getName(self : Argument) -> String? {
   self.name
 }
 
@@ -135,7 +135,7 @@ pub impl NamedValue for Argument with getName(self : Argument) -> String? {
 ///
 /// assert_true({try? arg1.setName("lhs")} is Err(_))
 /// ```
-pub impl NamedValue for Argument with setName(self : Argument, name : String) -> Unit raise LLVMValueError {
+pub impl Value for Argument with setName(self : Argument, name : String) -> Unit raise LLVMValueError {
   let symbols = self.parent.symbols
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
   self.name = Some(name)
@@ -145,7 +145,7 @@ pub impl NamedValue for Argument with setName(self : Argument, name : String) ->
 ///|
 ///
 /// Note: This function is impossibly to return `None`.
-pub impl NamedValue for Argument with getNameOrSlot(self) {
+pub impl Value for Argument with getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
     None =>
@@ -185,13 +185,13 @@ pub struct Function {
   program : Module
   /// index of the function in the program
   index : UInt
-  name : String
+  priv mut name : String
   addressSpace : AddressSpace
   arguments : Array[Argument]
   symbols : Map[String, &Value]
   attrSet : AttributeSet
   basicBlocks : Array[BasicBlock]
-  mut slotTracker : SlotTracker?
+  priv mut slotTracker : SlotTracker?
 
   // hasLazyArguments: Bool
   // hasPrefixData: Bool
@@ -235,6 +235,7 @@ fn Function::new(
     basicBlocks,
     slotTracker: None,
   }
+  f.symbols.set(name, f)
   fty
   .params()
   .iter2()
@@ -388,6 +389,27 @@ pub impl Value for Function with getValueBase(self) {
 ///|
 pub impl Value for Function with getValueRepr(self) {
   "@\{self.name}"
+}
+
+///|
+pub impl Value for Function with getName(self : Function) -> String? {
+  Some(self.name)
+}
+
+///|
+pub impl Value for Function with getNameOrSlot(self) {
+  Some(Left(self.name))
+}
+
+///|
+pub impl Value for Function with setName(self, name) -> Unit raise LLVMValueError {
+  let symbols = self.symbols
+  guard not(symbols.contains(self.name)) else {
+    raise DuplicateFunctionName(self.name)
+  }
+  symbols.remove(self.name)
+  self.name = name
+  symbols.set(name, self)
 }
 
 ///|

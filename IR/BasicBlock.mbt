@@ -51,6 +51,36 @@ fn BasicBlock::new(parent : Function, name~ : String? = None) -> BasicBlock {
   }
 }
 
+///| Get the first instruction in the basic block.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let i32_ty = ctx.getInt32Ty()
+///
+/// let fty = ctx.getFunctionType(i32_ty, [i32_ty, i32_ty])
+/// let fval = mod.addFunction(fty, "ret_42")
+///
+/// let arg0 = fval.getArg(0).unwrap()
+/// let arg1 = fval.getArg(1).unwrap()
+///
+/// let bb = fval.addBasicBlock(name="entry")
+/// builder.setInsertPoint(bb)
+///
+/// let sum1 = builder.createAdd(arg0, arg1, name="sum1")
+/// let sum2 = builder.createAdd(arg0, arg1, name="sum2")
+/// let mul = builder.createMul(sum1, sum2, name="mul")
+///
+/// let _ = builder.createRet(mul)
+///
+/// inspect(bb.firstInst().unwrap(), content="  %sum1 = add i32 %0, %1")
+/// ```
+pub fn BasicBlock::firstInst(self : BasicBlock) -> &Instruction? {
+  self.head
+}
+
 ///| Get the last instruction in the basic block.
 ///
 /// ```moonbit
@@ -109,7 +139,7 @@ pub impl Value for BasicBlock with getValueBase(self) {
 }
 
 ///|
-pub impl NamedValue for BasicBlock with getName(self) {
+pub impl Value for BasicBlock with getName(self) {
   self.name
 }
 
@@ -123,7 +153,7 @@ pub impl Value for BasicBlock with getValueRepr(self) {
 }
 
 ///|
-pub impl NamedValue for BasicBlock with setName(self, name) {
+pub impl Value for BasicBlock with setName(self, name) {
   let symbols = self.parent.symbols
   guard not(symbols.contains(name)) else { raise DuplicateArgumentName(name) }
   self.name = Some(name)
@@ -131,7 +161,7 @@ pub impl NamedValue for BasicBlock with setName(self, name) {
 }
 
 ///|
-pub impl NamedValue for BasicBlock with getNameOrSlot(self) {
+pub impl Value for BasicBlock with getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
     None =>

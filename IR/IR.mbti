@@ -57,7 +57,6 @@ pub struct AllocaInst {
   align : Align
 }
 impl Instruction for AllocaInst
-impl NamedValue for AllocaInst
 impl UnaryInst for AllocaInst
 impl Value for AllocaInst
 impl Show for AllocaInst
@@ -83,7 +82,6 @@ pub struct Argument {
   mut name : String?
 }
 fn Argument::addAttr(Self, ArgAttr) -> Unit
-impl NamedValue for Argument
 impl Value for Argument
 impl Show for Argument
 
@@ -153,11 +151,11 @@ pub struct BasicBlock {
   id : Int
   preds : Array[BasicBlock]
 }
+fn BasicBlock::firstInst(Self) -> &Instruction?
 fn BasicBlock::getLabel(Self) -> String
 fn BasicBlock::getParent(Self) -> Function
 fn BasicBlock::lastInst(Self) -> &Instruction?
 impl InsertPoint for BasicBlock
-impl NamedValue for BasicBlock
 impl Value for BasicBlock
 impl Eq for BasicBlock
 impl Show for BasicBlock
@@ -176,7 +174,6 @@ pub struct BinaryInst {
   fast_math_flags : @set.Set[FastMathFlag]
 }
 impl Instruction for BinaryInst
-impl NamedValue for BinaryInst
 impl User for BinaryInst
 impl Value for BinaryInst
 impl Show for BinaryInst
@@ -252,7 +249,6 @@ fn CallInst::getTailCallKind(Self) -> TailCallKind
 fn CallInst::isTailCall(Self) -> Bool
 fn CallInst::setTailCallKind(Self, TailCallKind) -> Unit
 impl Instruction for CallInst
-impl NamedValue for CallInst
 impl User for CallInst
 impl Value for CallInst
 impl Show for CallInst
@@ -268,7 +264,6 @@ pub struct CastInst {
   opcode : CastOps
 }
 impl Instruction for CastInst
-impl NamedValue for CastInst
 impl UnaryInst for CastInst
 impl User for CastInst
 impl Value for CastInst
@@ -297,6 +292,7 @@ pub struct ConstantArray {
   vty : ArrayType
   data : @Either.Either[Array[&Constant], NumberArrayEnum]
 }
+impl Value for ConstantArray
 impl Eq for ConstantArray
 impl Show for ConstantArray
 
@@ -388,6 +384,8 @@ fn ConstantStruct::getElement(Self, Int) -> &Constant?
 fn ConstantStruct::getElements(Self) -> Array[&Constant]
 fn ConstantStruct::insertValue(Self, ArrayView[Int], &Constant) -> Self?
 fn ConstantStruct::new(StructType, Array[&Constant]) -> Self
+impl Constant for ConstantStruct
+impl Value for ConstantStruct
 impl Eq for ConstantStruct
 impl Show for ConstantStruct
 
@@ -396,6 +394,8 @@ pub struct ConstantVector {
   vty : FixedVectorType
   data : @Either.Either[Array[&Constant], NumberArrayEnum]
 }
+impl Constant for ConstantVector
+impl Value for ConstantVector
 impl Eq for ConstantVector
 impl Show for ConstantVector
 
@@ -518,7 +518,6 @@ pub struct ExtractValueInst {
 fn ExtractValueInst::getAggregateOperand(Self) -> &Value
 fn ExtractValueInst::getIndices(Self) -> Array[Int]
 impl Instruction for ExtractValueInst
-impl NamedValue for ExtractValueInst
 impl UnaryInst for ExtractValueInst
 impl User for ExtractValueInst
 impl Value for ExtractValueInst
@@ -536,7 +535,6 @@ pub struct FCmpInst {
   predicate : FloatPredicate
 }
 impl Instruction for FCmpInst
-impl NamedValue for FCmpInst
 impl User for FCmpInst
 impl Value for FCmpInst
 impl Show for FCmpInst
@@ -651,13 +649,12 @@ pub struct Function {
   gv_base : GlobalValueBase
   program : Module
   index : UInt
-  name : String
   addressSpace : AddressSpace
   arguments : Array[Argument]
   symbols : Map[String, &Value]
   attrSet : AttributeSet
   basicBlocks : Array[BasicBlock]
-  mut slotTracker : SlotTracker?
+  // private fields
 }
 fn Function::addAttr(Self, FnAttr) -> Unit
 fn Function::addBasicBlock(Self, name~ : String = .., before~ : BasicBlock? = ..) -> BasicBlock
@@ -710,7 +707,6 @@ pub struct GetElementPtrInst {
   pointeeType : &Type
 }
 impl Instruction for GetElementPtrInst
-impl NamedValue for GetElementPtrInst
 impl User for GetElementPtrInst
 impl Value for GetElementPtrInst
 impl Show for GetElementPtrInst
@@ -743,7 +739,6 @@ pub struct ICmpInst {
   predicate : IntPredicate
 }
 impl Instruction for ICmpInst
-impl NamedValue for ICmpInst
 impl User for ICmpInst
 impl Value for ICmpInst
 
@@ -849,7 +844,6 @@ fn InsertValueInst::getAggregateOperand(Self) -> &Value
 fn InsertValueInst::getIndices(Self) -> Array[Int]
 fn InsertValueInst::getInsertedValueOperand(Self) -> &Value
 impl Instruction for InsertValueInst
-impl NamedValue for InsertValueInst
 impl User for InsertValueInst
 impl Value for InsertValueInst
 impl Show for InsertValueInst
@@ -1036,7 +1030,6 @@ pub(all) struct LoadInst {
   align : Align
 }
 impl Instruction for LoadInst
-impl NamedValue for LoadInst
 impl UnaryInst for LoadInst
 impl User for LoadInst
 impl Value for LoadInst
@@ -1104,7 +1097,6 @@ fn PHINode::getIncomingValues(Self) -> Array[&Value]
 fn PHINode::getIncomings(Self) -> Array[(&Value, BasicBlock)]
 fn PHINode::getNumIncomingValues(Self) -> Int
 impl Instruction for PHINode
-impl NamedValue for PHINode
 impl User for PHINode
 impl Value for PHINode
 impl Show for PHINode
@@ -1185,7 +1177,6 @@ fn SelectInst::getCondition(Self) -> &Value
 fn SelectInst::getFalseValue(Self) -> &Value
 fn SelectInst::getTrueValue(Self) -> &Value
 impl Instruction for SelectInst
-impl NamedValue for SelectInst
 impl User for SelectInst
 impl Value for SelectInst
 impl Show for SelectInst
@@ -1512,10 +1503,6 @@ pub trait Metadata : Show {
 }
 
 pub trait NamedValue : Value {
-  getName(Self) -> String?
-  setName(Self, String) -> Unit raise LLVMValueError
-  getNameOrSlot(Self) -> @Either.Either[String, UInt64]?
-  getNameOrSlotStr(Self) -> String
 }
 
 pub trait NumberArray : Show {
@@ -1600,11 +1587,18 @@ pub trait Value : Show {
   getContext(Self) -> Context
   addUser(Self, &User) -> Unit
   getValueRepr(Self) -> String
+  getName(Self) -> String?
+  setName(Self, String) -> Unit raise LLVMValueError
+  getNameOrSlot(Self) -> @Either.Either[String, UInt64]?
+  getNameOrSlotStr(Self) -> String
   replaceAllUsersWith(Self, &Value) -> Unit
   getUsers(Self) -> Array[&User]?
   user_empty(Self) -> Bool
   tryAsConstant(Self) -> &Constant?
   tryAsConstantEnum(Self) -> ConstantEnum?
+  tryAsUser(Self) -> &User?
   tryAsUserEnum(Self) -> UserEnum?
+  tryAsInst(Self) -> &Instruction?
+  tryAsInstEnum(Self) -> InstEnum?
 }
 

@@ -14,6 +14,11 @@ suberror LLVMTypeError {
 
 ///|
 suberror LLVMValueError {
+  CouldNotSetNameForStoreInst
+  CouldNotSetNameForReturnInst
+  CouldNotSetNameForBranchInst
+  CouldNotSetNameForSwitchInst
+  CouldNotSetNameForConstant
   DuplicateFunctionName(String)
   DuplicateArgumentName(String)
   SetNameForVoidTypeValue
