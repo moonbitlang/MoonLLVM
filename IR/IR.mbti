@@ -1439,7 +1439,6 @@ pub trait AggregateType : Type {
 
 pub trait Constant : Value {
   asConstantEnum(Self) -> ConstantEnum
-  valstr(Self) -> String
 }
 
 pub trait FPType : PrimitiveType {
