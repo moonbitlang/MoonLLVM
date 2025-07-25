@@ -1071,6 +1071,11 @@ pub impl Value for ConstantInt with setName(_, _) {
 }
 
 ///|
+pub impl Value for ConstantInt with removeName(_) {
+  ()
+}
+
+///|
 pub impl Value for ConstantInt with getNameOrSlot(_) {
   None
 }
@@ -1578,6 +1583,11 @@ pub impl Value for ConstantFP with setName(_, _) {
 }
 
 ///|
+pub impl Value for ConstantFP with removeName(_) {
+  ()
+}
+
+///|
 pub impl Value for ConstantFP with getNameOrSlot(_) {
   None
 }
@@ -1671,6 +1681,11 @@ pub impl Value for ConstantPointerNull with getName(_) {
 ///|
 pub impl Value for ConstantPointerNull with setName(_, _) {
   raise CouldNotSetNameForConstant
+}
+
+///|
+pub impl Value for ConstantPointerNull with removeName(_) {
+  ()
 }
 
 ///|
@@ -2009,6 +2024,11 @@ pub impl Value for ConstantArray with setName(_, _) {
 }
 
 ///|
+pub impl Value for ConstantArray with removeName(_) {
+  ()
+}
+
+///|
 pub impl Value for ConstantArray with getNameOrSlot(_) {
   None
 }
@@ -2342,6 +2362,11 @@ pub impl Value for ConstantVector with setName(_, _) {
 }
 
 ///|
+pub impl Value for ConstantVector with removeName(_) {
+  ()
+}
+
+///|
 pub impl Value for ConstantVector with getNameOrSlot(_) {
   None
 }
@@ -2551,6 +2576,11 @@ pub impl Value for ConstantStruct with getName(_) {
 ///|
 pub impl Value for ConstantStruct with setName(_, _) {
   raise CouldNotSetNameForConstant
+}
+
+///|
+pub impl Value for ConstantStruct with removeName(_) {
+  ()
 }
 
 ///|

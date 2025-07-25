@@ -143,6 +143,17 @@ pub impl Value for Argument with setName(self : Argument, name : String) -> Unit
 }
 
 ///|
+pub impl Value for Argument with removeName(self) {
+  match self.name {
+    Some(name) => {
+      self.name = None
+      self.parent.symbols.remove(name)
+    }
+    None => ()
+  }
+}
+
+///|
 ///
 /// Note: This function is impossibly to return `None`.
 pub impl Value for Argument with getNameOrSlot(self) {
@@ -352,6 +363,11 @@ pub fn Function::processSlot(self : Function) -> Unit {
 }
 
 ///|
+pub fn Function::clearSlot(self : Function) -> Unit {
+  self.slotTracker.unwrap().clear()
+}
+
+///|
 pub fn Function::getDataLayout(self : Function) -> DataLayout {
   self.program.dataLayout
 }
@@ -410,6 +426,11 @@ pub impl Value for Function with setName(self, name) -> Unit raise LLVMValueErro
   symbols.remove(self.name)
   self.name = name
   symbols.set(name, self)
+}
+
+///|
+pub impl Value for Function with removeName(_) {
+  raise CouldNotRemoveFunctionName
 }
 
 ///|

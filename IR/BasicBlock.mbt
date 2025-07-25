@@ -161,6 +161,17 @@ pub impl Value for BasicBlock with setName(self, name) {
 }
 
 ///|
+pub impl Value for BasicBlock with removeName(self) {
+  match self.name {
+    Some(name) => {
+      self.parent.symbols.remove(name)
+      self.name = None
+    }
+    None => ()
+  }
+}
+
+///|
 pub impl Value for BasicBlock with getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))

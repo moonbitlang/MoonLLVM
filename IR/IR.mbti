@@ -658,6 +658,7 @@ pub struct Function {
 }
 fn Function::addAttr(Self, FnAttr) -> Unit
 fn Function::addBasicBlock(Self, name~ : String = .., before~ : BasicBlock? = ..) -> BasicBlock
+fn Function::clearSlot(Self) -> Unit
 fn Function::getArg(Self, Int) -> Argument?
 fn Function::getArgAttrs(Self, UInt) -> @set.Set[ArgAttr]?
 fn Function::getDataLayout(Self) -> DataLayout
@@ -1588,6 +1589,7 @@ pub trait Value : Show {
   getValueRepr(Self) -> String
   getName(Self) -> String?
   setName(Self, String) -> Unit raise LLVMValueError
+  removeName(Self) -> Unit raise LLVMValueError
   getNameOrSlot(Self) -> @Either.Either[String, UInt64]?
   getNameOrSlotStr(Self) -> String
   replaceAllUsersWith(Self, &Value) -> Unit

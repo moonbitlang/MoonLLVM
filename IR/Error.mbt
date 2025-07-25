@@ -19,6 +19,7 @@ suberror LLVMValueError {
   CouldNotSetNameForBranchInst
   CouldNotSetNameForSwitchInst
   CouldNotSetNameForConstant
+  CouldNotRemoveFunctionName
   DuplicateFunctionName(String)
   DuplicateArgumentName(String)
   SetNameForVoidTypeValue
