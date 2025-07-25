@@ -1061,6 +1061,21 @@ pub impl Value for ConstantInt with getValueRepr(self) {
 }
 
 ///|
+pub impl Value for ConstantInt with getName(_) {
+  None
+}
+
+///|
+pub impl Value for ConstantInt with setName(_, _) {
+  raise CouldNotSetNameForConstant
+}
+
+///|
+pub impl Value for ConstantInt with getNameOrSlot(_) {
+  None
+}
+
+///|
 pub impl Constant for ConstantInt with asConstantEnum(self) {
   ConstantInt(self)
 }
@@ -1561,6 +1576,21 @@ pub impl Value for ConstantFP with asValueEnum(self) {
 }
 
 ///|
+pub impl Value for ConstantFP with getName(_) {
+  None
+}
+
+///|
+pub impl Value for ConstantFP with setName(_, _) {
+  raise CouldNotSetNameForConstant
+}
+
+///|
+pub impl Value for ConstantFP with getNameOrSlot(_) {
+  None
+}
+
+///|
 pub impl Constant for ConstantFP with asConstantEnum(self) {
   ConstantFP(self)
 }
@@ -1646,9 +1676,23 @@ pub impl Value for ConstantPointerNull with asValueEnum(self) {
 }
 
 ///|
-pub impl Value for ConstantPointerNull with getValueRepr(self) {
-  ignore(self)
+pub impl Value for ConstantPointerNull with getValueRepr(_) {
   "null"
+}
+
+///|
+pub impl Value for ConstantPointerNull with getName(_) {
+  None
+}
+
+///|
+pub impl Value for ConstantPointerNull with setName(_, _) {
+  raise CouldNotSetNameForConstant
+}
+
+///|
+pub impl Value for ConstantPointerNull with getNameOrSlot(_) {
+  None
 }
 
 ///|
@@ -1930,17 +1974,17 @@ fn ConstantArray::newDoubleArray(
 }
 
 ///|
-impl Value for ConstantArray with getValueBase(self) {
+pub impl Value for ConstantArray with getValueBase(self) {
   ValueBase::{ uid: self.uid, vty: self.vty, users: [] }
 }
 
 ///|
-impl Value for ConstantArray with asValueEnum(self) {
+pub impl Value for ConstantArray with asValueEnum(self) {
   ConstantArray(self)
 }
 
 ///|
-impl Value for ConstantArray with getValueRepr(self) {
+pub impl Value for ConstantArray with getValueRepr(self) {
   match self.data {
     Left(constants) => constants.map(c => c.to_string()).join(", ")
     Right(arr) =>
@@ -1974,6 +2018,21 @@ impl Value for ConstantArray with getValueRepr(self) {
         }
       }
   }
+}
+
+///|
+pub impl Value for ConstantArray with getName(_) {
+  None
+}
+
+///|
+pub impl Value for ConstantArray with setName(_, _) {
+  raise CouldNotSetNameForConstant
+}
+
+///|
+pub impl Value for ConstantArray with getNameOrSlot(_) {
+  None
 }
 
 ///|
@@ -2285,17 +2344,17 @@ fn ConstantVector::newDoubleVector(
 }
 
 ///|
-impl Value for ConstantVector with getValueBase(self) {
+pub impl Value for ConstantVector with getValueBase(self) {
   ValueBase::{ uid: self.uid, vty: self.vty, users: [] }
 }
 
 ///|
-impl Value for ConstantVector with asValueEnum(self) {
+pub impl Value for ConstantVector with asValueEnum(self) {
   ConstantVector(self)
 }
 
 ///|
-impl Value for ConstantVector with getValueRepr(self) {
+pub impl Value for ConstantVector with getValueRepr(self) {
   match self.data {
     Left(constants) => constants.map(c => c.to_string()).join(", ")
     Right(arr) =>
@@ -2332,12 +2391,27 @@ impl Value for ConstantVector with getValueRepr(self) {
 }
 
 ///|
-impl Constant for ConstantVector with asConstantEnum(self) {
+pub impl Value for ConstantVector with getName(_) {
+  None
+}
+
+///|
+pub impl Value for ConstantVector with setName(_, _) {
+  raise CouldNotSetNameForConstant
+}
+
+///|
+pub impl Value for ConstantVector with getNameOrSlot(_) {
+  None
+}
+
+///|
+pub impl Constant for ConstantVector with asConstantEnum(self) {
   ConstantVector(self)
 }
 
 ///|
-impl Constant for ConstantVector with valstr(self) {
+pub impl Constant for ConstantVector with valstr(self) {
   match self.data {
     Left(constants) => constants.map(c => c.to_string()).join(", ")
     Right(arr) =>
@@ -2551,27 +2625,42 @@ pub fn ConstantStruct::insertValue(
 }
 
 ///|
-impl Value for ConstantStruct with getValueBase(self) {
+pub impl Value for ConstantStruct with getValueBase(self) {
   ValueBase::{ uid: self.uid, vty: self.vty, users: [] }
 }
 
 ///|
-impl Value for ConstantStruct with asValueEnum(self) {
+pub impl Value for ConstantStruct with asValueEnum(self) {
   ConstantStruct(self)
 }
 
 ///|
-impl Value for ConstantStruct with getValueRepr(self) {
+pub impl Value for ConstantStruct with getValueRepr(self) {
   self.elements.map(c => c.to_string()).join(", ")
 }
 
 ///|
-impl Constant for ConstantStruct with asConstantEnum(self) {
+pub impl Value for ConstantStruct with getName(_) {
+  None
+}
+
+///|
+pub impl Value for ConstantStruct with setName(_, _) {
+  raise CouldNotSetNameForConstant
+}
+
+///|
+pub impl Value for ConstantStruct with getNameOrSlot(_) {
+  None
+}
+
+///|
+pub impl Constant for ConstantStruct with asConstantEnum(self) {
   ConstantStruct(self)
 }
 
 ///|
-impl Constant for ConstantStruct with valstr(self) {
+pub impl Constant for ConstantStruct with valstr(self) {
   self.elements.map(c => c.to_string()).join(", ")
 }
 

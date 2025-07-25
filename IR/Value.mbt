@@ -166,6 +166,10 @@ pub trait Value: Show {
   ///
   /// - `name`: The new name; if name is "", the value's name will be removed.
   //setName(Self, name: String) -> Unit raise LLVMValueError = _
+  getName(Self) -> String?
+  setName(Self, name : String) -> Unit raise LLVMValueError
+  getNameOrSlot(Self) -> Either[String, UInt64]?
+  getNameOrSlotStr(Self) -> String = _
 
   /// Change all uses of this to point to a new Value.
   ///
@@ -185,7 +189,10 @@ pub trait Value: Show {
   user_empty(Self) -> Bool = _
   tryAsConstant(Self) -> &Constant? = _
   tryAsConstantEnum(Self) -> ConstantEnum? = _
+  tryAsUser(Self) -> &User? = _
   tryAsUserEnum(Self) -> UserEnum? = _
+  tryAsInst(Self) -> &Instruction? = _
+  tryAsInstEnum(Self) -> InstEnum? = _
 }
 
 ///|
@@ -206,6 +213,15 @@ impl Value with getContext(self) {
 ///|
 impl Value with addUser(self, user) {
   self.getValueBase().users.push(user)
+}
+
+///|
+impl Value with getNameOrSlotStr(self) {
+  match self.getNameOrSlot() {
+    Some(Left(name)) => name
+    Some(Right(slot)) => slot.to_string()
+    None => "<badref>"
+  }
 }
 
 ///|
@@ -265,8 +281,82 @@ impl Value with tryAsConstantEnum(self) {
 }
 
 ///|
+impl Value with tryAsUser(self) {
+  match self.asValueEnum() {
+    LoadInst(c) => Some((c : &User))
+    //VAArgInst(c) => Some(VAArgInst(c))
+    ExtractValueInst(c) => Some(c)
+    //FreezeInst(c) => Some(FreezeInst(c))
+    CastInst(c) => Some(c)
+    BinaryInst(b) => Some(b)
+    ICmpInst(c) => Some(c)
+    FCmpInst(c) => Some(c)
+    StoreInst(s) => Some(s)
+    GetElementPtrInst(g) => Some(g)
+    SelectInst(s) => Some(s)
+    InsertValueInst(i) => Some(i)
+    PHINode(p) => Some(p)
+    ReturnInst(r) => Some(r)
+    BranchInst(b) => Some(b)
+    SwitchInst(s) => Some(s)
+    CallInst(c) => Some(c)
+    _ => None
+  }
+}
+
+///|
 impl Value with tryAsUserEnum(self) {
   match self.asValueEnum() {
+    LoadInst(c) => Some(LoadInst(c))
+    //VAArgInst(c) => Some(VAArgInst(c))
+    ExtractValueInst(c) => Some(ExtractValueInst(c))
+    //FreezeInst(c) => Some(FreezeInst(c))
+    CastInst(c) => Some(CastInst(c))
+    BinaryInst(b) => Some(BinaryInst(b))
+    ICmpInst(c) => Some(ICmpInst(c))
+    FCmpInst(c) => Some(FCmpInst(c))
+    StoreInst(s) => Some(StoreInst(s))
+    GetElementPtrInst(g) => Some(GetElementPtrInst(g))
+    SelectInst(s) => Some(SelectInst(s))
+    InsertValueInst(i) => Some(InsertValueInst(i))
+    PHINode(p) => Some(PHINode(p))
+    ReturnInst(r) => Some(ReturnInst(r))
+    BranchInst(b) => Some(BranchInst(b))
+    SwitchInst(s) => Some(SwitchInst(s))
+    CallInst(c) => Some(CallInst(c))
+    _ => None
+  }
+}
+
+///|
+impl Value with tryAsInst(self) {
+  match self.asValueEnum() {
+    AllocaInst(c) => Some((c : &Instruction))
+    LoadInst(c) => Some(c)
+    //VAArgInst(c) => Some(VAArgInst(c))
+    ExtractValueInst(c) => Some(c)
+    //FreezeInst(c) => Some(FreezeInst(c))
+    CastInst(c) => Some(c)
+    BinaryInst(b) => Some(b)
+    ICmpInst(c) => Some(c)
+    FCmpInst(c) => Some(c)
+    StoreInst(s) => Some(s)
+    GetElementPtrInst(g) => Some(g)
+    SelectInst(s) => Some(s)
+    InsertValueInst(i) => Some(i)
+    PHINode(p) => Some(p)
+    ReturnInst(r) => Some(r)
+    BranchInst(b) => Some(b)
+    SwitchInst(s) => Some(s)
+    CallInst(c) => Some(c)
+    _ => None
+  }
+}
+
+///|
+impl Value with tryAsInstEnum(self) {
+  match self.asValueEnum() {
+    AllocaInst(c) => Some(AllocaInst(c))
     LoadInst(c) => Some(LoadInst(c))
     //VAArgInst(c) => Some(VAArgInst(c))
     ExtractValueInst(c) => Some(ExtractValueInst(c))
@@ -326,21 +416,7 @@ struct ValueBase {
 // NamedValue
 // =======================================================
 
-pub trait NamedValue: Value {
-  getName(Self) -> String?
-  setName(Self, name : String) -> Unit raise LLVMValueError
-  getNameOrSlot(Self) -> Either[String, UInt64]?
-  getNameOrSlotStr(Self) -> String = _
-}
-
-///|
-impl NamedValue with getNameOrSlotStr(self) {
-  match self.getNameOrSlot() {
-    Some(Left(name)) => name
-    Some(Right(slot)) => slot.to_string()
-    None => "<badref>"
-  }
-}
+pub trait NamedValue: Value {}
 
 // =======================================================
 // User
