@@ -70,8 +70,8 @@ fn Argument::new(vty : &Type, argNo : UInt, parent : Function) -> Argument {
 /// arg1.addAttr(NonNull)
 /// inspect(fval, content="declare i32 @add(i32 noalias, i32 nonnull)")
 /// ```
-pub fn Argument::addAttr(self : Argument, attr : ArgAttr) -> Unit {
-  let argAttrs = self.parent.attrSet.argAttrs
+pub fn Argument::addAttr(self : Argument, attr : ParamAttr) -> Unit {
+  let argAttrs = self.parent.attrSet.paramAttrs
   let attrSet = match argAttrs.get(self.argNo) {
     Some(attrSet) => attrSet
     None => {
@@ -427,8 +427,8 @@ pub fn Function::getReturnAttrs(self : Function) -> Set[RetAttr] {
 }
 
 ///|
-pub fn Function::getArgAttrs(self : Function, argno : UInt) -> Set[ArgAttr]? {
-  self.attrSet.argAttrs.get(argno)
+pub fn Function::getParamAttrs(self : Function, argno : UInt) -> Set[ParamAttr]? {
+  self.attrSet.paramAttrs.get(argno)
 }
 
 ///|
@@ -508,7 +508,7 @@ pub impl Show for Function with output(self, logger) {
   let ret_attrs = self.attrSet.retAttrs
   let ret_attrs_str = ret_attrs.iter().map(fn(a) { "\{a}" }).join(" ")
   let arg_strs = self.arguments.map(fn(arg) {
-    let arg_attrs = match self.attrSet.argAttrs.get(arg.argNo) {
+    let arg_attrs = match self.attrSet.paramAttrs.get(arg.argNo) {
       Some(attrs) => attrs.iter().collect()
       None => []
     }

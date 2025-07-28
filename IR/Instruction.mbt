@@ -4705,7 +4705,7 @@ pub impl Show for CallInst with output(self, logger) {
   for idx, arg in self.args {
     let arg_ty = arg.getType()
     let arg_repr = arg.getValueRepr()
-    let arg_attrs = callee.getArgAttrs(idx.reinterpret_as_uint())
+    let arg_attrs = callee.getParamAttrs(idx.reinterpret_as_uint())
     let arg_attrs_str = if not(arg_attrs.is_empty()) {
       " " + arg_attrs.iter().map(fn(a) { "\{a}" }).join(" ")
     } else {
