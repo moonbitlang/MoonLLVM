@@ -252,7 +252,11 @@ impl Value with getUsers(self) {
 
 ///|
 impl Value with user_empty(self) {
-  self.getUsers().is_empty()
+  match self.getUsers() {
+    Some(users) => users.is_empty()
+    None => false // if self is constant, it `users` is None
+                  // but we don't think constant's users is empty.
+  }
 }
 
 ///|
@@ -543,10 +547,10 @@ pub trait Instruction: Value {
   prev(Self) -> &Instruction? = _
   insertAfter(Self, &Instruction) -> Unit raise LLVMValueError = _
   insertBefore(Self, &Instruction) -> Unit raise LLVMValueError = _
-  moveBefore(Self, &Instruction) -> Unit raise LLVMValueError = _
-  moveAfter(Self, &Instruction) -> Unit raise LLVMValueError = _
-  removeFromParent(Self) -> Unit raise LLVMValueError = _
-  eraseFromParent(Self) -> Unit raise LLVMValueError = _
+  moveBefore(Self, &Instruction) -> Unit= _
+  moveAfter(Self, &Instruction) -> Unit = _
+  removeFromParent(Self) -> Unit = _
+  eraseFromParent(Self) -> Unit = _
 }
 
 ///|
@@ -643,13 +647,13 @@ impl Instruction with insertBefore(self, insertPt : &Instruction) {
 ///|
 impl Instruction with moveBefore(self, insertPt : &Instruction) {
   self.removeFromParent()
-  self.insertBefore(insertPt)
+  (try? self.insertBefore(insertPt)).unwrap()
 }
 
 ///|
 impl Instruction with moveAfter(self, insertPt : &Instruction) {
   self.removeFromParent()
-  self.insertAfter(insertPt)
+  (try? self.insertAfter(insertPt)).unwrap()
 }
 
 ///|

@@ -5,5 +5,5 @@
   "repository": "https://github.com/moonbitlang/MoonLLVM",
   "license": "Apache-2.0",
   "keywords": ["Compiler", "llvm"],
-  "description": "Moonbit version of LLVM, provide similar api with llvm.mbt, used for MGPIC Competition.",
+  "description": "Moonbit version of LLVM, provide similar api with llvm.mbt, used for MGPIC Competition."
 }

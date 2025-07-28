@@ -116,6 +116,19 @@ pub fn BasicBlock::lastInst(self : BasicBlock) -> &Instruction? {
 }
 
 ///|
+pub fn BasicBlock::instIter(self: BasicBlock) -> Iter[&Instruction] {
+  letrec f = yield_ => loop self.head {
+    Some(i) => {
+      let next_inst = i.next()
+      guard yield_(i) is IterContinue else { break IterEnd }
+      continue next_inst
+    }
+    None => break IterContinue
+  }
+  Iter::new(f)
+}
+
+///|
 pub fn BasicBlock::getParent(self : BasicBlock) -> Function {
   self.parent
 }
