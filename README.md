@@ -28,7 +28,7 @@ MoonLLVM 目前可以生成 LLVM 中间表示 (IR)。但是，它尚未内置编
 
 ```bash
 moon update
-moon add moonbitlang/MoonLLVM
+moon add Kaida-Amethyst/MoonLLVM
 ```
 
 ### 使用方法
@@ -121,7 +121,7 @@ To add MoonLLVM to your project, run the following commands in your project's ro
 
 ```bash
 moon update
-moon add moonbitlang/MoonLLVM
+moon add Kaida-Amethyst/MoonLLVM
 ```
 
 ### Usage
