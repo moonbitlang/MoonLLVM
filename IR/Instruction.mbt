@@ -4209,8 +4209,7 @@ pub fn CallInst::getCallee(self : CallInst) -> Function {
 
 ///|
 pub fn CallInst::getArgOperand(self : Self, idx : Int) -> &Value? {
-  guard idx >= 0 && idx < self.getNumArgs() - 1 else { return None }
-  self.getOperand(idx + 1) // +1 because the first operand is the callee
+  self.args.get(idx)
 }
 
 ///|

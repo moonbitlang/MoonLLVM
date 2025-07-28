@@ -1693,7 +1693,7 @@ pub impl Show for ConstantFP with output(self, logger) {
 //  guard vty.asTypeEnum() is (
 //    ArrayType(_)
 //    | StructType(_)
-//    | FixedVectorType(_)
+//    | VectorType(_)
 //    | ScalableVectorType(_)) else {
 //    llvm_unreachable("ConstantAggregateZero::new: vty is not ArrayType, VectorType or StructType")
 //  }
@@ -2133,7 +2133,7 @@ pub impl Show for ConstantArray with output(self, logger) {
 ///|
 pub struct ConstantVector {
   uid : UInt64
-  vty : FixedVectorType
+  vty : VectorType
   data : Either[Array[&Constant], NumberArrayEnum]
 } derive(Eq)
 
@@ -2142,8 +2142,8 @@ pub struct ConstantVector {
 //  vty : &Type,
 //  data : Array[&Constant]
 //) -> ConstantVector {
-//  guard vty.asTypeEnum() is FixedVectorType(arrTy) else {
-//    llvm_unreachable("ConstantVector::new: vty is not FixedVectorType")
+//  guard vty.asTypeEnum() is VectorType(arrTy) else {
+//    llvm_unreachable("ConstantVector::new: vty is not VectorType")
 //  }
 //  let eleCnt = arrTy.getElementCount().reinterpret_as_int()
 //  guard data.length() == eleCnt else {
@@ -2168,7 +2168,7 @@ pub struct ConstantVector {
 
 ///|
 fn ConstantVector::newInt8Vector(
-  vty : FixedVectorType,
+  vty : VectorType,
   data : Array[Int],
 ) -> ConstantVector {
   let eleCnt = vty.getElementCount().reinterpret_as_int()
@@ -2190,7 +2190,7 @@ fn ConstantVector::newInt8Vector(
 
 ///|
 fn ConstantVector::newInt16Vector(
-  vty : FixedVectorType,
+  vty : VectorType,
   data : Array[Int16],
 ) -> ConstantVector {
   let eleCnt = vty.getElementCount().reinterpret_as_int()
@@ -2212,7 +2212,7 @@ fn ConstantVector::newInt16Vector(
 
 ///|
 fn ConstantVector::newInt32Vector(
-  vty : FixedVectorType,
+  vty : VectorType,
   data : Array[Int],
 ) -> ConstantVector {
   let eleCnt = vty.getElementCount().reinterpret_as_int()
@@ -2234,7 +2234,7 @@ fn ConstantVector::newInt32Vector(
 
 ///|
 fn ConstantVector::newInt64Vector(
-  vty : FixedVectorType,
+  vty : VectorType,
   data : Array[Int64],
 ) -> ConstantVector {
   let eleCnt = vty.getElementCount().reinterpret_as_int()
@@ -2256,7 +2256,7 @@ fn ConstantVector::newInt64Vector(
 
 ///|
 fn ConstantVector::newUInt8Vector(
-  vty : FixedVectorType,
+  vty : VectorType,
   data : Array[Byte],
 ) -> ConstantVector {
   let eleCnt = vty.getElementCount().reinterpret_as_int()
@@ -2278,7 +2278,7 @@ fn ConstantVector::newUInt8Vector(
 
 ///|
 fn ConstantVector::newUInt16Vector(
-  vty : FixedVectorType,
+  vty : VectorType,
   data : Array[UInt16],
 ) -> ConstantVector {
   let eleCnt = vty.getElementCount().reinterpret_as_int()
@@ -2300,7 +2300,7 @@ fn ConstantVector::newUInt16Vector(
 
 ///|
 fn ConstantVector::newUInt32Vector(
-  vty : FixedVectorType,
+  vty : VectorType,
   data : Array[UInt],
 ) -> ConstantVector {
   let eleCnt = vty.getElementCount().reinterpret_as_int()
@@ -2322,7 +2322,7 @@ fn ConstantVector::newUInt32Vector(
 
 ///|
 fn ConstantVector::newUInt64Vector(
-  vty : FixedVectorType,
+  vty : VectorType,
   data : Array[UInt64],
 ) -> ConstantVector {
   let eleCnt = vty.getElementCount().reinterpret_as_int()
@@ -2344,7 +2344,7 @@ fn ConstantVector::newUInt64Vector(
 
 ///|
 fn ConstantVector::newFloatVector(
-  vty : FixedVectorType,
+  vty : VectorType,
   data : Array[Float],
 ) -> ConstantVector {
   let eleCnt = vty.getElementCount().reinterpret_as_int()
@@ -2366,7 +2366,7 @@ fn ConstantVector::newFloatVector(
 
 ///|
 fn ConstantVector::newDoubleVector(
-  vty : FixedVectorType,
+  vty : VectorType,
   data : Array[Double],
 ) -> ConstantVector {
   let eleCnt = vty.getElementCount().reinterpret_as_int()

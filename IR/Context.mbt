@@ -367,7 +367,7 @@ pub fn Context::getArrayType(
 
 ///| Create a fixed length vector type in the context.
 ///
-/// - See LLVM: `FixedVectorType::get`.
+/// - See LLVM: `VectorType::get`.
 ///
 /// ```moonbit
 /// let ctx = Context::new()
@@ -380,8 +380,8 @@ pub fn Context::getFixedVectorType(
   self : Context,
   elementType : &Type,
   elementQuantity : UInt,
-) -> FixedVectorType raise LLVMTypeError {
-  FixedVectorType::new(self, elementType, elementQuantity)
+) -> VectorType raise LLVMTypeError {
+  VectorType::new(self, elementType, elementQuantity)
 }
 
 ///| Create a scalable vector type in the context.
@@ -1310,9 +1310,9 @@ pub fn Context::getConstZero(
       llvm_unreachable(
         "getConstZero: Unimplemented for StructType \{t.to_string()}",
       )
-    FixedVectorType(t) =>
+    VectorType(t) =>
       llvm_unreachable(
-        "getConstZero: Unimplemented for FixedVectorType \{t.to_string()}",
+        "getConstZero: Unimplemented for VectorType \{t.to_string()}",
       )
     _ => {
       let msg = "Misuse `Context::getConstZero`: Cannot create zero value for type \{ty.to_string()}"

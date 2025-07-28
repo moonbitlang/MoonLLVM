@@ -17,7 +17,7 @@ pub enum TypeEnum {
   FunctionType(FunctionType)
   StructType(StructType)
   ArrayType(ArrayType)
-  FixedVectorType(FixedVectorType)
+  VectorType(VectorType)
   ScalableVectorType(ScalableVectorType)
   PointerType(PointerType)
 } derive(Eq, Show, Hash)
@@ -42,7 +42,7 @@ pub fn TypeEnum::asTypeClass(self : TypeEnum) -> &Type {
     FunctionType(t) => t
     StructType(t) => t
     ArrayType(t) => t
-    FixedVectorType(t) => t
+    VectorType(t) => t
     ScalableVectorType(t) => t
     PointerType(t) => t
   }
@@ -218,8 +218,8 @@ impl Type with canLosslesslyBitCastTo(self, ty : &Type) -> Bool {
   if not(self.isFirstClassType()) || not(ty.isFirstClassType()) {
     return false
   }
-  if self.asTypeEnum() is FixedVectorType(vec1) &&
-    self.asTypeEnum() is FixedVectorType(vec2) {
+  if self.asTypeEnum() is VectorType(vec1) &&
+    self.asTypeEnum() is VectorType(vec2) {
     return vec1.getPrimitiveSizeInBits() == vec2.getPrimitiveSizeInBits()
   }
   false
@@ -273,7 +273,7 @@ impl Type with isSingleValueType(self) -> Bool {
     Int1Type(_) | Int8Type(_) | Int16Type(_) | Int32Type(_) | Int64Type(_) =>
       true
     PointerType(_) => true
-    FixedVectorType(_) => true
+    VectorType(_) => true
     _ => false
   }
 }
@@ -282,7 +282,7 @@ impl Type with isSingleValueType(self) -> Bool {
 impl Type with isAggregateType(self) -> Bool {
   match self.asTypeEnum() {
     StructType(_) | ArrayType(_) => true
-    FixedVectorType(_) | ScalableVectorType(_) => true
+    VectorType(_) | ScalableVectorType(_) => true
     _ => false
   }
 }
@@ -296,7 +296,7 @@ impl Type with isSized(self) -> Bool {
     HalfType(_) | BFloatType(_) | FloatType(_) | DoubleType(_) | FP128Type(_) =>
       true // Floating point types
     StructType(sty) => sty.isSized()
-    ArrayType(_) | FixedVectorType(_) => true // Derived types
+    ArrayType(_) | VectorType(_) => true // Derived types
     _ =>
       // in cpp, there is `isSizedDerivedType` function
       //println("\{self.getTypeID()} is sized or not has not been implemented yet")
@@ -322,7 +322,7 @@ impl Type with getPrimitiveSizeInBits(self) -> TypeSize {
     Int16Type(_) => TypeSize::getFixed(16)
     Int32Type(_) => TypeSize::getFixed(32)
     Int64Type(_) => TypeSize::getFixed(64)
-    //FixedVectorType(_) => abort("getPrimitiveSizeInBits: FixedVectorType not implemented yet")
+    //VectorType(_) => abort("getPrimitiveSizeInBits: VectorType not implemented yet")
     //ScalableVectorType(_) => abort("getPrimitiveSizeInBits: ScalableVectorType not implemented yet")
     _ => TypeSize::getFixed(0)
   }
@@ -335,7 +335,7 @@ impl Type with getScalarSizeInBits(self) -> UInt {
 
 ///|
 impl Type with getScalarType(self) {
-  if self.asTypeEnum() is FixedVectorType(vec) {
+  if self.asTypeEnum() is VectorType(vec) {
     vec.getElementType()
   } else {
     self
@@ -429,7 +429,7 @@ impl Type with tryAsAggregateType(self) -> &AggregateType? {
   match self.asTypeEnum() {
     StructType(sty) => Some(sty)
     ArrayType(arr) => Some(arr)
-    FixedVectorType(vec) => Some(vec)
+    VectorType(vec) => Some(vec)
     ScalableVectorType(vec) => Some(vec)
     _ => None
   }
@@ -440,7 +440,7 @@ impl Type with tryAsAggregateTypeEnum(self) -> AggregateTypeEnum? {
   match self.asTypeEnum() {
     StructType(sty) => Some(StructType(sty))
     ArrayType(arr) => Some(ArrayType(arr))
-    FixedVectorType(vec) => Some(FixedVectorType(vec))
+    VectorType(vec) => Some(VectorType(vec))
     ScalableVectorType(vec) => Some(ScalableVectorType(vec))
     _ => None
   }
@@ -712,7 +712,7 @@ impl AggregateType with getIndexedType(self, idxs : ArrayView[Int]) -> &Type? {
 pub enum AggregateTypeEnum {
   StructType(StructType)
   ArrayType(ArrayType)
-  FixedVectorType(FixedVectorType)
+  VectorType(VectorType)
   ScalableVectorType(ScalableVectorType)
 } derive(Eq, Show)
 
@@ -721,7 +721,7 @@ pub fn AggregateTypeEnum::toTypeEnum(self : AggregateTypeEnum) -> TypeEnum {
   match self {
     StructType(sty) => StructType(sty)
     ArrayType(arr) => ArrayType(arr)
-    FixedVectorType(vec) => FixedVectorType(vec)
+    VectorType(vec) => VectorType(vec)
     ScalableVectorType(vec) => ScalableVectorType(vec)
   }
 }
@@ -731,7 +731,7 @@ pub fn AggregateTypeEnum::asTypeClass(self : Self) -> &Type {
   match self {
     StructType(sty) => (sty : &Type)
     ArrayType(arr) => arr
-    FixedVectorType(vec) => vec
+    VectorType(vec) => vec
     ScalableVectorType(vec) => vec
   }
 }
@@ -750,7 +750,7 @@ pub fn AggregateTypeEnum::getIndexedType(
         idxs[0] < arr.getElementCount().reinterpret_as_int(),
         fn() { arr.getElementType() },
       )
-    FixedVectorType(arr) =>
+    VectorType(arr) =>
       when(
         idxs.length() == 1 &&
         idxs[0] >= 0 &&
@@ -1904,12 +1904,12 @@ pub impl AggregateType for ArrayType with asAggregateTypeEnum(self) -> Aggregate
 }
 
 // ====================================================================
-// FixedVectorType
+// VectorType
 // ====================================================================
 
 ///| Base class of all SIMD vector types.
 ///
-/// - See LLVM: `FixedVectorType::get`.
+/// - See LLVM: `VectorType::get`.
 ///
 /// ```moonbit
 /// let ctx = Context::new()
@@ -1921,27 +1921,27 @@ pub impl AggregateType for ArrayType with asAggregateTypeEnum(self) -> Aggregate
 /// assert_eq(vecty.getElementCount(), 16)
 /// inspect(vecty.getElementType(), content="i32")
 /// ```
-pub struct FixedVectorType {
+pub struct VectorType {
   priv base : TypeBase
   elementType : &Type
   elementCount : UInt
 } derive(Eq, Hash)
 
-///| Create a FixedVectorType.
-fn FixedVectorType::new(
+///| Create a VectorType.
+fn VectorType::new(
   context : Context,
   elementType : &Type,
   elementCount : UInt,
-) -> FixedVectorType raise LLVMTypeError {
-  guard FixedVectorType::isValidElementType(elementType) else {
+) -> VectorType raise LLVMTypeError {
+  guard VectorType::isValidElementType(elementType) else {
     raise InValidVectorElementType(elementType)
   }
   let base = TypeBase::new(context)
-  FixedVectorType::{ base, elementType, elementCount }
+  VectorType::{ base, elementType, elementCount }
 }
 
 ///| Check if the element type is valid.
-fn FixedVectorType::isValidElementType(eleTy : &Type) -> Bool {
+fn VectorType::isValidElementType(eleTy : &Type) -> Bool {
   match eleTy.asTypeEnum() {
     Int1Type(_) | Int8Type(_) | Int16Type(_) | Int32Type(_) | Int64Type(_) =>
       true
@@ -1951,33 +1951,33 @@ fn FixedVectorType::isValidElementType(eleTy : &Type) -> Bool {
 }
 
 ///| Get the element type of the vector.
-pub fn FixedVectorType::getElementType(self : FixedVectorType) -> &Type {
+pub fn VectorType::getElementType(self : VectorType) -> &Type {
   self.elementType
 }
 
 ///| Get the number of elements in the vector.
-pub fn FixedVectorType::getElementCount(self : FixedVectorType) -> UInt {
+pub fn VectorType::getElementCount(self : VectorType) -> UInt {
   self.elementCount
 }
 
 ///|
-pub impl Show for FixedVectorType with output(self, logger : &Logger) {
+pub impl Show for VectorType with output(self, logger : &Logger) {
   logger.write_string("<\{self.getElementCount()} x \{self.getElementType()}>")
 }
 
 ///|
-pub impl Type for FixedVectorType with asTypeEnum(self) -> TypeEnum {
-  TypeEnum::FixedVectorType(self)
+pub impl Type for VectorType with asTypeEnum(self) -> TypeEnum {
+  TypeEnum::VectorType(self)
 }
 
 ///|
-pub impl Type for FixedVectorType with getTypeBase(self) -> TypeBase {
+pub impl Type for VectorType with getTypeBase(self) -> TypeBase {
   self.base
 }
 
 ///|
-pub impl AggregateType for FixedVectorType with asAggregateTypeEnum(self) -> AggregateTypeEnum {
-  FixedVectorType(self)
+pub impl AggregateType for VectorType with asAggregateTypeEnum(self) -> AggregateTypeEnum {
+  VectorType(self)
 }
 
 // ====================================================================
