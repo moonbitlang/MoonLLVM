@@ -3612,7 +3612,42 @@ pub fn SwitchInst::getNumCases(self : Self) -> Int {
   self.cases.length()
 }
 
-///|
+///| Get a case from the switch instruction by index.
+///
+/// **Note**:
+///
+/// Returns `None` if the index is out of bounds. Use `SwitchInst::getNumCases` to get the total number of cases.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let i32_ty = ctx.getInt32Ty()
+/// let void_ty = ctx.getVoidTy()
+/// let fty = ctx.getFunctionType(void_ty, [i32_ty])
+///
+/// let fval = mod.addFunction(fty, "switch_case_demo")
+/// let entry_bb = fval.addBasicBlock(name="entry")
+/// let case1_bb = fval.addBasicBlock(name="case1")
+/// let case2_bb = fval.addBasicBlock(name="case2")
+/// let default_bb = fval.addBasicBlock(name="default")
+/// let value = fval.getArg(0).unwrap()
+///
+/// builder.setInsertPoint(entry_bb)
+/// let switch = builder.createSwitch(value, default_bb)
+/// let case_val1 = ctx.getConstInt32(1)
+/// let case_val2 = ctx.getConstInt32(2)
+/// switch.addCase(case_val1, case1_bb)
+/// switch.addCase(case_val2, case2_bb)
+///
+/// inspect(switch.getNumCases(), content = "2")
+/// inspect(switch.getCase(0).unwrap().0.getValueRepr(), content = "1")
+/// inspect(switch.getCase(0).unwrap().1.getValueRepr(), content = "%case1")
+/// inspect(switch.getCase(1).unwrap().0.getValueRepr(), content = "2")
+/// inspect(switch.getCase(1).unwrap().1.getValueRepr(), content = "%case2")
+/// inspect(switch.getCase(2), content = "None")
+/// ```
 pub fn SwitchInst::getCase(
   self : Self,
   idx : Int,
@@ -3620,7 +3655,46 @@ pub fn SwitchInst::getCase(
   self.cases.get(idx)
 }
 
-///|
+///| Add a case to the switch instruction.
+///
+/// **Note**:
+///
+/// The case condition must be a constant integer with the same type as the switch condition.
+/// Will raise `LLVMValueError` if there is a type mismatch between the case condition and switch condition.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let i32_ty = ctx.getInt32Ty()
+/// let void_ty = ctx.getVoidTy()
+/// let fty = ctx.getFunctionType(void_ty, [i32_ty])
+///
+/// let fval = mod.addFunction(fty, "switch_addcase_demo")
+/// let entry_bb = fval.addBasicBlock(name="entry")
+/// let case1_bb = fval.addBasicBlock(name="case1")
+/// let case2_bb = fval.addBasicBlock(name="case2")
+/// let case3_bb = fval.addBasicBlock(name="case3")
+/// let default_bb = fval.addBasicBlock(name="default")
+/// let value = fval.getArg(0).unwrap()
+///
+/// builder.setInsertPoint(entry_bb)
+/// let switch = builder.createSwitch(value, default_bb)
+///
+/// // Add multiple cases
+/// let case_val1 = ctx.getConstInt32(1)
+/// let case_val2 = ctx.getConstInt32(2)
+/// let case_val3 = ctx.getConstInt32(3)
+/// switch.addCase(case_val1, case1_bb)
+/// switch.addCase(case_val2, case2_bb)
+/// switch.addCase(case_val3, case3_bb)
+///
+/// inspect(switch.getNumCases(), content = "3")
+/// assert_true(switch.getCase(0).unwrap().0.getValueRepr() == "1")
+/// assert_true(switch.getCase(1).unwrap().0.getValueRepr() == "2")
+/// assert_true(switch.getCase(2).unwrap().0.getValueRepr() == "3")
+/// ```
 pub fn SwitchInst::addCase(
   self : Self,
   cond : ConstantInt,
