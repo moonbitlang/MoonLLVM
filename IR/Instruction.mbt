@@ -3890,12 +3890,75 @@ fn PHINode::new(
   PHINode::{ uid, vty, users: [], name, incomings: [], parent, bb, prev, next }
 }
 
-///|
+///| Get the number of incoming values in the PHI node.
+///
+/// **Note**:
+///
+/// Returns the total count of incoming value-block pairs added to this PHI node.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let i32_ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32_ty, [])
+///
+/// let fval = mod.addFunction(fty, "phi_num_demo")
+/// let entry_bb = fval.addBasicBlock(name="entry")
+/// let block1_bb = fval.addBasicBlock(name="block1")
+/// let block2_bb = fval.addBasicBlock(name="block2")
+/// let merge_bb = fval.addBasicBlock(name="merge")
+/// let val1 = ctx.getConstInt32(10)
+/// let val2 = ctx.getConstInt32(20)
+/// let val3 = ctx.getConstInt32(30)
+///
+/// builder.setInsertPoint(merge_bb)
+/// let phi = builder.createPHI(i32_ty, name="result")
+///
+/// inspect(phi.getNumIncomingValues(), content = "0")
+///
+/// phi.addIncoming(val1, entry_bb)
+/// inspect(phi.getNumIncomingValues(), content = "1")
+///
+/// phi.addIncoming(val2, block1_bb)
+/// phi.addIncoming(val3, block2_bb)
+/// inspect(phi.getNumIncomingValues(), content = "3")
+/// ```
 pub fn PHINode::getNumIncomingValues(self : PHINode) -> Int {
   self.incomings.length()
 }
 
-///|
+///| Get the incoming value at the specified index.
+///
+/// **Note**:
+///
+/// Returns `None` if the index is out of bounds. Use `PHINode::getNumIncomingValues` to get the valid range.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let i32_ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32_ty, [])
+///
+/// let fval = mod.addFunction(fty, "phi_value_demo")
+/// let entry_bb = fval.addBasicBlock(name="entry")
+/// let block_bb = fval.addBasicBlock(name="block")
+/// let merge_bb = fval.addBasicBlock(name="merge")
+/// let val1 = ctx.getConstInt32(10)
+/// let val2 = ctx.getConstInt32(20)
+///
+/// builder.setInsertPoint(merge_bb)
+/// let phi = builder.createPHI(i32_ty, name="result")
+/// phi.addIncoming(val1, entry_bb)
+/// phi.addIncoming(val2, block_bb)
+///
+/// inspect(phi.getIncomingValue(0).unwrap().getValueRepr(), content = "10")
+/// inspect(phi.getIncomingValue(1).unwrap().getValueRepr(), content = "20")
+/// inspect(phi.getIncomingValue(2), content = "None")
+/// ```
 pub fn PHINode::getIncomingValue(self : PHINode, idx : Int) -> &Value? {
   match self.incomings.get(idx) {
     Some((value, _)) => Some(value)
@@ -3903,7 +3966,36 @@ pub fn PHINode::getIncomingValue(self : PHINode, idx : Int) -> &Value? {
   }
 }
 
-///|
+///| Get the incoming basic block at the specified index.
+///
+/// **Note**:
+///
+/// Returns `None` if the index is out of bounds. Use `PHINode::getNumIncomingValues` to get the valid range.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let i32_ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32_ty, [])
+///
+/// let fval = mod.addFunction(fty, "phi_block_demo")
+/// let entry_bb = fval.addBasicBlock(name="entry")
+/// let block_bb = fval.addBasicBlock(name="block")
+/// let merge_bb = fval.addBasicBlock(name="merge")
+/// let val1 = ctx.getConstInt32(10)
+/// let val2 = ctx.getConstInt32(20)
+///
+/// builder.setInsertPoint(merge_bb)
+/// let phi = builder.createPHI(i32_ty, name="result")
+/// phi.addIncoming(val1, entry_bb)
+/// phi.addIncoming(val2, block_bb)
+///
+/// inspect(phi.getIncomingBlock(0).unwrap().getValueRepr(), content = "%entry")
+/// inspect(phi.getIncomingBlock(1).unwrap().getValueRepr(), content = "%block")
+/// inspect(phi.getIncomingBlock(2), content = "None")
+/// ```
 pub fn PHINode::getIncomingBlock(self : PHINode, idx : Int) -> BasicBlock? {
   match self.incomings.get(idx) {
     Some((_, block)) => Some(block)
@@ -3911,27 +4003,205 @@ pub fn PHINode::getIncomingBlock(self : PHINode, idx : Int) -> BasicBlock? {
   }
 }
 
-///|
+///| Get the incoming value-block pair at the specified index.
+///
+/// **Note**:
+///
+/// Returns `None` if the index is out of bounds. This is a convenience method that returns both the value and block together.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let i32_ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32_ty, [])
+///
+/// let fval = mod.addFunction(fty, "phi_incoming_demo")
+/// let entry_bb = fval.addBasicBlock(name="entry")
+/// let block_bb = fval.addBasicBlock(name="block")
+/// let merge_bb = fval.addBasicBlock(name="merge")
+/// let val1 = ctx.getConstInt32(10)
+/// let val2 = ctx.getConstInt32(20)
+///
+/// builder.setInsertPoint(merge_bb)
+/// let phi = builder.createPHI(i32_ty, name="result")
+/// phi.addIncoming(val1, entry_bb)
+/// phi.addIncoming(val2, block_bb)
+///
+/// let (value0, block0) = phi.getIncoming(0).unwrap()
+/// inspect(value0.getValueRepr(), content = "10")
+/// inspect(block0.getValueRepr(), content = "%entry")
+///
+/// let (value1, block1) = phi.getIncoming(1).unwrap()
+/// inspect(value1.getValueRepr(), content = "20")
+/// inspect(block1.getValueRepr(), content = "%block")
+///
+/// inspect(phi.getIncoming(2), content = "None")
+/// ```
 pub fn PHINode::getIncoming(self : PHINode, idx : Int) -> (&Value, BasicBlock)? {
   self.incomings.get(idx)
 }
 
-///|
+///| Get all incoming value-block pairs as an array.
+///
+/// **Note**:
+///
+/// Returns a copy of the internal array containing all value-block pairs in the order they were added.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let i32_ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32_ty, [])
+///
+/// let fval = mod.addFunction(fty, "phi_incomings_demo")
+/// let entry_bb = fval.addBasicBlock(name="entry")
+/// let block1_bb = fval.addBasicBlock(name="block1")
+/// let block2_bb = fval.addBasicBlock(name="block2")
+/// let merge_bb = fval.addBasicBlock(name="merge")
+/// let val1 = ctx.getConstInt32(10)
+/// let val2 = ctx.getConstInt32(20)
+/// let val3 = ctx.getConstInt32(30)
+///
+/// builder.setInsertPoint(merge_bb)
+/// let phi = builder.createPHI(i32_ty, name="result")
+/// phi.addIncoming(val1, entry_bb)
+/// phi.addIncoming(val2, block1_bb)
+/// phi.addIncoming(val3, block2_bb)
+///
+/// let incomings = phi.getIncomings()
+/// inspect(incomings.length(), content = "3")
+/// inspect(incomings[0].0.getValueRepr(), content = "10")
+/// inspect(incomings[0].1.getValueRepr(), content = "%entry")
+/// inspect(incomings[1].0.getValueRepr(), content = "20")
+/// inspect(incomings[2].0.getValueRepr(), content = "30")
+/// ```
 pub fn PHINode::getIncomings(self : PHINode) -> Array[(&Value, BasicBlock)] {
   self.incomings
 }
 
-///|
+///| Get all incoming values as an array.
+///
+/// **Note**:
+///
+/// Returns an array containing only the values from all incoming value-block pairs, in the order they were added.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let i32_ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32_ty, [])
+///
+/// let fval = mod.addFunction(fty, "phi_values_demo")
+/// let entry_bb = fval.addBasicBlock(name="entry")
+/// let block1_bb = fval.addBasicBlock(name="block1")
+/// let block2_bb = fval.addBasicBlock(name="block2")
+/// let merge_bb = fval.addBasicBlock(name="merge")
+/// let val1 = ctx.getConstInt32(10)
+/// let val2 = ctx.getConstInt32(20)
+/// let val3 = ctx.getConstInt32(30)
+///
+/// builder.setInsertPoint(merge_bb)
+/// let phi = builder.createPHI(i32_ty, name="result")
+/// phi.addIncoming(val1, entry_bb)
+/// phi.addIncoming(val2, block1_bb)
+/// phi.addIncoming(val3, block2_bb)
+///
+/// let values = phi.getIncomingValues()
+/// inspect(values.length(), content = "3")
+/// inspect(values[0].getValueRepr(), content = "10")
+/// inspect(values[1].getValueRepr(), content = "20")
+/// inspect(values[2].getValueRepr(), content = "30")
+/// ```
 pub fn PHINode::getIncomingValues(self : PHINode) -> Array[&Value] {
   self.incomings.map(incoming => incoming.0)
 }
 
-///|
+///| Get all incoming basic blocks as an array.
+///
+/// **Note**:
+///
+/// Returns an array containing only the basic blocks from all incoming value-block pairs, in the order they were added.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let i32_ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32_ty, [])
+///
+/// let fval = mod.addFunction(fty, "phi_blocks_demo")
+/// let entry_bb = fval.addBasicBlock(name="entry")
+/// let block1_bb = fval.addBasicBlock(name="block1")
+/// let block2_bb = fval.addBasicBlock(name="block2")
+/// let merge_bb = fval.addBasicBlock(name="merge")
+/// let val1 = ctx.getConstInt32(10)
+/// let val2 = ctx.getConstInt32(20)
+/// let val3 = ctx.getConstInt32(30)
+///
+/// builder.setInsertPoint(merge_bb)
+/// let phi = builder.createPHI(i32_ty, name="result")
+/// phi.addIncoming(val1, entry_bb)
+/// phi.addIncoming(val2, block1_bb)
+/// phi.addIncoming(val3, block2_bb)
+///
+/// let blocks = phi.getIncomingBlocks()
+/// inspect(blocks.length(), content = "3")
+/// inspect(blocks[0].getValueRepr(), content = "%entry")
+/// inspect(blocks[1].getValueRepr(), content = "%block1")
+/// inspect(blocks[2].getValueRepr(), content = "%block2")
+/// ```
 pub fn PHINode::getIncomingBlocks(self : PHINode) -> Array[BasicBlock] {
   self.incomings.map(incoming => incoming.1)
 }
 
-///|
+///| Add an incoming value-block pair to the PHI node.
+///
+/// **Note**:
+///
+/// The value's type must match the PHI node's type. Will raise `LLVMValueError` if there is a type mismatch.
+/// The basic block represents the predecessor block from which this value flows into the PHI node.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let i32_ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32_ty, [])
+///
+/// let fval = mod.addFunction(fty, "phi_add_demo")
+/// let entry_bb = fval.addBasicBlock(name="entry")
+/// let block1_bb = fval.addBasicBlock(name="block1")
+/// let block2_bb = fval.addBasicBlock(name="block2")
+/// let merge_bb = fval.addBasicBlock(name="merge")
+/// let val1 = ctx.getConstInt32(10)
+/// let val2 = ctx.getConstInt32(20)
+/// let val3 = ctx.getConstInt32(30)
+///
+/// builder.setInsertPoint(merge_bb)
+/// let phi = builder.createPHI(i32_ty, name="result")
+///
+/// inspect(phi.getNumIncomingValues(), content = "0")
+///
+/// phi.addIncoming(val1, entry_bb)
+/// inspect(phi.getNumIncomingValues(), content = "1")
+/// inspect(phi.getIncomingValue(0).unwrap().getValueRepr(), content = "10")
+/// inspect(phi.getIncomingBlock(0).unwrap().getValueRepr(), content = "%entry")
+///
+/// phi.addIncoming(val2, block1_bb)
+/// phi.addIncoming(val3, block2_bb)
+/// inspect(phi.getNumIncomingValues(), content = "3")
+///
+/// let expected = "  %result = phi i32 [ 10, %entry ], [ 20, %block1 ], [ 30, %block2 ]"
+/// inspect(phi, content = expected)
+/// ```
 pub fn PHINode::addIncoming(
   self : PHINode,
   value : &Value,
