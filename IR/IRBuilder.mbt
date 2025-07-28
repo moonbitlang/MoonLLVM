@@ -3108,7 +3108,7 @@ pub fn IRBuilder::createStore(
   ptr : &Value,
   isVolatile~ : Bool = false,
   atomicOrdering~ : AtomicOrdering = NotAtomic,
-) -> &Instruction raise Error {
+) -> StoreInst raise Error {
   guard ptr.getType().asTypeEnum() is PointerType(_) else {
     let msg = "Misuse `IRBuilder::createStore`: " +
       "store instruction must store to a pointer, " +
