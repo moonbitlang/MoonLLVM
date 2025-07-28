@@ -358,6 +358,34 @@ pub fn Function::getArg(self : Function, idx : Int) -> Argument? {
   when(idx >= 0 && idx < self.getNumArgs(), fn() { self.arguments[idx] })
 }
 
+pub enum SetSymbolResult {
+  Success
+  EmptyName
+  InvalidName
+  DuplicateName(&Value)
+}
+
+fn Function::setSymbol(self: Function, name:String, value: &Value) -> SetSymbolResult {
+  if name is "" {
+    return EmptyName
+  }
+  if isInValidName(name) {
+    return InvalidName
+  }
+  if self.symbols.contains(name) {
+    let existing = self.symbols.get(name).unwrap()
+    return DuplicateName(existing)
+  }
+  self.clearSlot()
+  self.symbols.set(name, value)
+  Success
+}
+
+fn Function::removeSymbol(self: Function, name:String) -> Unit {
+  self.clearSlot()
+  self.symbols.remove(name)
+}
+
 ///|
 pub fn[V : Value] Function::getSlot(self : Function, val : V) -> UInt64? {
   self.slotTracker.unwrap().getSlot(val)

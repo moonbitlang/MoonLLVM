@@ -33,7 +33,6 @@ pub struct AllocaInst {
   parent : Function
   data_ty : &Type
   align : Align
-  //inst_base : InstBase
   bb: Ref[BasicBlock?]
   prev: Ref[&Instruction?]
   next: Ref[&Instruction?]
@@ -151,24 +150,30 @@ pub impl Value for AllocaInst with getName(self) {
 /// inspect(inst.getName(), content = "Some(\"var1\")")
 /// ```
 pub impl Value for AllocaInst with setName(self, name) {
-  if name is "" {
-    let msg = "Misuse `AllocaInst::setName`: name cannot be empty."
-    raise LLVMValueError(msg)
+  match self.getParent().setSymbol(name, self) {
+    EmptyName => {
+      let msg = "Misuse `AllocaInst::setName`: name cannot be empty."
+      raise LLVMValueError(msg)
+    }
+    InvalidName => {
+      let msg = 
+        $|Misuse `AllocaInst::setName`:
+        $|name '\{name}' contains illegal characters,
+        $|only alphanumeric characters and underscores are allowed
+      raise LLVMValueError(msg)
+    }
+    DuplicateName(existed) => {
+      let msg =
+        $|Misuse `AllocaInst::setName`:
+        $|name '\{name}' already exists in the parent function,
+        $|it is used by:
+        $|\{existed}"
+      raise LLVMValueError(msg)
+    }
+    Success => {
+      self.name = Some(name)
+    }
   }
-  if isInValidName(name) {
-    let msg = "Misuse `AllocaInst::setName`: " +
-      "name '\{name}' contains illegal characters, " +
-      "only alphanumeric characters and underscores are allowed."
-    raise LLVMValueError(msg)
-  }
-  let symbols = self.getParent().symbols
-  guard not(symbols.contains(name)) else {
-    let msg = "Misuse `AllocaInst::setName`: " +
-      "name '\{name}' already exists in the parent function"
-    raise LLVMValueError(msg)
-  }
-  self.name = Some(name)
-  symbols.set(name, self)
 }
 
 ///|
@@ -446,32 +451,38 @@ pub impl Value for LoadInst with getName(self) {
 /// inspect(val.getName(), content = "Some(\"val\")")
 /// ```
 pub impl Value for LoadInst with setName(self, name) {
-  if name is "" {
-    let msg = "Misuse `LoadInst::setName`: name cannot be empty."
-    raise LLVMValueError(msg)
+  match self.getParent().setSymbol(name, self) {
+    EmptyName => {
+      let msg = "Misuse `LoadInst::setName`: name cannot be empty."
+      raise LLVMValueError(msg)
+    }
+    InvalidName => {
+      let msg = 
+        $|Misuse `LoadInst::setName`:
+        $|name '\{name}' contains illegal characters,
+        $|only alphanumeric characters and underscores are allowed
+      raise LLVMValueError(msg)
+    }
+    DuplicateName(existed) => {
+      let msg =
+        $|Misuse `LoadInst::setName`:
+        $|name '\{name}' already exists in the parent function,
+        $|it is used by:
+        $|\{existed}"
+      raise LLVMValueError(msg)
+    }
+    Success => {
+      self.name = Some(name)
+    }
   }
-  if isInValidName(name) {
-    let msg = "Misuse `LoadInst::setName`: " +
-      "name '\{name}' contains illegal characters, " +
-      "only alphanumeric characters and underscores are allowed."
-    raise LLVMValueError(msg)
-  }
-  let symbols = self.getParent().symbols
-  guard not(symbols.contains(name)) else {
-    let msg = "Misuse `LoadInst::setName`: " +
-      "name '\{name}' already exists in the parent function"
-    raise LLVMValueError(msg)
-  }
-  self.name = Some(name)
-  symbols.set(name, self)
 }
 
-///|
+///| Remove the name of the instruction.
 pub impl Value for LoadInst with removeName(self) {
   match self.name {
     None => ()
     Some(name) => {
-      self.getParent().symbols.remove(name)
+      self.getParent().removeSymbol(name)
       self.name = None
     }
   }
