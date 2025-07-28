@@ -1,9 +1,9 @@
 {
   "name": "Kaida-Amethyst/MoonLLVM",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "readme": "README.md",
-  "repository": "",
+  "repository": "https://github.com/moonbitlang/MoonLLVM",
   "license": "Apache-2.0",
-  "keywords": [],
-  "description": ""
+  "keywords": ["Compiler", "llvm"],
+  "description": "Moonbit version of LLVM, provide similar api with llvm.mbt, used for MGPIC Competition.",
 }

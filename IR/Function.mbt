@@ -53,24 +53,22 @@ fn Argument::new(vty : &Type, argNo : UInt, parent : Function) -> Argument {
 /// - See `llvm::Argument::addAttribute`.
 ///
 /// ```moonbit`
-/// test "Argument::addAttribute" {
-///   let ctx = Context::new()
-///   let prog = ctx.addModule("demo")
+/// let ctx = Context::new()
+/// let prog = ctx.addModule("demo")
 ///
-///   let i32ty = ctx.getInt32Ty()
-///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+/// let i32ty = ctx.getInt32Ty()
+/// let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
 ///
-///   let fval = prog.addFunction(fty, "add")
+/// let fval = prog.addFunction(fty, "add")
 ///
-///   let arg0 = f.getArg(0).unwrap()
-///   let arg1 = f.getArg(1).unwrap()
+/// let arg0 = f.getArg(0).unwrap()
+/// let arg1 = f.getArg(1).unwrap()
 ///
-///   arg0.addAttr(NoAlias)
-///   inspect(fval, content="declare i32 @add(i32 noalias, i32)")
+/// arg0.addAttr(NoAlias)
+/// inspect(fval, content="declare i32 @add(i32 noalias, i32)")
 ///
-///   arg1.addAttr(NonNull)
-///   inspect(fval, content="declare i32 @add(i32 noalias, i32 nonnull)")
-/// }
+/// arg1.addAttr(NonNull)
+/// inspect(fval, content="declare i32 @add(i32 noalias, i32 nonnull)")
 /// ```
 pub fn Argument::addAttr(self : Argument, attr : ArgAttr) -> Unit {
   let argAttrs = self.parent.attrSet.argAttrs
