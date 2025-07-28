@@ -1,16 +1,21 @@
-typealias @IR.(Function)
+///|
+typealias @IR.Function
 
+///|
 pub struct DCE {}
 
+///|
 pub impl FunctionPass for DCE with name(_) {
   "DCE"
 }
 
+///|
 pub impl FunctionPass for DCE with description(_) {
   "Dead Code Elimination"
 }
 
-pub impl FunctionPass for DCE with run(_, func: Function) -> Unit {
+///|
+pub impl FunctionPass for DCE with run(_, func : Function) -> Unit {
   for bb in func.basicBlocks {
     for inst in bb.instIter() {
       if inst.user_empty() {
@@ -29,10 +34,9 @@ pub impl FunctionPass for DCE with run(_, func: Function) -> Unit {
           //  // Otherwise, we can remove the call instruction
           //  inst.eraseFromParent()
           //}
-          _ => {
+          _ =>
             // Remove the instruction if it has no users
             inst.eraseFromParent()
-          }
         }
       }
     }

@@ -17,8 +17,8 @@ pub suberror LLVMValueError String
 
 ///|
 pub impl Show for LLVMValueError with output(self, logger) {
-  let LLVMValueError(msg) = self;
-  logger.write_string("LLVMValueError:\n");
+  let LLVMValueError(msg) = self
+  logger.write_string("LLVMValueError:\n")
   logger.write_string(msg)
 }
 

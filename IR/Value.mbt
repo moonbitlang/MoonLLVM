@@ -255,7 +255,7 @@ impl Value with user_empty(self) {
   match self.getUsers() {
     Some(users) => users.is_empty()
     None => false // if self is constant, it `users` is None
-                  // but we don't think constant's users is empty.
+    // but we don't think constant's users is empty.
   }
 }
 
@@ -547,7 +547,7 @@ pub trait Instruction: Value {
   prev(Self) -> &Instruction? = _
   insertAfter(Self, &Instruction) -> Unit raise LLVMValueError = _
   insertBefore(Self, &Instruction) -> Unit raise LLVMValueError = _
-  moveBefore(Self, &Instruction) -> Unit= _
+  moveBefore(Self, &Instruction) -> Unit = _
   moveAfter(Self, &Instruction) -> Unit = _
   removeFromParent(Self) -> Unit = _
   eraseFromParent(Self) -> Unit = _

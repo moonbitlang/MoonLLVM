@@ -1,4 +1,3 @@
-
 ///|
 pub trait FunctionPass {
   name(Self) -> String

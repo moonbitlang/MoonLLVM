@@ -156,6 +156,7 @@ pub struct BasicBlock {
 fn BasicBlock::firstInst(Self) -> &Instruction?
 fn BasicBlock::getLabel(Self) -> String
 fn BasicBlock::getParent(Self) -> Function
+fn BasicBlock::instIter(Self) -> Iter[&Instruction]
 fn BasicBlock::lastInst(Self) -> &Instruction?
 impl InsertPoint for BasicBlock
 impl Value for BasicBlock
@@ -1512,10 +1513,10 @@ pub trait Instruction : Value {
   prev(Self) -> &Instruction?
   insertAfter(Self, &Instruction) -> Unit raise LLVMValueError
   insertBefore(Self, &Instruction) -> Unit raise LLVMValueError
-  moveBefore(Self, &Instruction) -> Unit raise LLVMValueError
-  moveAfter(Self, &Instruction) -> Unit raise LLVMValueError
-  removeFromParent(Self) -> Unit raise LLVMValueError
-  eraseFromParent(Self) -> Unit raise LLVMValueError
+  moveBefore(Self, &Instruction) -> Unit
+  moveAfter(Self, &Instruction) -> Unit
+  removeFromParent(Self) -> Unit
+  eraseFromParent(Self) -> Unit
 }
 
 trait IntegerNumber : Show

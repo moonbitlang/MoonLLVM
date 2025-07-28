@@ -180,7 +180,7 @@ pub fn IRBuilder::createAlloca(
     data_ty,
     self.getInsertFunction(),
     addressSpace~,
-    name=None
+    name=None,
   )
   match name {
     "" => ()
@@ -1929,13 +1929,7 @@ pub fn IRBuilder::createICmp(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = ICmpInst::new(
-    pred,
-    lhs,
-    rhs,
-    parent,
-    name=None
-  )
+  let inst = ICmpInst::new(pred, lhs, rhs, parent, name=None)
   match name {
     "" => ()
     _ => inst.setName(name)
@@ -2157,13 +2151,7 @@ pub fn IRBuilder::createFCmp(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = FCmpInst::new(
-    pred,
-    lhs,
-    rhs,
-    parent,
-    name=None,
-  )
+  let inst = FCmpInst::new(pred, lhs, rhs, parent, name=None)
   match name {
     "" => ()
     _ => inst.setName(name)
@@ -2393,12 +2381,7 @@ pub fn IRBuilder::createTrunc(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newTrunc(
-    src_val,
-    dst_ty,
-    parent,
-    name=None
-  )
+  let inst = CastInst::newTrunc(src_val, dst_ty, parent, name=None)
   match name {
     "" => ()
     _ => inst.setName(name)
@@ -2460,12 +2443,7 @@ pub fn IRBuilder::createZExt(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newZExt(
-    src_val,
-    dst_ty,
-    parent,
-    name=None
-  )
+  let inst = CastInst::newZExt(src_val, dst_ty, parent, name=None)
   match name {
     "" => ()
     _ => inst.setName(name)
@@ -2527,12 +2505,7 @@ pub fn IRBuilder::createSExt(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newSExt(
-    src_val,
-    dst_ty,
-    parent,
-    name=None,
-  )
+  let inst = CastInst::newSExt(src_val, dst_ty, parent, name=None)
   match name {
     "" => ()
     _ => inst.setName(name)
@@ -2593,12 +2566,7 @@ pub fn IRBuilder::createFPTrunc(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newFPTrunc(
-    src_val,
-    dst_ty,
-    parent,
-    name=None,
-  )
+  let inst = CastInst::newFPTrunc(src_val, dst_ty, parent, name=None)
   match name {
     "" => ()
     _ => inst.setName(name)
@@ -2655,12 +2623,7 @@ pub fn IRBuilder::createFPExt(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newFPExt(
-    src_val,
-    dst_ty,
-    parent,
-    name=None,
-  )
+  let inst = CastInst::newFPExt(src_val, dst_ty, parent, name=None)
   match name {
     "" => ()
     _ => inst.setName(name)
@@ -2715,12 +2678,7 @@ pub fn IRBuilder::createUIToFP(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newUIToFP(
-    src_val,
-    dst_ty,
-    parent,
-    name=None
-  )
+  let inst = CastInst::newUIToFP(src_val, dst_ty, parent, name=None)
   match name {
     "" => ()
     _ => inst.setName(name)
@@ -2776,12 +2734,7 @@ pub fn IRBuilder::createFPToUI(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newFPToUI(
-    src_val,
-    dst_ty,
-    parent,
-    name=None,
-  )
+  let inst = CastInst::newFPToUI(src_val, dst_ty, parent, name=None)
   match name {
     "" => ()
     _ => inst.setName(name)
@@ -2832,12 +2785,7 @@ pub fn IRBuilder::createSIToFP(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newSIToFP(
-    src_val,
-    dst_ty,
-    parent,
-    name=None,
-  )
+  let inst = CastInst::newSIToFP(src_val, dst_ty, parent, name=None)
   match name {
     "" => ()
     _ => inst.setName(name)
@@ -2888,12 +2836,7 @@ pub fn IRBuilder::createFPToSI(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newFPToSI(
-    src_val,
-    dst_ty,
-    parent,
-    name=None,
-  )
+  let inst = CastInst::newFPToSI(src_val, dst_ty, parent, name=None)
   match name {
     "" => ()
     _ => inst.setName(name)
@@ -2943,11 +2886,7 @@ pub fn IRBuilder::createIntToPtr(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newIntToPtr(
-    src_val,
-    parent,
-    name=None,
-  )
+  let inst = CastInst::newIntToPtr(src_val, parent, name=None)
   match name {
     "" => ()
     _ => inst.setName(name)
@@ -2995,12 +2934,7 @@ pub fn IRBuilder::createPtrToInt(
     raise LLVMValueError(msg)
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newPtrToInt(
-    src_val,
-    dst_ty,
-    parent,
-    name=None,
-  )
+  let inst = CastInst::newPtrToInt(src_val, dst_ty, parent, name=None)
   match name {
     "" => ()
     _ => inst.setName(name)
@@ -3065,12 +2999,7 @@ pub fn IRBuilder::createBitCast(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let inst = CastInst::newBitCast(
-    src_val,
-    dst_ty,
-    parent,
-    name=None
-  )
+  let inst = CastInst::newBitCast(src_val, dst_ty, parent, name=None)
   match name {
     "" => ()
     _ => inst.setName(name)
@@ -3143,7 +3072,7 @@ pub fn IRBuilder::createGEP(
     indices,
     inbounds,
     parent,
-    name=None
+    name=None,
   )
   match name {
     "" => ()
@@ -3208,7 +3137,7 @@ pub fn IRBuilder::createLoad(
     isVolatile,
     atomicOrdering,
     parent,
-    name=None
+    name=None,
   )
   match name {
     "" => ()
@@ -3418,7 +3347,7 @@ pub fn IRBuilder::createSelect(
     trueValue,
     falseValue,
     parent,
-    name=None
+    name=None,
   )
   match name {
     "" => ()
@@ -3584,12 +3513,7 @@ pub fn IRBuilder::createCall(
     raise LLVMValueError(msg)
   }
   let parent = self.getInsertFunction()
-  let inst = CallInst::new(
-    callee,
-    args,
-    parent,
-    name=None,
-  )
+  let inst = CallInst::new(callee, args, parent, name=None)
   match name {
     "" => ()
     _ => inst.setName(name)
@@ -3648,12 +3572,7 @@ pub fn IRBuilder::createExtractValue(
     raise LLVMValueError(msg)
   }
   let parent = self.getInsertFunction()
-  let inst = ExtractValueInst::new(
-    aggregate,
-    indices,
-    parent,
-    name=None,
-  )
+  let inst = ExtractValueInst::new(aggregate, indices, parent, name=None)
   match name {
     "" => ()
     _ => inst.setName(name)
@@ -3714,13 +3633,7 @@ pub fn IRBuilder::createInsertValue(
     raise LLVMValueError(msg)
   }
   let parent = self.getInsertFunction()
-  let inst = InsertValueInst::new(
-    aggregate,
-    value,
-    indices,
-    parent,
-    name=None,
-  )
+  let inst = InsertValueInst::new(aggregate, value, indices, parent, name=None)
   match name {
     "" => ()
     _ => inst.setName(name)

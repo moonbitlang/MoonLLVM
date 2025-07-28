@@ -116,7 +116,7 @@ pub fn BasicBlock::lastInst(self : BasicBlock) -> &Instruction? {
 }
 
 ///|
-pub fn BasicBlock::instIter(self: BasicBlock) -> Iter[&Instruction] {
+pub fn BasicBlock::instIter(self : BasicBlock) -> Iter[&Instruction] {
   letrec f = yield_ => loop self.head {
     Some(i) => {
       let next_inst = i.next()
@@ -125,6 +125,7 @@ pub fn BasicBlock::instIter(self: BasicBlock) -> Iter[&Instruction] {
     }
     None => break IterContinue
   }
+
   Iter::new(f)
 }
 

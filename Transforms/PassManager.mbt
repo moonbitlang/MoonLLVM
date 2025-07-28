@@ -19,30 +19,26 @@ pub fn PassManager::create(level : OptLevel) -> PassManager {
 
 ///|
 pub fn PassManager::createEmpty() -> PassManager {
-  PassManager::{
-    function_passes: Array::new()
-  }
+  PassManager::{ function_passes: Array::new() }
 }
 
 ///|
 pub fn PassManager::createO0() -> PassManager {
-  let function_passes : Array[&FunctionPass] = [DCE::{}]
-  PassManager::{
-    function_passes
-  }
+  let function_passes : Array[&FunctionPass] = [DCE::{  }]
+  PassManager::{ function_passes, }
 }
 
 ///|
-pub fn PassManager::addPass(self: Self, pass: &FunctionPass) -> Unit {
+pub fn PassManager::addPass(self : Self, pass : &FunctionPass) -> Unit {
   if self.function_passes.iter().any(p => p == pass) {
-    return;
+    return
   }
-  self.function_passes.push(pass);
+  self.function_passes.push(pass)
 }
 
 ///|
-pub fn PassManager::run(self: Self, func: Function) -> Unit {
+pub fn PassManager::run(self : Self, func : Function) -> Unit {
   for pass in self.function_passes {
-    pass.run(func);
+    pass.run(func)
   }
 }
