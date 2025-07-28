@@ -1,6 +1,6 @@
 typealias @IR.(Function)
 
-pub struct DCE {} derive(Eq, Hash)
+pub struct DCE {}
 
 pub impl FunctionPass for DCE with name(_) {
   "DCE"

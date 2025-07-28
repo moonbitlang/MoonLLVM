@@ -13,65 +13,14 @@ suberror LLVMTypeError {
 } derive(Show)
 
 ///|
-pub suberror LLVMValueError String derive(Show)
+pub suberror LLVMValueError String
 
-//suberror LLVMValueError {
-//  CouldNotSetNameForStoreInst
-//  CouldNotSetNameForReturnInst
-//  CouldNotSetNameForBranchInst
-//  CouldNotSetNameForSwitchInst
-//  CouldNotSetNameForConstant
-//  CouldNotRemoveFunctionName
-//  DuplicateFunctionName(String)
-//  DuplicateArgumentName(String)
-//  SetNameForVoidTypeValue
-//  OnlyIndependentInstructionCanBeInsert
-//  InValidFunctionName(String)
-//  TypeMismatchForBinaryOp(&Type, &Type)
-//  TypeNotSupportForBinaryOp(&Type, BinaryOps)
-//  TypeMismatchForCmpInst(&Type, &Type)
-//  TypeMismatchForICmpInst(&Type)
-//  TypeMismatchForFCmpInst(&Type)
-//  TypeMismatchForReturnInst(&Type, &Type)
-//  DivisionByZeroError
-//  TypeCouldNotBeCreatedZeroValue(&Type)
-//  TruncCastInstTypeMismatch(&Type, &Type)
-//  ZExtCastInstTypeMismatch(&Type, &Type)
-//  SExtCastInstTypeMismatch(&Type, &Type)
-//  FPTruncCastInstTypeMismatch(&Type, &Type)
-//  FPExtCastInstTypeMismatch(&Type, &Type)
-//  UIToFPInstTypeMismatch(&Type, &Type)
-//  FPToUIInstTypeMismatch(&Type, &Type)
-//  SIToFPInstTypeMismatch(&Type, &Type)
-//  FPToSIInstTypeMismatch(&Type, &Type)
-//  PtrToIntCastInstTypeMismatch(&Type)
-//  IntToPtrCastInstTypeMismatch(&Type)
-//  BitCastInstTypeMismatch(&Type, &Type)
-//  BitCastOnlyAcceptPrimitiveTypes(&Type)
-//  LoadInstShouldLoadFromAPointer(&Type)
-//  LoadInstCannotLoadToAnAbstractType(&Type)
-//  LoadInstCannotBeVolatileAndAtomic
-//  StoreInstShouldStoreToAPointer(&Type)
-//  StoreInstCannotStoreAnAbstractType(&Type)
-//  StoreInstCannotBeVolatileAndAtomic
-//  GetElementPtrInstValueTypeNotPtr(&Type)
-//  GetElementPtrInstNotValidPointeeType(&Type)
-//  GetElementPtrInstIndexNotInteger(&Type)
-//  SelectInstConditionNotBoolean(&Type)
-//  SelectInstTypeMismatch(&Type, &Type)
-//  BranchInstConditionNotBoolean(&Type)
-//  SwitchInstConditionNotInteger(&Type)
-//  SwitchInstCaseConditionTypeMismatch(&Type, &Type)
-//  PHINodeIncomingValueTypeMismatch(&Type, &Type)
-//  CallInstArgCountMismatch(Int, Int)
-//  CallInstArgTypeMismatchParamType(Array[&Type], Array[&Type])
-//  ExtractValueInstRequiresNonEmptyIndices
-//  ExtractValueInstInvalidAggregateType(&Type)
-//  ExtractValueInstInvalidIndex(&Type, Array[Int])
-//  InsertValueInstRequiresNonEmptyIndices
-//  InsertValueInstInvalidAggregateType(&Type)
-//  InsertValueInstInvalidIndex(&Type, Array[Int])
-//} derive(Show)
+///|
+pub impl Show for LLVMValueError with output(self, logger) {
+  let LLVMValueError(msg) = self;
+  logger.write_string("LLVMValueError:\n");
+  logger.write_string(msg)
+}
 
 ///|
 priv suberror BuilderError {

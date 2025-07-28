@@ -180,8 +180,12 @@ pub fn IRBuilder::createAlloca(
     data_ty,
     self.getInsertFunction(),
     addressSpace~,
-    name=unless(name.is_empty(), () => name),
+    name=None
   )
+  match name {
+    "" => ()
+    _ => allocaInst.setName(name)
+  }
   self.insert(allocaInst)
   allocaInst
 }
@@ -254,9 +258,13 @@ pub fn IRBuilder::createAdd(
     lhs,
     rhs,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None,
     flags,
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
@@ -407,9 +415,13 @@ pub fn IRBuilder::createSub(
     lhs,
     rhs,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None,
     flags,
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
@@ -560,9 +572,13 @@ pub fn IRBuilder::createMul(
     lhs,
     rhs,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None,
     flags,
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
@@ -711,9 +727,13 @@ pub fn IRBuilder::createSDiv(
     lhs,
     rhs,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None,
     flags,
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
@@ -823,9 +843,13 @@ pub fn IRBuilder::createUDiv(
     lhs,
     rhs,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None,
     flags,
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
@@ -933,9 +957,13 @@ pub fn IRBuilder::createSRem(
     lhs,
     rhs,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None,
     flags,
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
@@ -1002,9 +1030,13 @@ pub fn IRBuilder::createURem(
     lhs,
     rhs,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None,
     flags,
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
@@ -1089,9 +1121,13 @@ pub fn IRBuilder::createFAdd(
     lhs,
     rhs,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None,
     fast_math_flags,
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
@@ -1152,9 +1188,13 @@ pub fn IRBuilder::createFSub(
     lhs,
     rhs,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None,
     fast_math_flags,
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
@@ -1215,9 +1255,13 @@ pub fn IRBuilder::createFMul(
     lhs,
     rhs,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None,
     fast_math_flags,
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
@@ -1278,9 +1322,13 @@ pub fn IRBuilder::createFDiv(
     lhs,
     rhs,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None,
     fast_math_flags,
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
@@ -1341,9 +1389,13 @@ pub fn IRBuilder::createFRem(
     lhs,
     rhs,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None,
     fast_math_flags,
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
@@ -1408,9 +1460,13 @@ pub fn IRBuilder::createAnd(
     lhs,
     rhs,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None,
     Set::new(),
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
@@ -1475,9 +1531,13 @@ pub fn IRBuilder::createOr(
     lhs,
     rhs,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None,
     Set::new(),
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
@@ -1542,9 +1602,13 @@ pub fn IRBuilder::createXor(
     lhs,
     rhs,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None,
     Set::new(),
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
@@ -1618,9 +1682,13 @@ pub fn IRBuilder::createShl(
     lhs,
     rhs,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None,
     flags,
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
@@ -1690,9 +1758,13 @@ pub fn IRBuilder::createLShr(
     lhs,
     rhs,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None,
     flags,
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
@@ -1762,9 +1834,13 @@ pub fn IRBuilder::createAShr(
     lhs,
     rhs,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None,
     flags,
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
@@ -1858,8 +1934,12 @@ pub fn IRBuilder::createICmp(
     lhs,
     rhs,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
@@ -2082,8 +2162,12 @@ pub fn IRBuilder::createFCmp(
     lhs,
     rhs,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None,
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
@@ -2313,8 +2397,12 @@ pub fn IRBuilder::createTrunc(
     src_val,
     dst_ty,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
@@ -2376,8 +2464,12 @@ pub fn IRBuilder::createZExt(
     src_val,
     dst_ty,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
@@ -2439,8 +2531,12 @@ pub fn IRBuilder::createSExt(
     src_val,
     dst_ty,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None,
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
@@ -2501,8 +2597,12 @@ pub fn IRBuilder::createFPTrunc(
     src_val,
     dst_ty,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None,
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
@@ -2559,8 +2659,12 @@ pub fn IRBuilder::createFPExt(
     src_val,
     dst_ty,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None,
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
@@ -2615,8 +2719,12 @@ pub fn IRBuilder::createUIToFP(
     src_val,
     dst_ty,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
@@ -2672,8 +2780,12 @@ pub fn IRBuilder::createFPToUI(
     src_val,
     dst_ty,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None,
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
@@ -2724,8 +2836,12 @@ pub fn IRBuilder::createSIToFP(
     src_val,
     dst_ty,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None,
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
@@ -2776,8 +2892,12 @@ pub fn IRBuilder::createFPToSI(
     src_val,
     dst_ty,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None,
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
@@ -2826,8 +2946,12 @@ pub fn IRBuilder::createIntToPtr(
   let inst = CastInst::newIntToPtr(
     src_val,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None,
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
@@ -2875,8 +2999,12 @@ pub fn IRBuilder::createPtrToInt(
     src_val,
     dst_ty,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None,
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
@@ -2941,8 +3069,12 @@ pub fn IRBuilder::createBitCast(
     src_val,
     dst_ty,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
@@ -3011,8 +3143,12 @@ pub fn IRBuilder::createGEP(
     indices,
     inbounds,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
@@ -3072,8 +3208,12 @@ pub fn IRBuilder::createLoad(
     isVolatile,
     atomicOrdering,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
@@ -3278,8 +3418,12 @@ pub fn IRBuilder::createSelect(
     trueValue,
     falseValue,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
@@ -3374,7 +3518,11 @@ pub fn IRBuilder::createPHI(
   name~ : String = "",
 ) -> PHINode raise Error {
   let parent = self.getInsertFunction()
-  let phi = PHINode::new(ty, parent, name=unless(name.is_empty(), () => name))
+  let phi = PHINode::new(ty, parent, name=None)
+  match name {
+    "" => ()
+    _ => phi.setName(name)
+  }
   self.insert(phi)
   phi
 }
@@ -3440,8 +3588,12 @@ pub fn IRBuilder::createCall(
     callee,
     args,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None,
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
@@ -3500,8 +3652,12 @@ pub fn IRBuilder::createExtractValue(
     aggregate,
     indices,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None,
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
@@ -3563,8 +3719,12 @@ pub fn IRBuilder::createInsertValue(
     value,
     indices,
     parent,
-    name=unless(name.is_empty(), () => name),
+    name=None,
   )
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
   self.insert(inst)
   inst
 }
