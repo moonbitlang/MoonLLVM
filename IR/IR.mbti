@@ -32,7 +32,7 @@ impl Show for AddressSpace
 pub enum AggregateTypeEnum {
   StructType(StructType)
   ArrayType(ArrayType)
-  FixedVectorType(FixedVectorType)
+  VectorType(VectorType)
   ScalableVectorType(ScalableVectorType)
 }
 fn AggregateTypeEnum::asTypeClass(Self) -> &Type
@@ -52,9 +52,11 @@ pub struct AllocaInst {
   users : Array[&User]
   mut name : String?
   parent : Function
-  inst_base : InstBase
   data_ty : &Type
   align : Align
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
 }
 impl Instruction for AllocaInst
 impl UnaryInst for AllocaInst
@@ -168,7 +170,9 @@ pub struct BinaryInst {
   lhs : &Value
   rhs : &Value
   parent : Function
-  inst_base : InstBase
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
   opcode : BinaryOps
   flags : @set.Set[BinaryOpFlags]
   fast_math_flags : @set.Set[FastMathFlag]
@@ -218,9 +222,10 @@ pub struct BranchInst {
   trueBlock : BasicBlock?
   falseBlock : BasicBlock?
   parent : Function
-  inst_base : InstBase
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
 }
-fn BranchInst::getCondition(Self) -> &Value?
 fn BranchInst::getNumSuccessors(Self) -> Int
 fn BranchInst::getSuccessor(Self, Int) -> BasicBlock?
 fn BranchInst::isConditional(Self) -> Bool
@@ -238,7 +243,9 @@ pub struct CallInst {
   callee : Function
   args : Array[&Value]
   parent : Function
-  inst_base : InstBase
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
   mut tailCallKind : TailCallKind
 }
 fn CallInst::getArgOperand(Self, Int) -> &Value?
@@ -260,7 +267,9 @@ pub struct CastInst {
   mut name : String?
   parent : Function
   users : Array[&User]
-  inst_base : InstBase
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
   opcode : CastOps
 }
 impl Instruction for CastInst
@@ -391,7 +400,7 @@ impl Show for ConstantStruct
 
 pub struct ConstantVector {
   uid : UInt64
-  vty : FixedVectorType
+  vty : VectorType
   data : @Either.Either[Array[&Constant], NumberArrayEnum]
 }
 impl Constant for ConstantVector
@@ -449,7 +458,7 @@ fn Context::getConstZeroDouble(Self, isNegative~ : Bool = ..) -> ConstantFP
 fn Context::getConstZeroFloat(Self, isNegative~ : Bool = ..) -> ConstantFP
 fn Context::getDoubleTy(Self) -> DoubleType
 fn Context::getFP128Ty(Self) -> FP128Type
-fn Context::getFixedVectorType(Self, &Type, UInt) -> FixedVectorType raise LLVMTypeError
+fn Context::getFixedVectorType(Self, &Type, UInt) -> VectorType raise LLVMTypeError
 fn Context::getFloatTy(Self) -> FloatType
 fn Context::getFunctionType(Self, &Type, Array[&Type]) -> FunctionType raise LLVMTypeError
 fn Context::getHalfTy(Self) -> HalfType
@@ -512,7 +521,9 @@ pub struct ExtractValueInst {
   mut name : String?
   aggregate : &Value
   parent : Function
-  inst_base : InstBase
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
   indices : Array[Int]
 }
 fn ExtractValueInst::getAggregateOperand(Self) -> &Value
@@ -531,7 +542,9 @@ pub struct FCmpInst {
   mut name : String?
   parent : Function
   users : Array[&User]
-  inst_base : InstBase
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
   predicate : FloatPredicate
 }
 impl Instruction for FCmpInst
@@ -575,19 +588,6 @@ pub(all) enum FastMathFlag {
 impl Eq for FastMathFlag
 impl Hash for FastMathFlag
 impl Show for FastMathFlag
-
-pub struct FixedVectorType {
-  elementType : &Type
-  elementCount : UInt
-  // private fields
-}
-fn FixedVectorType::getElementCount(Self) -> UInt
-fn FixedVectorType::getElementType(Self) -> &Type
-impl AggregateType for FixedVectorType
-impl Type for FixedVectorType
-impl Eq for FixedVectorType
-impl Hash for FixedVectorType
-impl Show for FixedVectorType
 
 type FloatArray
 fn FloatArray::from(Array[Float]) -> Self
@@ -703,7 +703,9 @@ pub struct GetElementPtrInst {
   indices : Array[&Value]
   mut name : String?
   parent : Function
-  inst_base : InstBase
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
   isInbounds : Bool
   pointeeType : &Type
 }
@@ -736,7 +738,9 @@ pub struct ICmpInst {
   mut name : String?
   parent : Function
   users : Array[&User]
-  inst_base : InstBase
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
   predicate : IntPredicate
 }
 impl Instruction for ICmpInst
@@ -817,7 +821,7 @@ fn IRBuilder::createSIToFP(Self, &Value, &FPType, name~ : String = ..) -> &Value
 fn IRBuilder::createSRem(Self, &Value, &Value, name~ : String = ..) -> &Value raise
 fn IRBuilder::createSelect(Self, &Value, &Value, &Value, name~ : String = ..) -> &Value raise
 fn IRBuilder::createShl(Self, &Value, &Value, name~ : String = .., has_nsw~ : Bool = .., has_nuw~ : Bool = ..) -> &Value raise
-fn IRBuilder::createStore(Self, &Value, &Value, isVolatile~ : Bool = .., atomicOrdering~ : AtomicOrdering = ..) -> &Instruction raise
+fn IRBuilder::createStore(Self, &Value, &Value, isVolatile~ : Bool = .., atomicOrdering~ : AtomicOrdering = ..) -> StoreInst raise
 fn IRBuilder::createSub(Self, &Value, &Value, name~ : String = .., has_nsw~ : Bool = .., has_nuw~ : Bool = ..) -> &Value raise
 fn IRBuilder::createSwitch(Self, &Value, BasicBlock) -> SwitchInst raise
 fn IRBuilder::createTrunc(Self, &Value, &IntegerType, name~ : String = ..) -> &Value raise
@@ -838,7 +842,9 @@ pub struct InsertValueInst {
   insert_val : &Value
   mut name : String?
   parent : Function
-  inst_base : InstBase
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
   indices : Array[Int]
 }
 fn InsertValueInst::getAggregateOperand(Self) -> &Value
@@ -852,7 +858,6 @@ impl Show for InsertValueInst
 pub struct InstBase {
   // private fields
 }
-fn InstBase::new(bb~ : BasicBlock? = .., next~ : &Instruction? = .., prev~ : &Instruction? = ..) -> Self
 
 pub enum InstEnum {
   AllocaInst(AllocaInst)
@@ -1025,7 +1030,9 @@ pub(all) struct LoadInst {
   mut name : String?
   ptr : &Value
   parent : Function
-  inst_base : InstBase
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
   isVolatile : Bool
   atomicOrdering : AtomicOrdering
   align : Align
@@ -1087,7 +1094,9 @@ pub struct PHINode {
   mut name : String?
   incomings : Array[(&Value, BasicBlock)]
   parent : Function
-  inst_base : InstBase
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
 }
 fn PHINode::addIncoming(Self, &Value, BasicBlock) -> Unit raise LLVMValueError
 fn PHINode::getIncoming(Self, Int) -> (&Value, BasicBlock)?
@@ -1143,7 +1152,9 @@ pub struct ReturnInst {
   vty : VoidType
   retVal : &Value?
   parent : Function
-  inst_base : InstBase
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
 }
 impl Instruction for ReturnInst
 impl User for ReturnInst
@@ -1172,7 +1183,9 @@ pub struct SelectInst {
   falseValue : &Value
   mut name : String?
   parent : Function
-  inst_base : InstBase
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
 }
 fn SelectInst::getCondition(Self) -> &Value
 fn SelectInst::getFalseValue(Self) -> &Value
@@ -1181,6 +1194,13 @@ impl Instruction for SelectInst
 impl User for SelectInst
 impl Value for SelectInst
 impl Show for SelectInst
+
+pub enum SetSymbolResult {
+  Success
+  EmptyName
+  InvalidName
+  DuplicateName(&Value)
+}
 
 type SignedEnum
 impl Eq for SignedEnum
@@ -1195,7 +1215,9 @@ pub struct StoreInst {
   value : &Value
   ptr : &Value
   parent : Function
-  inst_base : InstBase
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
   isVolatile : Bool
   atomicOrdering : AtomicOrdering
   align : Align
@@ -1237,7 +1259,9 @@ pub struct SwitchInst {
   defaultDest : BasicBlock
   cases : Array[(ConstantInt, BasicBlock)]
   parent : Function
-  inst_base : InstBase
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
 }
 fn SwitchInst::addCase(Self, ConstantInt, BasicBlock) -> Unit raise LLVMValueError
 fn SwitchInst::getCase(Self, Int) -> (ConstantInt, BasicBlock)?
@@ -1287,7 +1311,7 @@ pub enum TypeEnum {
   FunctionType(FunctionType)
   StructType(StructType)
   ArrayType(ArrayType)
-  FixedVectorType(FixedVectorType)
+  VectorType(VectorType)
   ScalableVectorType(ScalableVectorType)
   PointerType(PointerType)
 }
@@ -1408,6 +1432,19 @@ pub enum ValueEnum {
 fn ValueEnum::tryAsConstantEnum(Self) -> ConstantEnum?
 fn ValueEnum::tryAsInstEnum(Self) -> InstEnum?
 fn ValueEnum::tryAsUserEnum(Self) -> UserEnum?
+
+pub struct VectorType {
+  elementType : &Type
+  elementCount : UInt
+  // private fields
+}
+fn VectorType::getElementCount(Self) -> UInt
+fn VectorType::getElementType(Self) -> &Type
+impl AggregateType for VectorType
+impl Type for VectorType
+impl Eq for VectorType
+impl Hash for VectorType
+impl Show for VectorType
 
 pub(all) enum VisibilityTypes {
   DefaultVisibility

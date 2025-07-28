@@ -358,6 +358,7 @@ pub fn Function::getArg(self : Function, idx : Int) -> Argument? {
   when(idx >= 0 && idx < self.getNumArgs(), fn() { self.arguments[idx] })
 }
 
+///|
 pub enum SetSymbolResult {
   Success
   EmptyName
@@ -365,7 +366,12 @@ pub enum SetSymbolResult {
   DuplicateName(&Value)
 }
 
-fn Function::setSymbol(self: Function, name:String, value: &Value) -> SetSymbolResult {
+///|
+fn Function::setSymbol(
+  self : Function,
+  name : String,
+  value : &Value,
+) -> SetSymbolResult {
   if name is "" {
     return EmptyName
   }
@@ -381,7 +387,8 @@ fn Function::setSymbol(self: Function, name:String, value: &Value) -> SetSymbolR
   Success
 }
 
-fn Function::removeSymbol(self: Function, name:String) -> Unit {
+///|
+fn Function::removeSymbol(self : Function, name : String) -> Unit {
   self.clearSlot()
   self.symbols.remove(name)
 }

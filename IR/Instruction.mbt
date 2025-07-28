@@ -33,9 +33,9 @@ pub struct AllocaInst {
   parent : Function
   data_ty : &Type
   align : Align
-  bb: Ref[BasicBlock?]
-  prev: Ref[&Instruction?]
-  next: Ref[&Instruction?]
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
 }
 
 ///|
@@ -50,9 +50,20 @@ fn AllocaInst::new(
   let align = parent.getDataLayout().getAlignment(data_ty)
   //let inst_base = InstBase::new()
   let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev: Ref[&Instruction?] = Ref::new(None)
+  let prev : Ref[&Instruction?] = Ref::new(None)
   let next : Ref[&Instruction?] = Ref::new(None)
-  AllocaInst::{ uid, vty, users: [], name, parent, data_ty, align, bb, prev, next }
+  AllocaInst::{
+    uid,
+    vty,
+    users: [],
+    name,
+    parent,
+    data_ty,
+    align,
+    bb,
+    prev,
+    next,
+  }
 }
 
 ///| AllocaInst is one of `Value`.
@@ -156,7 +167,7 @@ pub impl Value for AllocaInst with setName(self, name) {
       raise LLVMValueError(msg)
     }
     InvalidName => {
-      let msg = 
+      let msg =
         $|Misuse `AllocaInst::setName`:
         $|name '\{name}' contains illegal characters,
         $|only alphanumeric characters and underscores are allowed
@@ -170,9 +181,7 @@ pub impl Value for AllocaInst with setName(self, name) {
         $|\{existed}"
       raise LLVMValueError(msg)
     }
-    Success => {
-      self.name = Some(name)
-    }
+    Success => self.name = Some(name)
   }
 }
 
@@ -201,11 +210,7 @@ pub impl Value for AllocaInst with getNameOrSlot(self) {
 
 ///|
 pub impl Instruction for AllocaInst with getInstBase(self) {
-  InstBase::{
-    bb: self.bb,
-    prev: self.prev,
-    next: self.next,
-  }
+  InstBase::{ bb: self.bb, prev: self.prev, next: self.next }
 }
 
 ///|
@@ -305,11 +310,11 @@ pub(all) struct LoadInst {
   // Pointer which this instruction loads from.
   ptr : &Value
   parent : Function
-  
+
   // --- InstBase ---
-  bb: Ref[BasicBlock?]
-  prev: Ref[&Instruction?]
-  next: Ref[&Instruction?]
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
 
   // --- LoadInst ---
   isVolatile : Bool
@@ -328,7 +333,7 @@ fn LoadInst::new(
 ) -> LoadInst {
   let vty = load_ty
   let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev: Ref[&Instruction?] = Ref::new(None)
+  let prev : Ref[&Instruction?] = Ref::new(None)
   let next : Ref[&Instruction?] = Ref::new(None)
   let align = parent.getDataLayout().getAlignment(load_ty)
   let uid = valueUIDAssigner.assign()
@@ -457,7 +462,7 @@ pub impl Value for LoadInst with setName(self, name) {
       raise LLVMValueError(msg)
     }
     InvalidName => {
-      let msg = 
+      let msg =
         $|Misuse `LoadInst::setName`:
         $|name '\{name}' contains illegal characters,
         $|only alphanumeric characters and underscores are allowed
@@ -471,9 +476,7 @@ pub impl Value for LoadInst with setName(self, name) {
         $|\{existed}"
       raise LLVMValueError(msg)
     }
-    Success => {
-      self.name = Some(name)
-    }
+    Success => self.name = Some(name)
   }
 }
 
@@ -512,11 +515,7 @@ pub impl User for LoadInst with getUserBase(self) {
 
 ///|
 pub impl Instruction for LoadInst with getInstBase(self) {
-  InstBase::{
-    bb: self.bb,
-    prev: self.prev,
-    next: self.next,
-  }
+  InstBase::{ bb: self.bb, prev: self.prev, next: self.next }
 }
 
 ///|
@@ -599,11 +598,11 @@ pub struct StoreInst {
   value : &Value
   ptr : &Value
   parent : Function
-  
+
   // --- InstBase ---
-  bb: Ref[BasicBlock?]
-  prev: Ref[&Instruction?]
-  next: Ref[&Instruction?]
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
 
   // --- StoreInst ---
   isVolatile : Bool
@@ -623,7 +622,7 @@ fn StoreInst::new(
   let uid = valueUIDAssigner.assign()
   let value_ty = value.getType()
   let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev: Ref[&Instruction?] = Ref::new(None)
+  let prev : Ref[&Instruction?] = Ref::new(None)
   let next : Ref[&Instruction?] = Ref::new(None)
   let align = parent.getDataLayout().getAlignment(value_ty)
   let inst = StoreInst::{
@@ -752,11 +751,7 @@ pub impl User for StoreInst with getUserBase(self) {
 
 ///|
 pub impl Instruction for StoreInst with getInstBase(self) {
-  InstBase::{
-    bb: self.bb,
-    prev: self.prev,
-    next: self.next,
-  }
+  InstBase::{ bb: self.bb, prev: self.prev, next: self.next }
 }
 
 ///|
@@ -955,11 +950,11 @@ pub struct BinaryInst {
   lhs : &Value
   rhs : &Value
   parent : Function
-  
+
   // --- InstBase ---
-  bb: Ref[BasicBlock?]
-  prev: Ref[&Instruction?]
-  next: Ref[&Instruction?]
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
 
   // --- BinaryInst ---
   opcode : BinaryOps
@@ -1000,7 +995,7 @@ fn BinaryInst::newStandardOp(
   let vty = lhsTy
   let uid = valueUIDAssigner.assign()
   let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev: Ref[&Instruction?] = Ref::new(None)
+  let prev : Ref[&Instruction?] = Ref::new(None)
   let next : Ref[&Instruction?] = Ref::new(None)
   let inst = BinaryInst::{
     uid,
@@ -1042,7 +1037,7 @@ fn BinaryInst::newFPMathOp(
   let uid = valueUIDAssigner.assign()
   let vty = lhsTy
   let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev: Ref[&Instruction?] = Ref::new(None)
+  let prev : Ref[&Instruction?] = Ref::new(None)
   let next : Ref[&Instruction?] = Ref::new(None)
   let inst = BinaryInst::{
     uid,
@@ -1174,7 +1169,7 @@ pub impl Value for BinaryInst with setName(self, name) {
       raise LLVMValueError(msg)
     }
     InvalidName => {
-      let msg = 
+      let msg =
         $|Misuse `BinaryInst::setName`:
         $|name '\{name}' contains illegal characters,
         $|only alphanumeric characters and underscores are allowed
@@ -1188,9 +1183,7 @@ pub impl Value for BinaryInst with setName(self, name) {
         $|\{existed}"
       raise LLVMValueError(msg)
     }
-    Success => {
-      self.name = Some(name)
-    }
+    Success => self.name = Some(name)
   }
 }
 
@@ -1229,11 +1222,7 @@ pub impl User for BinaryInst with getUserBase(self) {
 
 ///|
 pub impl Instruction for BinaryInst with getInstBase(self) {
-  InstBase::{
-    bb: self.bb,
-    prev: self.prev,
-    next: self.next,
-  }
+  InstBase::{ bb: self.bb, prev: self.prev, next: self.next }
 }
 
 ///|
@@ -1356,12 +1345,11 @@ pub struct ICmpInst {
   mut name : String?
   parent : Function
   users : Array[&User]
-  
+
   // --- InstBase ---
-  bb: Ref[BasicBlock?]
-  prev: Ref[&Instruction?]
-  next: Ref[&Instruction?]
-  
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
   predicate : IntPredicate
 }
 
@@ -1378,7 +1366,7 @@ fn ICmpInst::new(
   guard lhsTy.tryAsIntTypeEnum() is Some(_)
   let uid = valueUIDAssigner.assign()
   let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev: Ref[&Instruction?] = Ref::new(None)
+  let prev : Ref[&Instruction?] = Ref::new(None)
   let next : Ref[&Instruction?] = Ref::new(None)
   let vty = parent.getContext().getInt1Ty()
   let inst = ICmpInst::{
@@ -1510,7 +1498,7 @@ pub impl Value for ICmpInst with setName(self, name) {
       raise LLVMValueError(msg)
     }
     InvalidName => {
-      let msg = 
+      let msg =
         $|Misuse `ICmpInst::setName`:
         $|name '\{name}' contains illegal characters,
         $|only alphanumeric characters and underscores are allowed
@@ -1524,9 +1512,7 @@ pub impl Value for ICmpInst with setName(self, name) {
         $|\{existed}"
       raise LLVMValueError(msg)
     }
-    Success => {
-      self.name = Some(name)
-    }
+    Success => self.name = Some(name)
   }
 }
 
@@ -1565,11 +1551,7 @@ pub impl User for ICmpInst with getUserBase(self) {
 
 ///|
 pub impl Instruction for ICmpInst with getInstBase(self) {
-  InstBase::{
-    bb: self.bb,
-    prev: self.prev,
-    next: self.next,
-  }
+  InstBase::{ bb: self.bb, prev: self.prev, next: self.next }
 }
 
 ///|
@@ -1698,12 +1680,11 @@ pub struct FCmpInst {
   mut name : String?
   parent : Function
   users : Array[&User]
-  
+
   // --- InstBase ---
-  bb: Ref[BasicBlock?]
-  prev: Ref[&Instruction?]
-  next: Ref[&Instruction?]
-  
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
   predicate : FloatPredicate
 }
 
@@ -1720,7 +1701,7 @@ fn FCmpInst::new(
   guard lhsTy.tryAsFPTypeEnum() is Some(_)
   let uid = valueUIDAssigner.assign()
   let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev: Ref[&Instruction?] = Ref::new(None)
+  let prev : Ref[&Instruction?] = Ref::new(None)
   let next : Ref[&Instruction?] = Ref::new(None)
   let vty = parent.getContext().getInt1Ty()
   let inst = FCmpInst::{
@@ -1848,7 +1829,7 @@ pub impl Value for FCmpInst with setName(self, name) {
       raise LLVMValueError(msg)
     }
     InvalidName => {
-      let msg = 
+      let msg =
         $|Misuse `FCmpInst::setName`:
         $|name '\{name}' contains illegal characters,
         $|only alphanumeric characters and underscores are allowed
@@ -1862,9 +1843,7 @@ pub impl Value for FCmpInst with setName(self, name) {
         $|\{existed}"
       raise LLVMValueError(msg)
     }
-    Success => {
-      self.name = Some(name)
-    }
+    Success => self.name = Some(name)
   }
 }
 
@@ -1903,11 +1882,7 @@ pub impl User for FCmpInst with getUserBase(self) {
 
 ///|
 pub impl Instruction for FCmpInst with getInstBase(self) {
-  InstBase::{
-    bb: self.bb,
-    prev: self.prev,
-    next: self.next,
-  }
+  InstBase::{ bb: self.bb, prev: self.prev, next: self.next }
 }
 
 ///|
@@ -2011,12 +1986,11 @@ pub struct CastInst {
   mut name : String?
   parent : Function
   users : Array[&User]
-  
+
   // --- InstBase ---
-  bb: Ref[BasicBlock?]
-  prev: Ref[&Instruction?]
-  next: Ref[&Instruction?]
-  
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
   opcode : CastOps
 }
 
@@ -2031,7 +2005,7 @@ fn CastInst::newTrunc(
   guard from_ty.getBitWidth() > to_ty.getBitWidth()
   let uid = valueUIDAssigner.assign()
   let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev: Ref[&Instruction?] = Ref::new(None)
+  let prev : Ref[&Instruction?] = Ref::new(None)
   let next : Ref[&Instruction?] = Ref::new(None)
   let inst = CastInst::{
     uid,
@@ -2060,7 +2034,7 @@ fn CastInst::newZExt(
   guard from_ty.getBitWidth() < to_ty.getBitWidth()
   let uid = valueUIDAssigner.assign()
   let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev: Ref[&Instruction?] = Ref::new(None)
+  let prev : Ref[&Instruction?] = Ref::new(None)
   let next : Ref[&Instruction?] = Ref::new(None)
   let inst = CastInst::{
     uid,
@@ -2087,7 +2061,7 @@ fn CastInst::newSExt(
 ) -> CastInst {
   let uid = valueUIDAssigner.assign()
   let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev: Ref[&Instruction?] = Ref::new(None)
+  let prev : Ref[&Instruction?] = Ref::new(None)
   let next : Ref[&Instruction?] = Ref::new(None)
   let inst = CastInst::{
     uid,
@@ -2114,7 +2088,7 @@ fn CastInst::newFPTrunc(
 ) -> CastInst {
   let uid = valueUIDAssigner.assign()
   let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev: Ref[&Instruction?] = Ref::new(None)
+  let prev : Ref[&Instruction?] = Ref::new(None)
   let next : Ref[&Instruction?] = Ref::new(None)
   let inst = CastInst::{
     uid,
@@ -2141,7 +2115,7 @@ fn CastInst::newFPExt(
 ) -> CastInst {
   let uid = valueUIDAssigner.assign()
   let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev: Ref[&Instruction?] = Ref::new(None)
+  let prev : Ref[&Instruction?] = Ref::new(None)
   let next : Ref[&Instruction?] = Ref::new(None)
   let inst = CastInst::{
     uid,
@@ -2168,7 +2142,7 @@ fn CastInst::newUIToFP(
 ) -> CastInst {
   let uid = valueUIDAssigner.assign()
   let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev: Ref[&Instruction?] = Ref::new(None)
+  let prev : Ref[&Instruction?] = Ref::new(None)
   let next : Ref[&Instruction?] = Ref::new(None)
   let inst = CastInst::{
     uid,
@@ -2195,7 +2169,7 @@ fn CastInst::newFPToUI(
 ) -> CastInst {
   let uid = valueUIDAssigner.assign()
   let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev: Ref[&Instruction?] = Ref::new(None)
+  let prev : Ref[&Instruction?] = Ref::new(None)
   let next : Ref[&Instruction?] = Ref::new(None)
   let inst = CastInst::{
     uid,
@@ -2222,7 +2196,7 @@ fn CastInst::newSIToFP(
 ) -> CastInst {
   let uid = valueUIDAssigner.assign()
   let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev: Ref[&Instruction?] = Ref::new(None)
+  let prev : Ref[&Instruction?] = Ref::new(None)
   let next : Ref[&Instruction?] = Ref::new(None)
   let inst = CastInst::{
     uid,
@@ -2249,7 +2223,7 @@ fn CastInst::newFPToSI(
 ) -> CastInst {
   let uid = valueUIDAssigner.assign()
   let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev: Ref[&Instruction?] = Ref::new(None)
+  let prev : Ref[&Instruction?] = Ref::new(None)
   let next : Ref[&Instruction?] = Ref::new(None)
   let inst = CastInst::{
     uid,
@@ -2276,7 +2250,7 @@ fn CastInst::newPtrToInt(
 ) -> CastInst {
   let uid = valueUIDAssigner.assign()
   let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev: Ref[&Instruction?] = Ref::new(None)
+  let prev : Ref[&Instruction?] = Ref::new(None)
   let next : Ref[&Instruction?] = Ref::new(None)
   let inst = CastInst::{
     uid,
@@ -2303,7 +2277,7 @@ fn CastInst::newIntToPtr(
   let to_ty = from_val.getContext().getPtrTy()
   let uid = valueUIDAssigner.assign()
   let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev: Ref[&Instruction?] = Ref::new(None)
+  let prev : Ref[&Instruction?] = Ref::new(None)
   let next : Ref[&Instruction?] = Ref::new(None)
   let inst = CastInst::{
     uid,
@@ -2332,7 +2306,7 @@ fn CastInst::newBitCast(
 ) -> CastInst {
   let uid = valueUIDAssigner.assign()
   let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev: Ref[&Instruction?] = Ref::new(None)
+  let prev : Ref[&Instruction?] = Ref::new(None)
   let next : Ref[&Instruction?] = Ref::new(None)
   let inst = CastInst::{
     uid,
@@ -2457,7 +2431,7 @@ pub impl Value for CastInst with setName(self, name) {
       raise LLVMValueError(msg)
     }
     InvalidName => {
-      let msg = 
+      let msg =
         $|Misuse `CastInst::setName`:
         $|name '\{name}' contains illegal characters,
         $|only alphanumeric characters and underscores are allowed
@@ -2471,9 +2445,7 @@ pub impl Value for CastInst with setName(self, name) {
         $|\{existed}"
       raise LLVMValueError(msg)
     }
-    Success => {
-      self.name = Some(name)
-    }
+    Success => self.name = Some(name)
   }
 }
 
@@ -2517,11 +2489,7 @@ pub impl UnaryInst for CastInst with asUnaryInstEnum(self) {
 
 ///|
 pub impl Instruction for CastInst with getInstBase(self) {
-  InstBase::{
-    bb: self.bb,
-    prev: self.prev,
-    next: self.next,
-  }
+  InstBase::{ bb: self.bb, prev: self.prev, next: self.next }
 }
 
 ///|
@@ -2585,12 +2553,11 @@ pub struct GetElementPtrInst {
   indices : Array[&Value]
   mut name : String?
   parent : Function
-  
+
   // --- InstBase ---
-  bb: Ref[BasicBlock?]
-  prev: Ref[&Instruction?]
-  next: Ref[&Instruction?]
-  
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
   isInbounds : Bool
   pointeeType : &Type
 }
@@ -2606,7 +2573,7 @@ fn GetElementPtrInst::new(
 ) -> GetElementPtrInst {
   let uid = valueUIDAssigner.assign()
   let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev: Ref[&Instruction?] = Ref::new(None)
+  let prev : Ref[&Instruction?] = Ref::new(None)
   let next : Ref[&Instruction?] = Ref::new(None)
   let vty = parent.getContext().getPtrTy()
   let inst = GetElementPtrInst::{
@@ -2744,7 +2711,7 @@ pub impl Value for GetElementPtrInst with setName(self, name) {
       raise LLVMValueError(msg)
     }
     InvalidName => {
-      let msg = 
+      let msg =
         $|Misuse `GetElementPtrInst::setName`:
         $|name '\{name}' contains illegal characters,
         $|only alphanumeric characters and underscores are allowed
@@ -2758,9 +2725,7 @@ pub impl Value for GetElementPtrInst with setName(self, name) {
         $|\{existed}"
       raise LLVMValueError(msg)
     }
-    Success => {
-      self.name = Some(name)
-    }
+    Success => self.name = Some(name)
   }
 }
 
@@ -2799,11 +2764,7 @@ pub impl User for GetElementPtrInst with getUserBase(self) {
 
 ///|
 pub impl Instruction for GetElementPtrInst with getInstBase(self) {
-  InstBase::{
-    bb: self.bb,
-    prev: self.prev,
-    next: self.next,
-  }
+  InstBase::{ bb: self.bb, prev: self.prev, next: self.next }
 }
 
 ///|
@@ -2875,11 +2836,11 @@ pub struct SelectInst {
   falseValue : &Value
   mut name : String?
   parent : Function
-  
+
   // --- InstBase ---
-  bb: Ref[BasicBlock?]
-  prev: Ref[&Instruction?]
-  next: Ref[&Instruction?]
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
 }
 
 ///|
@@ -2893,7 +2854,7 @@ fn SelectInst::new(
   let vty = trueValue.getType()
   let uid = valueUIDAssigner.assign()
   let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev: Ref[&Instruction?] = Ref::new(None)
+  let prev : Ref[&Instruction?] = Ref::new(None)
   let next : Ref[&Instruction?] = Ref::new(None)
   let inst = SelectInst::{
     uid,
@@ -3042,7 +3003,7 @@ pub impl Value for SelectInst with setName(self, name) {
       raise LLVMValueError(msg)
     }
     InvalidName => {
-      let msg = 
+      let msg =
         $|Misuse `SelectInst::setName`:
         $|name '\{name}' contains illegal characters,
         $|only alphanumeric characters and underscores are allowed
@@ -3056,9 +3017,7 @@ pub impl Value for SelectInst with setName(self, name) {
         $|\{existed}"
       raise LLVMValueError(msg)
     }
-    Success => {
-      self.name = Some(name)
-    }
+    Success => self.name = Some(name)
   }
 }
 
@@ -3097,11 +3056,7 @@ pub impl User for SelectInst with getUserBase(self) {
 
 ///|
 pub impl Instruction for SelectInst with getInstBase(self) {
-  InstBase::{
-    bb: self.bb,
-    prev: self.prev,
-    next: self.next,
-  }
+  InstBase::{ bb: self.bb, prev: self.prev, next: self.next }
 }
 
 ///|
@@ -3172,18 +3127,18 @@ pub struct ReturnInst {
   vty : VoidType
   retVal : &Value?
   parent : Function
-  
+
   // --- InstBase ---
-  bb: Ref[BasicBlock?]
-  prev: Ref[&Instruction?]
-  next: Ref[&Instruction?]
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
 }
 
 ///|
 fn ReturnInst::new(retVal : &Value?, parent : Function) -> ReturnInst {
   let uid = valueUIDAssigner.assign()
   let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev: Ref[&Instruction?] = Ref::new(None)
+  let prev : Ref[&Instruction?] = Ref::new(None)
   let next : Ref[&Instruction?] = Ref::new(None)
   let vty = parent.getContext().getVoidTy()
   let inst = ReturnInst::{ uid, vty, retVal, parent, bb, prev, next }
@@ -3250,11 +3205,7 @@ pub impl User for ReturnInst with getUserBase(self) {
 
 ///|
 pub impl Instruction for ReturnInst with getInstBase(self) {
-  InstBase::{
-    bb: self.bb,
-    prev: self.prev,
-    next: self.next,
-  }
+  InstBase::{ bb: self.bb, prev: self.prev, next: self.next }
 }
 
 ///|
@@ -3322,11 +3273,11 @@ pub struct BranchInst {
   trueBlock : BasicBlock?
   falseBlock : BasicBlock?
   parent : Function
-  
+
   // --- InstBase ---
-  bb: Ref[BasicBlock?]
-  prev: Ref[&Instruction?]
-  next: Ref[&Instruction?]
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
 }
 
 ///|
@@ -3338,7 +3289,7 @@ fn BranchInst::newConditional(
 ) -> BranchInst {
   let uid = valueUIDAssigner.assign()
   let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev: Ref[&Instruction?] = Ref::new(None)
+  let prev : Ref[&Instruction?] = Ref::new(None)
   let next : Ref[&Instruction?] = Ref::new(None)
   let vty = parent.getContext().getVoidTy()
   let inst = BranchInst::{
@@ -3364,7 +3315,7 @@ fn BranchInst::newUnconditional(
   parent : Function,
 ) -> BranchInst {
   let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev: Ref[&Instruction?] = Ref::new(None)
+  let prev : Ref[&Instruction?] = Ref::new(None)
   let next : Ref[&Instruction?] = Ref::new(None)
   let uid = valueUIDAssigner.assign()
   let vty = parent.getContext().getVoidTy()
@@ -3482,11 +3433,7 @@ pub impl User for BranchInst with getUserBase(self) {
 
 ///|
 pub impl Instruction for BranchInst with getInstBase(self) {
-  InstBase::{
-    bb: self.bb,
-    prev: self.prev,
-    next: self.next,
-  }
+  InstBase::{ bb: self.bb, prev: self.prev, next: self.next }
 }
 
 ///|
@@ -3563,11 +3510,11 @@ pub struct SwitchInst {
   defaultDest : BasicBlock
   cases : Array[(ConstantInt, BasicBlock)]
   parent : Function
-  
+
   // --- InstBase ---
-  bb: Ref[BasicBlock?]
-  prev: Ref[&Instruction?]
-  next: Ref[&Instruction?]
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
 }
 
 ///|
@@ -3578,7 +3525,7 @@ fn SwitchInst::new(
 ) -> SwitchInst {
   let uid = valueUIDAssigner.assign()
   let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev: Ref[&Instruction?] = Ref::new(None)
+  let prev : Ref[&Instruction?] = Ref::new(None)
   let next : Ref[&Instruction?] = Ref::new(None)
   let vty = parent.getContext().getVoidTy()
   let inst = SwitchInst::{
@@ -3781,11 +3728,7 @@ pub impl User for SwitchInst with getUserBase(self) {
 
 ///|
 pub impl Instruction for SwitchInst with getInstBase(self) {
-  InstBase::{
-    bb: self.bb,
-    prev: self.prev,
-    next: self.next,
-  }
+  InstBase::{ bb: self.bb, prev: self.prev, next: self.next }
 }
 
 ///|
@@ -3870,11 +3813,11 @@ pub struct PHINode {
   mut name : String?
   incomings : Array[(&Value, BasicBlock)]
   parent : Function
-  
+
   // --- InstBase ---
-  bb: Ref[BasicBlock?]
-  prev: Ref[&Instruction?]
-  next: Ref[&Instruction?]
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
 }
 
 ///|
@@ -3885,7 +3828,7 @@ fn PHINode::new(
 ) -> PHINode {
   let uid = valueUIDAssigner.assign()
   let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev: Ref[&Instruction?] = Ref::new(None)
+  let prev : Ref[&Instruction?] = Ref::new(None)
   let next : Ref[&Instruction?] = Ref::new(None)
   PHINode::{ uid, vty, users: [], name, incomings: [], parent, bb, prev, next }
 }
@@ -4313,7 +4256,7 @@ pub impl Value for PHINode with setName(self, name) {
       raise LLVMValueError(msg)
     }
     InvalidName => {
-      let msg = 
+      let msg =
         $|Misuse `PHINode::setName`:
         $|name '\{name}' contains illegal characters,
         $|only alphanumeric characters and underscores are allowed
@@ -4327,9 +4270,7 @@ pub impl Value for PHINode with setName(self, name) {
         $|\{existed}"
       raise LLVMValueError(msg)
     }
-    Success => {
-      self.name = Some(name)
-    }
+    Success => self.name = Some(name)
   }
 }
 
@@ -4378,11 +4319,7 @@ pub impl User for PHINode with getUserBase(self) {
 
 ///|
 pub impl Instruction for PHINode with getInstBase(self) {
-  InstBase::{
-    bb: self.bb,
-    prev: self.prev,
-    next: self.next,
-  }
+  InstBase::{ bb: self.bb, prev: self.prev, next: self.next }
 }
 
 ///|
@@ -4476,12 +4413,11 @@ pub struct CallInst {
   callee : Function
   args : Array[&Value]
   parent : Function
-  
+
   // --- InstBase ---
-  bb: Ref[BasicBlock?]
-  prev: Ref[&Instruction?]
-  next: Ref[&Instruction?]
-  
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
   mut tailCallKind : TailCallKind
 }
 
@@ -4500,7 +4436,7 @@ fn CallInst::new(
   let uid = valueUIDAssigner.assign()
   let vty = fty.getReturnType()
   let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev: Ref[&Instruction?] = Ref::new(None)
+  let prev : Ref[&Instruction?] = Ref::new(None)
   let next : Ref[&Instruction?] = Ref::new(None)
   let inst = CallInst::{
     uid,
@@ -4697,7 +4633,7 @@ pub impl Value for CallInst with setName(self, name) {
       raise LLVMValueError(msg)
     }
     InvalidName => {
-      let msg = 
+      let msg =
         $|Misuse `CallInst::setName`:
         $|name '\{name}' contains illegal characters,
         $|only alphanumeric characters and underscores are allowed
@@ -4711,9 +4647,7 @@ pub impl Value for CallInst with setName(self, name) {
         $|\{existed}"
       raise LLVMValueError(msg)
     }
-    Success => {
-      self.name = Some(name)
-    }
+    Success => self.name = Some(name)
   }
 }
 
@@ -4740,11 +4674,7 @@ pub impl User for CallInst with getUserBase(self) {
 
 ///|
 pub impl Instruction for CallInst with getInstBase(self) {
-  InstBase::{
-    bb: self.bb,
-    prev: self.prev,
-    next: self.next,
-  }
+  InstBase::{ bb: self.bb, prev: self.prev, next: self.next }
 }
 
 ///|
@@ -4836,12 +4766,11 @@ pub struct ExtractValueInst {
   mut name : String?
   aggregate : &Value
   parent : Function
-  
+
   // --- InstBase ---
-  bb: Ref[BasicBlock?]
-  prev: Ref[&Instruction?]
-  next: Ref[&Instruction?]
-  
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
   indices : Array[Int]
 }
 
@@ -4858,7 +4787,7 @@ fn ExtractValueInst::new(
   let uid = valueUIDAssigner.assign()
   let vty = result_ty
   let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev: Ref[&Instruction?] = Ref::new(None)
+  let prev : Ref[&Instruction?] = Ref::new(None)
   let next : Ref[&Instruction?] = Ref::new(None)
   let inst = ExtractValueInst::{
     uid,
@@ -4993,7 +4922,7 @@ pub impl Value for ExtractValueInst with setName(self, name) {
       raise LLVMValueError(msg)
     }
     InvalidName => {
-      let msg = 
+      let msg =
         $|Misuse `ExtractValueInst::setName`:
         $|name '\{name}' contains illegal characters,
         $|only alphanumeric characters and underscores are allowed
@@ -5007,9 +4936,7 @@ pub impl Value for ExtractValueInst with setName(self, name) {
         $|\{existed}"
       raise LLVMValueError(msg)
     }
-    Success => {
-      self.name = Some(name)
-    }
+    Success => self.name = Some(name)
   }
 }
 
@@ -5048,11 +4975,7 @@ pub impl User for ExtractValueInst with getUserBase(self) {
 
 ///|
 pub impl Instruction for ExtractValueInst with getInstBase(self) {
-  InstBase::{
-    bb: self.bb,
-    prev: self.prev,
-    next: self.next,
-  }
+  InstBase::{ bb: self.bb, prev: self.prev, next: self.next }
 }
 
 ///|
@@ -5120,12 +5043,11 @@ pub struct InsertValueInst {
   insert_val : &Value
   mut name : String?
   parent : Function
-  
+
   // --- InstBase ---
-  bb: Ref[BasicBlock?]
-  prev: Ref[&Instruction?]
-  next: Ref[&Instruction?]
-  
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
   indices : Array[Int]
 }
 
@@ -5143,7 +5065,7 @@ fn InsertValueInst::new(
   let uid = valueUIDAssigner.assign()
   let vty = agg_ty.asTypeClass()
   let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev: Ref[&Instruction?] = Ref::new(None)
+  let prev : Ref[&Instruction?] = Ref::new(None)
   let next : Ref[&Instruction?] = Ref::new(None)
   let inst = InsertValueInst::{
     uid,
@@ -5290,7 +5212,7 @@ pub impl Value for InsertValueInst with setName(self, name) {
       raise LLVMValueError(msg)
     }
     InvalidName => {
-      let msg = 
+      let msg =
         $|Misuse `InsertValueInst::setName`:
         $|name '\{name}' contains illegal characters,
         $|only alphanumeric characters and underscores are allowed
@@ -5304,9 +5226,7 @@ pub impl Value for InsertValueInst with setName(self, name) {
         $|\{existed}"
       raise LLVMValueError(msg)
     }
-    Success => {
-      self.name = Some(name)
-    }
+    Success => self.name = Some(name)
   }
 }
 
@@ -5345,11 +5265,7 @@ pub impl User for InsertValueInst with getUserBase(self) {
 
 ///|
 pub impl Instruction for InsertValueInst with getInstBase(self) {
-  InstBase::{
-    bb: self.bb,
-    prev: self.prev,
-    next: self.next,
-  }
+  InstBase::{ bb: self.bb, prev: self.prev, next: self.next }
 }
 
 ///|

@@ -94,8 +94,7 @@ fn DataLayout::getAlignment(self : DataLayout, ty : &Type) -> Align {
     // TODO: Actually it's not enough, the alignment of ptr is different in different
     // Architectures, AddressSpace and other factors.
     PointerType(_) => Align(8)
-    VectorType(_) =>
-      llvm_unreachable("VectorType alignment not implemented")
+    VectorType(_) => llvm_unreachable("VectorType alignment not implemented")
     ScalableVectorType(_) =>
       llvm_unreachable("ScalableVectorType alignment not implemented")
     _ as ty =>
