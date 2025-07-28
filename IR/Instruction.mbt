@@ -31,9 +31,12 @@ pub struct AllocaInst {
   users : Array[&User]
   mut name : String?
   parent : Function
-  inst_base : InstBase
   data_ty : &Type
   align : Align
+  //inst_base : InstBase
+  bb: Ref[BasicBlock?]
+  prev: Ref[&Instruction?]
+  next: Ref[&Instruction?]
 }
 
 ///|
@@ -45,9 +48,12 @@ fn AllocaInst::new(
 ) -> AllocaInst {
   let uid = valueUIDAssigner.assign()
   let vty = data_ty.getContext().getPtrTy(addressSpace~)
-  let inst_base = InstBase::new()
   let align = parent.getDataLayout().getAlignment(data_ty)
-  AllocaInst::{ uid, vty, users: [], name, parent, inst_base, data_ty, align }
+  //let inst_base = InstBase::new()
+  let bb : Ref[BasicBlock?] = Ref::new(None)
+  let prev: Ref[&Instruction?] = Ref::new(None)
+  let next : Ref[&Instruction?] = Ref::new(None)
+  AllocaInst::{ uid, vty, users: [], name, parent, data_ty, align, bb, prev, next }
 }
 
 ///| AllocaInst is one of `Value`.
@@ -190,7 +196,11 @@ pub impl Value for AllocaInst with getNameOrSlot(self) {
 
 ///|
 pub impl Instruction for AllocaInst with getInstBase(self) {
-  self.inst_base
+  InstBase::{
+    bb: self.bb,
+    prev: self.prev,
+    next: self.next,
+  }
 }
 
 ///|
@@ -290,7 +300,11 @@ pub(all) struct LoadInst {
   // Pointer which this instruction loads from.
   ptr : &Value
   parent : Function
-  inst_base : InstBase
+  
+  // --- InstBase ---
+  bb: Ref[BasicBlock?]
+  prev: Ref[&Instruction?]
+  next: Ref[&Instruction?]
 
   // --- LoadInst ---
   isVolatile : Bool
@@ -308,7 +322,9 @@ fn LoadInst::new(
   name~ : String? = None,
 ) -> LoadInst {
   let vty = load_ty
-  let inst_base = InstBase::new()
+  let bb : Ref[BasicBlock?] = Ref::new(None)
+  let prev: Ref[&Instruction?] = Ref::new(None)
+  let next : Ref[&Instruction?] = Ref::new(None)
   let align = parent.getDataLayout().getAlignment(load_ty)
   let uid = valueUIDAssigner.assign()
   let inst = LoadInst::{
@@ -318,7 +334,9 @@ fn LoadInst::new(
     users: [],
     ptr,
     parent,
-    inst_base,
+    bb,
+    prev,
+    next,
     isVolatile,
     atomicOrdering,
     align,
@@ -483,7 +501,11 @@ pub impl User for LoadInst with getUserBase(self) {
 
 ///|
 pub impl Instruction for LoadInst with getInstBase(self) {
-  self.inst_base
+  InstBase::{
+    bb: self.bb,
+    prev: self.prev,
+    next: self.next,
+  }
 }
 
 ///|
@@ -566,7 +588,11 @@ pub struct StoreInst {
   value : &Value
   ptr : &Value
   parent : Function
-  inst_base : InstBase
+  
+  // --- InstBase ---
+  bb: Ref[BasicBlock?]
+  prev: Ref[&Instruction?]
+  next: Ref[&Instruction?]
 
   // --- StoreInst ---
   isVolatile : Bool
@@ -585,7 +611,9 @@ fn StoreInst::new(
   let ctx = value.getContext()
   let uid = valueUIDAssigner.assign()
   let value_ty = value.getType()
-  let inst_base = InstBase::new()
+  let bb : Ref[BasicBlock?] = Ref::new(None)
+  let prev: Ref[&Instruction?] = Ref::new(None)
+  let next : Ref[&Instruction?] = Ref::new(None)
   let align = parent.getDataLayout().getAlignment(value_ty)
   let inst = StoreInst::{
     uid,
@@ -593,7 +621,9 @@ fn StoreInst::new(
     value,
     ptr,
     parent,
-    inst_base,
+    bb,
+    prev,
+    next,
     isVolatile,
     atomicOrdering,
     align,
@@ -663,7 +693,11 @@ pub impl User for StoreInst with getUserBase(self) {
 
 ///|
 pub impl Instruction for StoreInst with getInstBase(self) {
-  self.inst_base
+  InstBase::{
+    bb: self.bb,
+    prev: self.prev,
+    next: self.next,
+  }
 }
 
 ///|
@@ -862,7 +896,11 @@ pub struct BinaryInst {
   lhs : &Value
   rhs : &Value
   parent : Function
-  inst_base : InstBase
+  
+  // --- InstBase ---
+  bb: Ref[BasicBlock?]
+  prev: Ref[&Instruction?]
+  next: Ref[&Instruction?]
 
   // --- BinaryInst ---
   opcode : BinaryOps
@@ -902,7 +940,9 @@ fn BinaryInst::newStandardOp(
   guard lhsTy.tryAsIntTypeEnum() is Some(_)
   let vty = lhsTy
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new()
+  let bb : Ref[BasicBlock?] = Ref::new(None)
+  let prev: Ref[&Instruction?] = Ref::new(None)
+  let next : Ref[&Instruction?] = Ref::new(None)
   let inst = BinaryInst::{
     uid,
     vty,
@@ -911,7 +951,9 @@ fn BinaryInst::newStandardOp(
     name,
     parent,
     users: [],
-    inst_base,
+    bb,
+    prev,
+    next,
     opcode,
     flags,
     fast_math_flags: Set::new(),
@@ -940,7 +982,9 @@ fn BinaryInst::newFPMathOp(
   guard lhsTy.tryAsFPTypeEnum() is Some(_)
   let uid = valueUIDAssigner.assign()
   let vty = lhsTy
-  let inst_base = InstBase::new()
+  let bb : Ref[BasicBlock?] = Ref::new(None)
+  let prev: Ref[&Instruction?] = Ref::new(None)
+  let next : Ref[&Instruction?] = Ref::new(None)
   let inst = BinaryInst::{
     uid,
     vty,
@@ -949,7 +993,9 @@ fn BinaryInst::newFPMathOp(
     name,
     parent,
     users: [],
-    inst_base,
+    bb,
+    prev,
+    next,
     opcode,
     flags: Set::new(),
     fast_math_flags,
@@ -1113,7 +1159,11 @@ pub impl User for BinaryInst with getUserBase(self) {
 
 ///|
 pub impl Instruction for BinaryInst with getInstBase(self) {
-  self.inst_base
+  InstBase::{
+    bb: self.bb,
+    prev: self.prev,
+    next: self.next,
+  }
 }
 
 ///|
@@ -1236,7 +1286,12 @@ pub struct ICmpInst {
   mut name : String?
   parent : Function
   users : Array[&User]
-  inst_base : InstBase
+  
+  // --- InstBase ---
+  bb: Ref[BasicBlock?]
+  prev: Ref[&Instruction?]
+  next: Ref[&Instruction?]
+  
   predicate : IntPredicate
 }
 
@@ -1252,7 +1307,9 @@ fn ICmpInst::new(
   guard lhsTy == rhsTy
   guard lhsTy.tryAsIntTypeEnum() is Some(_)
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new()
+  let bb : Ref[BasicBlock?] = Ref::new(None)
+  let prev: Ref[&Instruction?] = Ref::new(None)
+  let next : Ref[&Instruction?] = Ref::new(None)
   let vty = parent.getContext().getInt1Ty()
   let inst = ICmpInst::{
     uid,
@@ -1262,7 +1319,9 @@ fn ICmpInst::new(
     name,
     parent,
     users: [],
-    inst_base,
+    bb,
+    prev,
+    next,
     predicate,
   }
   lhs.addUser(inst)
@@ -1430,7 +1489,11 @@ pub impl User for ICmpInst with getUserBase(self) {
 
 ///|
 pub impl Instruction for ICmpInst with getInstBase(self) {
-  self.inst_base
+  InstBase::{
+    bb: self.bb,
+    prev: self.prev,
+    next: self.next,
+  }
 }
 
 ///|
@@ -1559,7 +1622,12 @@ pub struct FCmpInst {
   mut name : String?
   parent : Function
   users : Array[&User]
-  inst_base : InstBase
+  
+  // --- InstBase ---
+  bb: Ref[BasicBlock?]
+  prev: Ref[&Instruction?]
+  next: Ref[&Instruction?]
+  
   predicate : FloatPredicate
 }
 
@@ -1575,7 +1643,9 @@ fn FCmpInst::new(
   guard lhsTy == rhsTy
   guard lhsTy.tryAsFPTypeEnum() is Some(_)
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new()
+  let bb : Ref[BasicBlock?] = Ref::new(None)
+  let prev: Ref[&Instruction?] = Ref::new(None)
+  let next : Ref[&Instruction?] = Ref::new(None)
   let vty = parent.getContext().getInt1Ty()
   let inst = FCmpInst::{
     uid,
@@ -1585,7 +1655,9 @@ fn FCmpInst::new(
     name,
     parent,
     users: [],
-    inst_base,
+    bb,
+    prev,
+    next,
     predicate,
   }
   lhs.addUser(inst)
@@ -1749,7 +1821,11 @@ pub impl User for FCmpInst with getUserBase(self) {
 
 ///|
 pub impl Instruction for FCmpInst with getInstBase(self) {
-  self.inst_base
+  InstBase::{
+    bb: self.bb,
+    prev: self.prev,
+    next: self.next,
+  }
 }
 
 ///|
@@ -1853,7 +1929,12 @@ pub struct CastInst {
   mut name : String?
   parent : Function
   users : Array[&User]
-  inst_base : InstBase
+  
+  // --- InstBase ---
+  bb: Ref[BasicBlock?]
+  prev: Ref[&Instruction?]
+  next: Ref[&Instruction?]
+  
   opcode : CastOps
 }
 
@@ -1867,7 +1948,9 @@ fn CastInst::newTrunc(
   guard from_val.getType().tryAsIntTypeEnum() is Some(from_ty)
   guard from_ty.getBitWidth() > to_ty.getBitWidth()
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new()
+  let bb : Ref[BasicBlock?] = Ref::new(None)
+  let prev: Ref[&Instruction?] = Ref::new(None)
+  let next : Ref[&Instruction?] = Ref::new(None)
   let inst = CastInst::{
     uid,
     to_ty,
@@ -1875,7 +1958,9 @@ fn CastInst::newTrunc(
     name,
     parent,
     users: [],
-    inst_base,
+    bb,
+    prev,
+    next,
     opcode: Trunc,
   }
   from_val.addUser(inst)
@@ -1892,7 +1977,9 @@ fn CastInst::newZExt(
   guard from_val.getType().tryAsIntTypeEnum() is Some(from_ty)
   guard from_ty.getBitWidth() < to_ty.getBitWidth()
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new()
+  let bb : Ref[BasicBlock?] = Ref::new(None)
+  let prev: Ref[&Instruction?] = Ref::new(None)
+  let next : Ref[&Instruction?] = Ref::new(None)
   let inst = CastInst::{
     uid,
     to_ty,
@@ -1900,7 +1987,9 @@ fn CastInst::newZExt(
     name,
     parent,
     users: [],
-    inst_base,
+    bb,
+    prev,
+    next,
     opcode: ZExt,
   }
   from_val.addUser(inst)
@@ -1915,7 +2004,9 @@ fn CastInst::newSExt(
   name~ : String? = None,
 ) -> CastInst {
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new()
+  let bb : Ref[BasicBlock?] = Ref::new(None)
+  let prev: Ref[&Instruction?] = Ref::new(None)
+  let next : Ref[&Instruction?] = Ref::new(None)
   let inst = CastInst::{
     uid,
     to_ty,
@@ -1923,7 +2014,9 @@ fn CastInst::newSExt(
     name,
     parent,
     users: [],
-    inst_base,
+    bb,
+    prev,
+    next,
     opcode: SExt,
   }
   from_val.addUser(inst)
@@ -1938,7 +2031,9 @@ fn CastInst::newFPTrunc(
   name~ : String? = None,
 ) -> CastInst {
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new()
+  let bb : Ref[BasicBlock?] = Ref::new(None)
+  let prev: Ref[&Instruction?] = Ref::new(None)
+  let next : Ref[&Instruction?] = Ref::new(None)
   let inst = CastInst::{
     uid,
     to_ty,
@@ -1946,7 +2041,9 @@ fn CastInst::newFPTrunc(
     name,
     parent,
     users: [],
-    inst_base,
+    bb,
+    prev,
+    next,
     opcode: FPTrunc,
   }
   from_val.addUser(inst)
@@ -1961,7 +2058,9 @@ fn CastInst::newFPExt(
   name~ : String? = None,
 ) -> CastInst {
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new()
+  let bb : Ref[BasicBlock?] = Ref::new(None)
+  let prev: Ref[&Instruction?] = Ref::new(None)
+  let next : Ref[&Instruction?] = Ref::new(None)
   let inst = CastInst::{
     uid,
     to_ty,
@@ -1969,7 +2068,9 @@ fn CastInst::newFPExt(
     name,
     parent,
     users: [],
-    inst_base,
+    bb,
+    prev,
+    next,
     opcode: FPExt,
   }
   from_val.addUser(inst)
@@ -1984,7 +2085,9 @@ fn CastInst::newUIToFP(
   name~ : String? = None,
 ) -> CastInst {
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new()
+  let bb : Ref[BasicBlock?] = Ref::new(None)
+  let prev: Ref[&Instruction?] = Ref::new(None)
+  let next : Ref[&Instruction?] = Ref::new(None)
   let inst = CastInst::{
     uid,
     to_ty,
@@ -1992,7 +2095,9 @@ fn CastInst::newUIToFP(
     name,
     parent,
     users: [],
-    inst_base,
+    bb,
+    prev,
+    next,
     opcode: UIToFP,
   }
   from_val.addUser(inst)
@@ -2007,7 +2112,9 @@ fn CastInst::newFPToUI(
   name~ : String? = None,
 ) -> CastInst {
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new()
+  let bb : Ref[BasicBlock?] = Ref::new(None)
+  let prev: Ref[&Instruction?] = Ref::new(None)
+  let next : Ref[&Instruction?] = Ref::new(None)
   let inst = CastInst::{
     uid,
     to_ty,
@@ -2015,7 +2122,9 @@ fn CastInst::newFPToUI(
     name,
     parent,
     users: [],
-    inst_base,
+    bb,
+    prev,
+    next,
     opcode: FPToUI,
   }
   from_val.addUser(inst)
@@ -2030,7 +2139,9 @@ fn CastInst::newSIToFP(
   name~ : String? = None,
 ) -> CastInst {
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new()
+  let bb : Ref[BasicBlock?] = Ref::new(None)
+  let prev: Ref[&Instruction?] = Ref::new(None)
+  let next : Ref[&Instruction?] = Ref::new(None)
   let inst = CastInst::{
     uid,
     to_ty,
@@ -2038,7 +2149,9 @@ fn CastInst::newSIToFP(
     name,
     parent,
     users: [],
-    inst_base,
+    bb,
+    prev,
+    next,
     opcode: SIToFP,
   }
   from_val.addUser(inst)
@@ -2053,7 +2166,9 @@ fn CastInst::newFPToSI(
   name~ : String? = None,
 ) -> CastInst {
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new()
+  let bb : Ref[BasicBlock?] = Ref::new(None)
+  let prev: Ref[&Instruction?] = Ref::new(None)
+  let next : Ref[&Instruction?] = Ref::new(None)
   let inst = CastInst::{
     uid,
     to_ty,
@@ -2061,7 +2176,9 @@ fn CastInst::newFPToSI(
     name,
     parent,
     users: [],
-    inst_base,
+    bb,
+    prev,
+    next,
     opcode: FPToSI,
   }
   from_val.addUser(inst)
@@ -2076,7 +2193,9 @@ fn CastInst::newPtrToInt(
   name~ : String? = None,
 ) -> CastInst {
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new()
+  let bb : Ref[BasicBlock?] = Ref::new(None)
+  let prev: Ref[&Instruction?] = Ref::new(None)
+  let next : Ref[&Instruction?] = Ref::new(None)
   let inst = CastInst::{
     uid,
     to_ty,
@@ -2084,7 +2203,9 @@ fn CastInst::newPtrToInt(
     name,
     parent,
     users: [],
-    inst_base,
+    bb,
+    prev,
+    next,
     opcode: PtrToInt,
   }
   from_val.addUser(inst)
@@ -2099,7 +2220,9 @@ fn CastInst::newIntToPtr(
 ) -> CastInst {
   let to_ty = from_val.getContext().getPtrTy()
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new()
+  let bb : Ref[BasicBlock?] = Ref::new(None)
+  let prev: Ref[&Instruction?] = Ref::new(None)
+  let next : Ref[&Instruction?] = Ref::new(None)
   let inst = CastInst::{
     uid,
     to_ty,
@@ -2107,7 +2230,9 @@ fn CastInst::newIntToPtr(
     name,
     parent,
     users: [],
-    inst_base,
+    bb,
+    prev,
+    next,
     opcode: IntToPtr,
   }
   from_val.addUser(inst)
@@ -2124,7 +2249,9 @@ fn CastInst::newBitCast(
   name~ : String? = None,
 ) -> CastInst {
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new()
+  let bb : Ref[BasicBlock?] = Ref::new(None)
+  let prev: Ref[&Instruction?] = Ref::new(None)
+  let next : Ref[&Instruction?] = Ref::new(None)
   let inst = CastInst::{
     uid,
     to_ty,
@@ -2132,7 +2259,9 @@ fn CastInst::newBitCast(
     name,
     parent,
     users: [],
-    inst_base,
+    bb,
+    prev,
+    next,
     opcode: BitCast,
   }
   from_val.addUser(inst)
@@ -2300,7 +2429,11 @@ pub impl UnaryInst for CastInst with asUnaryInstEnum(self) {
 
 ///|
 pub impl Instruction for CastInst with getInstBase(self) {
-  self.inst_base
+  InstBase::{
+    bb: self.bb,
+    prev: self.prev,
+    next: self.next,
+  }
 }
 
 ///|
@@ -2364,7 +2497,12 @@ pub struct GetElementPtrInst {
   indices : Array[&Value]
   mut name : String?
   parent : Function
-  inst_base : InstBase
+  
+  // --- InstBase ---
+  bb: Ref[BasicBlock?]
+  prev: Ref[&Instruction?]
+  next: Ref[&Instruction?]
+  
   isInbounds : Bool
   pointeeType : &Type
 }
@@ -2379,7 +2517,9 @@ fn GetElementPtrInst::new(
   name~ : String? = None,
 ) -> GetElementPtrInst {
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new()
+  let bb : Ref[BasicBlock?] = Ref::new(None)
+  let prev: Ref[&Instruction?] = Ref::new(None)
+  let next : Ref[&Instruction?] = Ref::new(None)
   let vty = parent.getContext().getPtrTy()
   let inst = GetElementPtrInst::{
     uid,
@@ -2389,7 +2529,9 @@ fn GetElementPtrInst::new(
     indices,
     name,
     parent,
-    inst_base,
+    bb,
+    prev,
+    next,
     isInbounds,
     pointeeType,
   }
@@ -2563,7 +2705,11 @@ pub impl User for GetElementPtrInst with getUserBase(self) {
 
 ///|
 pub impl Instruction for GetElementPtrInst with getInstBase(self) {
-  self.inst_base
+  InstBase::{
+    bb: self.bb,
+    prev: self.prev,
+    next: self.next,
+  }
 }
 
 ///|
@@ -2635,7 +2781,11 @@ pub struct SelectInst {
   falseValue : &Value
   mut name : String?
   parent : Function
-  inst_base : InstBase
+  
+  // --- InstBase ---
+  bb: Ref[BasicBlock?]
+  prev: Ref[&Instruction?]
+  next: Ref[&Instruction?]
 }
 
 ///|
@@ -2648,7 +2798,9 @@ fn SelectInst::new(
 ) -> SelectInst {
   let vty = trueValue.getType()
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new()
+  let bb : Ref[BasicBlock?] = Ref::new(None)
+  let prev: Ref[&Instruction?] = Ref::new(None)
+  let next : Ref[&Instruction?] = Ref::new(None)
   let inst = SelectInst::{
     uid,
     vty,
@@ -2658,7 +2810,9 @@ fn SelectInst::new(
     name,
     parent,
     users: [],
-    inst_base,
+    bb,
+    prev,
+    next,
   }
   condition.addUser(inst)
   trueValue.addUser(inst)
@@ -2843,7 +2997,11 @@ pub impl User for SelectInst with getUserBase(self) {
 
 ///|
 pub impl Instruction for SelectInst with getInstBase(self) {
-  self.inst_base
+  InstBase::{
+    bb: self.bb,
+    prev: self.prev,
+    next: self.next,
+  }
 }
 
 ///|
@@ -2914,15 +3072,21 @@ pub struct ReturnInst {
   vty : VoidType
   retVal : &Value?
   parent : Function
-  inst_base : InstBase
+  
+  // --- InstBase ---
+  bb: Ref[BasicBlock?]
+  prev: Ref[&Instruction?]
+  next: Ref[&Instruction?]
 }
 
 ///|
 fn ReturnInst::new(retVal : &Value?, parent : Function) -> ReturnInst {
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new()
+  let bb : Ref[BasicBlock?] = Ref::new(None)
+  let prev: Ref[&Instruction?] = Ref::new(None)
+  let next : Ref[&Instruction?] = Ref::new(None)
   let vty = parent.getContext().getVoidTy()
-  let inst = ReturnInst::{ uid, vty, retVal, parent, inst_base }
+  let inst = ReturnInst::{ uid, vty, retVal, parent, bb, prev, next }
   if retVal is Some(val) {
     val.addUser(inst)
   }
@@ -2986,7 +3150,11 @@ pub impl User for ReturnInst with getUserBase(self) {
 
 ///|
 pub impl Instruction for ReturnInst with getInstBase(self) {
-  self.inst_base
+  InstBase::{
+    bb: self.bb,
+    prev: self.prev,
+    next: self.next,
+  }
 }
 
 ///|
@@ -3054,7 +3222,11 @@ pub struct BranchInst {
   trueBlock : BasicBlock?
   falseBlock : BasicBlock?
   parent : Function
-  inst_base : InstBase
+  
+  // --- InstBase ---
+  bb: Ref[BasicBlock?]
+  prev: Ref[&Instruction?]
+  next: Ref[&Instruction?]
 }
 
 ///|
@@ -3065,7 +3237,9 @@ fn BranchInst::newConditional(
   parent : Function,
 ) -> BranchInst {
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new()
+  let bb : Ref[BasicBlock?] = Ref::new(None)
+  let prev: Ref[&Instruction?] = Ref::new(None)
+  let next : Ref[&Instruction?] = Ref::new(None)
   let vty = parent.getContext().getVoidTy()
   let inst = BranchInst::{
     uid,
@@ -3074,7 +3248,9 @@ fn BranchInst::newConditional(
     trueBlock: Some(trueBlock),
     falseBlock: Some(falseBlock),
     parent,
-    inst_base,
+    bb,
+    prev,
+    next,
   }
   condition.addUser(inst)
   trueBlock.addUser(inst)
@@ -3087,7 +3263,9 @@ fn BranchInst::newUnconditional(
   targetBlock : BasicBlock,
   parent : Function,
 ) -> BranchInst {
-  let inst_base = InstBase::new()
+  let bb : Ref[BasicBlock?] = Ref::new(None)
+  let prev: Ref[&Instruction?] = Ref::new(None)
+  let next : Ref[&Instruction?] = Ref::new(None)
   let uid = valueUIDAssigner.assign()
   let vty = parent.getContext().getVoidTy()
   let inst = BranchInst::{
@@ -3097,7 +3275,9 @@ fn BranchInst::newUnconditional(
     trueBlock: Some(targetBlock),
     falseBlock: None,
     parent,
-    inst_base,
+    bb,
+    prev,
+    next,
   }
   targetBlock.addUser(inst)
   inst
@@ -3207,7 +3387,11 @@ pub impl User for BranchInst with getUserBase(self) {
 
 ///|
 pub impl Instruction for BranchInst with getInstBase(self) {
-  self.inst_base
+  InstBase::{
+    bb: self.bb,
+    prev: self.prev,
+    next: self.next,
+  }
 }
 
 ///|
@@ -3284,7 +3468,11 @@ pub struct SwitchInst {
   defaultDest : BasicBlock
   cases : Array[(ConstantInt, BasicBlock)]
   parent : Function
-  inst_base : InstBase
+  
+  // --- InstBase ---
+  bb: Ref[BasicBlock?]
+  prev: Ref[&Instruction?]
+  next: Ref[&Instruction?]
 }
 
 ///|
@@ -3294,7 +3482,9 @@ fn SwitchInst::new(
   parent : Function,
 ) -> SwitchInst {
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new()
+  let bb : Ref[BasicBlock?] = Ref::new(None)
+  let prev: Ref[&Instruction?] = Ref::new(None)
+  let next : Ref[&Instruction?] = Ref::new(None)
   let vty = parent.getContext().getVoidTy()
   let inst = SwitchInst::{
     uid,
@@ -3303,7 +3493,9 @@ fn SwitchInst::new(
     defaultDest,
     cases: [],
     parent,
-    inst_base,
+    bb,
+    prev,
+    next,
   }
   cond.addUser(inst)
   defaultDest.addUser(inst)
@@ -3420,7 +3612,11 @@ pub impl User for SwitchInst with getUserBase(self) {
 
 ///|
 pub impl Instruction for SwitchInst with getInstBase(self) {
-  self.inst_base
+  InstBase::{
+    bb: self.bb,
+    prev: self.prev,
+    next: self.next,
+  }
 }
 
 ///|
@@ -3505,7 +3701,11 @@ pub struct PHINode {
   mut name : String?
   incomings : Array[(&Value, BasicBlock)]
   parent : Function
-  inst_base : InstBase
+  
+  // --- InstBase ---
+  bb: Ref[BasicBlock?]
+  prev: Ref[&Instruction?]
+  next: Ref[&Instruction?]
 }
 
 ///|
@@ -3515,8 +3715,10 @@ fn PHINode::new(
   name~ : String? = None,
 ) -> PHINode {
   let uid = valueUIDAssigner.assign()
-  let inst_base = InstBase::new()
-  PHINode::{ uid, vty, users: [], name, incomings: [], parent, inst_base }
+  let bb : Ref[BasicBlock?] = Ref::new(None)
+  let prev: Ref[&Instruction?] = Ref::new(None)
+  let next : Ref[&Instruction?] = Ref::new(None)
+  PHINode::{ uid, vty, users: [], name, incomings: [], parent, bb, prev, next }
 }
 
 ///|
@@ -3731,7 +3933,11 @@ pub impl User for PHINode with getUserBase(self) {
 
 ///|
 pub impl Instruction for PHINode with getInstBase(self) {
-  self.inst_base
+  InstBase::{
+    bb: self.bb,
+    prev: self.prev,
+    next: self.next,
+  }
 }
 
 ///|
@@ -3825,7 +4031,12 @@ pub struct CallInst {
   callee : Function
   args : Array[&Value]
   parent : Function
-  inst_base : InstBase
+  
+  // --- InstBase ---
+  bb: Ref[BasicBlock?]
+  prev: Ref[&Instruction?]
+  next: Ref[&Instruction?]
+  
   mut tailCallKind : TailCallKind
 }
 
@@ -3843,7 +4054,9 @@ fn CallInst::new(
   }
   let uid = valueUIDAssigner.assign()
   let vty = fty.getReturnType()
-  let inst_base = InstBase::new()
+  let bb : Ref[BasicBlock?] = Ref::new(None)
+  let prev: Ref[&Instruction?] = Ref::new(None)
+  let next : Ref[&Instruction?] = Ref::new(None)
   let inst = CallInst::{
     uid,
     vty,
@@ -3852,7 +4065,9 @@ fn CallInst::new(
     callee,
     args,
     parent,
-    inst_base,
+    bb,
+    prev,
+    next,
     tailCallKind: NoTail,
   }
   callee.addUser(inst)
@@ -4071,7 +4286,11 @@ pub impl User for CallInst with getUserBase(self) {
 
 ///|
 pub impl Instruction for CallInst with getInstBase(self) {
-  self.inst_base
+  InstBase::{
+    bb: self.bb,
+    prev: self.prev,
+    next: self.next,
+  }
 }
 
 ///|
@@ -4163,7 +4382,12 @@ pub struct ExtractValueInst {
   mut name : String?
   aggregate : &Value
   parent : Function
-  inst_base : InstBase
+  
+  // --- InstBase ---
+  bb: Ref[BasicBlock?]
+  prev: Ref[&Instruction?]
+  next: Ref[&Instruction?]
+  
   indices : Array[Int]
 }
 
@@ -4179,7 +4403,9 @@ fn ExtractValueInst::new(
   guard agg_ty.getIndexedType(indices) is Some(result_ty)
   let uid = valueUIDAssigner.assign()
   let vty = result_ty
-  let inst_base = InstBase::new()
+  let bb : Ref[BasicBlock?] = Ref::new(None)
+  let prev: Ref[&Instruction?] = Ref::new(None)
+  let next : Ref[&Instruction?] = Ref::new(None)
   let inst = ExtractValueInst::{
     uid,
     vty,
@@ -4187,7 +4413,9 @@ fn ExtractValueInst::new(
     name,
     aggregate,
     parent,
-    inst_base,
+    bb,
+    prev,
+    next,
     indices,
   }
   aggregate.addUser(inst)
@@ -4356,7 +4584,11 @@ pub impl User for ExtractValueInst with getUserBase(self) {
 
 ///|
 pub impl Instruction for ExtractValueInst with getInstBase(self) {
-  self.inst_base
+  InstBase::{
+    bb: self.bb,
+    prev: self.prev,
+    next: self.next,
+  }
 }
 
 ///|
@@ -4424,7 +4656,12 @@ pub struct InsertValueInst {
   insert_val : &Value
   mut name : String?
   parent : Function
-  inst_base : InstBase
+  
+  // --- InstBase ---
+  bb: Ref[BasicBlock?]
+  prev: Ref[&Instruction?]
+  next: Ref[&Instruction?]
+  
   indices : Array[Int]
 }
 
@@ -4441,7 +4678,9 @@ fn InsertValueInst::new(
   guard agg_ty.getIndexedType(indices) is Some(_)
   let uid = valueUIDAssigner.assign()
   let vty = agg_ty.asTypeClass()
-  let inst_base = InstBase::new()
+  let bb : Ref[BasicBlock?] = Ref::new(None)
+  let prev: Ref[&Instruction?] = Ref::new(None)
+  let next : Ref[&Instruction?] = Ref::new(None)
   let inst = InsertValueInst::{
     uid,
     vty,
@@ -4450,7 +4689,9 @@ fn InsertValueInst::new(
     insert_val,
     name,
     parent,
-    inst_base,
+    bb,
+    prev,
+    next,
     indices,
   }
   aggregate.addUser(inst)
@@ -4630,7 +4871,11 @@ pub impl User for InsertValueInst with getUserBase(self) {
 
 ///|
 pub impl Instruction for InsertValueInst with getInstBase(self) {
-  self.inst_base
+  InstBase::{
+    bb: self.bb,
+    prev: self.prev,
+    next: self.next,
+  }
 }
 
 ///|

@@ -55,12 +55,12 @@ fn IRBuilder::insert(self : IRBuilder, inst : &Instruction) -> Unit raise Error 
     Some(insertPt) => {
       inst.insertAfter(insertPt)
       self.insertPt = Some(inst)
-      inst.getInstBase().bb = Some(self.bb.unwrap())
+      inst.getInstBase().bb.val = Some(self.bb.unwrap())
     }
     None => {
       self.bb.unwrap().head = Some(inst)
       self.insertPt = Some(inst)
-      inst.getInstBase().bb = Some(self.bb.unwrap())
+      inst.getInstBase().bb.val = Some(self.bb.unwrap())
     }
   }
 }

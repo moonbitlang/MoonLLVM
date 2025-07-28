@@ -517,19 +517,19 @@ pub fn UserEnum::asUserClass(self : Self) -> &User {
 
 ///|
 pub struct InstBase {
-  priv mut bb : BasicBlock?
-  priv mut next : &Instruction?
-  priv mut prev : &Instruction?
+  priv bb : Ref[BasicBlock?]
+  priv next : Ref[&Instruction?]
+  priv prev : Ref[&Instruction?]
 }
 
 ///|
-pub fn InstBase::new(
-  bb~ : BasicBlock? = None,
-  next~ : &Instruction? = None,
-  prev~ : &Instruction? = None,
-) -> InstBase {
-  InstBase::{ bb, next, prev }
-}
+//pub fn InstBase::new(
+//  bb~ : BasicBlock? = None,
+//  next~ : &Instruction? = None,
+//  prev~ : &Instruction? = None,
+//) -> InstBase {
+//  InstBase::{ bb, next, prev }
+//}
 
 ///|
 pub trait Instruction: Value {
@@ -551,7 +551,7 @@ pub trait Instruction: Value {
 
 ///|
 impl Instruction with getBasicBlock(self) {
-  self.getInstBase().bb
+  self.getInstBase().bb.val
 }
 
 ///|
@@ -586,12 +586,12 @@ impl Instruction with isIndependent(self) {
 
 ///|
 impl Instruction with next(self) {
-  self.getInstBase().next
+  self.getInstBase().next.val
 }
 
 ///|
 impl Instruction with prev(self) {
-  self.getInstBase().prev
+  self.getInstBase().prev.val
 }
 
 ///|
@@ -603,16 +603,16 @@ impl Instruction with insertAfter(self, insertPt : &Instruction) {
   }
   match insertPt.next() {
     None => {
-      insertPt.getInstBase().next = Some(self)
-      self.getInstBase().prev = Some(insertPt)
-      self.getInstBase().bb = insertPt.getBasicBlock()
+      insertPt.getInstBase().next.val = Some(self)
+      self.getInstBase().prev.val = Some(insertPt)
+      self.getInstBase().bb.val = insertPt.getBasicBlock()
     }
     Some(ori_next) => {
-      insertPt.getInstBase().next = Some(self)
-      self.getInstBase().prev = Some(insertPt)
-      self.getInstBase().next = Some(ori_next)
-      ori_next.getInstBase().prev = Some(self)
-      self.getInstBase().bb = insertPt.getBasicBlock()
+      insertPt.getInstBase().next.val = Some(self)
+      self.getInstBase().prev.val = Some(insertPt)
+      self.getInstBase().next.val = Some(ori_next)
+      ori_next.getInstBase().prev.val = Some(self)
+      self.getInstBase().bb.val = insertPt.getBasicBlock()
     }
   }
 }
@@ -626,16 +626,16 @@ impl Instruction with insertBefore(self, insertPt : &Instruction) {
   }
   match insertPt.prev() {
     None => {
-      insertPt.getInstBase().prev = Some(self)
-      self.getInstBase().next = Some(insertPt)
-      self.getInstBase().bb = insertPt.getBasicBlock()
+      insertPt.getInstBase().prev.val = Some(self)
+      self.getInstBase().next.val = Some(insertPt)
+      self.getInstBase().bb.val = insertPt.getBasicBlock()
     }
     Some(ori_prev) => {
-      insertPt.getInstBase().prev = Some(self)
-      self.getInstBase().next = Some(insertPt)
-      self.getInstBase().prev = Some(ori_prev)
-      ori_prev.getInstBase().next = Some(self)
-      self.getInstBase().bb = insertPt.getBasicBlock()
+      insertPt.getInstBase().prev.val = Some(self)
+      self.getInstBase().next.val = Some(insertPt)
+      self.getInstBase().prev.val = Some(ori_prev)
+      ori_prev.getInstBase().next.val = Some(self)
+      self.getInstBase().bb.val = insertPt.getBasicBlock()
     }
   }
 }
@@ -661,17 +661,17 @@ impl Instruction with removeFromParent(self) {
   match (self.prev(), self.next()) {
     // independent instruction, do nothing.
     (None, None) => ()
-    (Some(prev), None) => prev.getInstBase().next = None
+    (Some(prev), None) => prev.getInstBase().next.val = None
     // It must be the head of the basic block.
     (None, Some(next)) => bb.head = Some(next)
     (Some(prev), Some(next)) => {
-      prev.getInstBase().next = Some(next)
-      next.getInstBase().prev = Some(prev)
+      prev.getInstBase().next.val = Some(next)
+      next.getInstBase().prev.val = Some(prev)
     }
   }
-  self.getInstBase().bb = None
-  self.getInstBase().prev = None
-  self.getInstBase().next = None
+  self.getInstBase().bb.val = None
+  self.getInstBase().prev.val = None
+  self.getInstBase().next.val = None
 }
 
 ///|
