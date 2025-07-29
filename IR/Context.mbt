@@ -360,8 +360,11 @@ pub fn Context::getStructTypeByName(self : Self, name : String) -> StructType? {
 pub fn Context::getArrayType(
   self : Context,
   elementType : &Type,
-  numElements : UInt,
+  numElements : Int,
 ) -> ArrayType raise LLVMTypeError {
+  if numElements < 0 {
+    raise InValidTypeSize(numElements)
+  }
   ArrayType::new(self, elementType, numElements)
 }
 
@@ -379,8 +382,11 @@ pub fn Context::getArrayType(
 pub fn Context::getFixedVectorType(
   self : Context,
   elementType : &Type,
-  elementQuantity : UInt,
+  elementQuantity : Int,
 ) -> VectorType raise LLVMTypeError {
+  if elementQuantity < 0 {
+    raise InValidTypeSize(elementQuantity)
+  }
   VectorType::new(self, elementType, elementQuantity)
 }
 
@@ -398,7 +404,7 @@ pub fn Context::getFixedVectorType(
 pub fn Context::getScalableVectorType(
   self : Context,
   elementType : &Type,
-  elementQuantity : UInt,
+  elementQuantity : Int,
 ) -> ScalableVectorType raise LLVMTypeError {
   ScalableVectorType::new(self, elementType, elementQuantity)
 }
@@ -510,8 +516,8 @@ pub fn Context::getConstBool(self : Context, b : Bool) -> ConstantInt {
 /// inspect(one, content="float 0x3FF0000000000000")
 /// inspect(two, content="float 0x4000000000000000")
 /// ```
-pub fn Context::getConstFloat(self : Context, value : Double) -> ConstantFP {
-  ConstantFP::new(self.getFloatTy(), value)
+pub fn Context::getConstFloat(self : Context, value : Float) -> ConstantFP {
+  ConstantFP::new(self.getFloatTy(), value.to_double())
 }
 
 ///| Create a constant with double type.
@@ -833,7 +839,7 @@ pub fn Context::getConstInt8Array(
 ) -> ConstantArray {
   let ty = (try? self.getArrayType(
     self.getInt8Ty(),
-    data.length().reinterpret_as_uint(),
+    data.length(),
   )).unwrap()
   ConstantArray::newInt8Array(ty, data)
 }
@@ -855,7 +861,7 @@ pub fn Context::getConstInt16Array(
 ) -> ConstantArray {
   let ty = (try? self.getArrayType(
     self.getInt16Ty(),
-    data.length().reinterpret_as_uint(),
+    data.length(),
   )).unwrap()
   ConstantArray::newInt16Array(ty, data)
 }
@@ -877,7 +883,7 @@ pub fn Context::getConstInt32Array(
 ) -> ConstantArray {
   let ty = (try? self.getArrayType(
     self.getInt32Ty(),
-    data.length().reinterpret_as_uint(),
+    data.length(),
   )).unwrap()
   ConstantArray::newInt32Array(ty, data)
 }
@@ -899,7 +905,7 @@ pub fn Context::getConstInt64Array(
 ) -> ConstantArray {
   let ty = (try? self.getArrayType(
     self.getInt64Ty(),
-    data.length().reinterpret_as_uint(),
+    data.length(),
   )).unwrap()
   ConstantArray::newInt64Array(ty, data)
 }
@@ -919,7 +925,7 @@ pub fn Context::getConstUInt8Array(
   self : Context,
   data : Array[Byte],
 ) -> ConstantArray {
-  let len = data.length().reinterpret_as_uint()
+  let len = data.length()
   let ty = (try? self.getArrayType(self.getInt8Ty(), len)).unwrap()
   ConstantArray::newUInt8Array(ty, data)
 }
@@ -939,7 +945,7 @@ pub fn Context::getConstUInt16Array(
   self : Context,
   data : Array[UInt16],
 ) -> ConstantArray {
-  let len = data.length().reinterpret_as_uint()
+  let len = data.length()
   let ty = (try? self.getArrayType(self.getInt16Ty(), len)).unwrap()
   ConstantArray::newUInt16Array(ty, data)
 }
@@ -959,7 +965,7 @@ pub fn Context::getConstUInt32Array(
   self : Context,
   data : Array[UInt],
 ) -> ConstantArray {
-  let len = data.length().reinterpret_as_uint()
+  let len = data.length()
   let ty = (try? self.getArrayType(self.getInt32Ty(), len)).unwrap()
   ConstantArray::newUInt32Array(ty, data)
 }
@@ -979,7 +985,7 @@ pub fn Context::getConstUInt64Array(
   self : Context,
   data : Array[UInt64],
 ) -> ConstantArray {
-  let len = data.length().reinterpret_as_uint()
+  let len = data.length()
   let ty = (try? self.getArrayType(self.getInt64Ty(), len)).unwrap()
   ConstantArray::newUInt64Array(ty, data)
 }
@@ -1002,7 +1008,7 @@ pub fn Context::getConstFloatArray(
   self : Context,
   data : Array[Float],
 ) -> ConstantArray {
-  let len = data.length().reinterpret_as_uint()
+  let len = data.length()
   let ty = (try? self.getArrayType(self.getFloatTy(), len)).unwrap()
   ConstantArray::newFloatArray(ty, data)
 }
@@ -1026,7 +1032,7 @@ pub fn Context::getConstDoubleArray(
   self : Context,
   data : Array[Double],
 ) -> ConstantArray {
-  let len = data.length().reinterpret_as_uint()
+  let len = data.length()
   let ty = (try? self.getArrayType(self.getDoubleTy(), len)).unwrap()
   ConstantArray::newDoubleArray(ty, data)
 }
@@ -1053,7 +1059,7 @@ pub fn Context::getConstInt8Vector(
   self : Context,
   data : Array[Int],
 ) -> ConstantVector {
-  let len = data.length().reinterpret_as_uint()
+  let len = data.length()
   let ty = (try? self.getFixedVectorType(self.getInt8Ty(), len)).unwrap()
   ConstantVector::newInt8Vector(ty, data)
 }
@@ -1073,7 +1079,7 @@ pub fn Context::getConstInt16Vector(
   self : Context,
   data : Array[Int16],
 ) -> ConstantVector {
-  let len = data.length().reinterpret_as_uint()
+  let len = data.length()
   let ty = (try? self.getFixedVectorType(self.getInt16Ty(), len)).unwrap()
   ConstantVector::newInt16Vector(ty, data)
 }
@@ -1093,7 +1099,7 @@ pub fn Context::getConstInt32Vector(
   self : Context,
   data : Array[Int],
 ) -> ConstantVector {
-  let len = data.length().reinterpret_as_uint()
+  let len = data.length()
   let ty = (try? self.getFixedVectorType(self.getInt32Ty(), len)).unwrap()
   ConstantVector::newInt32Vector(ty, data)
 }
@@ -1113,7 +1119,7 @@ pub fn Context::getConstInt64Vector(
   self : Context,
   data : Array[Int64],
 ) -> ConstantVector {
-  let len = data.length().reinterpret_as_uint()
+  let len = data.length()
   let ty = (try? self.getFixedVectorType(self.getInt64Ty(), len)).unwrap()
   ConstantVector::newInt64Vector(ty, data)
 }
@@ -1135,7 +1141,7 @@ pub fn Context::getConstUInt8Vector(
 ) -> ConstantVector {
   let ty = (try? self.getFixedVectorType(
     self.getInt8Ty(),
-    data.length().reinterpret_as_uint(),
+    data.length()
   )).unwrap()
   ConstantVector::newUInt8Vector(ty, data)
 }
@@ -1157,7 +1163,7 @@ pub fn Context::getConstUInt16Vector(
 ) -> ConstantVector {
   let ty = (try? self.getFixedVectorType(
     self.getInt16Ty(),
-    data.length().reinterpret_as_uint(),
+    data.length()
   )).unwrap()
   ConstantVector::newUInt16Vector(ty, data)
 }
@@ -1179,7 +1185,7 @@ pub fn Context::getConstUInt32Vector(
 ) -> ConstantVector {
   let ty = (try? self.getFixedVectorType(
     self.getInt32Ty(),
-    data.length().reinterpret_as_uint(),
+    data.length()
   )).unwrap()
   ConstantVector::newUInt32Vector(ty, data)
 }
@@ -1201,7 +1207,7 @@ pub fn Context::getConstUInt64Vector(
 ) -> ConstantVector {
   let ty = (try? self.getFixedVectorType(
     self.getInt64Ty(),
-    data.length().reinterpret_as_uint(),
+    data.length()
   )).unwrap()
   ConstantVector::newUInt64Vector(ty, data)
 }
@@ -1226,7 +1232,7 @@ pub fn Context::getConstFloatVector(
 ) -> ConstantVector {
   let ty = (try? self.getFixedVectorType(
     self.getFloatTy(),
-    data.length().reinterpret_as_uint(),
+    data.length()
   )).unwrap()
   ConstantVector::newFloatVector(ty, data)
 }
@@ -1252,7 +1258,7 @@ pub fn Context::getConstDoubleVector(
 ) -> ConstantVector {
   let ty = (try? self.getFixedVectorType(
     self.getDoubleTy(),
-    data.length().reinterpret_as_uint(),
+    data.length(),
   )).unwrap()
   ConstantVector::newDoubleVector(ty, data)
 }
@@ -1292,7 +1298,6 @@ pub fn Context::getConstZero(
     // Aggregate and Other Types where zero value is complex or not applicable
     //ArrayType(t) => llvm_unreachable("getConstZero: Unimplemented for ArrayType \{t.to_string()}")
     ArrayType({ elementType: t, elementCount: cnt, .. }) => {
-      let cnt = cnt.reinterpret_as_int()
       match t.asTypeEnum() {
         Int8Type(_) => self.getConstInt8Array(Array::make(cnt, 0))
         Int16Type(_) => self.getConstInt16Array(Array::make(cnt, 0))

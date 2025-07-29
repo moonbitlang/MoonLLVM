@@ -1,5 +1,6 @@
 ///|
 suberror LLVMTypeError {
+  InValidTypeSize(Int)
   OpaqueStructMustHaveName
   SetBodyForNonOpaqueStruct
   RecursiveStructDefinition

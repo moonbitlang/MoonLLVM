@@ -62,6 +62,47 @@ pub fn DataLayout::getEndian(self : DataLayout) -> Endian {
   self.endian
 }
 
+pub fn DataLayout::getTypeAllocSize(self: Self, ty: &Type) -> Int {
+  match ty.asTypeEnum() {
+    HalfType(_) => 2
+    BFloatType(_) => 2
+    FloatType(_) => 4
+    DoubleType(_) => 8
+    Int1Type(_) => 1
+    Int8Type(_) => 1
+    Int16Type(_) => 2
+    Int32Type(_) => 4
+    Int64Type(_) => 8
+    PointerType(_) => 8
+    StructType(s) => self.getStructTypeAllocSize(s)
+    ArrayType(arr) => self.getArrayTypeAllocSize(arr)
+    _ => 0
+  }
+}
+
+fn DataLayout::getStructTypeAllocSize(self: Self, ty: StructType) -> Int {
+  letrec align_to = (size, align) => {
+    (size + align - 1) / align * align
+  } 
+  let mut size : Int = 0
+  for ele in ty.elements {
+    let Align(align) = DataLayout::getAlignment(self, ele)
+    let align = align.to_int()
+    size = align_to(size, align)
+    size += DataLayout::getTypeAllocSize(self, ele)
+  }
+  size
+}
+
+fn DataLayout::getArrayTypeAllocSize(self: Self, ty: ArrayType) -> Int {
+  let Align(align) = DataLayout::getAlignment(self, ty.getElementType())
+  let align = align.to_int()
+  let size = DataLayout::getTypeAllocSize(self, ty.getElementType())
+  let count = ty.getElementCount()
+  // Align the size to the element alignment
+  ((size * count + align - 1) / align) * align
+}
+
 ///|
 fn DataLayout::getAlignment(self : DataLayout, ty : &Type) -> Align {
   ignore(self)

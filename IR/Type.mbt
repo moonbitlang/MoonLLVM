@@ -146,7 +146,7 @@ pub trait Type: Show + Hash {
   /// If this is a vector type, return the getPrimitiveSizeInBits value for the
   /// element type. Otherwise return the getPrimitiveSizeInBits value for this
   /// type.
-  getScalarSizeInBits(Self) -> UInt = _
+  getScalarSizeInBits(Self) -> Int = _
   getScalarType(Self) -> &Type = _
   tryAsFPType(Self) -> &FPType? = _
   tryAsFPTypeEnum(Self) -> FPTypeEnum? = _
@@ -329,8 +329,8 @@ impl Type with getPrimitiveSizeInBits(self) -> TypeSize {
 }
 
 ///|
-impl Type with getScalarSizeInBits(self) -> UInt {
-  self.getScalarType().getPrimitiveSizeInBits().getKnownMinValue().to_uint()
+impl Type with getScalarSizeInBits(self) -> Int {
+  self.getScalarType().getPrimitiveSizeInBits().getKnownMinValue().to_int()
 }
 
 ///|
@@ -575,7 +575,7 @@ pub fn IntegerTypeEnum::asTypeClass(self : IntegerTypeEnum) -> &Type {
 }
 
 ///|
-pub fn IntegerTypeEnum::getBitWidth(self : IntegerTypeEnum) -> UInt {
+pub fn IntegerTypeEnum::getBitWidth(self : IntegerTypeEnum) -> Int {
   self.asIntegerTypeClass().getBitWidth()
 }
 
@@ -588,7 +588,7 @@ pub trait FPType: PrimitiveType {
   asFPTypeEnum(Self) -> FPTypeEnum
 
   /// Return the width of the mantissa of this type. 
-  getFPMantissaWidth(Self) -> UInt = _
+  getFPMantissaWidth(Self) -> Int = _
 }
 
 ///|
@@ -628,7 +628,7 @@ pub fn FPTypeEnum::asFPTypeClass(self : FPTypeEnum) -> &FPType {
 }
 
 ///|
-pub fn FPTypeEnum::getFPMantissaWidth(self : FPTypeEnum) -> UInt {
+pub fn FPTypeEnum::getFPMantissaWidth(self : FPTypeEnum) -> Int {
   match self {
     HalfType(_) => 11
     BFloatType(_) => 8
@@ -639,7 +639,7 @@ pub fn FPTypeEnum::getFPMantissaWidth(self : FPTypeEnum) -> UInt {
 }
 
 ///|
-pub fn FPTypeEnum::getBitWidth(self : Self) -> UInt {
+pub fn FPTypeEnum::getBitWidth(self : Self) -> Int {
   self.asFPTypeClass().getBitWidth()
 }
 
@@ -655,11 +655,11 @@ impl FPType with getFPMantissaWidth(self) {
 ///|
 pub trait PrimitiveType: Type {
   asPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum
-  getBitWidth(Self) -> UInt = _
+  getBitWidth(Self) -> Int = _
 }
 
 ///|
-impl PrimitiveType with getBitWidth(self) -> UInt {
+impl PrimitiveType with getBitWidth(self) -> Int {
   self.asPrimitiveTypeEnum().getBitWidth()
 }
 
@@ -678,7 +678,7 @@ pub enum PrimitiveTypeEnum {
 } derive(Eq, Show)
 
 ///|
-pub fn PrimitiveTypeEnum::getBitWidth(self : PrimitiveTypeEnum) -> UInt {
+pub fn PrimitiveTypeEnum::getBitWidth(self : PrimitiveTypeEnum) -> Int {
   match self {
     HalfType(_) => 16
     BFloatType(_) => 16
@@ -747,14 +747,14 @@ pub fn AggregateTypeEnum::getIndexedType(
       when(
         idxs.length() == 1 &&
         idxs[0] >= 0 &&
-        idxs[0] < arr.getElementCount().reinterpret_as_int(),
+        idxs[0] < arr.getElementCount(),
         fn() { arr.getElementType() },
       )
     VectorType(arr) =>
       when(
         idxs.length() == 1 &&
         idxs[0] >= 0 &&
-        idxs[0] < arr.getElementCount().reinterpret_as_int(),
+        idxs[0] < arr.getElementCount(),
         fn() { arr.getElementType() },
       )
     ScalableVectorType(arr) =>
@@ -1493,8 +1493,8 @@ pub fn FunctionType::getParamTypes(self : FunctionType) -> Array[&Type] {
 /// This does not consider varargs.
 ///
 /// - See LLVM: `FunctionType::getNumParams`.
-pub fn FunctionType::getNumParams(self : FunctionType) -> UInt {
-  self.paramTypes.length().reinterpret_as_uint()
+pub fn FunctionType::getNumParams(self : FunctionType) -> Int {
+  self.paramTypes.length()
 }
 
 ///| Get the param type by given index.
@@ -1848,14 +1848,14 @@ pub impl AggregateType for StructType with asAggregateTypeEnum(self) -> Aggregat
 pub struct ArrayType {
   priv base : TypeBase
   elementType : &Type
-  elementCount : UInt
+  elementCount : Int
 } derive(Eq, Hash)
 
 ///|
 fn ArrayType::new(
   context : Context,
   elementType : &Type,
-  elementCount : UInt,
+  elementCount : Int,
 ) -> ArrayType raise LLVMTypeError {
   guard ArrayType::isValidElementType(elementType) else {
     raise InValidArrayElementType(elementType)
@@ -1874,7 +1874,7 @@ fn ArrayType::isValidElementType(eleTy : &Type) -> Bool {
 }
 
 ///|
-pub fn ArrayType::getElementCount(self : ArrayType) -> UInt {
+pub fn ArrayType::getElementCount(self : ArrayType) -> Int {
   self.elementCount
 }
 
@@ -1924,14 +1924,14 @@ pub impl AggregateType for ArrayType with asAggregateTypeEnum(self) -> Aggregate
 pub struct VectorType {
   priv base : TypeBase
   elementType : &Type
-  elementCount : UInt
+  elementCount : Int
 } derive(Eq, Hash)
 
 ///| Create a VectorType.
 fn VectorType::new(
   context : Context,
   elementType : &Type,
-  elementCount : UInt,
+  elementCount : Int,
 ) -> VectorType raise LLVMTypeError {
   guard VectorType::isValidElementType(elementType) else {
     raise InValidVectorElementType(elementType)
@@ -1956,7 +1956,7 @@ pub fn VectorType::getElementType(self : VectorType) -> &Type {
 }
 
 ///| Get the number of elements in the vector.
-pub fn VectorType::getElementCount(self : VectorType) -> UInt {
+pub fn VectorType::getElementCount(self : VectorType) -> Int {
   self.elementCount
 }
 
@@ -2001,14 +2001,14 @@ pub impl AggregateType for VectorType with asAggregateTypeEnum(self) -> Aggregat
 pub struct ScalableVectorType {
   priv base : TypeBase
   elementType : &Type
-  elementCount : UInt
+  elementCount : Int
 } derive(Eq, Hash)
 
 ///| Create a ScalableVectorType.
 fn ScalableVectorType::new(
   context : Context,
   elementType : &Type,
-  elementCount : UInt,
+  elementCount : Int,
 ) -> ScalableVectorType raise LLVMTypeError {
   guard ScalableVectorType::isValidElementType(elementType) else {
     raise InValidVectorElementType(elementType)
@@ -2033,7 +2033,7 @@ pub fn ScalableVectorType::getElementType(self : ScalableVectorType) -> &Type {
 }
 
 ///| Get the number of elements in the vector.
-pub fn ScalableVectorType::getElementCount(self : ScalableVectorType) -> UInt {
+pub fn ScalableVectorType::getElementCount(self : ScalableVectorType) -> Int {
   self.elementCount
 }
 

@@ -4494,7 +4494,7 @@ pub fn CallInst::getArgOperand(self : Self, idx : Int) -> &Value? {
 
 ///|
 pub fn CallInst::getNumArgs(self : Self) -> Int {
-  self.callee.getFunctionType().getNumParams().reinterpret_as_int()
+  self.callee.getFunctionType().getNumParams()
 }
 
 ///|

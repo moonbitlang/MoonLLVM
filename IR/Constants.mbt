@@ -1831,7 +1831,7 @@ fn ConstantArray::newInt8Array(
   vty : ArrayType,
   data : Array[Int],
 ) -> ConstantArray {
-  let eleCnt = vty.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantArray::new: data length is not equal to element count",
@@ -1853,7 +1853,7 @@ fn ConstantArray::newInt16Array(
   vty : ArrayType,
   data : Array[Int16],
 ) -> ConstantArray {
-  let eleCnt = vty.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantArray::new: data length is not equal to element count",
@@ -1875,7 +1875,7 @@ fn ConstantArray::newInt32Array(
   vty : ArrayType,
   data : Array[Int],
 ) -> ConstantArray {
-  let eleCnt = vty.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantArray::new: data length is not equal to element count",
@@ -1897,7 +1897,7 @@ fn ConstantArray::newInt64Array(
   vty : ArrayType,
   data : Array[Int64],
 ) -> ConstantArray {
-  let eleCnt = vty.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantArray::new: data length is not equal to element count",
@@ -1919,7 +1919,7 @@ fn ConstantArray::newUInt8Array(
   vty : ArrayType,
   data : Array[Byte],
 ) -> ConstantArray {
-  let eleCnt = vty.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantArray::new: data length is not equal to element count",
@@ -1941,7 +1941,7 @@ fn ConstantArray::newUInt16Array(
   vty : ArrayType,
   data : Array[UInt16],
 ) -> ConstantArray {
-  let eleCnt = vty.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantArray::new: data length is not equal to element count",
@@ -1963,7 +1963,7 @@ fn ConstantArray::newUInt32Array(
   vty : ArrayType,
   data : Array[UInt],
 ) -> ConstantArray {
-  let eleCnt = vty.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantArray::new: data length is not equal to element count",
@@ -1985,7 +1985,7 @@ fn ConstantArray::newUInt64Array(
   vty : ArrayType,
   data : Array[UInt64],
 ) -> ConstantArray {
-  let eleCnt = vty.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantArray::new: data length is not equal to element count",
@@ -2007,7 +2007,7 @@ fn ConstantArray::newFloatArray(
   vty : ArrayType,
   data : Array[Float],
 ) -> ConstantArray {
-  let eleCnt = vty.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantArray::new: data length is not equal to element count",
@@ -2029,7 +2029,7 @@ fn ConstantArray::newDoubleArray(
   vty : ArrayType,
   data : Array[Double],
 ) -> ConstantArray {
-  let eleCnt = vty.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantArray::new: data length is not equal to element count",
@@ -2171,7 +2171,7 @@ fn ConstantVector::newInt8Vector(
   vty : VectorType,
   data : Array[Int],
 ) -> ConstantVector {
-  let eleCnt = vty.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantVector::new: data length is not equal to element count",
@@ -2193,7 +2193,7 @@ fn ConstantVector::newInt16Vector(
   vty : VectorType,
   data : Array[Int16],
 ) -> ConstantVector {
-  let eleCnt = vty.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantVector::new: data length is not equal to element count",
@@ -2215,7 +2215,7 @@ fn ConstantVector::newInt32Vector(
   vty : VectorType,
   data : Array[Int],
 ) -> ConstantVector {
-  let eleCnt = vty.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantVector::new: data length is not equal to element count",
@@ -2237,7 +2237,7 @@ fn ConstantVector::newInt64Vector(
   vty : VectorType,
   data : Array[Int64],
 ) -> ConstantVector {
-  let eleCnt = vty.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantVector::new: data length is not equal to element count",
@@ -2259,7 +2259,7 @@ fn ConstantVector::newUInt8Vector(
   vty : VectorType,
   data : Array[Byte],
 ) -> ConstantVector {
-  let eleCnt = vty.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantVector::new: data length is not equal to element count",
@@ -2281,7 +2281,7 @@ fn ConstantVector::newUInt16Vector(
   vty : VectorType,
   data : Array[UInt16],
 ) -> ConstantVector {
-  let eleCnt = vty.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantVector::new: data length is not equal to element count",
@@ -2303,7 +2303,7 @@ fn ConstantVector::newUInt32Vector(
   vty : VectorType,
   data : Array[UInt],
 ) -> ConstantVector {
-  let eleCnt = vty.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantVector::new: data length is not equal to element count",
@@ -2325,7 +2325,7 @@ fn ConstantVector::newUInt64Vector(
   vty : VectorType,
   data : Array[UInt64],
 ) -> ConstantVector {
-  let eleCnt = vty.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantVector::new: data length is not equal to element count",
@@ -2347,7 +2347,7 @@ fn ConstantVector::newFloatVector(
   vty : VectorType,
   data : Array[Float],
 ) -> ConstantVector {
-  let eleCnt = vty.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantVector::new: data length is not equal to element count",
@@ -2369,7 +2369,7 @@ fn ConstantVector::newDoubleVector(
   vty : VectorType,
   data : Array[Double],
 ) -> ConstantVector {
-  let eleCnt = vty.getElementCount().reinterpret_as_int()
+  let eleCnt = vty.getElementCount()
   guard data.length() == eleCnt else {
     llvm_unreachable(
       "ConstantVector::new: data length is not equal to element count",

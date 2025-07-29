@@ -3490,7 +3490,7 @@ pub fn IRBuilder::createCall(
   name~ : String = "",
 ) -> CallInst raise Error {
   let fty = callee.getFunctionType()
-  let expected_params = fty.getNumParams().reinterpret_as_int()
+  let expected_params = fty.getNumParams()
   guard args.length() == expected_params else {
     let msg = "Misuse `IRBuilder::createCall`, " +
       "expected \{expected_params} arguments, " +

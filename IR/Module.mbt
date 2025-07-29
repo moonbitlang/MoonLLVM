@@ -23,6 +23,19 @@ pub fn Module::new(
 }
 
 ///|
+pub fn Module::getFunction(
+  self : Module,
+  name : String,
+) -> Function? {
+  self.functions.get(name)
+}
+
+///|
+pub fn Module::getDataLayout(self : Module) -> DataLayout {
+  self.dataLayout
+}
+
+///|
 pub fn Module::addFunction(
   self : Module,
   fty : FunctionType,
