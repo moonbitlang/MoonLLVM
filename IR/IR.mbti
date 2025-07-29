@@ -63,18 +63,6 @@ impl UnaryInst for AllocaInst
 impl Value for AllocaInst
 impl Show for AllocaInst
 
-pub(all) enum ArgAttr {
-  Alignment(Int)
-  AllocAlign
-  ByVal(&Type)
-  ByRef(&Type)
-  NoAlias
-  NonNull
-}
-impl Eq for ArgAttr
-impl Hash for ArgAttr
-impl Show for ArgAttr
-
 pub struct Argument {
   uid : UInt64
   vty : &Type
@@ -83,7 +71,7 @@ pub struct Argument {
   argNo : UInt
   mut name : String?
 }
-fn Argument::addAttr(Self, ArgAttr) -> Unit
+fn Argument::addAttr(Self, ParamAttr) -> Unit
 impl Value for Argument
 impl Show for Argument
 
@@ -112,25 +100,6 @@ pub(all) enum AtomicOrdering {
 impl Eq for AtomicOrdering
 impl Hash for AtomicOrdering
 impl Show for AtomicOrdering
-
-pub(all) enum Attribute {
-  Alignment(Int)
-  AllocAlign
-  AllocSize(Int)
-  AlwaysInline
-  Builtin
-  ByVal(&Type)
-  ByRef(&Type)
-  NoAlias
-  NonNull
-  NoInline
-}
-fn Attribute::try_as_fn_attr(Self) -> FnAttr?
-fn Attribute::try_as_param_attr(Self) -> ArgAttr?
-fn Attribute::try_as_ret_attr(Self) -> RetAttr?
-impl Eq for Attribute
-impl Hash for Attribute
-impl Show for Attribute
 
 type AttributeSet
 
@@ -634,10 +603,74 @@ impl Hash for FloatingEnum
 impl Show for FloatingEnum
 
 pub(all) enum FnAttr {
+  AllocKind(Int)
   AllocSize(Int)
   AlwaysInline
   Builtin
+  Cold
+  Convergent
+  Hot
+  DisableSanitizerInstrumentation
+  FnRetThunkExtern
+  HybridPatchable
+  InlineHint
+  JumpTable
+  Memory(Int)
+  MinSize
+  Naked
+  NoBuiltin
+  NoCallback
+  NoDivergenceSource
+  NoDuplicate
+  NoFree
+  NoImplicitFloat
   NoInline
+  NonLazyBind
+  NoMerge
+  NoRecurse
+  NoRedZone
+  NoReturn
+  NoSync
+  NoCfCheck
+  NoProfile
+  SkipProfile
+  NoUnwind
+  NoSanitizeBounds
+  NoSanitizeCoverage
+  NullPointerIsValid
+  OptimizeForDebugging
+  OptForFuzzing
+  OptimizeForSize
+  OptimizeNone
+  Preallocated(&Type)
+  ReturnTwice
+  SafeStack
+  ShadowCallStack
+  StackAlignment(Int)
+  Speculatable
+  StackProtect
+  StackProtectReq
+  StackProtectStrong
+  StrictFP
+  SanitizeAddress
+  SanitizeThread
+  SanitizeType
+  SanitizeMemory
+  SanitizeHWAddress
+  SanitizeMemTag
+  SanitizeNumericalStability
+  SanitizeRealtime
+  SanitizeRealtimeBlocking
+  SpeculativeLoadHardening
+  UWTable(Int)
+  VScaleRange(Int)
+  WillReturn
+  MustProgress
+  PresplitCoroutine
+  CoroDestroyOnlyWhenComplete
+  CoroElideSafe
+  DenormalFPMath
+  DenormalFPMathF32
 }
 impl Eq for FnAttr
 impl Hash for FnAttr
@@ -661,13 +694,13 @@ fn Function::addAttr(Self, FnAttr) -> Unit
 fn Function::addBasicBlock(Self, name~ : String = .., before~ : BasicBlock? = ..) -> BasicBlock
 fn Function::clearSlot(Self) -> Unit
 fn Function::getArg(Self, Int) -> Argument?
-fn Function::getArgAttrs(Self, UInt) -> @set.Set[ArgAttr]?
 fn Function::getDataLayout(Self) -> DataLayout
 fn Function::getFunctionAttrs(Self) -> @set.Set[FnAttr]
 fn Function::getFunctionType(Self) -> FunctionType
 fn Function::getNumArgs(Self) -> Int
 fn Function::getNumBasicBlocks(Self) -> Int
 fn Function::getNumParams(Self) -> Int
+fn Function::getParamAttrs(Self, UInt) -> @set.Set[ParamAttr]?
 fn Function::getParamTypes(Self) -> Array[&Type]
 fn Function::getReturnAttrs(Self) -> @set.Set[RetAttr]
 fn Function::getReturnType(Self) -> &Type
@@ -1112,6 +1145,47 @@ impl User for PHINode
 impl Value for PHINode
 impl Show for PHINode
 
+pub(all) enum ParamAttr {
+  Alignment(Int)
+  AllocAlign
+  AllocatedPointer
+  ByVal(&Type)
+  ByRef(&Type)
+  NoUndef
+  Dereferenceable(Int)
+  DereferenceableOrNull(Int)
+  ElementType(&Type)
+  InAlloca(&Type)
+  Initializes
+  InReg
+  NoFPClass
+  Nest
+  NoAlias
+  Captures
+  NoExt
+  NoFree
+  DeadOnUnwind
+  NonNull
+  Preallocated(&Type)
+  Range
+  ReadNone
+  ReadOnly
+  Returned
+  ImmArg
+  SExt
+  StackAlignment(Int)
+  StructRet
+  SwiftError
+  SwiftSelf
+  SwiftAsync
+  Writable
+  WriteOnly
+  ZExt
+}
+impl Eq for ParamAttr
+impl Hash for ParamAttr
+impl Show for ParamAttr
+
 pub struct PointerType {
   addressSpace : AddressSpace
   // private fields
@@ -1141,8 +1215,17 @@ impl Show for PrimitiveTypeEnum
 
 pub(all) enum RetAttr {
   Alignment(Int)
+  NoUndef
+  Dereferenceable(Int)
+  DereferenceableOrNull(Int)
+  InReg
+  NoFPClass
   NoAlias
+  NoExt
   NonNull
+  SExt
+  StackAlignment(Int)
+  ZExt
 }
 impl Eq for RetAttr
 impl Hash for RetAttr

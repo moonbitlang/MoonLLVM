@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "Kaida-Amethyst/MoonLLVM/Transforms"
+package "Kaida-Amethyst/MoonLLVM/Pass"
 
 import(
   "Kaida-Amethyst/MoonLLVM/IR"
