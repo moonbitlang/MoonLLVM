@@ -1,5 +1,5 @@
 ///|
-pub type Int8 Int derive(Eq, Hash, Compare)
+pub struct Int8(Int) derive(Eq, Hash, Compare)
 
 ///|
 pub let max_value : Int8 = 127

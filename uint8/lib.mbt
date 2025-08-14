@@ -1,5 +1,5 @@
 ///|
-pub type UInt8 Byte derive(Eq, Hash, Compare)
+pub struct UInt8(Byte) derive(Eq, Hash, Compare)
 
 ///|
 pub let max_value : UInt8 = 255
