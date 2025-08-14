@@ -2064,7 +2064,7 @@ pub impl AggregateType for ScalableVectorType with asAggregateTypeEnum(self) -> 
 // ====================================================================
 
 ///| Memory address space of a pointer type.
-pub type AddressSpace UInt derive(Hash, Show, Eq, Default)
+pub struct AddressSpace(UInt) derive(Hash, Show, Eq, Default)
 
 ///|
 pub fn AddressSpace::new(v : UInt) -> AddressSpace {
