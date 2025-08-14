@@ -1576,8 +1576,8 @@ pub struct StructType {
 fn StructType::new(
   context : Context,
   elements : Array[&Type],
-  name~ : String? = None,
-  isPacked~ : Bool = false,
+  name~ : String?,
+  isPacked~ : Bool,
 ) -> StructType raise LLVMTypeError {
   if name is None && elements.is_empty() {
     raise OpaqueStructMustHaveName
@@ -2064,7 +2064,7 @@ pub impl AggregateType for ScalableVectorType with asAggregateTypeEnum(self) -> 
 // ====================================================================
 
 ///| Memory address space of a pointer type.
-pub type AddressSpace UInt derive(Hash, Show, Eq, Default)
+pub struct AddressSpace(UInt) derive(Hash, Show, Eq, Default)
 
 ///|
 pub fn AddressSpace::new(v : UInt) -> AddressSpace {
@@ -2101,7 +2101,7 @@ pub struct PointerType {
 ///|
 fn PointerType::new(
   context : Context,
-  addressSpace~ : AddressSpace = AddressSpace::default(),
+  addressSpace~ : AddressSpace,
 ) -> PointerType {
   let base = TypeBase::new(context)
   PointerType::{ base, addressSpace }

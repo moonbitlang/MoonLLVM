@@ -38,7 +38,7 @@ pub struct BasicBlock {
 }
 
 ///|
-fn BasicBlock::new(parent : Function, name~ : String? = None) -> BasicBlock {
+fn BasicBlock::new(parent : Function, name~ : String?) -> BasicBlock {
   let uid = valueUIDAssigner.assign()
   BasicBlock::{
     uid,

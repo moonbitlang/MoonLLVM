@@ -6,8 +6,10 @@ let max_value : Int8
 
 let min_value : Int8
 
+// Errors
+
 // Types and methods
-pub type Int8 Int
+pub struct Int8(Int)
 fn Int8::from(Int) -> Self
 fn Int8::from_int64(Int64) -> Self
 fn Int8::from_uint64(UInt64) -> Self
