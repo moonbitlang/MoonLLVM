@@ -1576,8 +1576,8 @@ pub struct StructType {
 fn StructType::new(
   context : Context,
   elements : Array[&Type],
-  name~ : String? = None,
-  isPacked~ : Bool = false,
+  name~ : String?,
+  isPacked~ : Bool,
 ) -> StructType raise LLVMTypeError {
   if name is None && elements.is_empty() {
     raise OpaqueStructMustHaveName
@@ -2101,7 +2101,7 @@ pub struct PointerType {
 ///|
 fn PointerType::new(
   context : Context,
-  addressSpace~ : AddressSpace = AddressSpace::default(),
+  addressSpace~ : AddressSpace,
 ) -> PointerType {
   let base = TypeBase::new(context)
   PointerType::{ base, addressSpace }
