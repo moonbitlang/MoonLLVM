@@ -6,8 +6,10 @@ let max_value : UInt8
 
 let min_value : UInt8
 
+// Errors
+
 // Types and methods
-pub type UInt8 Byte
+pub struct UInt8(Byte)
 fn UInt8::from(Byte) -> Self
 fn UInt8::from_int64(Int64) -> Self
 fn UInt8::from_uint64(UInt64) -> Self

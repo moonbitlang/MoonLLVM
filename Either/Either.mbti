@@ -3,6 +3,8 @@ package "Kaida-Amethyst/MoonLLVM/Either"
 
 // Values
 
+// Errors
+
 // Types and methods
 pub(all) enum Either[L, R] {
   Left(L)
