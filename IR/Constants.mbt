@@ -1459,7 +1459,7 @@ pub fn ConstantFP::fptrunc(
 /// // Test f32 to f64 extension preserves value
 /// let f32_pi = ctx.getConstFloat(3.14159265)
 /// let f64_pi = f32_pi.fpext(ctx.getDoubleTy())
-/// assert_eq(f64_pi.getValue(), 3.14159265)
+/// assert_eq(f64_pi.getValue(), 3.1415927410125732)
 ///
 /// // Test error case: cannot extend to smaller type
 /// let f64_val = ctx.getConstDouble(2.0)
@@ -2484,7 +2484,7 @@ pub impl Show for ConstantVector with output(self, logger) {
 /// let f32_val = ctx.getConstFloat(3.14)
 /// let struct_val = ConstantStruct::new(sty, [i32_val, f32_val])
 ///
-/// inspect(struct_val, content="{ i32, float } { i32 42, float 0x40091EB851EB851F }")
+/// inspect(struct_val, content="{ i32, float } { i32 42, float 0x40091EB860000000 }")
 /// ```
 pub struct ConstantStruct {
   // Unique identifier
@@ -2551,7 +2551,7 @@ pub fn ConstantStruct::getElement(
 /// let struct_val = ConstantStruct::new(sty, [i32_val, f32_val])
 ///
 /// inspect(struct_val.extractValue([0]), content="Some(i32 42)")
-/// inspect(struct_val.extractValue([1]), content="Some(float 0x40091EB851EB851F)")
+/// inspect(struct_val.extractValue([1]), content="Some(float 0x40091EB860000000)")
 /// inspect(struct_val.extractValue([2]), content="None") // Out of bounds
 /// ```
 pub fn ConstantStruct::extractValue(

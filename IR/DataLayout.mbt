@@ -1,5 +1,5 @@
 ///|
-type Align UInt64 derive(Eq)
+struct Align(UInt64) derive(Eq)
 
 ///|
 pub fn Align::new(v : UInt64) -> Align {

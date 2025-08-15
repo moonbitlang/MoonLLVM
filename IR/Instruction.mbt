@@ -43,7 +43,7 @@ fn AllocaInst::new(
   data_ty : &Type,
   parent : Function,
   addressSpace~ : AddressSpace,
-  name~ : String? = None,
+  name~ : String?,
 ) -> AllocaInst {
   let uid = valueUIDAssigner.assign()
   let vty = data_ty.getContext().getPtrTy(addressSpace~)
@@ -329,7 +329,7 @@ fn LoadInst::new(
   isVolatile : Bool,
   atomicOrdering : AtomicOrdering,
   parent : Function,
-  name~ : String? = None,
+  name~ : String?,
 ) -> LoadInst {
   let vty = load_ty
   let bb : Ref[BasicBlock?] = Ref::new(None)
@@ -968,7 +968,7 @@ fn BinaryInst::newStandardOp(
   lhs : &Value,
   rhs : &Value,
   parent : Function,
-  name~ : String? = None,
+  name~ : String?,
   flags : Set[BinaryOpFlags],
 ) -> BinaryInst {
   guard opcode
@@ -1023,7 +1023,7 @@ fn BinaryInst::newFPMathOp(
   lhs : &Value,
   rhs : &Value,
   parent : Function,
-  name~ : String? = None,
+  name~ : String?,
   fast_math_flags : Set[FastMathFlag],
 ) -> BinaryInst {
   guard opcode is (FAdd | FSub | FMul | FDiv | FRem) else {
@@ -1359,7 +1359,7 @@ fn ICmpInst::new(
   lhs : &Value,
   rhs : &Value,
   parent : Function,
-  name~ : String? = None,
+  name~ : String?,
 ) -> ICmpInst {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy
@@ -1694,7 +1694,7 @@ fn FCmpInst::new(
   lhs : &Value,
   rhs : &Value,
   parent : Function,
-  name~ : String? = None,
+  name~ : String?,
 ) -> FCmpInst {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy
@@ -1999,7 +1999,7 @@ fn CastInst::newTrunc(
   from_val : &Value,
   to_ty : &IntegerType,
   parent : Function,
-  name~ : String? = None,
+  name~ : String?,
 ) -> CastInst {
   guard from_val.getType().tryAsIntTypeEnum() is Some(from_ty)
   guard from_ty.getBitWidth() > to_ty.getBitWidth()
@@ -2028,7 +2028,7 @@ fn CastInst::newZExt(
   from_val : &Value,
   to_ty : &IntegerType,
   parent : Function,
-  name~ : String? = None,
+  name~ : String?,
 ) -> CastInst {
   guard from_val.getType().tryAsIntTypeEnum() is Some(from_ty)
   guard from_ty.getBitWidth() < to_ty.getBitWidth()
@@ -2057,7 +2057,7 @@ fn CastInst::newSExt(
   from_val : &Value,
   to_ty : &IntegerType,
   parent : Function,
-  name~ : String? = None,
+  name~ : String?,
 ) -> CastInst {
   let uid = valueUIDAssigner.assign()
   let bb : Ref[BasicBlock?] = Ref::new(None)
@@ -2084,7 +2084,7 @@ fn CastInst::newFPTrunc(
   from_val : &Value,
   to_ty : &FPType,
   parent : Function,
-  name~ : String? = None,
+  name~ : String?,
 ) -> CastInst {
   let uid = valueUIDAssigner.assign()
   let bb : Ref[BasicBlock?] = Ref::new(None)
@@ -2111,7 +2111,7 @@ fn CastInst::newFPExt(
   from_val : &Value,
   to_ty : &FPType,
   parent : Function,
-  name~ : String? = None,
+  name~ : String?,
 ) -> CastInst {
   let uid = valueUIDAssigner.assign()
   let bb : Ref[BasicBlock?] = Ref::new(None)
@@ -2138,7 +2138,7 @@ fn CastInst::newUIToFP(
   from_val : &Value,
   to_ty : &FPType,
   parent : Function,
-  name~ : String? = None,
+  name~ : String?,
 ) -> CastInst {
   let uid = valueUIDAssigner.assign()
   let bb : Ref[BasicBlock?] = Ref::new(None)
@@ -2165,7 +2165,7 @@ fn CastInst::newFPToUI(
   from_val : &Value,
   to_ty : &IntegerType,
   parent : Function,
-  name~ : String? = None,
+  name~ : String?,
 ) -> CastInst {
   let uid = valueUIDAssigner.assign()
   let bb : Ref[BasicBlock?] = Ref::new(None)
@@ -2192,7 +2192,7 @@ fn CastInst::newSIToFP(
   from_val : &Value,
   to_ty : &FPType,
   parent : Function,
-  name~ : String? = None,
+  name~ : String?,
 ) -> CastInst {
   let uid = valueUIDAssigner.assign()
   let bb : Ref[BasicBlock?] = Ref::new(None)
@@ -2219,7 +2219,7 @@ fn CastInst::newFPToSI(
   from_val : &Value,
   to_ty : &IntegerType,
   parent : Function,
-  name~ : String? = None,
+  name~ : String?,
 ) -> CastInst {
   let uid = valueUIDAssigner.assign()
   let bb : Ref[BasicBlock?] = Ref::new(None)
@@ -2246,7 +2246,7 @@ fn CastInst::newPtrToInt(
   from_val : &Value,
   to_ty : &IntegerType,
   parent : Function,
-  name~ : String? = None,
+  name~ : String?,
 ) -> CastInst {
   let uid = valueUIDAssigner.assign()
   let bb : Ref[BasicBlock?] = Ref::new(None)
@@ -2272,7 +2272,7 @@ fn CastInst::newPtrToInt(
 fn CastInst::newIntToPtr(
   from_val : &Value,
   parent : Function,
-  name~ : String? = None,
+  name~ : String?,
 ) -> CastInst {
   let to_ty = from_val.getContext().getPtrTy()
   let uid = valueUIDAssigner.assign()
@@ -2302,7 +2302,7 @@ fn CastInst::newBitCast(
   from_val : &Value,
   to_ty : &PrimitiveType,
   parent : Function,
-  name~ : String? = None,
+  name~ : String?,
 ) -> CastInst {
   let uid = valueUIDAssigner.assign()
   let bb : Ref[BasicBlock?] = Ref::new(None)
@@ -2569,7 +2569,7 @@ fn GetElementPtrInst::new(
   indices : Array[&Value],
   isInbounds : Bool,
   parent : Function,
-  name~ : String? = None,
+  name~ : String?,
 ) -> GetElementPtrInst {
   let uid = valueUIDAssigner.assign()
   let bb : Ref[BasicBlock?] = Ref::new(None)
@@ -2849,7 +2849,7 @@ fn SelectInst::new(
   trueValue : &Value,
   falseValue : &Value,
   parent : Function,
-  name~ : String? = None,
+  name~ : String?,
 ) -> SelectInst {
   let vty = trueValue.getType()
   let uid = valueUIDAssigner.assign()
@@ -3821,11 +3821,7 @@ pub struct PHINode {
 }
 
 ///|
-fn PHINode::new(
-  vty : &Type,
-  parent : Function,
-  name~ : String? = None,
-) -> PHINode {
+fn PHINode::new(vty : &Type, parent : Function, name~ : String?) -> PHINode {
   let uid = valueUIDAssigner.assign()
   let bb : Ref[BasicBlock?] = Ref::new(None)
   let prev : Ref[&Instruction?] = Ref::new(None)
@@ -4426,7 +4422,7 @@ fn CallInst::new(
   callee : Function,
   args : Array[&Value],
   parent : Function,
-  name~ : String? = None,
+  name~ : String?,
 ) -> CallInst {
   let fty = callee.getFunctionType()
   let name = match fty.getReturnType().asTypeEnum() {
@@ -4779,7 +4775,7 @@ fn ExtractValueInst::new(
   aggregate : &Value,
   indices : Array[Int],
   parent : Function,
-  name~ : String? = None,
+  name~ : String?,
 ) -> ExtractValueInst {
   let agg_ty = aggregate.getType()
   guard agg_ty.tryAsAggregateTypeEnum() is Some(agg_ty)
@@ -5057,7 +5053,7 @@ fn InsertValueInst::new(
   insert_val : &Value,
   indices : Array[Int],
   parent : Function,
-  name~ : String? = None,
+  name~ : String?,
 ) -> InsertValueInst {
   let agg_ty = aggregate.getType()
   guard agg_ty.tryAsAggregateTypeEnum() is Some(agg_ty)
