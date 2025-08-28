@@ -161,6 +161,10 @@ pub fn Module::getContext(self : Module) -> Context {
 pub impl Show for Module with output(self, logger) {
   logger.write_string(";; ModuleID = '\{self.moduleID}'\n")
   logger.write_string(";; Source File = \"\{self.srcFileName}\"\n\n")
+
+  // Output named struct type in context
+  let all_named_structs = self.context.getAllNamedStructTypes()
+  all_named_structs.each(s => logger.write_string(s.full_info() + "\n\n"))
   
   // Output global variables first
   if self.globalVariables.size() > 0 {

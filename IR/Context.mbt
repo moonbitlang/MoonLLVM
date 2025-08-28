@@ -356,6 +356,10 @@ pub fn Context::getStructTypeByName(self : Self, name : String) -> StructType? {
   self.pimpl.unwrap().namedStructTypes.get(name)
 }
 
+fn Context::getAllNamedStructTypes(self : Context) -> Array[StructType] {
+  self.pimpl.unwrap().namedStructTypes.values().to_array()
+}
+
 ///|
 /// Create an array type in the context.
 ///
