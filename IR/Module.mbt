@@ -1,4 +1,4 @@
-///|
+//|
 pub struct Module {
   context : Context
   functions : Map[String, Function]
@@ -70,7 +70,7 @@ pub fn Module::getContext(self : Module) -> Context {
 pub impl Show for Module with output(self, logger) {
   logger.write_string(";; ModuleID = '\{self.moduleID}'\n")
   logger.write_string(";; Source File = \"\{self.srcFileName}\"\n\n")
-  self.functions.values().each(f => logger.write_string(f.to_string()))
+  self.functions.values().each(f => logger.write_string(f.to_string() + "\n"))
 }
 
 ///|

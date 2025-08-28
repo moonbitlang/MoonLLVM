@@ -540,5 +540,7 @@ pub impl Show for Function with output(self, logger) {
     let body_str = self.basicBlocks.map(bb => bb.to_string()).join("\n")
     logger.write_string(body_str)
     logger.write_string("}\n")
+  } else {
+    logger.write_string("\n")
   }
 }
