@@ -9,7 +9,7 @@ test "Function" {
 
   // create function
   let fval = prog.addFunction(fty, "add")
-  inspect(fval, content="declare i32 @add(i32, i32)")
+  inspect(fval, content="declare i32 @add(i32, i32)\n")
 
   // Set linkage
   fval.setLinkage(PrivateLinkage)
