@@ -1,4 +1,5 @@
 //|
+///|
 pub struct Module {
   context : Context
   functions : Map[String, Function]
@@ -23,10 +24,7 @@ pub fn Module::new(
 }
 
 ///|
-pub fn Module::getFunction(
-  self : Module,
-  name : String,
-) -> Function? {
+pub fn Module::getFunction(self : Module, name : String) -> Function? {
   self.functions.get(name)
 }
 
@@ -40,8 +38,8 @@ pub fn Module::addFunction(
   self : Module,
   fty : FunctionType,
   name : String,
-  linkage~ : LinkageTypes = ExternalLinkage,
-  addressSpace~ : AddressSpace = AddressSpace(0),
+  linkage? : LinkageTypes = ExternalLinkage,
+  addressSpace? : AddressSpace = AddressSpace(0),
 ) -> Function raise LLVMValueError {
   if name.is_empty() {
     let msg = "Misuse `Module::addFunction`: function name cannot be empty."

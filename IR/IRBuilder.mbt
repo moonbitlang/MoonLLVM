@@ -75,7 +75,8 @@ pub fn IRBuilder::getInsertBlock(self : IRBuilder) -> BasicBlock {
   self.bb.unwrap()
 }
 
-///| Create a Return Instruction
+///|
+/// Create a Return Instruction
 ///
 /// **Note:**
 /// 
@@ -116,7 +117,8 @@ pub fn IRBuilder::createRet(
   retInst
 }
 
-///| Create a Return Instruction with no return value (void)
+///|
+/// Create a Return Instruction with no return value (void)
 ///
 /// **Note:**
 ///
@@ -151,7 +153,8 @@ pub fn IRBuilder::createRetVoid(self : IRBuilder) -> &Instruction raise Error {
   retInst
 }
 
-///| Create an Alloca Instruction.
+///|
+/// Create an Alloca Instruction.
 ///
 /// ```moonbit
 /// let ctx = Context::new()
@@ -173,8 +176,8 @@ pub fn IRBuilder::createRetVoid(self : IRBuilder) -> &Instruction raise Error {
 pub fn IRBuilder::createAlloca(
   self : IRBuilder,
   data_ty : &Type,
-  addressSpace~ : AddressSpace = AddressSpace::default(),
-  name~ : String = "",
+  addressSpace? : AddressSpace = AddressSpace::default(),
+  name? : String = "",
 ) -> AllocaInst raise Error {
   let allocaInst = AllocaInst::new(
     data_ty,
@@ -190,7 +193,8 @@ pub fn IRBuilder::createAlloca(
   allocaInst
 }
 
-///| Create an Add Instruction
+///|
+/// Create an Add Instruction
 ///
 /// **Note:**
 /// 
@@ -224,9 +228,9 @@ pub fn IRBuilder::createAdd(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
-  has_nsw~ : Bool = false,
-  has_nuw~ : Bool = false,
+  name? : String = "",
+  has_nsw? : Bool = false,
+  has_nuw? : Bool = false,
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -269,7 +273,8 @@ pub fn IRBuilder::createAdd(
   inst
 }
 
-///| Create an NSW Add Instruction
+///|
+/// Create an NSW Add Instruction
 ///
 /// **Note:**
 /// 
@@ -303,12 +308,13 @@ pub fn IRBuilder::createNSWAdd(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   self.createAdd(lhs, rhs, name~, has_nsw=true, has_nuw=false)
 }
 
-///| Create an NUW Add Instruction
+///|
+/// Create an NUW Add Instruction
 ///
 /// **Note:**
 /// 
@@ -342,12 +348,13 @@ pub fn IRBuilder::createNUWAdd(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   self.createAdd(lhs, rhs, name~, has_nsw=false, has_nuw=true)
 }
 
-///| Create a Sub Instruction
+///|
+/// Create a Sub Instruction
 ///
 /// **Note:**
 /// 
@@ -381,9 +388,9 @@ pub fn IRBuilder::createSub(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
-  has_nsw~ : Bool = false,
-  has_nuw~ : Bool = false,
+  name? : String = "",
+  has_nsw? : Bool = false,
+  has_nuw? : Bool = false,
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -426,7 +433,8 @@ pub fn IRBuilder::createSub(
   inst
 }
 
-///| Create an NSW Sub Instruction
+///|
+/// Create an NSW Sub Instruction
 ///
 /// **Note:**
 /// 
@@ -460,12 +468,13 @@ pub fn IRBuilder::createNSWSub(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   self.createSub(lhs, rhs, name~, has_nsw=true, has_nuw=false)
 }
 
-///| Create an NUW Sub Instruction
+///|
+/// Create an NUW Sub Instruction
 ///
 /// **Note:**
 /// 
@@ -499,12 +508,13 @@ pub fn IRBuilder::createNUWSub(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   self.createSub(lhs, rhs, name~, has_nsw=false, has_nuw=true)
 }
 
-///| Create a Mul Instruction
+///|
+/// Create a Mul Instruction
 ///
 /// **Note:**
 /// 
@@ -538,9 +548,9 @@ pub fn IRBuilder::createMul(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
-  has_nsw~ : Bool = false,
-  has_nuw~ : Bool = false,
+  name? : String = "",
+  has_nsw? : Bool = false,
+  has_nuw? : Bool = false,
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -583,7 +593,8 @@ pub fn IRBuilder::createMul(
   inst
 }
 
-///| Create an NSW Mul Instruction
+///|
+/// Create an NSW Mul Instruction
 ///
 /// **Note:**
 /// 
@@ -617,12 +628,13 @@ pub fn IRBuilder::createNSWMul(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   self.createMul(lhs, rhs, name~, has_nsw=true, has_nuw=false)
 }
 
-///| Create an NUW Mul Instruction
+///|
+/// Create an NUW Mul Instruction
 ///
 /// **Note:**
 /// 
@@ -656,12 +668,13 @@ pub fn IRBuilder::createNUWMul(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   self.createMul(lhs, rhs, name~, has_nsw=false, has_nuw=true)
 }
 
-///| Create an SDiv Instruction
+///|
+/// Create an SDiv Instruction
 ///
 /// **Note:**
 /// 
@@ -696,8 +709,8 @@ pub fn IRBuilder::createSDiv(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
-  is_exact~ : Bool = false,
+  name? : String = "",
+  is_exact? : Bool = false,
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -738,7 +751,8 @@ pub fn IRBuilder::createSDiv(
   inst
 }
 
-///| Create an Exact SDiv Instruction
+///|
+/// Create an Exact SDiv Instruction
 ///
 /// **Note:**
 /// 
@@ -773,12 +787,13 @@ pub fn IRBuilder::createExactSDiv(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   self.createSDiv(lhs, rhs, name~, is_exact=true)
 }
 
-///| Create a UDiv Instruction
+///|
+/// Create a UDiv Instruction
 ///
 /// **Note:**
 /// 
@@ -813,8 +828,8 @@ pub fn IRBuilder::createUDiv(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
-  is_exact~ : Bool = false,
+  name? : String = "",
+  is_exact? : Bool = false,
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -854,7 +869,8 @@ pub fn IRBuilder::createUDiv(
   inst
 }
 
-///| Create an Exact UDiv Instruction
+///|
+/// Create an Exact UDiv Instruction
 ///
 /// **Note:**
 /// 
@@ -890,12 +906,13 @@ pub fn IRBuilder::createExactUDiv(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   self.createUDiv(lhs, rhs, name~, is_exact=true)
 }
 
-///| Create an SRem Instruction
+///|
+/// Create an SRem Instruction
 ///
 /// **Note:**
 /// 
@@ -929,7 +946,7 @@ pub fn IRBuilder::createSRem(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -968,7 +985,8 @@ pub fn IRBuilder::createSRem(
   inst
 }
 
-///| Create a URem Instruction
+///|
+/// Create a URem Instruction
 ///
 /// **Note:**
 /// 
@@ -1002,7 +1020,7 @@ pub fn IRBuilder::createURem(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -1041,7 +1059,8 @@ pub fn IRBuilder::createURem(
   inst
 }
 
-///| Create an FAdd Instruction
+///|
+/// Create an FAdd Instruction
 ///
 /// **Note:**
 /// 
@@ -1098,8 +1117,8 @@ pub fn IRBuilder::createFAdd(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
-  fast_math~ : Array[FastMathFlag] = [],
+  name? : String = "",
+  fast_math? : Array[FastMathFlag] = [],
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -1132,7 +1151,8 @@ pub fn IRBuilder::createFAdd(
   inst
 }
 
-///| Create an FSub Instruction
+///|
+/// Create an FSub Instruction
 ///
 /// **Note:**
 /// 
@@ -1166,8 +1186,8 @@ pub fn IRBuilder::createFSub(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
-  fast_math_flags~ : Set[FastMathFlag] = Set::new(),
+  name? : String = "",
+  fast_math_flags? : Set[FastMathFlag] = Set::new(),
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -1199,7 +1219,8 @@ pub fn IRBuilder::createFSub(
   inst
 }
 
-///| Create an FMul Instruction
+///|
+/// Create an FMul Instruction
 ///
 /// **Note:**
 /// 
@@ -1233,8 +1254,8 @@ pub fn IRBuilder::createFMul(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
-  fast_math_flags~ : Set[FastMathFlag] = Set::new(),
+  name? : String = "",
+  fast_math_flags? : Set[FastMathFlag] = Set::new(),
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -1266,7 +1287,8 @@ pub fn IRBuilder::createFMul(
   inst
 }
 
-///| Create an FDiv Instruction
+///|
+/// Create an FDiv Instruction
 ///
 /// **Note:**
 /// 
@@ -1300,8 +1322,8 @@ pub fn IRBuilder::createFDiv(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
-  fast_math_flags~ : Set[FastMathFlag] = Set::new(),
+  name? : String = "",
+  fast_math_flags? : Set[FastMathFlag] = Set::new(),
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -1333,7 +1355,8 @@ pub fn IRBuilder::createFDiv(
   inst
 }
 
-///| Create an FRem Instruction
+///|
+/// Create an FRem Instruction
 ///
 /// **Note:**
 /// 
@@ -1367,8 +1390,8 @@ pub fn IRBuilder::createFRem(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
-  fast_math_flags~ : Set[FastMathFlag] = Set::new(),
+  name? : String = "",
+  fast_math_flags? : Set[FastMathFlag] = Set::new(),
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -1400,7 +1423,8 @@ pub fn IRBuilder::createFRem(
   inst
 }
 
-///| Create an And Instruction
+///|
+/// Create an And Instruction
 ///
 /// **Note:**
 /// 
@@ -1434,7 +1458,7 @@ pub fn IRBuilder::createAnd(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -1471,7 +1495,8 @@ pub fn IRBuilder::createAnd(
   inst
 }
 
-///| Create an Or Instruction
+///|
+/// Create an Or Instruction
 ///
 /// **Note:**
 /// 
@@ -1505,7 +1530,7 @@ pub fn IRBuilder::createOr(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -1542,7 +1567,8 @@ pub fn IRBuilder::createOr(
   inst
 }
 
-///| Create an Xor Instruction
+///|
+/// Create an Xor Instruction
 ///
 /// **Note:**
 /// 
@@ -1576,7 +1602,7 @@ pub fn IRBuilder::createXor(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -1613,7 +1639,8 @@ pub fn IRBuilder::createXor(
   inst
 }
 
-///| Create a Shl Instruction
+///|
+/// Create a Shl Instruction
 ///
 /// **Note:**
 /// 
@@ -1647,9 +1674,9 @@ pub fn IRBuilder::createShl(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
-  has_nsw~ : Bool = false,
-  has_nuw~ : Bool = false,
+  name? : String = "",
+  has_nsw? : Bool = false,
+  has_nuw? : Bool = false,
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -1693,7 +1720,8 @@ pub fn IRBuilder::createShl(
   inst
 }
 
-///| Create an LShr Instruction
+///|
+/// Create an LShr Instruction
 ///
 /// **Note:**
 /// 
@@ -1727,8 +1755,8 @@ pub fn IRBuilder::createLShr(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
-  is_exact~ : Bool = false,
+  name? : String = "",
+  is_exact? : Bool = false,
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -1769,7 +1797,8 @@ pub fn IRBuilder::createLShr(
   inst
 }
 
-///| Create an AShr Instruction
+///|
+/// Create an AShr Instruction
 ///
 /// **Note:**
 /// 
@@ -1803,8 +1832,8 @@ pub fn IRBuilder::createAShr(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
-  is_exact~ : Bool = false,
+  name? : String = "",
+  is_exact? : Bool = false,
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -1845,7 +1874,8 @@ pub fn IRBuilder::createAShr(
   inst
 }
 
-///| Create an Integer Compare Instruction.
+///|
+/// Create an Integer Compare Instruction.
 ///
 /// **Note:**
 ///
@@ -1908,7 +1938,7 @@ pub fn IRBuilder::createICmp(
   pred : IntPredicate,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -1938,127 +1968,138 @@ pub fn IRBuilder::createICmp(
   inst
 }
 
-///| Create Eq (Equality) Comparison Instruction.
+///|
+/// Create Eq (Equality) Comparison Instruction.
 ///
 /// It's equivalent to `IRBuilder::createICmp(ICMP_EQ, ...)`.
 pub fn IRBuilder::createICmpEQ(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   self.createICmp(EQ, lhs, rhs, name~)
 }
 
-///| Create Ne (Not Equal) Comparison Instruction.
+///|
+/// Create Ne (Not Equal) Comparison Instruction.
 ///
 /// It's equivalent to `IRBuilder::createICmp(ICMP_NE, ...)`.
 pub fn IRBuilder::createICmpNE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   self.createICmp(NE, lhs, rhs, name~)
 }
 
-///| Create UGT (Unsigned Greater Than) Comparison Instruction.
+///|
+/// Create UGT (Unsigned Greater Than) Comparison Instruction.
 ///
 /// It's equivalent to `IRBuilder::createICmp(UGT, ...)`.
 pub fn IRBuilder::createICmpUGT(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   self.createICmp(UGT, lhs, rhs, name~)
 }
 
-///| Create UGE (Unsigned Greater Than or Equal) Comparison Instruction.
+///|
+/// Create UGE (Unsigned Greater Than or Equal) Comparison Instruction.
 ///
 /// It's equivalent to `IRBuilder::createICmp(UGE, ...)`.
 pub fn IRBuilder::createICmpUGE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   self.createICmp(UGE, lhs, rhs, name~)
 }
 
-///| Create ULT (Unsigned Less Than) Comparison Instruction.
+///|
+/// Create ULT (Unsigned Less Than) Comparison Instruction.
 ///
 /// It's equivalent to `IRBuilder::createICmp(ULT, ...)`.
 pub fn IRBuilder::createICmpULT(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   self.createICmp(ULT, lhs, rhs, name~)
 }
 
-///| Create ULE (Unsigned Less Than or Equal) Comparison Instruction.
+///|
+/// Create ULE (Unsigned Less Than or Equal) Comparison Instruction.
 ///
 /// It's equivalent to `IRBuilder::createICmp(ULE, ...)`.
 pub fn IRBuilder::createICmpULE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   self.createICmp(ULE, lhs, rhs, name~)
 }
 
-///| Create SGT (Signed Greater Than) Comparison Instruction.
+///|
+/// Create SGT (Signed Greater Than) Comparison Instruction.
 ///
 /// It's equivalent to `IRBuilder::createICmp(SGT, ...)`.
 pub fn IRBuilder::createICmpSGT(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   self.createICmp(SGT, lhs, rhs, name~)
 }
 
-///| Create SGE (Signed Greater Than or Equal) Comparison Instruction.
+///|
+/// Create SGE (Signed Greater Than or Equal) Comparison Instruction.
 ///
 /// It's equivalent to `IRBuilder::createICmp(SGE, ...)`.
 pub fn IRBuilder::createICmpSGE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   self.createICmp(SGE, lhs, rhs, name~)
 }
 
-///| Create SLT (Signed Less Than) Comparison Instruction.
+///|
+/// Create SLT (Signed Less Than) Comparison Instruction.
 ///
 /// It's equivalent to `IRBuilder::createICmp(SLT, ...)`.
 pub fn IRBuilder::createICmpSLT(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   self.createICmp(SLT, lhs, rhs, name~)
 }
 
-///| Create SLE (Signed Less Than or Equal) Comparison Instruction.
+///|
+/// Create SLE (Signed Less Than or Equal) Comparison Instruction.
 ///
 /// It's equivalent to `IRBuilder::createICmp(SLE, ...)`.
 pub fn IRBuilder::createICmpSLE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   self.createICmp(SLE, lhs, rhs, name~)
 }
 
-///| Create a Float Compare Instruction.
+///|
+/// Create a Float Compare Instruction.
 ///
 /// **Note:**
 ///
@@ -2130,7 +2171,7 @@ pub fn IRBuilder::createFCmp(
   pred : FloatPredicate,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -2160,175 +2201,190 @@ pub fn IRBuilder::createFCmp(
   inst
 }
 
-///| Create OEQ (Ordered Equal) Comparison Instruction for floating-point values.
+///|
+/// Create OEQ (Ordered Equal) Comparison Instruction for floating-point values.
 ///
 /// It's equivalent to `IRBuilder::createFCmp(OEQ, ...)`.
 pub fn IRBuilder::createFCmpOEQ(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   self.createFCmp(OEQ, lhs, rhs, name~)
 }
 
-///| Create OGT (Ordered Greater Than) Comparison Instruction for floating-point values.
+///|
+/// Create OGT (Ordered Greater Than) Comparison Instruction for floating-point values.
 ///
 /// It's equivalent to `IRBuilder::createFCmp(OGT, ...)`.
 pub fn IRBuilder::createFCmpOGT(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   self.createFCmp(OGT, lhs, rhs, name~)
 }
 
-///| Create OGE (Ordered Greater Than or Equal) Comparison Instruction for floating-point values.
+///|
+/// Create OGE (Ordered Greater Than or Equal) Comparison Instruction for floating-point values.
 ///
 /// It's equivalent to `IRBuilder::createFCmp(OGE, ...)`.
 pub fn IRBuilder::createFCmpOGE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   self.createFCmp(OGE, lhs, rhs, name~)
 }
 
-///| Create OLT (Ordered Less Than) Comparison Instruction for floating-point values.
+///|
+/// Create OLT (Ordered Less Than) Comparison Instruction for floating-point values.
 ///
 /// It's equivalent to `IRBuilder::createFCmp(OLT, ...)`.
 pub fn IRBuilder::createFCmpOLT(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   self.createFCmp(OLT, lhs, rhs, name~)
 }
 
-///| Create OLE (Ordered Less Than or Equal) Comparison Instruction for floating-point values.
+///|
+/// Create OLE (Ordered Less Than or Equal) Comparison Instruction for floating-point values.
 ///
 /// It's equivalent to `IRBuilder::createFCmp(OLE, ...)`.
 pub fn IRBuilder::createFCmpOLE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   self.createFCmp(OLE, lhs, rhs, name~)
 }
 
-///| Create ONE (Ordered Not Equal) Comparison Instruction for floating-point values.
+///|
+/// Create ONE (Ordered Not Equal) Comparison Instruction for floating-point values.
 ///
 /// It's equivalent to `IRBuilder::createFCmp(ONE, ...)`.
 pub fn IRBuilder::createFCmpONE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   self.createFCmp(ONE, lhs, rhs, name~)
 }
 
-///| Create ORD (Ordered) Comparison Instruction for floating-point values.
+///|
+/// Create ORD (Ordered) Comparison Instruction for floating-point values.
 ///
 /// It's equivalent to `IRBuilder::createFCmp(ORD, ...)`.
 pub fn IRBuilder::createFCmpORD(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   self.createFCmp(ORD, lhs, rhs, name~)
 }
 
-///| Create UNO (Unordered) Comparison Instruction for floating-point values.
+///|
+/// Create UNO (Unordered) Comparison Instruction for floating-point values.
 ///
 /// It's equivalent to `IRBuilder::createFCmp(UNO, ...)`.
 pub fn IRBuilder::createFCmpUNO(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   self.createFCmp(UNO, lhs, rhs, name~)
 }
 
-///| Create UEQ (Unordered Equal) Comparison Instruction for floating-point values.
+///|
+/// Create UEQ (Unordered Equal) Comparison Instruction for floating-point values.
 ///
 /// It's equivalent to `IRBuilder::createFCmp(UEQ, ...)`.
 pub fn IRBuilder::createFCmpUEQ(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   self.createFCmp(UEQ, lhs, rhs, name~)
 }
 
-///| Create UGT (Unordered Greater Than) Comparison Instruction for floating-point values.
+///|
+/// Create UGT (Unordered Greater Than) Comparison Instruction for floating-point values.
 ///
 /// It's equivalent to `IRBuilder::createFCmp(UGT, ...)`.
 pub fn IRBuilder::createFCmpUGT(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   self.createFCmp(UGT, lhs, rhs, name~)
 }
 
-///| Create UGE (Unordered Greater Than or Equal) Comparison Instruction for floating-point values.
+///|
+/// Create UGE (Unordered Greater Than or Equal) Comparison Instruction for floating-point values.
 ///
 /// It's equivalent to `IRBuilder::createFCmp(UGE, ...)`.
 pub fn IRBuilder::createFCmpUGE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   self.createFCmp(UGE, lhs, rhs, name~)
 }
 
-///| Create ULT (Unordered Less Than) Comparison Instruction for floating-point values.
+///|
+/// Create ULT (Unordered Less Than) Comparison Instruction for floating-point values.
 ///
 /// It's equivalent to `IRBuilder::createFCmp(ULT, ...)`.
 pub fn IRBuilder::createFCmpULT(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   self.createFCmp(ULT, lhs, rhs, name~)
 }
 
-///| Create ULE (Unordered Less Than or Equal) Comparison Instruction for floating-point values.
+///|
+/// Create ULE (Unordered Less Than or Equal) Comparison Instruction for floating-point values.
 ///
 /// It's equivalent to `IRBuilder::createFCmp(ULE, ...)`.
 pub fn IRBuilder::createFCmpULE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   self.createFCmp(ULE, lhs, rhs, name~)
 }
 
-///| Create UNE (Unordered Not Equal) Comparison Instruction for floating-point values.
+///|
+/// Create UNE (Unordered Not Equal) Comparison Instruction for floating-point values.
 ///
 /// It's equivalent to `IRBuilder::createFCmp(UNE, ...)`.
 pub fn IRBuilder::createFCmpUNE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   self.createFCmp(UNE, lhs, rhs, name~)
 }
 
-///| Create a Trunc Instruction
+///|
+/// Create a Trunc Instruction
 ///
 /// **Note:**
 /// 
@@ -2362,7 +2418,7 @@ pub fn IRBuilder::createTrunc(
   self : IRBuilder,
   src_val : &Value,
   dst_ty : &IntegerType,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   guard src_val.getType().tryAsIntTypeEnum() is Some(src_ty) else {
     let msg = "Misuse `IRBuilder::createTrunc`, " +
@@ -2390,7 +2446,8 @@ pub fn IRBuilder::createTrunc(
   inst
 }
 
-///| Create a ZExt Instruction
+///|
+/// Create a ZExt Instruction
 ///
 /// **Note:**
 /// 
@@ -2424,7 +2481,7 @@ pub fn IRBuilder::createZExt(
   self : IRBuilder,
   src_val : &Value,
   dst_ty : &IntegerType,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   guard src_val.getType().tryAsIntTypeEnum() is Some(src_ty) else {
     let msg = "Misuse `IRBuilder::createZExt`, " +
@@ -2452,7 +2509,8 @@ pub fn IRBuilder::createZExt(
   inst
 }
 
-///| Create a SExt Instruction
+///|
+/// Create a SExt Instruction
 ///
 /// **Note:**
 /// 
@@ -2486,7 +2544,7 @@ pub fn IRBuilder::createSExt(
   self : IRBuilder,
   src_val : &Value,
   dst_ty : &IntegerType,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   guard src_val.getType().tryAsIntTypeEnum() is Some(src_ty) else {
     let msg = "Misuse `IRBuilder::createSExt`, " +
@@ -2514,7 +2572,8 @@ pub fn IRBuilder::createSExt(
   inst
 }
 
-///| Create a FPTrunc Instruction
+///|
+/// Create a FPTrunc Instruction
 ///
 /// **Note:**
 /// 
@@ -2547,7 +2606,7 @@ pub fn IRBuilder::createFPTrunc(
   self : IRBuilder,
   src_val : &Value,
   dst_ty : &FPType,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   guard src_val.getType().tryAsFPTypeEnum() is Some(src_ty) else {
     let msg = "Misuse `IRBuilder::createFPTrunc`, " +
@@ -2575,7 +2634,8 @@ pub fn IRBuilder::createFPTrunc(
   inst
 }
 
-///| Create a FPExt Instruction
+///|
+/// Create a FPExt Instruction
 ///
 /// **Note:**
 /// 
@@ -2604,7 +2664,7 @@ pub fn IRBuilder::createFPExt(
   self : IRBuilder,
   src_val : &Value,
   dst_ty : &FPType,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   guard src_val.getType().tryAsFPTypeEnum() is Some(src_ty) else {
     let msg = "Misuse `IRBuilder::createFPExt`, " +
@@ -2632,7 +2692,8 @@ pub fn IRBuilder::createFPExt(
   inst
 }
 
-///| Create a UIToFP Instruction
+///|
+/// Create a UIToFP Instruction
 ///
 /// **Note:**
 /// 
@@ -2665,7 +2726,7 @@ pub fn IRBuilder::createUIToFP(
   self : IRBuilder,
   src_val : &Value,
   dst_ty : &FPType,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   guard src_val.getType().tryAsIntTypeEnum() is Some(_) else {
     let msg = "Misuse `IRBuilder::createUIToFP`, " +
@@ -2687,7 +2748,8 @@ pub fn IRBuilder::createUIToFP(
   inst
 }
 
-///| Create a FPToUI Instruction
+///|
+/// Create a FPToUI Instruction
 ///
 /// **Note:**
 /// 
@@ -2721,7 +2783,7 @@ pub fn IRBuilder::createFPToUI(
   self : IRBuilder,
   src_val : &Value,
   dst_ty : &IntegerType,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   guard src_val.getType().tryAsFPTypeEnum() is Some(_) else {
     let msg = "Misuse `IRBuilder::createFPToUI`, " +
@@ -2743,7 +2805,8 @@ pub fn IRBuilder::createFPToUI(
   inst
 }
 
-///| Create a SIToFP Instruction
+///|
+/// Create a SIToFP Instruction
 ///
 /// **Note:**
 /// 
@@ -2772,7 +2835,7 @@ pub fn IRBuilder::createSIToFP(
   self : IRBuilder,
   src_val : &Value,
   dst_ty : &FPType,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   guard src_val.getType().tryAsIntTypeEnum() is Some(_) else {
     let msg = "Misuse `IRBuilder::createSIToFP`, " +
@@ -2794,7 +2857,8 @@ pub fn IRBuilder::createSIToFP(
   inst
 }
 
-///| Create a FPToSI Instruction
+///|
+/// Create a FPToSI Instruction
 ///
 /// **Note:**
 /// 
@@ -2823,7 +2887,7 @@ pub fn IRBuilder::createFPToSI(
   self : IRBuilder,
   src_val : &Value,
   dst_ty : &IntegerType,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   guard src_val.getType().tryAsFPTypeEnum() is Some(_) else {
     let msg = "Misuse `IRBuilder::createFPToSI`, " +
@@ -2845,7 +2909,8 @@ pub fn IRBuilder::createFPToSI(
   inst
 }
 
-///| Create an IntToPtr Instruction
+///|
+/// Create an IntToPtr Instruction
 ///
 /// **Note:**
 /// 
@@ -2873,7 +2938,7 @@ pub fn IRBuilder::createFPToSI(
 pub fn IRBuilder::createIntToPtr(
   self : IRBuilder,
   src_val : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   guard src_val.getType().tryAsIntTypeEnum() is Some(_) else {
     let msg = "Misuse `IRBuilder::createIntToPtr`, " +
@@ -2895,7 +2960,8 @@ pub fn IRBuilder::createIntToPtr(
   inst
 }
 
-///| Create a PtrToInt Instruction
+///|
+/// Create a PtrToInt Instruction
 ///
 /// **Note:**
 /// 
@@ -2924,7 +2990,7 @@ pub fn IRBuilder::createPtrToInt(
   self : IRBuilder,
   src_val : &Value,
   dst_ty : &IntegerType,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   // No constant folding for PtrToInt as pointer constants are complex
   guard src_val.getType().asTypeEnum() is PointerType(_) else {
@@ -2943,7 +3009,8 @@ pub fn IRBuilder::createPtrToInt(
   inst
 }
 
-///| Create a BitCast Instruction
+///|
+/// Create a BitCast Instruction
 ///
 /// **Note:**
 /// 
@@ -2972,7 +3039,7 @@ pub fn IRBuilder::createBitCast(
   self : IRBuilder,
   src_val : &Value,
   dst_ty : &PrimitiveType,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   let src_ty = src_val.getType()
   guard src_ty != dst_ty else {
@@ -3008,7 +3075,8 @@ pub fn IRBuilder::createBitCast(
   inst
 }
 
-///| Create a GetElementPtr Instruction
+///|
+/// Create a GetElementPtr Instruction
 ///
 /// **Note:**
 /// 
@@ -3042,8 +3110,8 @@ pub fn IRBuilder::createGEP(
   ptr : &Value,
   pointeeType : &Type,
   indices : Array[&Value],
-  name~ : String = "",
-  inbounds~ : Bool = false,
+  name? : String = "",
+  inbounds? : Bool = false,
 ) -> &Value raise Error {
   guard ptr.getType().asTypeEnum() is PointerType(_) else {
     let msg = "Misuse `IRBuilder::createGEP`: " +
@@ -3082,7 +3150,8 @@ pub fn IRBuilder::createGEP(
   inst
 }
 
-///| Create a Load Instruction
+///|
+/// Create a Load Instruction
 ///
 /// **Note:**
 /// 
@@ -3109,9 +3178,9 @@ pub fn IRBuilder::createLoad(
   self : IRBuilder,
   load_ty : &Type,
   ptr : &Value,
-  isVolatile~ : Bool = false,
-  atomicOrdering~ : AtomicOrdering = NotAtomic,
-  name~ : String = "",
+  isVolatile? : Bool = false,
+  atomicOrdering? : AtomicOrdering = NotAtomic,
+  name? : String = "",
 ) -> &Value raise Error {
   guard ptr.getType().asTypeEnum() is PointerType(_) else {
     let msg = "Misuse `IRBuilder::createLoad`: " +
@@ -3147,7 +3216,8 @@ pub fn IRBuilder::createLoad(
   inst
 }
 
-///| Create a Store Instruction
+///|
+/// Create a Store Instruction
 ///
 /// **Note:**
 /// 
@@ -3175,8 +3245,8 @@ pub fn IRBuilder::createStore(
   self : IRBuilder,
   value : &Value,
   ptr : &Value,
-  isVolatile~ : Bool = false,
-  atomicOrdering~ : AtomicOrdering = NotAtomic,
+  isVolatile? : Bool = false,
+  atomicOrdering? : AtomicOrdering = NotAtomic,
 ) -> StoreInst raise Error {
   guard ptr.getType().asTypeEnum() is PointerType(_) else {
     let msg = "Misuse `IRBuilder::createStore`: " +
@@ -3201,7 +3271,8 @@ pub fn IRBuilder::createStore(
   inst
 }
 
-///| Create an Unconditional Branch Instruction
+///|
+/// Create an Unconditional Branch Instruction
 ///
 /// **Note:**
 /// 
@@ -3237,7 +3308,8 @@ pub fn IRBuilder::createBr(
   inst
 }
 
-///| Create a Conditional Branch Instruction
+///|
+/// Create a Conditional Branch Instruction
 ///
 /// **Note:**
 /// 
@@ -3285,7 +3357,8 @@ pub fn IRBuilder::createCondBr(
   inst
 }
 
-///| Create a Select Instruction
+///|
+/// Create a Select Instruction
 ///
 /// **Note:**
 /// 
@@ -3317,7 +3390,7 @@ pub fn IRBuilder::createSelect(
   condition : &Value,
   trueValue : &Value,
   falseValue : &Value,
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   guard condition.getType().tryAsIntTypeEnum() is Some(Int1Type(_)) else {
     let msg = "Misuse `IRBuilder::createSelect`, " +
@@ -3357,7 +3430,8 @@ pub fn IRBuilder::createSelect(
   inst
 }
 
-///| Create a Switch Instruction
+///|
+/// Create a Switch Instruction
 ///
 /// **Note:**
 /// 
@@ -3411,7 +3485,8 @@ pub fn IRBuilder::createSwitch(
   inst
 }
 
-///| Create a PHI Instruction
+///|
+/// Create a PHI Instruction
 ///
 /// **Note:**
 /// 
@@ -3444,7 +3519,7 @@ pub fn IRBuilder::createSwitch(
 pub fn IRBuilder::createPHI(
   self : IRBuilder,
   ty : &Type,
-  name~ : String = "",
+  name? : String = "",
 ) -> PHINode raise Error {
   let parent = self.getInsertFunction()
   let phi = PHINode::new(ty, parent, name=None)
@@ -3456,7 +3531,8 @@ pub fn IRBuilder::createPHI(
   phi
 }
 
-///| Create a Call Instruction
+///|
+/// Create a Call Instruction
 ///
 /// **Note:**
 /// 
@@ -3487,7 +3563,7 @@ pub fn IRBuilder::createCall(
   self : IRBuilder,
   callee : Function,
   args : Array[&Value],
-  name~ : String = "",
+  name? : String = "",
 ) -> CallInst raise Error {
   let fty = callee.getFunctionType()
   let expected_params = fty.getNumParams()
@@ -3522,7 +3598,8 @@ pub fn IRBuilder::createCall(
   inst
 }
 
-///| Create an ExtractValue Instruction
+///|
+/// Create an ExtractValue Instruction
 ///
 /// **Note:**
 /// 
@@ -3551,7 +3628,7 @@ pub fn IRBuilder::createExtractValue(
   self : IRBuilder,
   aggregate : &Value,
   indices : Array[Int],
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   guard not(indices.is_empty()) else {
     let msg = "Misuse `IRBuilder::createExtractValue`, " +
@@ -3581,7 +3658,8 @@ pub fn IRBuilder::createExtractValue(
   inst
 }
 
-///| Create an InsertValue Instruction
+///|
+/// Create an InsertValue Instruction
 ///
 /// **Note:**
 /// 
@@ -3612,7 +3690,7 @@ pub fn IRBuilder::createInsertValue(
   aggregate : &Value,
   value : &Value,
   indices : Array[Int],
-  name~ : String = "",
+  name? : String = "",
 ) -> &Value raise Error {
   guard not(indices.is_empty()) else {
     let msg = "Misuse `IRBuilder::createInsertValue`, " +

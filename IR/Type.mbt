@@ -477,7 +477,8 @@ impl Type with tryAsAbstractTypeEnum(self) -> AbstractTypeEnum? {
 // IntegerType & IntegerTypeEnum
 // ====================================================================
 
-///| Collection of Int1Type, Int8Type, Int16Type, Int32Type, Int64Type
+///|
+/// Collection of Int1Type, Int8Type, Int16Type, Int32Type, Int64Type
 ///
 /// ```moonbit
 /// let ctx = Context::new()
@@ -745,16 +746,12 @@ pub fn AggregateTypeEnum::getIndexedType(
     StructType(sty) => sty.getIndexedType(idxs)
     ArrayType(arr) =>
       when(
-        idxs.length() == 1 &&
-        idxs[0] >= 0 &&
-        idxs[0] < arr.getElementCount(),
+        idxs.length() == 1 && idxs[0] >= 0 && idxs[0] < arr.getElementCount(),
         fn() { arr.getElementType() },
       )
     VectorType(arr) =>
       when(
-        idxs.length() == 1 &&
-        idxs[0] >= 0 &&
-        idxs[0] < arr.getElementCount(),
+        idxs.length() == 1 && idxs[0] >= 0 && idxs[0] < arr.getElementCount(),
         fn() { arr.getElementType() },
       )
     ScalableVectorType(arr) =>
@@ -806,7 +803,8 @@ pub struct HalfType {
   priv base : TypeBase
 } derive(Eq, Hash)
 
-///| Create a HalfType.
+///|
+/// Create a HalfType.
 fn HalfType::new(context : Context) -> HalfType {
   HalfType::{ base: TypeBase::new(context) }
 }
@@ -840,7 +838,8 @@ pub impl PrimitiveType for HalfType with asPrimitiveTypeEnum(self) -> PrimitiveT
 // BFloatType
 // ====================================================================
 
-///| BFloatType
+///|
+/// BFloatType
 pub struct BFloatType {
   priv base : TypeBase
 } derive(Eq, Hash)
@@ -879,7 +878,8 @@ pub impl PrimitiveType for BFloatType with asPrimitiveTypeEnum(self) -> Primitiv
 // FloatType
 // ====================================================================
 
-///| FloatType
+///|
+/// FloatType
 pub struct FloatType {
   priv base : TypeBase
 } derive(Eq, Hash)
@@ -919,12 +919,14 @@ pub impl PrimitiveType for FloatType with asPrimitiveTypeEnum(self) -> Primitive
 // DoubleType
 // ====================================================================
 
-///| DoubleType
+///|
+/// DoubleType
 pub struct DoubleType {
   priv base : TypeBase
 } derive(Eq, Hash)
 
-///| Create a DoubleType
+///|
+/// Create a DoubleType
 fn DoubleType::new(context : Context) -> DoubleType {
   let base = TypeBase::new(context)
   DoubleType::{ base, }
@@ -959,12 +961,14 @@ pub impl PrimitiveType for DoubleType with asPrimitiveTypeEnum(self) -> Primitiv
 // FP128Type
 // ====================================================================
 
-///| FP128Ty
+///|
+/// FP128Ty
 pub struct FP128Type {
   priv base : TypeBase
 } derive(Eq, Hash)
 
-///| Create a FP128Ty.
+///|
+/// Create a FP128Ty.
 fn FP128Type::new(context : Context) -> FP128Type {
   let base = TypeBase::new(context)
   FP128Type::{ base, }
@@ -999,7 +1003,8 @@ pub impl PrimitiveType for FP128Type with asPrimitiveTypeEnum(self) -> Primitive
 // Int1Type
 // ====================================================================
 
-///| Int1Type
+///|
+/// Int1Type
 ///
 /// - See LLVM: `Type::getInt1Ty`.
 ///
@@ -1047,7 +1052,8 @@ pub impl PrimitiveType for Int1Type with asPrimitiveTypeEnum(self) -> PrimitiveT
 // Int8Type
 // ====================================================================
 
-///| Int8Type
+///|
+/// Int8Type
 ///
 /// - See LLVM: `Type::getInt8Ty`.
 ///
@@ -1100,7 +1106,8 @@ pub impl PrimitiveType for Int8Type with asPrimitiveTypeEnum(self) -> PrimitiveT
 // Int16Type
 // ====================================================================
 
-///| Int16Type
+///|
+/// Int16Type
 ///
 /// - See LLVM: `Type::getInt16Ty`.
 ///
@@ -1153,7 +1160,8 @@ pub impl PrimitiveType for Int16Type with asPrimitiveTypeEnum(self) -> Primitive
 // Int32Type
 // ====================================================================
 
-///| Int32Type
+///|
+/// Int32Type
 ///
 /// - See LLVM: `Type::getInt32Ty`.
 ///
@@ -1206,7 +1214,8 @@ pub impl PrimitiveType for Int32Type with asPrimitiveTypeEnum(self) -> Primitive
 // Int64Type
 // ====================================================================
 
-///| Int64Type
+///|
+/// Int64Type
 ///
 /// - See LLVM: `Type::getInt64Ty`.
 ///
@@ -1254,12 +1263,14 @@ pub impl PrimitiveType for Int64Type with asPrimitiveTypeEnum(self) -> Primitive
 // VoidType
 // ====================================================================
 
-///| VoidType
+///|
+/// VoidType
 pub struct VoidType {
   priv base : TypeBase
 } derive(Eq, Hash)
 
-///| Create a VoidTy.
+///|
+/// Create a VoidTy.
 ///
 /// - See LLVM: `Type::getVoidTy`.
 ///
@@ -1297,12 +1308,14 @@ pub impl AbstractType for VoidType with asAbstractTypeEnum(self) -> AbstractType
 // LabelType
 // ====================================================================
 
-///| LabelTy
+///|
+/// LabelTy
 pub struct LabelType {
   priv base : TypeBase
 } derive(Eq, Hash)
 
-///| Create a LabelTy.
+///|
+/// Create a LabelTy.
 ///
 /// - See LLVM: `Type::getLabelTy`.
 ///
@@ -1345,7 +1358,8 @@ pub struct MetadataType {
   priv base : TypeBase
 } derive(Eq, Hash)
 
-///| Create a MetadataTy.
+///|
+/// Create a MetadataTy.
 ///
 /// - See LLVM: `Type::getMetadataTy`.
 ///
@@ -1383,12 +1397,14 @@ pub impl AbstractType for MetadataType with asAbstractTypeEnum(self) -> Abstract
 // TokenTy
 // ====================================================================
 
-///| TokenTy
+///|
+/// TokenTy
 pub struct TokenType {
   priv base : TypeBase
 } derive(Eq, Hash)
 
-///| Create a TokenTy
+///|
+/// Create a TokenTy
 ///
 /// - See LLVM: `Type::getTokenTy`.
 ///
@@ -1425,7 +1441,8 @@ pub impl AbstractType for TokenType with asAbstractTypeEnum(self) -> AbstractTyp
 // FunctionType
 // ====================================================================
 
-///| FunctionType
+///|
+/// FunctionType
 ///
 /// See LLVM: `FunctionType::FunctionType`.
 ///
@@ -1444,7 +1461,8 @@ pub struct FunctionType {
   paramTypes : Array[&Type]
 } derive(Eq, Hash)
 
-///| Create a FunctionType
+///|
+/// Create a FunctionType
 fn FunctionType::new(
   returnType : &Type,
   paramsTypes : Array[&Type],
@@ -1463,33 +1481,38 @@ fn FunctionType::new(
   FunctionType::{ base, returnType, paramTypes }
 }
 
-///| Get the return type of the function.
+///|
+/// Get the return type of the function.
 pub fn FunctionType::getReturnType(self : FunctionType) -> &Type {
   self.returnType
 }
 
-///| Get the iterator of the function parameters.
+///|
+/// Get the iterator of the function parameters.
 ///
 /// - See LLVM: `FunctionType::param_begin` and `FunctionType::param_end`.
 pub fn FunctionType::param_iter(self : FunctionType) -> Iter[&Type] {
   self.paramTypes.iter()
 }
 
-///| Get the params of the function.
+///|
+/// Get the params of the function.
 ///
 /// - See LLVM: `FunctionType::params`.
 pub fn FunctionType::params(self : FunctionType) -> Array[&Type] {
   self.paramTypes
 }
 
-///| Get the params of the function.
+///|
+/// Get the params of the function.
 ///
 /// - See LLVM: `FunctionType::params`.
 pub fn FunctionType::getParamTypes(self : FunctionType) -> Array[&Type] {
   self.paramTypes
 }
 
-///| Return the number of fixed parameters this function type requires.
+///|
+/// Return the number of fixed parameters this function type requires.
 /// This does not consider varargs.
 ///
 /// - See LLVM: `FunctionType::getNumParams`.
@@ -1497,7 +1520,8 @@ pub fn FunctionType::getNumParams(self : FunctionType) -> Int {
   self.paramTypes.length()
 }
 
-///| Get the param type by given index.
+///|
+/// Get the param type by given index.
 pub fn FunctionType::getParamType(self : FunctionType, idx : Int) -> &Type? {
   self.paramTypes.get(idx)
 }
@@ -1542,7 +1566,8 @@ pub impl AbstractType for FunctionType with asAbstractTypeEnum(self) -> Abstract
 // StructType
 // ====================================================================
 
-///| Struct Type
+///|
+/// Struct Type
 ///
 /// - See LLVM: `StructType::get`.
 ///
@@ -1571,7 +1596,8 @@ pub struct StructType {
   //priv mut containsNonLocalTargetExtType: Bool
 } derive(Hash)
 
-///| Create a StructType.
+///|
+/// Create a StructType.
 /// FIXME: this is may different from LLVM Cpp
 fn StructType::new(
   context : Context,
@@ -1604,7 +1630,8 @@ fn StructType::new(
   sty
 }
 
-///| Check struct is a literal type.
+///|
+/// Check struct is a literal type.
 ///
 /// literal type means the struct only has body but has no name.
 ///
@@ -1625,7 +1652,8 @@ pub fn StructType::isLiteral(self : StructType) -> Bool {
   self.name is None
 }
 
-///| Check struct is a opaque type.
+///|
+/// Check struct is a opaque type.
 /// Return true if this is a type with an identity that has no body specified
 /// yet. These prints as 'opaque' in .ll files.
 ///
@@ -1645,7 +1673,8 @@ pub fn StructType::isOpaque(self : StructType) -> Bool {
   self.elements.is_empty()
 }
 
-///| Check if this is a packed struct type.
+///|
+/// Check if this is a packed struct type.
 ///
 /// - See LLVM: `StructType::isPacked`.
 ///
@@ -1669,7 +1698,8 @@ pub fn StructType::isSized(self : StructType) -> Bool {
   true
 }
 
-///| Get the elements of the struct.
+///|
+/// Get the elements of the struct.
 ///
 /// - See LLVM: `StructType::elements`.
 pub fn StructType::elements(self : StructType) -> Array[&Type] {
@@ -1683,7 +1713,8 @@ pub fn StructType::element_iter(self : StructType) -> Iter[&Type] {
   self.elements.iter()
 }
 
-///| Set the body of the struct.
+///|
+/// Set the body of the struct.
 ///
 /// Only Opaque struct can be set body.
 ///
@@ -1691,7 +1722,7 @@ pub fn StructType::element_iter(self : StructType) -> Iter[&Type] {
 pub fn StructType::setBody(
   self : StructType,
   elements : Array[&Type],
-  isPacked~ : Bool = false,
+  isPacked? : Bool = false,
 ) -> Unit raise LLVMTypeError {
   // only opaque struct can be set body.
   guard self.isOpaque() else { raise SetBodyForNonOpaqueStruct }
@@ -1707,7 +1738,8 @@ pub fn StructType::setBody(
   elements.each(ty => self.elements.push(ty))
 }
 
-///| Get the name of the struct.
+///|
+/// Get the name of the struct.
 ///
 /// If the struct is literal, return None.
 ///
@@ -1716,7 +1748,8 @@ pub fn StructType::getName(self : StructType) -> String? {
   self.name
 }
 
-///| Set the name of the struct.
+///|
+/// Set the name of the struct.
 ///
 /// **Note**: 
 ///   
@@ -1830,7 +1863,8 @@ pub impl AggregateType for StructType with asAggregateTypeEnum(self) -> Aggregat
 // ArrayType
 // ====================================================================
 
-///| ArrayType
+///|
+/// ArrayType
 ///
 /// - See LLVM: `ArrayType::get`.
 ///
@@ -1907,7 +1941,8 @@ pub impl AggregateType for ArrayType with asAggregateTypeEnum(self) -> Aggregate
 // VectorType
 // ====================================================================
 
-///| Base class of all SIMD vector types.
+///|
+/// Base class of all SIMD vector types.
 ///
 /// - See LLVM: `VectorType::get`.
 ///
@@ -1927,7 +1962,8 @@ pub struct VectorType {
   elementCount : Int
 } derive(Eq, Hash)
 
-///| Create a VectorType.
+///|
+/// Create a VectorType.
 fn VectorType::new(
   context : Context,
   elementType : &Type,
@@ -1940,7 +1976,8 @@ fn VectorType::new(
   VectorType::{ base, elementType, elementCount }
 }
 
-///| Check if the element type is valid.
+///|
+/// Check if the element type is valid.
 fn VectorType::isValidElementType(eleTy : &Type) -> Bool {
   match eleTy.asTypeEnum() {
     Int1Type(_) | Int8Type(_) | Int16Type(_) | Int32Type(_) | Int64Type(_) =>
@@ -1950,12 +1987,14 @@ fn VectorType::isValidElementType(eleTy : &Type) -> Bool {
   }
 }
 
-///| Get the element type of the vector.
+///|
+/// Get the element type of the vector.
 pub fn VectorType::getElementType(self : VectorType) -> &Type {
   self.elementType
 }
 
-///| Get the number of elements in the vector.
+///|
+/// Get the number of elements in the vector.
 pub fn VectorType::getElementCount(self : VectorType) -> Int {
   self.elementCount
 }
@@ -1984,7 +2023,8 @@ pub impl AggregateType for VectorType with asAggregateTypeEnum(self) -> Aggregat
 // ScalableVectorType
 // ====================================================================
 
-///| Base class of all SIMD vector types.
+///|
+/// Base class of all SIMD vector types.
 ///
 /// - See LLVM: `ScalableVectorType::get`.
 ///
@@ -2004,7 +2044,8 @@ pub struct ScalableVectorType {
   elementCount : Int
 } derive(Eq, Hash)
 
-///| Create a ScalableVectorType.
+///|
+/// Create a ScalableVectorType.
 fn ScalableVectorType::new(
   context : Context,
   elementType : &Type,
@@ -2017,7 +2058,8 @@ fn ScalableVectorType::new(
   ScalableVectorType::{ base, elementType, elementCount }
 }
 
-///| Check if the element type is valid.
+///|
+/// Check if the element type is valid.
 fn ScalableVectorType::isValidElementType(eleTy : &Type) -> Bool {
   match eleTy.asTypeEnum() {
     Int1Type(_) | Int8Type(_) | Int16Type(_) | Int32Type(_) | Int64Type(_) =>
@@ -2027,12 +2069,14 @@ fn ScalableVectorType::isValidElementType(eleTy : &Type) -> Bool {
   }
 }
 
-///| Get the element type of the vector.
+///|
+/// Get the element type of the vector.
 pub fn ScalableVectorType::getElementType(self : ScalableVectorType) -> &Type {
   self.elementType
 }
 
-///| Get the number of elements in the vector.
+///|
+/// Get the number of elements in the vector.
 pub fn ScalableVectorType::getElementCount(self : ScalableVectorType) -> Int {
   self.elementCount
 }
@@ -2063,7 +2107,8 @@ pub impl AggregateType for ScalableVectorType with asAggregateTypeEnum(self) -> 
 // PointerType
 // ====================================================================
 
-///| Memory address space of a pointer type.
+///|
+/// Memory address space of a pointer type.
 pub struct AddressSpace(UInt) derive(Hash, Show, Eq, Default)
 
 ///|
@@ -2071,7 +2116,8 @@ pub fn AddressSpace::new(v : UInt) -> AddressSpace {
   AddressSpace(v)
 }
 
-///| PointerType
+///|
+/// PointerType
 /// **Note**: Before LLVM17, TypedPointer is supported. After LLVM17, all pointer
 /// are opaque pointer, and typed pointer is deprecated.
 ///

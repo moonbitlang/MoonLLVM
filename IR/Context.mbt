@@ -84,7 +84,7 @@ pub impl Hash for Context with hash_combine(self, hasher) {
 pub fn Context::addModule(
   self : Context,
   moduleID : String,
-  source_file~ : String? = None,
+  source_file? : String? = None,
 ) -> Module {
   let source_file = match source_file {
     Some(f) => f
@@ -100,7 +100,8 @@ pub fn Context::createBuilder(self : Context) -> IRBuilder {
   IRBuilder::new(self)
 }
 
-///| Get the half type from context.
+///|
+/// Get the half type from context.
 ///
 /// - See LLVM: `Type::getHalfTy`.
 ///
@@ -113,7 +114,8 @@ pub fn Context::getHalfTy(self : Context) -> HalfType {
   self.pimpl.unwrap().half_ty
 }
 
-///| Get the bfloat type from context.
+///|
+/// Get the bfloat type from context.
 ///
 /// - See LLVM: `Type::getBFloatTy`.
 ///
@@ -126,7 +128,8 @@ pub fn Context::getBFloatTy(self : Context) -> BFloatType {
   self.pimpl.unwrap().bfloat_ty
 }
 
-///| Get the float type from context.
+///|
+/// Get the float type from context.
 ///
 /// - See LLVM: `Type::getFloatTy`.
 ///
@@ -139,7 +142,8 @@ pub fn Context::getFloatTy(self : Context) -> FloatType {
   self.pimpl.unwrap().float_ty
 }
 
-///| Get the double type from context.
+///|
+/// Get the double type from context.
 ///
 /// - See LLVM: `Type::getDoubleTy`.
 ///
@@ -152,7 +156,8 @@ pub fn Context::getDoubleTy(self : Context) -> DoubleType {
   self.pimpl.unwrap().double_ty
 }
 
-///| Get the fp128 type from context.
+///|
+/// Get the fp128 type from context.
 ///
 /// - See LLVM: `Type::getFP128Ty`.
 ///
@@ -165,7 +170,8 @@ pub fn Context::getFP128Ty(self : Context) -> FP128Type {
   self.pimpl.unwrap().fp128_ty
 }
 
-///| Get the void type from context.
+///|
+/// Get the void type from context.
 ///
 /// - See LLVM: `Type::getVoidTy`.
 ///
@@ -178,17 +184,20 @@ pub fn Context::getVoidTy(self : Context) -> VoidType {
   self.pimpl.unwrap().void_ty
 }
 
-///| Get the label type from context.
+///|
+/// Get the label type from context.
 pub fn Context::getLabelTy(self : Context) -> LabelType {
   self.pimpl.unwrap().label_ty
 }
 
-///| Get the metadata type from context.
+///|
+/// Get the metadata type from context.
 pub fn Context::getMetadataTy(self : Context) -> MetadataType {
   self.pimpl.unwrap().metadata_ty
 }
 
-///| Get the token type from context.
+///|
+/// Get the token type from context.
 ///
 /// - See LLVM: `Type::getTokenTy`.
 ///
@@ -201,32 +210,38 @@ pub fn Context::getTokenTy(self : Context) -> TokenType {
   self.pimpl.unwrap().token_ty
 }
 
-///| Get the integer type with 1 bit from context.
+///|
+/// Get the integer type with 1 bit from context.
 pub fn Context::getInt1Ty(self : Context) -> Int1Type {
   self.pimpl.unwrap().i1ty
 }
 
-///| Get the integer type with 8 bits from context.
+///|
+/// Get the integer type with 8 bits from context.
 pub fn Context::getInt8Ty(self : Context) -> Int8Type {
   self.pimpl.unwrap().i8ty
 }
 
-///| Get the integer type with 16 bits from context.
+///|
+/// Get the integer type with 16 bits from context.
 pub fn Context::getInt16Ty(self : Context) -> Int16Type {
   self.pimpl.unwrap().i16ty
 }
 
-///| Get the integer type with 32 bits from context.
+///|
+/// Get the integer type with 32 bits from context.
 pub fn Context::getInt32Ty(self : Context) -> Int32Type {
   self.pimpl.unwrap().i32ty
 }
 
-///| Get the integer type with 64 bits from context.
+///|
+/// Get the integer type with 64 bits from context.
 pub fn Context::getInt64Ty(self : Context) -> Int64Type {
   self.pimpl.unwrap().i64ty
 }
 
-///| Get the Pointer type from context.
+///|
+/// Get the Pointer type from context.
 ///
 /// - See LLVM: `PointerType::get`.
 ///
@@ -245,7 +260,7 @@ pub fn Context::getInt64Ty(self : Context) -> Int64Type {
 /// ```
 pub fn Context::getPtrTy(
   self : Context,
-  addressSpace~ : AddressSpace = AddressSpace::default(),
+  addressSpace? : AddressSpace = AddressSpace::default(),
 ) -> PointerType {
   match self.pimpl.unwrap().pointerTypes.get(addressSpace) {
     Some(ty) => ty
@@ -257,7 +272,8 @@ pub fn Context::getPtrTy(
   }
 }
 
-///| Create a function type.
+///|
+/// Create a function type.
 ///
 /// This is different with the method of creating function type in LLVM.
 /// In LLVM, usually use `FunctionType::get` to create a function type.
@@ -284,7 +300,8 @@ pub fn Context::getFunctionType(
   FunctionType::new(returnType, paramTypes)
 }
 
-///| Create a struct type in the context.
+///|
+/// Create a struct type in the context.
 ///
 /// This is different with the method of creating struct type in LLVM.
 /// In LLVM, usually use `StructType::create` to create a struct type.
@@ -312,14 +329,15 @@ pub fn Context::getFunctionType(
 pub fn Context::getStructType(
   self : Context,
   elements : Array[&Type],
-  name~ : String = "",
-  isPacked~ : Bool = false,
+  name? : String = "",
+  isPacked? : Bool = false,
 ) -> StructType raise LLVMTypeError {
   let name = unless(name.is_empty(), fn() { name })
   StructType::new(self, elements, name~, isPacked~)
 }
 
-///| Search a named struct type in the context.
+///|
+/// Search a named struct type in the context.
 ///
 /// LLVM Cpp version has no this method, since llvm-cpp allow duplicated struct type names.
 ///
@@ -338,7 +356,8 @@ pub fn Context::getStructTypeByName(self : Self, name : String) -> StructType? {
   self.pimpl.unwrap().namedStructTypes.get(name)
 }
 
-///| Create an array type in the context.
+///|
+/// Create an array type in the context.
 ///
 /// This is different with the method of creating array type in LLVM.
 /// In LLVM, usually use `ArrayType::get` to create an array type.
@@ -368,7 +387,8 @@ pub fn Context::getArrayType(
   ArrayType::new(self, elementType, numElements)
 }
 
-///| Create a fixed length vector type in the context.
+///|
+/// Create a fixed length vector type in the context.
 ///
 /// - See LLVM: `VectorType::get`.
 ///
@@ -390,7 +410,8 @@ pub fn Context::getFixedVectorType(
   VectorType::new(self, elementType, elementQuantity)
 }
 
-///| Create a scalable vector type in the context.
+///|
+/// Create a scalable vector type in the context.
 ///
 /// - See LLVM: `ScalableVectorType::get`.
 ///
@@ -409,7 +430,8 @@ pub fn Context::getScalableVectorType(
   ScalableVectorType::new(self, elementType, elementQuantity)
 }
 
-///| Create a constant with int8 type.
+///|
+/// Create a constant with int8 type.
 ///
 /// - See LLVM: `ConstantInt::get`.
 ///
@@ -424,7 +446,8 @@ pub fn Context::getConstInt8(self : Context, value : Int) -> ConstantInt {
   ConstantInt::new(self.getInt8Ty(), i8val.to_int64())
 }
 
-///| Create a constant with int16 type.
+///|
+/// Create a constant with int16 type.
 ///
 /// - See LLVM: `ConstantInt::get`.
 ///
@@ -438,7 +461,8 @@ pub fn Context::getConstInt16(self : Context, value : Int16) -> ConstantInt {
   ConstantInt::new(self.getInt16Ty(), value.to_int64())
 }
 
-///| Create a constant with int32 type.
+///|
+/// Create a constant with int32 type.
 ///
 /// - See LLVM: `ConstantInt::get`.
 ///
@@ -452,7 +476,8 @@ pub fn Context::getConstInt32(self : Context, value : Int) -> ConstantInt {
   ConstantInt::new(self.getInt32Ty(), value.to_int64())
 }
 
-///| Create a constant with int64 type.
+///|
+/// Create a constant with int64 type.
 ///
 /// - See LLVM: `ConstantInt::get`.
 ///
@@ -466,7 +491,8 @@ pub fn Context::getConstInt64(self : Context, value : Int64) -> ConstantInt {
   ConstantInt::new(self.getInt64Ty(), value)
 }
 
-///| Create a constant with bool type, true value.
+///|
+/// Create a constant with bool type, true value.
 ///
 /// - See LLVM: `ConstantInt::getTrue`.
 ///
@@ -478,7 +504,8 @@ pub fn Context::getConstTrue(self : Context) -> ConstantInt {
   ConstantInt::new(self.getInt1Ty(), 1)
 }
 
-///| Create a constant with bool type, false value.
+///|
+/// Create a constant with bool type, false value.
 ///
 /// - See LLVM: `ConstantInt::getFalse`.
 ///
@@ -490,7 +517,8 @@ pub fn Context::getConstFalse(self : Context) -> ConstantInt {
   ConstantInt::new(self.getInt1Ty(), 0)
 }
 
-///| Create a constant with bool type.
+///|
+/// Create a constant with bool type.
 ///
 /// - See LLVM: `ConstantInt::get`.
 ///
@@ -504,7 +532,8 @@ pub fn Context::getConstBool(self : Context, b : Bool) -> ConstantInt {
   ConstantInt::new(self.getInt1Ty(), b.to_int64())
 }
 
-///| Create a constant with float type.
+///|
+/// Create a constant with float type.
 ///
 /// - See LLVM: `ConstantFP::get`.
 ///
@@ -520,7 +549,8 @@ pub fn Context::getConstFloat(self : Context, value : Float) -> ConstantFP {
   ConstantFP::new(self.getFloatTy(), value.to_double())
 }
 
-///| Create a constant with double type.
+///|
+/// Create a constant with double type.
 ///
 /// - See LLVM: `ConstantFP::get`.
 ///
@@ -537,7 +567,8 @@ pub fn Context::getConstDouble(self : Context, value : Double) -> ConstantFP {
   ConstantFP::new(self.getDoubleTy(), value)
 }
 
-///| Create a constant zero with float type.
+///|
+/// Create a constant zero with float type.
 ///
 /// - See LLVM: `ConstantFP::getZero`.
 ///
@@ -556,7 +587,7 @@ pub fn Context::getConstDouble(self : Context, value : Double) -> ConstantFP {
 /// ```
 pub fn Context::getConstZeroFloat(
   self : Context,
-  isNegative~ : Bool = false,
+  isNegative? : Bool = false,
 ) -> ConstantFP {
   let uv = match isNegative {
     false => 0UL
@@ -565,7 +596,8 @@ pub fn Context::getConstZeroFloat(
   ConstantFP::new(self.getFloatTy(), uv.reinterpret_as_double())
 }
 
-///| Create a constant zero with double type.
+///|
+/// Create a constant zero with double type.
 ///
 /// - See LLVM: `ConstantFP::getZero`.
 ///
@@ -584,7 +616,7 @@ pub fn Context::getConstZeroFloat(
 /// ```
 pub fn Context::getConstZeroDouble(
   self : Context,
-  isNegative~ : Bool = false,
+  isNegative? : Bool = false,
 ) -> ConstantFP {
   let uv = match isNegative {
     false => 0UL
@@ -593,7 +625,8 @@ pub fn Context::getConstZeroDouble(
   ConstantFP::new(self.getDoubleTy(), uv.reinterpret_as_double())
 }
 
-///| Create a constant NaN with double type.
+///|
+/// Create a constant NaN with double type.
 ///
 /// - See LLVM: `ConstantFP::getZero`.
 ///
@@ -612,7 +645,7 @@ pub fn Context::getConstZeroDouble(
 /// ```
 pub fn Context::getConstNaNFloat(
   self : Context,
-  isNegative~ : Bool = false,
+  isNegative? : Bool = false,
 ) -> ConstantFP {
   let uv = match isNegative {
     false => 0x7FF8_0000_0000_0000UL
@@ -621,7 +654,8 @@ pub fn Context::getConstNaNFloat(
   ConstantFP::new(self.getFloatTy(), uv.reinterpret_as_double())
 }
 
-///| Create a constant Quiet NaN with float type.
+///|
+/// Create a constant Quiet NaN with float type.
 ///
 /// - See LLVM: `ConstantFP::getQNaN`.
 ///
@@ -640,7 +674,7 @@ pub fn Context::getConstNaNFloat(
 /// ```
 pub fn Context::getConstQNaNFloat(
   self : Context,
-  isNegative~ : Bool = false,
+  isNegative? : Bool = false,
 ) -> ConstantFP {
   let uv = match isNegative {
     false => 0x7FF8_0000_0000_0000UL
@@ -649,7 +683,8 @@ pub fn Context::getConstQNaNFloat(
   ConstantFP::new(self.getFloatTy(), uv.reinterpret_as_double())
 }
 
-///| Create a constant Signaling NaN with float type.
+///|
+/// Create a constant Signaling NaN with float type.
 ///
 /// - See LLVM: `ConstantFP::getSNaN`.
 ///
@@ -668,7 +703,7 @@ pub fn Context::getConstQNaNFloat(
 /// ```
 pub fn Context::getConstSNaNFloat(
   self : Context,
-  isNegative~ : Bool = false,
+  isNegative? : Bool = false,
 ) -> ConstantFP {
   let uv = match isNegative {
     false => 0x7FF4_0000_0000_0000UL
@@ -677,7 +712,8 @@ pub fn Context::getConstSNaNFloat(
   ConstantFP::new(self.getFloatTy(), uv.reinterpret_as_double())
 }
 
-///| Create a constant Infinity with float type.
+///|
+/// Create a constant Infinity with float type.
 ///
 /// - See LLVM: `ConstantFP::getInfinity`.
 ///
@@ -696,7 +732,7 @@ pub fn Context::getConstSNaNFloat(
 /// ```
 pub fn Context::getConstInfFloat(
   self : Context,
-  isNegative~ : Bool = false,
+  isNegative? : Bool = false,
 ) -> ConstantFP {
   let uv = match isNegative {
     false => 0x7FF0_0000_0000_0000UL
@@ -705,7 +741,8 @@ pub fn Context::getConstInfFloat(
   ConstantFP::new(self.getFloatTy(), uv.reinterpret_as_double())
 }
 
-///| Create a constant NaN with double type.
+///|
+/// Create a constant NaN with double type.
 ///
 /// - See LLVM: `ConstantFP::getNaN`.
 ///
@@ -724,7 +761,7 @@ pub fn Context::getConstInfFloat(
 /// ```
 pub fn Context::getConstNaNDouble(
   self : Context,
-  isNegative~ : Bool = false,
+  isNegative? : Bool = false,
 ) -> ConstantFP {
   let uv = match isNegative {
     false => 0x7FF8_0000_0000_0000UL
@@ -733,7 +770,8 @@ pub fn Context::getConstNaNDouble(
   ConstantFP::new(self.getDoubleTy(), uv.reinterpret_as_double())
 }
 
-///| Create a constant Quiet NaN with double type.
+///|
+/// Create a constant Quiet NaN with double type.
 ///
 /// - See LLVM: `ConstantFP::getQNaN`.
 ///
@@ -752,7 +790,7 @@ pub fn Context::getConstNaNDouble(
 /// ```
 pub fn Context::getConstQNaNDouble(
   self : Context,
-  isNegative~ : Bool = false,
+  isNegative? : Bool = false,
 ) -> ConstantFP {
   let uv = match isNegative {
     false => 0x7FF8_0000_0000_0000UL
@@ -761,7 +799,8 @@ pub fn Context::getConstQNaNDouble(
   ConstantFP::new(self.getDoubleTy(), uv.reinterpret_as_double())
 }
 
-///| Create a constant Signaling NaN with double type.
+///|
+/// Create a constant Signaling NaN with double type.
 ///
 /// - See LLVM: `ConstantFP::getSNaN`.
 ///
@@ -780,7 +819,7 @@ pub fn Context::getConstQNaNDouble(
 /// ```
 pub fn Context::getConstSNaNDouble(
   self : Context,
-  isNegative~ : Bool = false,
+  isNegative? : Bool = false,
 ) -> ConstantFP {
   let uv = match isNegative {
     false => 0x7FF4_0000_0000_0000UL
@@ -789,7 +828,8 @@ pub fn Context::getConstSNaNDouble(
   ConstantFP::new(self.getDoubleTy(), uv.reinterpret_as_double())
 }
 
-///| Create a constant Infinity with double type.
+///|
+/// Create a constant Infinity with double type.
 ///
 /// - See LLVM: `ConstantFP::getInfinity`.
 ///
@@ -808,7 +848,7 @@ pub fn Context::getConstSNaNDouble(
 /// ```
 pub fn Context::getConstInfDouble(
   self : Context,
-  isNegative~ : Bool = false,
+  isNegative? : Bool = false,
 ) -> ConstantFP {
   let uv = match isNegative {
     false => 0x7FF0_0000_0000_0000UL
@@ -817,7 +857,8 @@ pub fn Context::getConstInfDouble(
   ConstantFP::new(self.getDoubleTy(), uv.reinterpret_as_double())
 }
 
-///| Create a constant array with int8 type.
+///|
+/// Create a constant array with int8 type.
 ///
 /// -  See LLVM: `ConstantDataArray::get`.
 ///
@@ -837,14 +878,12 @@ pub fn Context::getConstInt8Array(
   self : Context,
   data : Array[Int],
 ) -> ConstantArray {
-  let ty = (try? self.getArrayType(
-    self.getInt8Ty(),
-    data.length(),
-  )).unwrap()
+  let ty = (try? self.getArrayType(self.getInt8Ty(), data.length())).unwrap()
   ConstantArray::newInt8Array(ty, data)
 }
 
-///| Create a constant array with int16 type.
+///|
+/// Create a constant array with int16 type.
 ///
 /// -  See LLVM: `ConstantDataArray::get`.
 ///
@@ -859,14 +898,12 @@ pub fn Context::getConstInt16Array(
   self : Context,
   data : Array[Int16],
 ) -> ConstantArray {
-  let ty = (try? self.getArrayType(
-    self.getInt16Ty(),
-    data.length(),
-  )).unwrap()
+  let ty = (try? self.getArrayType(self.getInt16Ty(), data.length())).unwrap()
   ConstantArray::newInt16Array(ty, data)
 }
 
-///| Create a constant array with int32 type.
+///|
+/// Create a constant array with int32 type.
 ///
 /// -  See LLVM: `ConstantDataArray::get`.
 ///
@@ -881,14 +918,12 @@ pub fn Context::getConstInt32Array(
   self : Context,
   data : Array[Int],
 ) -> ConstantArray {
-  let ty = (try? self.getArrayType(
-    self.getInt32Ty(),
-    data.length(),
-  )).unwrap()
+  let ty = (try? self.getArrayType(self.getInt32Ty(), data.length())).unwrap()
   ConstantArray::newInt32Array(ty, data)
 }
 
-///| Create a constant array with int32 type.
+///|
+/// Create a constant array with int32 type.
 ///
 /// -  See LLVM: `ConstantDataArray::get`.
 ///
@@ -903,14 +938,12 @@ pub fn Context::getConstInt64Array(
   self : Context,
   data : Array[Int64],
 ) -> ConstantArray {
-  let ty = (try? self.getArrayType(
-    self.getInt64Ty(),
-    data.length(),
-  )).unwrap()
+  let ty = (try? self.getArrayType(self.getInt64Ty(), data.length())).unwrap()
   ConstantArray::newInt64Array(ty, data)
 }
 
-///| Create a constant array with uint8 type.
+///|
+/// Create a constant array with uint8 type.
 ///
 /// -  See LLVM: `ConstantDataArray::get`.
 ///
@@ -930,7 +963,8 @@ pub fn Context::getConstUInt8Array(
   ConstantArray::newUInt8Array(ty, data)
 }
 
-///| Create a constant array with uint16 type.
+///|
+/// Create a constant array with uint16 type.
 ///
 /// -  See LLVM: `ConstantDataArray::get`.
 ///
@@ -950,7 +984,8 @@ pub fn Context::getConstUInt16Array(
   ConstantArray::newUInt16Array(ty, data)
 }
 
-///| Create a constant array with uint32 type.
+///|
+/// Create a constant array with uint32 type.
 ///
 /// -  See LLVM: `ConstantDataArray::get`.
 ///
@@ -970,7 +1005,8 @@ pub fn Context::getConstUInt32Array(
   ConstantArray::newUInt32Array(ty, data)
 }
 
-///| Create a constant array with uint64 type.
+///|
+/// Create a constant array with uint64 type.
 ///
 /// -  See LLVM: `ConstantDataArray::get`.
 ///
@@ -990,7 +1026,8 @@ pub fn Context::getConstUInt64Array(
   ConstantArray::newUInt64Array(ty, data)
 }
 
-///| Create a constant array with float type.
+///|
+/// Create a constant array with float type.
 ///
 /// -  See LLVM: `ConstantDataArray::get`.
 ///
@@ -1013,7 +1050,8 @@ pub fn Context::getConstFloatArray(
   ConstantArray::newFloatArray(ty, data)
 }
 
-///| Create a constant array with double type.
+///|
+/// Create a constant array with double type.
 ///
 /// -  See LLVM: `ConstantDataArray::get`.
 ///
@@ -1039,7 +1077,8 @@ pub fn Context::getConstDoubleArray(
 
 // ---------------------------
 
-///| Create a constant vector with int8 type.
+///|
+/// Create a constant vector with int8 type.
 ///
 /// -  See LLVM: `ConstantDataVector::get`.
 ///
@@ -1064,7 +1103,8 @@ pub fn Context::getConstInt8Vector(
   ConstantVector::newInt8Vector(ty, data)
 }
 
-///| Create a constant vector with int16 type.
+///|
+/// Create a constant vector with int16 type.
 ///
 /// -  See LLVM: `ConstantDataVector::get`.
 ///
@@ -1084,7 +1124,8 @@ pub fn Context::getConstInt16Vector(
   ConstantVector::newInt16Vector(ty, data)
 }
 
-///| Create a constant vector with int32 type.
+///|
+/// Create a constant vector with int32 type.
 ///
 /// -  See LLVM: `ConstantDataVector::get`.
 ///
@@ -1104,7 +1145,8 @@ pub fn Context::getConstInt32Vector(
   ConstantVector::newInt32Vector(ty, data)
 }
 
-///| Create a constant array with int32 type.
+///|
+/// Create a constant array with int32 type.
 ///
 /// -  See LLVM: `ConstantDataVector::get`.
 ///
@@ -1124,7 +1166,8 @@ pub fn Context::getConstInt64Vector(
   ConstantVector::newInt64Vector(ty, data)
 }
 
-///| Create a constant array with uint8 type.
+///|
+/// Create a constant array with uint8 type.
 ///
 /// -  See LLVM: `ConstantDataVector::get`.
 ///
@@ -1139,14 +1182,12 @@ pub fn Context::getConstUInt8Vector(
   self : Context,
   data : Array[Byte],
 ) -> ConstantVector {
-  let ty = (try? self.getFixedVectorType(
-    self.getInt8Ty(),
-    data.length()
-  )).unwrap()
+  let ty = (try? self.getFixedVectorType(self.getInt8Ty(), data.length())).unwrap()
   ConstantVector::newUInt8Vector(ty, data)
 }
 
-///| Create a constant array with uint16 type.
+///|
+/// Create a constant array with uint16 type.
 ///
 /// -  See LLVM: `ConstantDataVector::get`.
 ///
@@ -1161,14 +1202,12 @@ pub fn Context::getConstUInt16Vector(
   self : Context,
   data : Array[UInt16],
 ) -> ConstantVector {
-  let ty = (try? self.getFixedVectorType(
-    self.getInt16Ty(),
-    data.length()
-  )).unwrap()
+  let ty = (try? self.getFixedVectorType(self.getInt16Ty(), data.length())).unwrap()
   ConstantVector::newUInt16Vector(ty, data)
 }
 
-///| Create a constant array with uint32 type.
+///|
+/// Create a constant array with uint32 type.
 ///
 /// -  See LLVM: `ConstantDataVector::get`.
 ///
@@ -1183,14 +1222,12 @@ pub fn Context::getConstUInt32Vector(
   self : Context,
   data : Array[UInt],
 ) -> ConstantVector {
-  let ty = (try? self.getFixedVectorType(
-    self.getInt32Ty(),
-    data.length()
-  )).unwrap()
+  let ty = (try? self.getFixedVectorType(self.getInt32Ty(), data.length())).unwrap()
   ConstantVector::newUInt32Vector(ty, data)
 }
 
-///| Create a constant array with uint64 type.
+///|
+/// Create a constant array with uint64 type.
 ///
 /// -  See LLVM: `ConstantDataVector::get`.
 ///
@@ -1205,14 +1242,12 @@ pub fn Context::getConstUInt64Vector(
   self : Context,
   data : Array[UInt64],
 ) -> ConstantVector {
-  let ty = (try? self.getFixedVectorType(
-    self.getInt64Ty(),
-    data.length()
-  )).unwrap()
+  let ty = (try? self.getFixedVectorType(self.getInt64Ty(), data.length())).unwrap()
   ConstantVector::newUInt64Vector(ty, data)
 }
 
-///| Create a constant array with float type.
+///|
+/// Create a constant array with float type.
 ///
 /// -  See LLVM: `ConstantDataVector::get`.
 ///
@@ -1230,14 +1265,12 @@ pub fn Context::getConstFloatVector(
   self : Context,
   data : Array[Float],
 ) -> ConstantVector {
-  let ty = (try? self.getFixedVectorType(
-    self.getFloatTy(),
-    data.length()
-  )).unwrap()
+  let ty = (try? self.getFixedVectorType(self.getFloatTy(), data.length())).unwrap()
   ConstantVector::newFloatVector(ty, data)
 }
 
-///| Create a constant array with double type.
+///|
+/// Create a constant array with double type.
 ///
 /// -  See LLVM: `ConstantDataVector::get`.
 ///
@@ -1256,14 +1289,12 @@ pub fn Context::getConstDoubleVector(
   self : Context,
   data : Array[Double],
 ) -> ConstantVector {
-  let ty = (try? self.getFixedVectorType(
-    self.getDoubleTy(),
-    data.length(),
-  )).unwrap()
+  let ty = (try? self.getFixedVectorType(self.getDoubleTy(), data.length())).unwrap()
   ConstantVector::newDoubleVector(ty, data)
 }
 
-///| Create a constant zero value (null value) of a given type.
+///|
+/// Create a constant zero value (null value) of a given type.
 ///
 /// TODO: wait compiler bug fixed.
 ///
@@ -1297,7 +1328,7 @@ pub fn Context::getConstZero(
 
     // Aggregate and Other Types where zero value is complex or not applicable
     //ArrayType(t) => llvm_unreachable("getConstZero: Unimplemented for ArrayType \{t.to_string()}")
-    ArrayType({ elementType: t, elementCount: cnt, .. }) => {
+    ArrayType({ elementType: t, elementCount: cnt, .. }) =>
       match t.asTypeEnum() {
         Int8Type(_) => self.getConstInt8Array(Array::make(cnt, 0))
         Int16Type(_) => self.getConstInt16Array(Array::make(cnt, 0))
@@ -1310,7 +1341,6 @@ pub fn Context::getConstZero(
             "getConstZero: Unimplemented for ArrayType with element type \{t.to_string()}",
           )
       }
-    }
     StructType(t) =>
       llvm_unreachable(
         "getConstZero: Unimplemented for StructType \{t.to_string()}",

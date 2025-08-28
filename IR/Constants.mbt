@@ -2,7 +2,8 @@
 // ConstantInt
 // ====================================================================
 
-///| ConstantInt
+///|
+/// ConstantInt
 ///
 /// Use `Context::getConstInt8, getConstInt16, getConstInt32, getConstInt64`
 /// To create a new ConstantInt.
@@ -48,7 +49,8 @@ fn ConstantInt::getValue(self : ConstantInt) -> Int64 {
   self.value
 }
 
-///| Get the value of this constant as a signed 64-bits integer.
+///|
+/// Get the value of this constant as a signed 64-bits integer.
 ///
 /// ```moonbit
 /// let ctx = Context::new()
@@ -69,7 +71,8 @@ pub fn ConstantInt::getValueAsInt64(self : ConstantInt) -> Int64 {
   self.value
 }
 
-///| Get the type of constant int value.
+///|
+/// Get the type of constant int value.
 ///
 /// ```moonbit
 /// let ctx = Context::new()
@@ -88,7 +91,8 @@ pub fn ConstantInt::getIntegerType(self : ConstantInt) -> &IntegerType {
   self.vty
 }
 
-///| Compare the value of this constant int with a signed integer.
+///|
+/// Compare the value of this constant int with a signed integer.
 ///
 /// ```moonbit
 /// let ctx = Context::new()
@@ -135,7 +139,8 @@ pub fn ConstantInt::isMinValue(self : ConstantInt) -> Bool {
   }
 }
 
-///| Add two ConstantInt, useful in constant folding.
+///|
+/// Add two ConstantInt, useful in constant folding.
 ///
 /// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
 /// ConstantInt are not the same.
@@ -182,7 +187,8 @@ pub fn ConstantInt::add(
   ConstantInt::new(vty, value)
 }
 
-///| Subtract two ConstantInt, useful in constant folding.
+///|
+/// Subtract two ConstantInt, useful in constant folding.
 ///
 /// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
 /// ConstantInt are not the same.
@@ -230,7 +236,8 @@ pub fn ConstantInt::sub(
   ConstantInt::new(vty, value)
 }
 
-///| Multiply two ConstantInt, useful in constant folding.
+///|
+/// Multiply two ConstantInt, useful in constant folding.
 ///
 /// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
 /// ConstantInt are not the same.
@@ -275,7 +282,8 @@ pub fn ConstantInt::mul(
   ConstantInt::new(vty, value)
 }
 
-///| Divide two ConstantInt, useful in constant folding.
+///|
+/// Divide two ConstantInt, useful in constant folding.
 ///
 /// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
 /// ConstantInt are not the same.
@@ -324,7 +332,8 @@ pub fn ConstantInt::sdiv(
   ConstantInt::new(vty, value)
 }
 
-///| Unsigned divide two ConstantInt, useful in constant folding.
+///|
+/// Unsigned divide two ConstantInt, useful in constant folding.
 ///
 /// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
 /// ConstantInt are not the same. It will raise `DivisionByZeroError` if `other` is zero.
@@ -411,7 +420,8 @@ pub fn ConstantInt::udiv(
   ConstantInt::new(vty, value)
 }
 
-///| Bitwise AND two ConstantInt, useful in constant folding.
+///|
+/// Bitwise AND two ConstantInt, useful in constant folding.
 ///
 /// ```moonbit
 /// let ctx = Context::new()
@@ -453,7 +463,8 @@ pub fn ConstantInt::compute_and(
   ConstantInt::new(vty, final_value)
 }
 
-///| Bitwise OR two ConstantInt, useful in constant folding.
+///|
+/// Bitwise OR two ConstantInt, useful in constant folding.
 ///
 /// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
 /// ConstantInt are not the same.
@@ -498,7 +509,8 @@ pub fn ConstantInt::or(
   ConstantInt::new(vty, final_value)
 }
 
-///| Bitwise XOR two ConstantInt, useful in constant folding.
+///|
+/// Bitwise XOR two ConstantInt, useful in constant folding.
 ///
 /// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
 /// ConstantInt are not the same.
@@ -543,7 +555,8 @@ pub fn ConstantInt::xor(
   ConstantInt::new(vty, final_value)
 }
 
-///| Left shift (shl) two ConstantInt, useful in constant folding.
+///|
+/// Left shift (shl) two ConstantInt, useful in constant folding.
 ///
 /// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
 /// ConstantInt are not the same.
@@ -588,7 +601,8 @@ pub fn ConstantInt::compute_shl(
   ConstantInt::new(vty, final_value)
 }
 
-///| Logical right shift (lshr) two ConstantInt, useful in constant folding.
+///|
+/// Logical right shift (lshr) two ConstantInt, useful in constant folding.
 ///
 /// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
 /// ConstantInt are not the same.
@@ -651,7 +665,8 @@ pub fn ConstantInt::lshr(
   ConstantInt::new(vty, value)
 }
 
-///| Arithmetic right shift (ashr) two ConstantInt, useful in constant folding.
+///|
+/// Arithmetic right shift (ashr) two ConstantInt, useful in constant folding.
 ///
 /// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
 /// ConstantInt are not the same.
@@ -701,7 +716,8 @@ pub fn ConstantInt::ashr(
   ConstantInt::new(vty, final_value)
 }
 
-///| Compare two ConstantInt using the given predicate, useful in constant folding.
+///|
+/// Compare two ConstantInt using the given predicate, useful in constant folding.
 ///
 /// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
 /// ConstantInt are not the same. Only ICMP_xxx predicates are supported.
@@ -821,7 +837,8 @@ pub fn ConstantInt::compare(
   }
 }
 
-///| Truncate this ConstantInt to a smaller integer type, useful in constant folding.
+///|
+/// Truncate this ConstantInt to a smaller integer type, useful in constant folding.
 ///
 /// **Note**: It will raise `TruncCastInstTypeMismatch` if the source type bit width
 /// is not greater than the destination type bit width.
@@ -857,7 +874,8 @@ pub fn ConstantInt::trunc(
   ConstantInt::new(dst_ty, self.value)
 }
 
-///| Zero extend this ConstantInt to a larger integer type, useful in constant folding.
+///|
+/// Zero extend this ConstantInt to a larger integer type, useful in constant folding.
 ///
 /// **Note**: It will raise `ZExtCastInstTypeMismatch` if the source type bit width
 /// is not less than the destination type bit width.
@@ -901,7 +919,8 @@ pub fn ConstantInt::zext(
   ConstantInt::new(dst_ty, unsigned_value.reinterpret_as_int64())
 }
 
-///| Sign extend this ConstantInt to a larger integer type, useful in constant folding.
+///|
+/// Sign extend this ConstantInt to a larger integer type, useful in constant folding.
 ///
 /// **Note**: It will raise `SExtCastInstTypeMismatch` if the source type bit width
 /// is not less than the destination type bit width.
@@ -942,7 +961,8 @@ pub fn ConstantInt::sext(
   ConstantInt::new(dst_ty, extended_value)
 }
 
-///| Convert this ConstantInt to a floating-point type (unsigned interpretation), useful in constant folding.
+///|
+/// Convert this ConstantInt to a floating-point type (unsigned interpretation), useful in constant folding.
 ///
 /// **Note**: It will raise `UIToFPInstTypeMismatch` if the source is not an integer type.
 ///
@@ -975,7 +995,8 @@ pub fn ConstantInt::uitofp(self : ConstantInt, dst_ty : &FPType) -> ConstantFP {
   ConstantFP::new(dst_ty, fp_value)
 }
 
-///| Convert this ConstantInt to a floating-point type (signed interpretation), useful in constant folding.
+///|
+/// Convert this ConstantInt to a floating-point type (signed interpretation), useful in constant folding.
 ///
 /// **Note**: It will raise `SIToFPInstTypeMismatch` if the source is not an integer type.
 ///
@@ -1000,7 +1021,8 @@ pub fn ConstantInt::sitofp(self : ConstantInt, dst_ty : &FPType) -> ConstantFP {
   ConstantFP::new(dst_ty, fp_value)
 }
 
-///| Convert this ConstantInt to a pointer type, useful in constant folding.
+///|
+/// Convert this ConstantInt to a pointer type, useful in constant folding.
 ///
 /// **Note**: It will raise `IntToPtrCastInstTypeMismatch` if the source is not an integer type.
 /// For constant folding, this always returns a null pointer since we cannot create
@@ -1023,7 +1045,8 @@ pub fn ConstantInt::inttoptr(self : ConstantInt) -> ConstantPointerNull {
   ConstantPointerNull::new(ptr_ty)
 }
 
-///| Bitcast this ConstantInt to another primitive type of the same bit width, useful in constant folding.
+///|
+/// Bitcast this ConstantInt to another primitive type of the same bit width, useful in constant folding.
 ///
 /// **Note**: It will raise `BitCastInstTypeMismatch` if the types have different bit widths
 /// or if the cast is invalid. It will raise `BitCastOnlyAcceptPrimitiveTypes` if the source
@@ -1189,7 +1212,8 @@ pub fn[T : Floating] ConstantFP::exactlyEquals(
   value.to_float64().reinterpret_as_uint64()
 }
 
-///| Add two ConstantFP, useful in constant folding.
+///|
+/// Add two ConstantFP, useful in constant folding.
 ///
 /// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
 /// ConstantFP are not the same.
@@ -1221,7 +1245,8 @@ pub fn ConstantFP::add(
   ConstantFP::new(vty, value)
 }
 
-///| Subtract two ConstantFP, useful in constant folding.
+///|
+/// Subtract two ConstantFP, useful in constant folding.
 ///
 /// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
 /// ConstantFP are not the same.
@@ -1253,7 +1278,8 @@ pub fn ConstantFP::sub(
   ConstantFP::new(vty, value)
 }
 
-///| Multiply two ConstantFP, useful in constant folding.
+///|
+/// Multiply two ConstantFP, useful in constant folding.
 ///
 /// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
 /// ConstantFP are not the same.
@@ -1285,7 +1311,8 @@ pub fn ConstantFP::mul(
   ConstantFP::new(vty, value)
 }
 
-///| Divide two ConstantFP, useful in constant folding.
+///|
+/// Divide two ConstantFP, useful in constant folding.
 ///
 /// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
 /// ConstantFP are not the same.
@@ -1317,7 +1344,8 @@ pub fn ConstantFP::div(
   ConstantFP::new(vty, value)
 }
 
-///| Compare two ConstantFP using the given predicate, useful in constant folding.
+///|
+/// Compare two ConstantFP using the given predicate, useful in constant folding.
 ///
 /// **Note**: It will raise `TypeMismatchForCmpInst` if the types of two
 /// ConstantFP are not the same. Only FCMP_xxx predicates are supported.
@@ -1407,7 +1435,8 @@ pub fn ConstantFP::compare(
   }
 }
 
-///| Truncate this ConstantFP to a smaller floating-point type, useful in constant folding.
+///|
+/// Truncate this ConstantFP to a smaller floating-point type, useful in constant folding.
 ///
 /// **Note**: It will raise `FPTruncCastInstTypeMismatch` if the source type bit width
 /// is not greater than the destination type bit width.
@@ -1443,7 +1472,8 @@ pub fn ConstantFP::fptrunc(
   ConstantFP::new(dst_ty, self.value)
 }
 
-///| Extend this ConstantFP to a larger floating-point type, useful in constant folding.
+///|
+/// Extend this ConstantFP to a larger floating-point type, useful in constant folding.
 ///
 /// **Note**: It will raise `FPExtCastInstTypeMismatch` if the source type bit width
 /// is not less than the destination type bit width.
@@ -1478,7 +1508,8 @@ pub fn ConstantFP::fpext(
   ConstantFP::new(dst_ty, self.value)
 }
 
-///| Convert this ConstantFP to an unsigned integer type, useful in constant folding.
+///|
+/// Convert this ConstantFP to an unsigned integer type, useful in constant folding.
 ///
 /// **Note**: It will raise `FPToUIInstTypeMismatch` if the source is not a floating-point type.
 /// The conversion truncates towards zero (similar to C cast).
@@ -1520,7 +1551,8 @@ pub fn ConstantFP::fptoui(
   ConstantInt::new(dst_ty, int_value)
 }
 
-///| Convert this ConstantFP to a signed integer type, useful in constant folding.
+///|
+/// Convert this ConstantFP to a signed integer type, useful in constant folding.
 ///
 /// **Note**: It will raise `FPToSIInstTypeMismatch` if the source is not a floating-point type.
 /// The conversion truncates towards zero (similar to C cast).
@@ -1557,7 +1589,8 @@ pub fn ConstantFP::fptosi(
   ConstantInt::new(dst_ty, int_value)
 }
 
-///| Bitcast this ConstantFP to another primitive type of the same bit width, useful in constant folding.
+///|
+/// Bitcast this ConstantFP to another primitive type of the same bit width, useful in constant folding.
 ///
 /// **Note**: It will raise `BitCastInstTypeMismatch` if the types have different bit widths
 /// or if the cast is invalid. It will raise `BitCastOnlyAcceptPrimitiveTypes` if the source
@@ -2470,7 +2503,8 @@ pub impl Show for ConstantVector with output(self, logger) {
 // ConstantStruct
 // ====================================================================
 
-///| ConstantStruct
+///|
+/// ConstantStruct
 ///
 /// Represents a constant struct value in LLVM IR.
 ///
@@ -2518,12 +2552,14 @@ pub fn ConstantStruct::new(
   ConstantStruct::{ uid, vty, elements: elements.copy() }
 }
 
-///| Get the elements of this constant struct.
+///|
+/// Get the elements of this constant struct.
 pub fn ConstantStruct::getElements(self : ConstantStruct) -> Array[&Constant] {
   self.elements.copy()
 }
 
-///| Get the element at the specified index.
+///|
+/// Get the element at the specified index.
 pub fn ConstantStruct::getElement(
   self : ConstantStruct,
   index : Int,
@@ -2535,7 +2571,8 @@ pub fn ConstantStruct::getElement(
   }
 }
 
-///| Extract a value from this constant struct using a sequence of indices.
+///|
+/// Extract a value from this constant struct using a sequence of indices.
 ///
 /// This is equivalent to LLVM's `extractvalue` instruction for constant structs.
 /// The indices specify a path through nested aggregate types.
@@ -2576,7 +2613,8 @@ pub fn ConstantStruct::extractValue(
   }
 }
 
-///| Insert a value into this constant struct using a sequence of indices.
+///|
+/// Insert a value into this constant struct using a sequence of indices.
 ///
 /// This is equivalent to LLVM's `insertvalue` instruction for constant structs.
 /// Returns a new ConstantStruct with the value inserted at the specified path.

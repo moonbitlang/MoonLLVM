@@ -64,7 +64,8 @@ priv struct MDAttachments {
   attachments : Array[(String, MDNode)]
 }
 
-///| FIXME: eliminate this function.
+///|
+/// FIXME: eliminate this function.
 /// This is only for eliminate warning.
 pub fn warning_elimination() -> Unit {
   MDNode::{ metadata: Array::new() } |> ignore()

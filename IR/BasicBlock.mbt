@@ -1,4 +1,5 @@
-///| Block of instructions in a function.
+///|
+/// Block of instructions in a function.
 ///
 /// **Note**:
 ///
@@ -51,7 +52,8 @@ fn BasicBlock::new(parent : Function, name~ : String?) -> BasicBlock {
   }
 }
 
-///| Get the first instruction in the basic block.
+///|
+/// Get the first instruction in the basic block.
 ///
 /// ```moonbit
 /// let ctx = Context::new()
@@ -81,7 +83,8 @@ pub fn BasicBlock::firstInst(self : BasicBlock) -> &Instruction? {
   self.head
 }
 
-///| Get the last instruction in the basic block.
+///|
+/// Get the last instruction in the basic block.
 ///
 /// ```moonbit
 /// let ctx = Context::new()

@@ -2,7 +2,8 @@
 // Argument
 // ====================================================================
 
-///| Argument of a function.
+///|
+/// Argument of a function.
 ///
 /// - See `llvm::Argument`.
 ///
@@ -48,7 +49,8 @@ fn Argument::new(vty : &Type, argNo : UInt, parent : Function) -> Argument {
   Argument::{ uid, vty, users: [], parent, argNo, name: None }
 }
 
-///| Assign an attribute to the argument.
+///|
+/// Assign an attribute to the argument.
 ///
 /// - See `llvm::Argument::addAttribute`.
 ///
@@ -106,7 +108,8 @@ pub impl Value for Argument with getName(self : Argument) -> String? {
   self.name
 }
 
-///| Set name for the argument.
+///|
+/// Set name for the argument.
 ///
 /// - See `llvm::Argument::setName`.
 ///
@@ -193,7 +196,8 @@ pub impl Show for Argument with output(self, logger) {
 // Function
 // ====================================================================
 
-///| Function of a program.
+///|
+/// Function of a program.
 ///
 /// **Developer Note**:
 ///
@@ -324,8 +328,8 @@ pub fn Function::getNumBasicBlocks(self : Function) -> Int {
 ///|
 pub fn Function::addBasicBlock(
   self : Function,
-  name~ : String = "",
-  before~ : BasicBlock? = None,
+  name? : String = "",
+  before? : BasicBlock? = None,
 ) -> BasicBlock {
   let name = match name {
     "" => None
@@ -427,7 +431,10 @@ pub fn Function::getReturnAttrs(self : Function) -> Set[RetAttr] {
 }
 
 ///|
-pub fn Function::getParamAttrs(self : Function, argno : UInt) -> Set[ParamAttr]? {
+pub fn Function::getParamAttrs(
+  self : Function,
+  argno : UInt,
+) -> Set[ParamAttr]? {
   self.attrSet.paramAttrs.get(argno)
 }
 

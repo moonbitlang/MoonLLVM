@@ -2,7 +2,8 @@
 // AllocaInst
 // =======================================================
 
-///| Alloca Instruction allocates memory on the stack for a variable.
+///|
+/// Alloca Instruction allocates memory on the stack for a variable.
 ///
 /// **Note**:
 /// 
@@ -66,12 +67,14 @@ fn AllocaInst::new(
   }
 }
 
-///| AllocaInst is one of `Value`.
+///|
+/// AllocaInst is one of `Value`.
 pub impl Value for AllocaInst with getValueBase(self) {
   ValueBase::{ uid: self.uid, vty: self.vty, users: self.users }
 }
 
-///| Get simple representation of the value.
+///|
+/// Get simple representation of the value.
 ///
 /// ```moonbit
 /// let ctx = Context::new()
@@ -105,7 +108,8 @@ pub impl Value for AllocaInst with asValueEnum(self) {
   AllocaInst(self)
 }
 
-///| Get the name of the instruction.
+///|
+/// Get the name of the instruction.
 ///
 /// **Note**:
 ///
@@ -134,7 +138,8 @@ pub impl Value for AllocaInst with getName(self) {
   self.name
 }
 
-///| Set the name of the instruction.
+///|
+/// Set the name of the instruction.
 ///
 /// **Note**:
 ///
@@ -263,7 +268,8 @@ pub impl Show for AtomicOrdering with output(self, logger) {
   logger.write_string(str)
 }
 
-///| LoadInst is an instruction that loads a value from a pointer.
+///|
+/// LoadInst is an instruction that loads a value from a pointer.
 ///
 /// **Note**:
 ///
@@ -365,7 +371,8 @@ pub impl Value for LoadInst with getValueBase(self) {
   ValueBase::{ uid: self.uid, vty: self.vty, users: self.users }
 }
 
-///| Get simple representation of the value.
+///|
+/// Get simple representation of the value.
 ///
 /// ```moonbit
 /// let ctx = Context::new()
@@ -396,7 +403,8 @@ pub impl Value for LoadInst with getValueRepr(self) {
   }
 }
 
-///| Get the name of the instruction.
+///|
+/// Get the name of the instruction.
 ///
 /// **Note**:
 ///
@@ -427,7 +435,8 @@ pub impl Value for LoadInst with getName(self) {
   self.name
 }
 
-///| Set the name of the instruction.
+///|
+/// Set the name of the instruction.
 ///
 /// **Note**:
 ///
@@ -480,7 +489,8 @@ pub impl Value for LoadInst with setName(self, name) {
   }
 }
 
-///| Remove the name of the instruction.
+///|
+/// Remove the name of the instruction.
 pub impl Value for LoadInst with removeName(self) {
   match self.name {
     None => ()
@@ -554,7 +564,8 @@ pub impl Show for LoadInst with output(self, logger) {
 // StoreInst
 // =======================================================
 
-///| StoreInst is an instruction that stores a value to a pointer.
+///|
+/// StoreInst is an instruction that stores a value to a pointer.
 ///
 /// **Note**:
 ///
@@ -643,7 +654,8 @@ fn StoreInst::new(
   inst
 }
 
-///| Get the value operand of the store instruction.
+///|
+/// Get the value operand of the store instruction.
 ///
 /// ```moonbit
 /// let ctx = Context::new()
@@ -675,7 +687,8 @@ pub fn StoreInst::getValueOperand(self : StoreInst) -> &Value {
   self.value
 }
 
-///| Get the pointer operand of the store instruction.
+///|
+/// Get the pointer operand of the store instruction.
 ///
 /// ```moonbit
 /// let ctx = Context::new()
@@ -716,13 +729,15 @@ pub impl Value for StoreInst with getValueBase(self) {
   ValueBase::{ uid: self.uid, vty: self.vty, users: [] }
 }
 
-///| StoreInst has no name, calling `getName` will always return `None`.
+///|
+/// StoreInst has no name, calling `getName` will always return `None`.
 pub impl Value for StoreInst with getName(self) {
   ignore(self)
   None
 }
 
-///| StoreInst has no name, calling `setName` will always fail with an error.
+///|
+/// StoreInst has no name, calling `setName` will always fail with an error.
 pub impl Value for StoreInst with setName(_, _) {
   let msg = "Calling always failed function `StoreInst::setName`. " +
     "Set name for StoreInst is not allowed."
@@ -1069,7 +1084,8 @@ pub impl Value for BinaryInst with asValueEnum(self) {
   BinaryInst(self)
 }
 
-///| Get simple representation of the value.
+///|
+/// Get simple representation of the value.
 ///
 /// ```moonbit
 /// let ctx = Context::new()
@@ -1101,7 +1117,8 @@ pub impl Value for BinaryInst with getValueRepr(self) {
   }
 }
 
-///| Get the name of the instruction.
+///|
+/// Get the name of the instruction.
 ///
 /// **Note**:
 ///
@@ -1133,7 +1150,8 @@ pub impl Value for BinaryInst with getName(self) {
   self.name
 }
 
-///| Set the name of the instruction.
+///|
+/// Set the name of the instruction.
 ///
 /// **Note**:
 ///
@@ -1303,7 +1321,8 @@ pub impl Show for IntPredicate with output(self, logger) {
   logger.write_string(s)
 }
 
-///| ICmpInst represents an integer comparison instruction that compares two integer values.
+///|
+/// ICmpInst represents an integer comparison instruction that compares two integer values.
 ///
 /// **Note**:
 ///
@@ -1401,7 +1420,8 @@ pub impl Value for ICmpInst with asValueEnum(self) {
   ICmpInst(self)
 }
 
-///| Get simple representation of the value.
+///|
+/// Get simple representation of the value.
 ///
 /// ```moonbit
 /// let ctx = Context::new()
@@ -1432,7 +1452,8 @@ pub impl Value for ICmpInst with getValueRepr(self) {
   }
 }
 
-///| Get the name of the instruction.
+///|
+/// Get the name of the instruction.
 ///
 /// **Note**:
 ///
@@ -1463,7 +1484,8 @@ pub impl Value for ICmpInst with getName(self) {
   self.name
 }
 
-///| Set the name of the instruction.
+///|
+/// Set the name of the instruction.
 ///
 /// **Note**:
 ///
@@ -1638,7 +1660,8 @@ pub impl Show for FloatPredicate with output(self, logger) {
   logger.write_string(s)
 }
 
-///| FCmpInst represents a floating-point comparison instruction that compares two floating-point values.
+///|
+/// FCmpInst represents a floating-point comparison instruction that compares two floating-point values.
 ///
 /// **Note**:
 ///
@@ -1727,7 +1750,8 @@ pub impl Value for FCmpInst with getValueBase(self) {
   ValueBase::{ uid: self.uid, vty: self.vty, users: self.users }
 }
 
-///| Get simple representation of the value.
+///|
+/// Get simple representation of the value.
 ///
 /// ```moonbit
 /// let ctx = Context::new()
@@ -1763,7 +1787,8 @@ pub impl Value for FCmpInst with asValueEnum(self) {
   FCmpInst(self)
 }
 
-///| Get the name of the instruction.
+///|
+/// Get the name of the instruction.
 ///
 /// **Note**:
 ///
@@ -1794,7 +1819,8 @@ pub impl Value for FCmpInst with getName(self) {
   self.name
 }
 
-///| Set the name of the instruction.
+///|
+/// Set the name of the instruction.
 ///
 /// **Note**:
 ///
@@ -1947,7 +1973,8 @@ pub impl Show for CastOps with output(self, logger) {
   logger.write_string(str)
 }
 
-///| CastInst represents a type conversion instruction that converts a value from one type to another.
+///|
+/// CastInst represents a type conversion instruction that converts a value from one type to another.
 ///
 /// **Note**:
 ///
@@ -2329,7 +2356,8 @@ pub impl Value for CastInst with getValueBase(self) {
   ValueBase::{ uid: self.uid, vty: self.to_ty, users: self.users }
 }
 
-///| Get simple representation of the value.
+///|
+/// Get simple representation of the value.
 ///
 /// ```moonbit
 /// let ctx = Context::new()
@@ -2365,7 +2393,8 @@ pub impl Value for CastInst with asValueEnum(self) {
   CastInst(self)
 }
 
-///| Get the name of the instruction.
+///|
+/// Get the name of the instruction.
 ///
 /// **Note**:
 ///
@@ -2396,7 +2425,8 @@ pub impl Value for CastInst with getName(self) {
   self.name
 }
 
-///| Set the name of the instruction.
+///|
+/// Set the name of the instruction.
 ///
 /// **Note**:
 ///
@@ -2517,7 +2547,8 @@ pub impl Show for CastInst with output(self, logger) {
 // GetElementPtrInst
 // =======================================================
 
-///| GetElementPtrInst represents a getelementptr instruction that calculates the address of a sub-element of an aggregate object.
+///|
+/// GetElementPtrInst represents a getelementptr instruction that calculates the address of a sub-element of an aggregate object.
 ///
 /// **Note**:
 ///
@@ -2600,7 +2631,8 @@ pub impl Value for GetElementPtrInst with getValueBase(self) {
   ValueBase::{ uid: self.uid, vty: self.vty, users: self.users }
 }
 
-///| Get simple representation of the value.
+///|
+/// Get simple representation of the value.
 ///
 /// ```moonbit
 /// let ctx = Context::new()
@@ -2639,7 +2671,8 @@ pub impl Value for GetElementPtrInst with asValueEnum(self) {
   GetElementPtrInst(self)
 }
 
-///| Get the name of the instruction.
+///|
+/// Get the name of the instruction.
 ///
 /// **Note**:
 ///
@@ -2673,7 +2706,8 @@ pub impl Value for GetElementPtrInst with getName(self) {
   self.name
 }
 
-///| Set the name of the instruction.
+///|
+/// Set the name of the instruction.
 ///
 /// **Note**:
 ///
@@ -2800,7 +2834,8 @@ pub impl Show for GetElementPtrInst with output(self, logger) {
 // SelectInst
 // =======================================================
 
-///| SelectInst represents a select instruction that chooses between two values based on a boolean condition.
+///|
+/// SelectInst represents a select instruction that chooses between two values based on a boolean condition.
 ///
 /// **Note**:
 ///
@@ -2895,7 +2930,8 @@ pub impl Value for SelectInst with getValueBase(self) {
   ValueBase::{ uid: self.uid, vty: self.vty, users: self.users }
 }
 
-///| Get simple representation of the value.
+///|
+/// Get simple representation of the value.
 ///
 /// ```moonbit
 /// let ctx = Context::new()
@@ -2933,7 +2969,8 @@ pub impl Value for SelectInst with asValueEnum(self) {
   SelectInst(self)
 }
 
-///| Get the name of the instruction.
+///|
+/// Get the name of the instruction.
 ///
 /// **Note**:
 ///
@@ -2966,7 +3003,8 @@ pub impl Value for SelectInst with getName(self) {
   self.name
 }
 
-///| Set the name of the instruction.
+///|
+/// Set the name of the instruction.
 ///
 /// **Note**:
 ///
@@ -3089,7 +3127,8 @@ pub impl Show for SelectInst with output(self, logger) {
 // ReturnInst
 // =======================================================
 
-///| ReturnInst represents a return instruction that terminates the current function and optionally returns a value.
+///|
+/// ReturnInst represents a return instruction that terminates the current function and optionally returns a value.
 ///
 /// **Note**:
 ///
@@ -3231,7 +3270,8 @@ pub impl Show for ReturnInst with output(self, logger) {
 // BranchInst
 // =======================================================
 
-///| BranchInst represents a branch instruction that transfers control flow to different basic blocks.
+///|
+/// BranchInst represents a branch instruction that transfers control flow to different basic blocks.
 ///
 /// **Note**:
 ///
@@ -3465,7 +3505,8 @@ pub impl Show for BranchInst with output(self, logger) {
 // Switch Inst
 // =======================================================
 
-///| SwitchInst represents a switch instruction that transfers control to one of many basic blocks based on an integer value.
+///|
+/// SwitchInst represents a switch instruction that transfers control to one of many basic blocks based on an integer value.
 ///
 /// **Note**:
 ///
@@ -3559,7 +3600,8 @@ pub fn SwitchInst::getNumCases(self : Self) -> Int {
   self.cases.length()
 }
 
-///| Get a case from the switch instruction by index.
+///|
+/// Get a case from the switch instruction by index.
 ///
 /// **Note**:
 ///
@@ -3602,7 +3644,8 @@ pub fn SwitchInst::getCase(
   self.cases.get(idx)
 }
 
-///| Add a case to the switch instruction.
+///|
+/// Add a case to the switch instruction.
 ///
 /// **Note**:
 ///
@@ -3777,7 +3820,8 @@ pub impl Show for SwitchInst with output(self, logger) {
 // PHINode
 // =======================================================
 
-///| PHINode represents a PHI node instruction that selects a value based on the predecessor basic block.
+///|
+/// PHINode represents a PHI node instruction that selects a value based on the predecessor basic block.
 ///
 /// **Note**:
 ///
@@ -3829,7 +3873,8 @@ fn PHINode::new(vty : &Type, parent : Function, name~ : String?) -> PHINode {
   PHINode::{ uid, vty, users: [], name, incomings: [], parent, bb, prev, next }
 }
 
-///| Get the number of incoming values in the PHI node.
+///|
+/// Get the number of incoming values in the PHI node.
 ///
 /// **Note**:
 ///
@@ -3868,7 +3913,8 @@ pub fn PHINode::getNumIncomingValues(self : PHINode) -> Int {
   self.incomings.length()
 }
 
-///| Get the incoming value at the specified index.
+///|
+/// Get the incoming value at the specified index.
 ///
 /// **Note**:
 ///
@@ -3905,7 +3951,8 @@ pub fn PHINode::getIncomingValue(self : PHINode, idx : Int) -> &Value? {
   }
 }
 
-///| Get the incoming basic block at the specified index.
+///|
+/// Get the incoming basic block at the specified index.
 ///
 /// **Note**:
 ///
@@ -3942,7 +3989,8 @@ pub fn PHINode::getIncomingBlock(self : PHINode, idx : Int) -> BasicBlock? {
   }
 }
 
-///| Get the incoming value-block pair at the specified index.
+///|
+/// Get the incoming value-block pair at the specified index.
 ///
 /// **Note**:
 ///
@@ -3982,7 +4030,8 @@ pub fn PHINode::getIncoming(self : PHINode, idx : Int) -> (&Value, BasicBlock)? 
   self.incomings.get(idx)
 }
 
-///| Get all incoming value-block pairs as an array.
+///|
+/// Get all incoming value-block pairs as an array.
 ///
 /// **Note**:
 ///
@@ -4022,7 +4071,8 @@ pub fn PHINode::getIncomings(self : PHINode) -> Array[(&Value, BasicBlock)] {
   self.incomings
 }
 
-///| Get all incoming values as an array.
+///|
+/// Get all incoming values as an array.
 ///
 /// **Note**:
 ///
@@ -4061,7 +4111,8 @@ pub fn PHINode::getIncomingValues(self : PHINode) -> Array[&Value] {
   self.incomings.map(incoming => incoming.0)
 }
 
-///| Get all incoming basic blocks as an array.
+///|
+/// Get all incoming basic blocks as an array.
 ///
 /// **Note**:
 ///
@@ -4100,7 +4151,8 @@ pub fn PHINode::getIncomingBlocks(self : PHINode) -> Array[BasicBlock] {
   self.incomings.map(incoming => incoming.1)
 }
 
-///| Add an incoming value-block pair to the PHI node.
+///|
+/// Add an incoming value-block pair to the PHI node.
 ///
 /// **Note**:
 ///
@@ -4161,7 +4213,8 @@ pub impl Value for PHINode with getValueBase(self) {
   ValueBase::{ uid: self.uid, vty: self.vty, users: self.users }
 }
 
-///| Get simple representation of the value.
+///|
+/// Get simple representation of the value.
 ///
 /// ```moonbit
 /// let ctx = Context::new()
@@ -4190,7 +4243,8 @@ pub impl Value for PHINode with getValueRepr(self) {
   }
 }
 
-///| Get the name of the instruction.
+///|
+/// Get the name of the instruction.
 ///
 /// **Note**:
 ///
@@ -4219,7 +4273,8 @@ pub impl Value for PHINode with getName(self) {
   self.name
 }
 
-///| Set the name of the instruction.
+///|
+/// Set the name of the instruction.
 ///
 /// **Note**:
 ///
@@ -4368,7 +4423,8 @@ pub impl Show for TailCallKind with output(self, logger) {
   logger.write_string(str)
 }
 
-///| CallInst represents a function call instruction that invokes a function with the specified arguments.
+///|
+/// CallInst represents a function call instruction that invokes a function with the specified arguments.
 ///
 /// **Note**:
 ///
@@ -4503,7 +4559,8 @@ pub impl Value for CallInst with asValueEnum(self) {
   CallInst(self)
 }
 
-///| Get simple representation of the value.
+///|
+/// Get simple representation of the value.
 ///
 /// ```moonbit
 /// let ctx = Context::new()
@@ -4539,7 +4596,8 @@ pub impl Value for CallInst with getValueRepr(self) {
   }
 }
 
-///| Get the name of the instruction.
+///|
+/// Get the name of the instruction.
 ///
 /// **Note**:
 ///
@@ -4587,7 +4645,8 @@ pub impl Value for CallInst with getNameOrSlot(self) {
   }
 }
 
-///| Set the name of the instruction.
+///|
+/// Set the name of the instruction.
 ///
 /// **Note**:
 ///
@@ -4730,7 +4789,8 @@ pub impl Show for CallInst with output(self, logger) {
 // ExtractValueInst
 // =======================================================
 
-///| ExtractValueInst represents an extractvalue instruction that extracts a value from an aggregate (struct or array) at the specified index.
+///|
+/// ExtractValueInst represents an extractvalue instruction that extracts a value from an aggregate (struct or array) at the specified index.
 ///
 /// **Note**:
 ///
@@ -4816,7 +4876,8 @@ pub impl Value for ExtractValueInst with getValueBase(self) {
   ValueBase::{ uid: self.uid, vty: self.vty, users: self.users }
 }
 
-///| Get simple representation of the value.
+///|
+/// Get simple representation of the value.
 ///
 /// ```moonbit
 /// let ctx = Context::new()
@@ -4852,7 +4913,8 @@ pub impl Value for ExtractValueInst with asValueEnum(self) {
   ExtractValueInst(self)
 }
 
-///| Get the name of the instruction.
+///|
+/// Get the name of the instruction.
 ///
 /// **Note**:
 ///
@@ -4883,7 +4945,8 @@ pub impl Value for ExtractValueInst with getName(self) {
   self.name
 }
 
-///| Set the name of the instruction.
+///|
+/// Set the name of the instruction.
 ///
 /// **Note**:
 ///
@@ -5005,7 +5068,8 @@ pub impl Show for ExtractValueInst with output(self, logger) {
 // InsertValueInst
 // =======================================================
 
-///| InsertValueInst represents an insertvalue instruction that inserts a value into an aggregate (struct or array) at the specified index.
+///|
+/// InsertValueInst represents an insertvalue instruction that inserts a value into an aggregate (struct or array) at the specified index.
 ///
 /// **Note**:
 ///
@@ -5108,7 +5172,8 @@ pub impl Value for InsertValueInst with asValueEnum(self) {
   InsertValueInst(self)
 }
 
-///| Get simple representation of the value.
+///|
+/// Get simple representation of the value.
 ///
 /// ```moonbit
 /// let ctx = Context::new()
@@ -5140,7 +5205,8 @@ pub impl Value for InsertValueInst with getValueRepr(self) {
   }
 }
 
-///| Get the name of the instruction.
+///|
+/// Get the name of the instruction.
 ///
 /// **Note**:
 ///
@@ -5172,7 +5238,8 @@ pub impl Value for InsertValueInst with getName(self) {
   self.name
 }
 
-///| Set the name of the instruction.
+///|
+/// Set the name of the instruction.
 ///
 /// **Note**:
 ///

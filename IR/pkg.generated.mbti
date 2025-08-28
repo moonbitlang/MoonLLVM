@@ -1,0 +1,1730 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Kaida-Amethyst/MoonLLVM/IR"
+
+import(
+  "Kaida-Amethyst/MoonLLVM/Either"
+  "Kaida-Amethyst/MoonLLVM/int8"
+  "Kaida-Amethyst/MoonLLVM/uint8"
+  "moonbitlang/core/set"
+)
+
+// Values
+fn warning_elimination() -> Unit
+
+// Errors
+type LLVMTypeError
+impl Show for LLVMTypeError
+
+pub suberror LLVMValueError String
+impl Show for LLVMValueError
+
+// Types and methods
+pub enum AbstractTypeEnum {
+  VoidType(VoidType)
+  LabelType(LabelType)
+  MetadataType(MetadataType)
+  TokenType(TokenType)
+  FunctionType(FunctionType)
+}
+impl Show for AbstractTypeEnum
+
+pub struct AddressSpace(UInt)
+fn AddressSpace::inner(Self) -> UInt
+fn AddressSpace::new(UInt) -> Self
+impl Default for AddressSpace
+impl Eq for AddressSpace
+impl Hash for AddressSpace
+impl Show for AddressSpace
+
+pub enum AggregateTypeEnum {
+  StructType(StructType)
+  ArrayType(ArrayType)
+  VectorType(VectorType)
+  ScalableVectorType(ScalableVectorType)
+}
+fn AggregateTypeEnum::asTypeClass(Self) -> &Type
+fn AggregateTypeEnum::getIndexedType(Self, ArrayView[Int]) -> &Type?
+fn AggregateTypeEnum::toTypeEnum(Self) -> TypeEnum
+impl Eq for AggregateTypeEnum
+impl Show for AggregateTypeEnum
+
+type Align
+fn Align::new(UInt64) -> Self
+impl Eq for Align
+impl Show for Align
+
+pub struct AllocaInst {
+  uid : UInt64
+  vty : &Type
+  users : Array[&User]
+  mut name : String?
+  parent : Function
+  data_ty : &Type
+  align : Align
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
+}
+impl Instruction for AllocaInst
+impl UnaryInst for AllocaInst
+impl Value for AllocaInst
+impl Show for AllocaInst
+
+pub struct Argument {
+  uid : UInt64
+  vty : &Type
+  users : Array[&User]
+  parent : Function
+  argNo : UInt
+  mut name : String?
+}
+fn Argument::addAttr(Self, ParamAttr) -> Unit
+impl Value for Argument
+impl Show for Argument
+
+pub struct ArrayType {
+  elementType : &Type
+  elementCount : Int
+  // private fields
+}
+fn ArrayType::getElementCount(Self) -> Int
+fn ArrayType::getElementType(Self) -> &Type
+impl AggregateType for ArrayType
+impl Type for ArrayType
+impl Eq for ArrayType
+impl Hash for ArrayType
+impl Show for ArrayType
+
+pub(all) enum AtomicOrdering {
+  NotAtomic
+  Unordered
+  Monotonic
+  Acquire
+  Release
+  AcquireRelease
+  SequentiallyConsistent
+}
+impl Eq for AtomicOrdering
+impl Hash for AtomicOrdering
+impl Show for AtomicOrdering
+
+type AttributeSet
+
+pub struct BFloatType {
+  // private fields
+}
+impl FPType for BFloatType
+impl PrimitiveType for BFloatType
+impl Type for BFloatType
+impl Eq for BFloatType
+impl Hash for BFloatType
+impl Show for BFloatType
+
+pub struct BasicBlock {
+  uid : UInt64
+  users : Array[&User]
+  parent : Function
+  mut name : String?
+  mut head : &Instruction?
+  id : Int
+  preds : Array[BasicBlock]
+}
+fn BasicBlock::firstInst(Self) -> &Instruction?
+fn BasicBlock::getLabel(Self) -> String
+fn BasicBlock::getParent(Self) -> Function
+fn BasicBlock::instIter(Self) -> Iter[&Instruction]
+fn BasicBlock::lastInst(Self) -> &Instruction?
+impl InsertPoint for BasicBlock
+impl Value for BasicBlock
+impl Eq for BasicBlock
+impl Show for BasicBlock
+
+pub struct BinaryInst {
+  uid : UInt64
+  vty : &Type
+  users : Array[&User]
+  mut name : String?
+  lhs : &Value
+  rhs : &Value
+  parent : Function
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
+  opcode : BinaryOps
+  flags : @set.Set[BinaryOpFlags]
+  fast_math_flags : @set.Set[FastMathFlag]
+}
+impl Instruction for BinaryInst
+impl User for BinaryInst
+impl Value for BinaryInst
+impl Show for BinaryInst
+
+pub enum BinaryOpFlags {
+  NoUnsignedWrap
+  NoSignedWrap
+  Exact
+}
+impl Eq for BinaryOpFlags
+impl Hash for BinaryOpFlags
+impl Show for BinaryOpFlags
+
+pub enum BinaryOps {
+  Add
+  FAdd
+  Sub
+  FSub
+  Mul
+  FMul
+  SDiv
+  UDiv
+  FDiv
+  URem
+  SRem
+  FRem
+  Shl
+  LShr
+  AShr
+  And
+  Or
+  Xor
+}
+impl Eq for BinaryOps
+impl Hash for BinaryOps
+impl Show for BinaryOps
+
+pub struct BranchInst {
+  uid : UInt64
+  vty : VoidType
+  condition : &Value?
+  trueBlock : BasicBlock?
+  falseBlock : BasicBlock?
+  parent : Function
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
+}
+fn BranchInst::getNumSuccessors(Self) -> Int
+fn BranchInst::getSuccessor(Self, Int) -> BasicBlock?
+fn BranchInst::isConditional(Self) -> Bool
+fn BranchInst::isUnconditional(Self) -> Bool
+impl Instruction for BranchInst
+impl User for BranchInst
+impl Value for BranchInst
+impl Show for BranchInst
+
+pub struct CallInst {
+  uid : UInt64
+  vty : &Type
+  users : Array[&User]
+  mut name : String?
+  callee : Function
+  args : Array[&Value]
+  parent : Function
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
+  mut tailCallKind : TailCallKind
+}
+fn CallInst::getArgOperand(Self, Int) -> &Value?
+fn CallInst::getCallee(Self) -> Function
+fn CallInst::getFunctionType(Self) -> FunctionType
+fn CallInst::getNumArgs(Self) -> Int
+fn CallInst::getTailCallKind(Self) -> TailCallKind
+fn CallInst::isTailCall(Self) -> Bool
+fn CallInst::setTailCallKind(Self, TailCallKind) -> Unit
+impl Instruction for CallInst
+impl User for CallInst
+impl Value for CallInst
+impl Show for CallInst
+
+pub struct CastInst {
+  uid : UInt64
+  to_ty : &Type
+  from_val : &Value
+  mut name : String?
+  parent : Function
+  users : Array[&User]
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
+  opcode : CastOps
+}
+impl Instruction for CastInst
+impl UnaryInst for CastInst
+impl User for CastInst
+impl Value for CastInst
+impl Show for CastInst
+
+pub(all) enum CastOps {
+  Trunc
+  ZExt
+  SExt
+  FPTrunc
+  FPExt
+  UIToFP
+  SIToFP
+  FPToUI
+  FPToSI
+  PtrToInt
+  IntToPtr
+  BitCast
+}
+impl Eq for CastOps
+impl Hash for CastOps
+impl Show for CastOps
+
+pub struct ConstantArray {
+  uid : UInt64
+  vty : ArrayType
+  data : @Either.Either[Array[&Constant], NumberArrayEnum]
+}
+impl Value for ConstantArray
+impl Eq for ConstantArray
+impl Show for ConstantArray
+
+pub enum ConstantEnum {
+  ConstantInt(ConstantInt)
+  ConstantFP(ConstantFP)
+  ConstantPointerNull(ConstantPointerNull)
+  ConstantArray(ConstantArray)
+  ConstantVector(ConstantVector)
+  ConstantStruct(ConstantStruct)
+}
+impl Eq for ConstantEnum
+
+pub struct ConstantFP {
+  uid : UInt64
+  vty : &FPType
+  value : Double
+}
+fn ConstantFP::add(Self, Self) -> Self raise LLVMValueError
+fn ConstantFP::bitcast(Self, &PrimitiveType) -> &Constant raise LLVMValueError
+fn ConstantFP::compare(Self, FloatPredicate, Self) -> ConstantInt raise LLVMValueError
+fn ConstantFP::div(Self, Self) -> Self raise LLVMValueError
+fn[T : Floating] ConstantFP::equals(Self, T) -> Bool
+fn[T : Floating] ConstantFP::exactlyEquals(Self, T) -> Bool
+fn ConstantFP::fpext(Self, &FPType) -> Self raise LLVMValueError
+fn ConstantFP::fptosi(Self, &IntegerType) -> ConstantInt
+fn ConstantFP::fptoui(Self, &IntegerType) -> ConstantInt
+fn ConstantFP::fptrunc(Self, &FPType) -> Self raise LLVMValueError
+fn ConstantFP::getFPType(Self) -> &FPType
+fn ConstantFP::getValue(Self) -> Double
+fn ConstantFP::mul(Self, Self) -> Self raise LLVMValueError
+fn ConstantFP::sub(Self, Self) -> Self raise LLVMValueError
+impl Constant for ConstantFP
+impl Value for ConstantFP
+impl Eq for ConstantFP
+impl Show for ConstantFP
+
+pub struct ConstantInt {
+  uid : UInt64
+  vty : &IntegerType
+  value : Int64
+}
+fn ConstantInt::add(Self, Self) -> Self raise LLVMValueError
+fn ConstantInt::ashr(Self, Self) -> Self raise LLVMValueError
+fn ConstantInt::bitcast(Self, &PrimitiveType) -> &Constant raise LLVMValueError
+fn ConstantInt::compare(Self, IntPredicate, Self) -> Self raise LLVMValueError
+fn ConstantInt::compute_and(Self, Self) -> Self raise LLVMValueError
+fn ConstantInt::compute_shl(Self, Self) -> Self raise LLVMValueError
+fn[T : IntegerNumber] ConstantInt::equals(Self, T) -> Bool
+fn ConstantInt::getIntegerType(Self) -> &IntegerType
+fn ConstantInt::getValueAsInt64(Self) -> Int64
+fn ConstantInt::inttoptr(Self) -> ConstantPointerNull
+fn ConstantInt::isMaxValue(Self) -> Bool
+fn ConstantInt::isMinValue(Self) -> Bool
+fn ConstantInt::isNegative(Self) -> Bool
+fn ConstantInt::lshr(Self, Self) -> Self raise LLVMValueError
+fn ConstantInt::mul(Self, Self) -> Self raise LLVMValueError
+fn ConstantInt::or(Self, Self) -> Self raise LLVMValueError
+fn ConstantInt::sdiv(Self, Self) -> Self raise LLVMValueError
+fn ConstantInt::sext(Self, &IntegerType) -> Self raise LLVMValueError
+fn ConstantInt::sitofp(Self, &FPType) -> ConstantFP
+fn ConstantInt::sub(Self, Self) -> Self raise LLVMValueError
+fn ConstantInt::trunc(Self, &IntegerType) -> Self raise LLVMValueError
+fn ConstantInt::udiv(Self, Self) -> Self raise LLVMValueError
+fn ConstantInt::uitofp(Self, &FPType) -> ConstantFP
+fn ConstantInt::xor(Self, Self) -> Self raise LLVMValueError
+fn ConstantInt::zext(Self, &IntegerType) -> Self raise LLVMValueError
+impl Constant for ConstantInt
+impl Value for ConstantInt
+impl Eq for ConstantInt
+impl Show for ConstantInt
+
+pub struct ConstantPointerNull {
+  uid : UInt64
+  vty : PointerType
+}
+impl Constant for ConstantPointerNull
+impl Value for ConstantPointerNull
+impl Eq for ConstantPointerNull
+impl Show for ConstantPointerNull
+
+pub struct ConstantStruct {
+  uid : UInt64
+  vty : StructType
+  elements : Array[&Constant]
+}
+fn ConstantStruct::extractValue(Self, ArrayView[Int]) -> &Constant?
+fn ConstantStruct::getElement(Self, Int) -> &Constant?
+fn ConstantStruct::getElements(Self) -> Array[&Constant]
+fn ConstantStruct::insertValue(Self, ArrayView[Int], &Constant) -> Self?
+fn ConstantStruct::new(StructType, Array[&Constant]) -> Self
+impl Constant for ConstantStruct
+impl Value for ConstantStruct
+impl Eq for ConstantStruct
+impl Show for ConstantStruct
+
+pub struct ConstantVector {
+  uid : UInt64
+  vty : VectorType
+  data : @Either.Either[Array[&Constant], NumberArrayEnum]
+}
+impl Constant for ConstantVector
+impl Value for ConstantVector
+impl Eq for ConstantVector
+impl Show for ConstantVector
+
+pub struct Context {
+  key : UInt
+  // private fields
+}
+fn Context::addModule(Self, String, source_file? : String?) -> Module
+fn Context::createBuilder(Self) -> IRBuilder
+fn Context::getArrayType(Self, &Type, Int) -> ArrayType raise LLVMTypeError
+fn Context::getBFloatTy(Self) -> BFloatType
+fn Context::getConstBool(Self, Bool) -> ConstantInt
+fn Context::getConstDouble(Self, Double) -> ConstantFP
+fn Context::getConstDoubleArray(Self, Array[Double]) -> ConstantArray
+fn Context::getConstDoubleVector(Self, Array[Double]) -> ConstantVector
+fn Context::getConstFalse(Self) -> ConstantInt
+fn Context::getConstFloat(Self, Float) -> ConstantFP
+fn Context::getConstFloatArray(Self, Array[Float]) -> ConstantArray
+fn Context::getConstFloatVector(Self, Array[Float]) -> ConstantVector
+fn Context::getConstInfDouble(Self, isNegative? : Bool) -> ConstantFP
+fn Context::getConstInfFloat(Self, isNegative? : Bool) -> ConstantFP
+fn Context::getConstInt16(Self, Int16) -> ConstantInt
+fn Context::getConstInt16Array(Self, Array[Int16]) -> ConstantArray
+fn Context::getConstInt16Vector(Self, Array[Int16]) -> ConstantVector
+fn Context::getConstInt32(Self, Int) -> ConstantInt
+fn Context::getConstInt32Array(Self, Array[Int]) -> ConstantArray
+fn Context::getConstInt32Vector(Self, Array[Int]) -> ConstantVector
+fn Context::getConstInt64(Self, Int64) -> ConstantInt
+fn Context::getConstInt64Array(Self, Array[Int64]) -> ConstantArray
+fn Context::getConstInt64Vector(Self, Array[Int64]) -> ConstantVector
+fn Context::getConstInt8(Self, Int) -> ConstantInt
+fn Context::getConstInt8Array(Self, Array[Int]) -> ConstantArray
+fn Context::getConstInt8Vector(Self, Array[Int]) -> ConstantVector
+fn Context::getConstNaNDouble(Self, isNegative? : Bool) -> ConstantFP
+fn Context::getConstNaNFloat(Self, isNegative? : Bool) -> ConstantFP
+fn Context::getConstQNaNDouble(Self, isNegative? : Bool) -> ConstantFP
+fn Context::getConstQNaNFloat(Self, isNegative? : Bool) -> ConstantFP
+fn Context::getConstSNaNDouble(Self, isNegative? : Bool) -> ConstantFP
+fn Context::getConstSNaNFloat(Self, isNegative? : Bool) -> ConstantFP
+fn Context::getConstTrue(Self) -> ConstantInt
+fn Context::getConstUInt16Array(Self, Array[UInt16]) -> ConstantArray
+fn Context::getConstUInt16Vector(Self, Array[UInt16]) -> ConstantVector
+fn Context::getConstUInt32Array(Self, Array[UInt]) -> ConstantArray
+fn Context::getConstUInt32Vector(Self, Array[UInt]) -> ConstantVector
+fn Context::getConstUInt64Array(Self, Array[UInt64]) -> ConstantArray
+fn Context::getConstUInt64Vector(Self, Array[UInt64]) -> ConstantVector
+fn Context::getConstUInt8Array(Self, Array[Byte]) -> ConstantArray
+fn Context::getConstUInt8Vector(Self, Array[Byte]) -> ConstantVector
+fn Context::getConstZero(Self, &Type) -> &Constant raise LLVMValueError
+fn Context::getConstZeroDouble(Self, isNegative? : Bool) -> ConstantFP
+fn Context::getConstZeroFloat(Self, isNegative? : Bool) -> ConstantFP
+fn Context::getDoubleTy(Self) -> DoubleType
+fn Context::getFP128Ty(Self) -> FP128Type
+fn Context::getFixedVectorType(Self, &Type, Int) -> VectorType raise LLVMTypeError
+fn Context::getFloatTy(Self) -> FloatType
+fn Context::getFunctionType(Self, &Type, Array[&Type]) -> FunctionType raise LLVMTypeError
+fn Context::getHalfTy(Self) -> HalfType
+fn Context::getInt16Ty(Self) -> Int16Type
+fn Context::getInt1Ty(Self) -> Int1Type
+fn Context::getInt32Ty(Self) -> Int32Type
+fn Context::getInt64Ty(Self) -> Int64Type
+fn Context::getInt8Ty(Self) -> Int8Type
+fn Context::getLabelTy(Self) -> LabelType
+fn Context::getMDString(Self, String) -> MDString
+fn Context::getMetadataTy(Self) -> MetadataType
+fn Context::getPtrTy(Self, addressSpace? : AddressSpace) -> PointerType
+fn Context::getScalableVectorType(Self, &Type, Int) -> ScalableVectorType raise LLVMTypeError
+fn Context::getStructType(Self, Array[&Type], name? : String, isPacked? : Bool) -> StructType raise LLVMTypeError
+fn Context::getStructTypeByName(Self, String) -> StructType?
+fn Context::getTokenTy(Self) -> TokenType
+fn Context::getVoidTy(Self) -> VoidType
+fn Context::new() -> Self
+impl Eq for Context
+impl Hash for Context
+
+pub(all) enum DLLStorageClassTypes {
+  DefaultDLLStorageClass
+  DLLImportStorageClass
+  DLLExportStorageClass
+}
+
+pub struct DataLayout {
+  endian : Endian
+}
+fn DataLayout::getEndian(Self) -> Endian
+fn DataLayout::getTypeAllocSize(Self, &Type) -> Int
+
+type DoubleArray
+fn DoubleArray::from(Array[Double]) -> Self
+fn DoubleArray::iter(Self) -> Iter[Double]
+fn DoubleArray::length(Self) -> Int
+impl Eq for DoubleArray
+impl Hash for DoubleArray
+impl Show for DoubleArray
+
+pub struct DoubleType {
+  // private fields
+}
+impl FPType for DoubleType
+impl PrimitiveType for DoubleType
+impl Type for DoubleType
+impl Eq for DoubleType
+impl Hash for DoubleType
+impl Show for DoubleType
+
+pub(all) enum Endian {
+  Little
+  Big
+}
+
+pub struct ExtractValueInst {
+  uid : UInt64
+  vty : &Type
+  users : Array[&User]
+  mut name : String?
+  aggregate : &Value
+  parent : Function
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
+  indices : Array[Int]
+}
+fn ExtractValueInst::getAggregateOperand(Self) -> &Value
+fn ExtractValueInst::getIndices(Self) -> Array[Int]
+impl Instruction for ExtractValueInst
+impl UnaryInst for ExtractValueInst
+impl User for ExtractValueInst
+impl Value for ExtractValueInst
+impl Show for ExtractValueInst
+
+pub struct FCmpInst {
+  uid : UInt64
+  vty : Int1Type
+  lhs : &Value
+  rhs : &Value
+  mut name : String?
+  parent : Function
+  users : Array[&User]
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
+  predicate : FloatPredicate
+}
+impl Instruction for FCmpInst
+impl User for FCmpInst
+impl Value for FCmpInst
+impl Show for FCmpInst
+
+pub struct FP128Type {
+  // private fields
+}
+impl FPType for FP128Type
+impl PrimitiveType for FP128Type
+impl Type for FP128Type
+impl Eq for FP128Type
+impl Hash for FP128Type
+impl Show for FP128Type
+
+pub enum FPTypeEnum {
+  HalfType(HalfType)
+  BFloatType(BFloatType)
+  FloatType(FloatType)
+  DoubleType(DoubleType)
+  FP128Type(FP128Type)
+}
+fn FPTypeEnum::asFPTypeClass(Self) -> &FPType
+fn FPTypeEnum::asTypeClass(Self) -> &Type
+fn FPTypeEnum::getBitWidth(Self) -> Int
+fn FPTypeEnum::getFPMantissaWidth(Self) -> Int
+impl Eq for FPTypeEnum
+impl Show for FPTypeEnum
+
+pub(all) enum FastMathFlag {
+  AllowReassoc
+  NoNaNs
+  NoInfs
+  NoSignedZeros
+  AllowReciprocal
+  AllowContract
+  ApproxFunc
+}
+impl Eq for FastMathFlag
+impl Hash for FastMathFlag
+impl Show for FastMathFlag
+
+type FloatArray
+fn FloatArray::from(Array[Float]) -> Self
+fn FloatArray::iter(Self) -> Iter[Float]
+fn FloatArray::length(Self) -> Int
+impl Eq for FloatArray
+impl Hash for FloatArray
+impl Show for FloatArray
+
+pub(all) enum FloatPredicate {
+  FALSE
+  OEQ
+  OGT
+  OGE
+  OLT
+  OLE
+  ONE
+  ORD
+  UNO
+  UEQ
+  UGT
+  UGE
+  ULT
+  ULE
+  UNE
+  TRUE
+}
+impl Show for FloatPredicate
+
+pub struct FloatType {
+  // private fields
+}
+impl FPType for FloatType
+impl PrimitiveType for FloatType
+impl Type for FloatType
+impl Eq for FloatType
+impl Hash for FloatType
+impl Show for FloatType
+
+type FloatingEnum
+impl Eq for FloatingEnum
+impl Hash for FloatingEnum
+impl Show for FloatingEnum
+
+pub(all) enum FnAttr {
+  AllocKind(Int)
+  AllocSize(Int)
+  AlwaysInline
+  Builtin
+  Cold
+  Convergent
+  Hot
+  DisableSanitizerInstrumentation
+  FnRetThunkExtern
+  HybridPatchable
+  InlineHint
+  JumpTable
+  Memory(Int)
+  MinSize
+  Naked
+  NoBuiltin
+  NoCallback
+  NoDivergenceSource
+  NoDuplicate
+  NoFree
+  NoImplicitFloat
+  NoInline
+  NonLazyBind
+  NoMerge
+  NoRecurse
+  NoRedZone
+  NoReturn
+  NoSync
+  NoCfCheck
+  NoProfile
+  SkipProfile
+  NoUnwind
+  NoSanitizeBounds
+  NoSanitizeCoverage
+  NullPointerIsValid
+  OptimizeForDebugging
+  OptForFuzzing
+  OptimizeForSize
+  OptimizeNone
+  Preallocated(&Type)
+  ReturnTwice
+  SafeStack
+  ShadowCallStack
+  StackAlignment(Int)
+  Speculatable
+  StackProtect
+  StackProtectReq
+  StackProtectStrong
+  StrictFP
+  SanitizeAddress
+  SanitizeThread
+  SanitizeType
+  SanitizeMemory
+  SanitizeHWAddress
+  SanitizeMemTag
+  SanitizeNumericalStability
+  SanitizeRealtime
+  SanitizeRealtimeBlocking
+  SpeculativeLoadHardening
+  UWTable(Int)
+  VScaleRange(Int)
+  WillReturn
+  MustProgress
+  PresplitCoroutine
+  CoroDestroyOnlyWhenComplete
+  CoroElideSafe
+  DenormalFPMath
+  DenormalFPMathF32
+}
+impl Eq for FnAttr
+impl Hash for FnAttr
+impl Show for FnAttr
+
+pub struct Function {
+  uid : UInt64
+  fty : FunctionType
+  users : Array[&User]
+  gv_base : GlobalValueBase
+  program : Module
+  index : UInt
+  addressSpace : AddressSpace
+  arguments : Array[Argument]
+  symbols : Map[String, &Value]
+  attrSet : AttributeSet
+  basicBlocks : Array[BasicBlock]
+  // private fields
+}
+fn Function::addAttr(Self, FnAttr) -> Unit
+fn Function::addBasicBlock(Self, name? : String, before? : BasicBlock?) -> BasicBlock
+fn Function::clearSlot(Self) -> Unit
+fn Function::getArg(Self, Int) -> Argument?
+fn Function::getDataLayout(Self) -> DataLayout
+fn Function::getFunctionAttrs(Self) -> @set.Set[FnAttr]
+fn Function::getFunctionType(Self) -> FunctionType
+fn Function::getNumArgs(Self) -> Int
+fn Function::getNumBasicBlocks(Self) -> Int
+fn Function::getNumParams(Self) -> Int
+fn Function::getParamAttrs(Self, UInt) -> @set.Set[ParamAttr]?
+fn Function::getParamTypes(Self) -> Array[&Type]
+fn Function::getReturnAttrs(Self) -> @set.Set[RetAttr]
+fn Function::getReturnType(Self) -> &Type
+fn[V : Value] Function::getSlot(Self, V) -> UInt64?
+fn Function::hasBody(Self) -> Bool
+fn Function::processSlot(Self) -> Unit
+impl GlobalValue for Function
+impl Value for Function
+impl Eq for Function
+impl Show for Function
+
+pub struct FunctionType {
+  returnType : &Type
+  paramTypes : Array[&Type]
+  // private fields
+}
+fn FunctionType::getNumParams(Self) -> Int
+fn FunctionType::getParamType(Self, Int) -> &Type?
+fn FunctionType::getParamTypes(Self) -> Array[&Type]
+fn FunctionType::getReturnType(Self) -> &Type
+fn FunctionType::param_iter(Self) -> Iter[&Type]
+fn FunctionType::params(Self) -> Array[&Type]
+impl AbstractType for FunctionType
+impl Type for FunctionType
+impl Eq for FunctionType
+impl Hash for FunctionType
+impl Show for FunctionType
+
+pub struct GetElementPtrInst {
+  uid : UInt64
+  vty : PointerType
+  users : Array[&User]
+  ptr : &Value
+  indices : Array[&Value]
+  mut name : String?
+  parent : Function
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
+  isInbounds : Bool
+  pointeeType : &Type
+}
+impl Instruction for GetElementPtrInst
+impl User for GetElementPtrInst
+impl Value for GetElementPtrInst
+impl Show for GetElementPtrInst
+
+type GlobalValueBase
+
+pub enum GlobalValueEnum {
+  Function(Function)
+}
+
+pub struct HalfType {
+  // private fields
+}
+impl FPType for HalfType
+impl PrimitiveType for HalfType
+impl Type for HalfType
+impl Eq for HalfType
+impl Hash for HalfType
+impl Show for HalfType
+
+pub struct ICmpInst {
+  uid : UInt64
+  vty : Int1Type
+  lhs : &Value
+  rhs : &Value
+  mut name : String?
+  parent : Function
+  users : Array[&User]
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
+  predicate : IntPredicate
+}
+impl Instruction for ICmpInst
+impl User for ICmpInst
+impl Value for ICmpInst
+
+pub struct IRBuilder {
+  ctx : Context
+  mut bb : BasicBlock?
+  mut insertPt : &Instruction?
+}
+fn IRBuilder::createAShr(Self, &Value, &Value, name? : String, is_exact? : Bool) -> &Value raise
+fn IRBuilder::createAdd(Self, &Value, &Value, name? : String, has_nsw? : Bool, has_nuw? : Bool) -> &Value raise
+fn IRBuilder::createAlloca(Self, &Type, addressSpace? : AddressSpace, name? : String) -> AllocaInst raise
+fn IRBuilder::createAnd(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createBitCast(Self, &Value, &PrimitiveType, name? : String) -> &Value raise
+fn IRBuilder::createBr(Self, BasicBlock) -> &Instruction raise
+fn IRBuilder::createCall(Self, Function, Array[&Value], name? : String) -> CallInst raise
+fn IRBuilder::createCondBr(Self, &Value, BasicBlock, BasicBlock) -> &Instruction raise
+fn IRBuilder::createExactSDiv(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createExactUDiv(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createExtractValue(Self, &Value, Array[Int], name? : String) -> &Value raise
+fn IRBuilder::createFAdd(Self, &Value, &Value, name? : String, fast_math? : Array[FastMathFlag]) -> &Value raise
+fn IRBuilder::createFCmp(Self, FloatPredicate, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createFCmpOEQ(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createFCmpOGE(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createFCmpOGT(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createFCmpOLE(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createFCmpOLT(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createFCmpONE(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createFCmpORD(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createFCmpUEQ(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createFCmpUGE(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createFCmpUGT(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createFCmpULE(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createFCmpULT(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createFCmpUNE(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createFCmpUNO(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createFDiv(Self, &Value, &Value, name? : String, fast_math_flags? : @set.Set[FastMathFlag]) -> &Value raise
+fn IRBuilder::createFMul(Self, &Value, &Value, name? : String, fast_math_flags? : @set.Set[FastMathFlag]) -> &Value raise
+fn IRBuilder::createFPExt(Self, &Value, &FPType, name? : String) -> &Value raise
+fn IRBuilder::createFPToSI(Self, &Value, &IntegerType, name? : String) -> &Value raise
+fn IRBuilder::createFPToUI(Self, &Value, &IntegerType, name? : String) -> &Value raise
+fn IRBuilder::createFPTrunc(Self, &Value, &FPType, name? : String) -> &Value raise
+fn IRBuilder::createFRem(Self, &Value, &Value, name? : String, fast_math_flags? : @set.Set[FastMathFlag]) -> &Value raise
+fn IRBuilder::createFSub(Self, &Value, &Value, name? : String, fast_math_flags? : @set.Set[FastMathFlag]) -> &Value raise
+fn IRBuilder::createGEP(Self, &Value, &Type, Array[&Value], name? : String, inbounds? : Bool) -> &Value raise
+fn IRBuilder::createICmp(Self, IntPredicate, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createICmpEQ(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createICmpNE(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createICmpSGE(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createICmpSGT(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createICmpSLE(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createICmpSLT(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createICmpUGE(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createICmpUGT(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createICmpULE(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createICmpULT(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createInsertValue(Self, &Value, &Value, Array[Int], name? : String) -> &Value raise
+fn IRBuilder::createIntToPtr(Self, &Value, name? : String) -> &Value raise
+fn IRBuilder::createLShr(Self, &Value, &Value, name? : String, is_exact? : Bool) -> &Value raise
+fn IRBuilder::createLoad(Self, &Type, &Value, isVolatile? : Bool, atomicOrdering? : AtomicOrdering, name? : String) -> &Value raise
+fn IRBuilder::createMul(Self, &Value, &Value, name? : String, has_nsw? : Bool, has_nuw? : Bool) -> &Value raise
+fn IRBuilder::createNSWAdd(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createNSWMul(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createNSWSub(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createNUWAdd(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createNUWMul(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createNUWSub(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createOr(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createPHI(Self, &Type, name? : String) -> PHINode raise
+fn IRBuilder::createPtrToInt(Self, &Value, &IntegerType, name? : String) -> &Value raise
+fn IRBuilder::createRet(Self, &Value) -> &Instruction raise
+fn IRBuilder::createRetVoid(Self) -> &Instruction raise
+fn IRBuilder::createSDiv(Self, &Value, &Value, name? : String, is_exact? : Bool) -> &Value raise
+fn IRBuilder::createSExt(Self, &Value, &IntegerType, name? : String) -> &Value raise
+fn IRBuilder::createSIToFP(Self, &Value, &FPType, name? : String) -> &Value raise
+fn IRBuilder::createSRem(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createSelect(Self, &Value, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createShl(Self, &Value, &Value, name? : String, has_nsw? : Bool, has_nuw? : Bool) -> &Value raise
+fn IRBuilder::createStore(Self, &Value, &Value, isVolatile? : Bool, atomicOrdering? : AtomicOrdering) -> StoreInst raise
+fn IRBuilder::createSub(Self, &Value, &Value, name? : String, has_nsw? : Bool, has_nuw? : Bool) -> &Value raise
+fn IRBuilder::createSwitch(Self, &Value, BasicBlock) -> SwitchInst raise
+fn IRBuilder::createTrunc(Self, &Value, &IntegerType, name? : String) -> &Value raise
+fn IRBuilder::createUDiv(Self, &Value, &Value, name? : String, is_exact? : Bool) -> &Value raise
+fn IRBuilder::createUIToFP(Self, &Value, &FPType, name? : String) -> &Value raise
+fn IRBuilder::createURem(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createXor(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createZExt(Self, &Value, &IntegerType, name? : String) -> &Value raise
+fn IRBuilder::getInsertBlock(Self) -> BasicBlock
+fn IRBuilder::getInsertFunction(Self) -> Function
+fn[T : InsertPoint] IRBuilder::setInsertPoint(Self, T) -> Unit
+
+pub struct InsertValueInst {
+  uid : UInt64
+  vty : &Type
+  users : Array[&User]
+  aggregate : &Value
+  insert_val : &Value
+  mut name : String?
+  parent : Function
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
+  indices : Array[Int]
+}
+fn InsertValueInst::getAggregateOperand(Self) -> &Value
+fn InsertValueInst::getIndices(Self) -> Array[Int]
+fn InsertValueInst::getInsertedValueOperand(Self) -> &Value
+impl Instruction for InsertValueInst
+impl User for InsertValueInst
+impl Value for InsertValueInst
+impl Show for InsertValueInst
+
+pub struct InstBase {
+  // private fields
+}
+
+pub enum InstEnum {
+  AllocaInst(AllocaInst)
+  LoadInst(LoadInst)
+  ExtractValueInst(ExtractValueInst)
+  CastInst(CastInst)
+  BinaryInst(BinaryInst)
+  ICmpInst(ICmpInst)
+  FCmpInst(FCmpInst)
+  StoreInst(StoreInst)
+  GetElementPtrInst(GetElementPtrInst)
+  SelectInst(SelectInst)
+  InsertValueInst(InsertValueInst)
+  PHINode(PHINode)
+  ReturnInst(ReturnInst)
+  BranchInst(BranchInst)
+  SwitchInst(SwitchInst)
+  CallInst(CallInst)
+}
+
+type Int16Array
+fn Int16Array::from(Array[Int16]) -> Self
+fn Int16Array::iter(Self) -> Iter[Int16]
+fn Int16Array::length(Self) -> Int
+impl Eq for Int16Array
+impl Hash for Int16Array
+impl Show for Int16Array
+
+pub struct Int16Type {
+  // private fields
+}
+fn Int16Type::getExtendedType(Self) -> Int32Type
+impl IntegerType for Int16Type
+impl PrimitiveType for Int16Type
+impl Type for Int16Type
+impl Eq for Int16Type
+impl Hash for Int16Type
+impl Show for Int16Type
+
+pub struct Int1Type {
+  // private fields
+}
+impl IntegerType for Int1Type
+impl PrimitiveType for Int1Type
+impl Type for Int1Type
+impl Eq for Int1Type
+impl Hash for Int1Type
+impl Show for Int1Type
+
+type Int32Array
+fn Int32Array::from(Array[Int]) -> Self
+fn Int32Array::iter(Self) -> Iter[Int]
+fn Int32Array::length(Self) -> Int
+impl Eq for Int32Array
+impl Hash for Int32Array
+impl Show for Int32Array
+
+pub struct Int32Type {
+  // private fields
+}
+fn Int32Type::getExtendedType(Self) -> Int64Type
+impl IntegerType for Int32Type
+impl PrimitiveType for Int32Type
+impl Type for Int32Type
+impl Eq for Int32Type
+impl Hash for Int32Type
+impl Show for Int32Type
+
+type Int64Array
+fn Int64Array::from(Array[Int64]) -> Self
+fn Int64Array::iter(Self) -> Iter[Int64]
+fn Int64Array::length(Self) -> Int
+impl Eq for Int64Array
+impl Hash for Int64Array
+impl Show for Int64Array
+
+pub struct Int64Type {
+  // private fields
+}
+impl IntegerType for Int64Type
+impl PrimitiveType for Int64Type
+impl Type for Int64Type
+impl Eq for Int64Type
+impl Hash for Int64Type
+impl Show for Int64Type
+
+type Int8Array
+fn Int8Array::from(Array[@int8.Int8]) -> Self
+fn Int8Array::iter(Self) -> Iter[@int8.Int8]
+fn Int8Array::length(Self) -> Int
+impl Eq for Int8Array
+impl Hash for Int8Array
+impl Show for Int8Array
+
+pub struct Int8Type {
+  // private fields
+}
+fn Int8Type::getExtendedType(Self) -> Int16Type
+impl IntegerType for Int8Type
+impl PrimitiveType for Int8Type
+impl Type for Int8Type
+impl Eq for Int8Type
+impl Hash for Int8Type
+impl Show for Int8Type
+
+pub(all) enum IntPredicate {
+  EQ
+  NE
+  UGT
+  UGE
+  ULT
+  ULE
+  SGT
+  SGE
+  SLT
+  SLE
+}
+impl Show for IntPredicate
+
+pub enum IntegerTypeEnum {
+  Int1Type(Int1Type)
+  Int8Type(Int8Type)
+  Int16Type(Int16Type)
+  Int32Type(Int32Type)
+  Int64Type(Int64Type)
+}
+fn IntegerTypeEnum::asIntegerTypeClass(Self) -> &IntegerType
+fn IntegerTypeEnum::asTypeClass(Self) -> &Type
+fn IntegerTypeEnum::getBitWidth(Self) -> Int
+impl Eq for IntegerTypeEnum
+impl Hash for IntegerTypeEnum
+impl Show for IntegerTypeEnum
+
+type LLVMContextImpl
+
+pub struct LabelType {
+  // private fields
+}
+impl AbstractType for LabelType
+impl Type for LabelType
+impl Eq for LabelType
+impl Hash for LabelType
+impl Show for LabelType
+
+pub(all) enum LinkageTypes {
+  ExternalLinkage
+  AvailableExternallyLinkage
+  LinkOnceAnyLinkage
+  LinkOnceODRLinkage
+  WeakAnyLinkage
+  WeakODRLinkage
+  AppendingLinkage
+  InternalLinkage
+  PrivateLinkage
+  ExternalWeakLinkage
+  CommonLinkage
+}
+impl Show for LinkageTypes
+
+pub(all) struct LoadInst {
+  uid : UInt64
+  vty : &Type
+  users : Array[&User]
+  mut name : String?
+  ptr : &Value
+  parent : Function
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
+  isVolatile : Bool
+  atomicOrdering : AtomicOrdering
+  align : Align
+}
+impl Instruction for LoadInst
+impl UnaryInst for LoadInst
+impl User for LoadInst
+impl Value for LoadInst
+impl Show for LoadInst
+
+pub struct MDNode {
+  metadata : Array[&Metadata]
+}
+impl Metadata for MDNode
+impl Show for MDNode
+
+pub struct MDString {
+  str : String
+}
+impl Metadata for MDString
+impl Show for MDString
+
+pub enum MetadataEnum {
+  MDString(MDString)
+  MDNode(MDNode)
+}
+
+pub struct MetadataType {
+  // private fields
+}
+impl AbstractType for MetadataType
+impl Type for MetadataType
+impl Eq for MetadataType
+impl Hash for MetadataType
+impl Show for MetadataType
+
+pub struct Module {
+  context : Context
+  functions : Map[String, Function]
+  srcFileName : String
+  moduleID : String
+  dataLayout : DataLayout
+}
+fn Module::addFunction(Self, FunctionType, String, linkage? : LinkageTypes, addressSpace? : AddressSpace) -> Function raise LLVMValueError
+fn Module::dump(Self) -> Unit
+fn Module::getContext(Self) -> Context
+fn Module::getDataLayout(Self) -> DataLayout
+fn Module::getFunction(Self, String) -> Function?
+fn Module::new(String, String, Context) -> Self
+impl Show for Module
+
+type NumberArrayEnum
+impl Eq for NumberArrayEnum
+impl Hash for NumberArrayEnum
+impl Show for NumberArrayEnum
+
+pub struct PHINode {
+  uid : UInt64
+  vty : &Type
+  users : Array[&User]
+  mut name : String?
+  incomings : Array[(&Value, BasicBlock)]
+  parent : Function
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
+}
+fn PHINode::addIncoming(Self, &Value, BasicBlock) -> Unit raise LLVMValueError
+fn PHINode::getIncoming(Self, Int) -> (&Value, BasicBlock)?
+fn PHINode::getIncomingBlock(Self, Int) -> BasicBlock?
+fn PHINode::getIncomingBlocks(Self) -> Array[BasicBlock]
+fn PHINode::getIncomingValue(Self, Int) -> &Value?
+fn PHINode::getIncomingValues(Self) -> Array[&Value]
+fn PHINode::getIncomings(Self) -> Array[(&Value, BasicBlock)]
+fn PHINode::getNumIncomingValues(Self) -> Int
+impl Instruction for PHINode
+impl User for PHINode
+impl Value for PHINode
+impl Show for PHINode
+
+pub(all) enum ParamAttr {
+  Alignment(Int)
+  AllocAlign
+  AllocatedPointer
+  ByVal(&Type)
+  ByRef(&Type)
+  NoUndef
+  Dereferenceable(Int)
+  DereferenceableOrNull(Int)
+  ElementType(&Type)
+  InAlloca(&Type)
+  Initializes
+  InReg
+  NoFPClass
+  Nest
+  NoAlias
+  Captures
+  NoExt
+  NoFree
+  DeadOnUnwind
+  NonNull
+  Preallocated(&Type)
+  Range
+  ReadNone
+  ReadOnly
+  Returned
+  ImmArg
+  SExt
+  StackAlignment(Int)
+  StructRet
+  SwiftError
+  SwiftSelf
+  SwiftAsync
+  Writable
+  WriteOnly
+  ZExt
+}
+impl Eq for ParamAttr
+impl Hash for ParamAttr
+impl Show for ParamAttr
+
+pub struct PointerType {
+  addressSpace : AddressSpace
+  // private fields
+}
+fn PointerType::getAddressSpace(Self) -> AddressSpace
+fn PointerType::isLoadableOrStorableType(&Type) -> Bool
+impl Type for PointerType
+impl Eq for PointerType
+impl Hash for PointerType
+impl Show for PointerType
+
+pub enum PrimitiveTypeEnum {
+  HalfType(HalfType)
+  BFloatType(BFloatType)
+  FloatType(FloatType)
+  DoubleType(DoubleType)
+  FP128Type(FP128Type)
+  Int1Type(Int1Type)
+  Int8Type(Int8Type)
+  Int16Type(Int16Type)
+  Int32Type(Int32Type)
+  Int64Type(Int64Type)
+}
+fn PrimitiveTypeEnum::getBitWidth(Self) -> Int
+impl Eq for PrimitiveTypeEnum
+impl Show for PrimitiveTypeEnum
+
+pub(all) enum RetAttr {
+  Alignment(Int)
+  NoUndef
+  Dereferenceable(Int)
+  DereferenceableOrNull(Int)
+  InReg
+  NoFPClass
+  NoAlias
+  NoExt
+  NonNull
+  SExt
+  StackAlignment(Int)
+  ZExt
+}
+impl Eq for RetAttr
+impl Hash for RetAttr
+impl Show for RetAttr
+
+pub struct ReturnInst {
+  uid : UInt64
+  vty : VoidType
+  retVal : &Value?
+  parent : Function
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
+}
+impl Instruction for ReturnInst
+impl User for ReturnInst
+impl Value for ReturnInst
+impl Show for ReturnInst
+
+pub struct ScalableVectorType {
+  elementType : &Type
+  elementCount : Int
+  // private fields
+}
+fn ScalableVectorType::getElementCount(Self) -> Int
+fn ScalableVectorType::getElementType(Self) -> &Type
+impl AggregateType for ScalableVectorType
+impl Type for ScalableVectorType
+impl Eq for ScalableVectorType
+impl Hash for ScalableVectorType
+impl Show for ScalableVectorType
+
+pub struct SelectInst {
+  uid : UInt64
+  users : Array[&User]
+  vty : &Type
+  condition : &Value
+  trueValue : &Value
+  falseValue : &Value
+  mut name : String?
+  parent : Function
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
+}
+fn SelectInst::getCondition(Self) -> &Value
+fn SelectInst::getFalseValue(Self) -> &Value
+fn SelectInst::getTrueValue(Self) -> &Value
+impl Instruction for SelectInst
+impl User for SelectInst
+impl Value for SelectInst
+impl Show for SelectInst
+
+pub enum SetSymbolResult {
+  Success
+  EmptyName
+  InvalidName
+  DuplicateName(&Value)
+}
+
+type SignedEnum
+impl Eq for SignedEnum
+impl Hash for SignedEnum
+impl Show for SignedEnum
+
+type SlotTracker
+
+pub struct StoreInst {
+  uid : UInt64
+  vty : &Type
+  value : &Value
+  ptr : &Value
+  parent : Function
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
+  isVolatile : Bool
+  atomicOrdering : AtomicOrdering
+  align : Align
+}
+fn StoreInst::getPointerOperand(Self) -> &Value
+fn StoreInst::getValueOperand(Self) -> &Value
+impl Instruction for StoreInst
+impl User for StoreInst
+impl Value for StoreInst
+impl Show for StoreInst
+
+pub struct StructType {
+  elements : Array[&Type]
+  // private fields
+}
+fn StructType::body_str(Self) -> String
+fn StructType::element_iter(Self) -> Iter[&Type]
+fn StructType::elements(Self) -> Array[&Type]
+fn StructType::full_info(Self) -> String
+fn StructType::getIndexedType(Self, ArrayView[Int]) -> &Type?
+fn StructType::getName(Self) -> String?
+fn StructType::isLiteral(Self) -> Bool
+fn StructType::isOpaque(Self) -> Bool
+fn StructType::isPacked(Self) -> Bool
+fn StructType::isSized(Self) -> Bool
+fn StructType::removeName(Self) -> Unit
+fn StructType::setBody(Self, Array[&Type], isPacked? : Bool) -> Unit raise LLVMTypeError
+fn StructType::setName(Self, String) -> Unit raise LLVMTypeError
+impl AggregateType for StructType
+impl Type for StructType
+impl Eq for StructType
+impl Hash for StructType
+impl Show for StructType
+
+pub struct SwitchInst {
+  uid : UInt64
+  vty : VoidType
+  condition : &Value
+  defaultDest : BasicBlock
+  cases : Array[(ConstantInt, BasicBlock)]
+  parent : Function
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
+}
+fn SwitchInst::addCase(Self, ConstantInt, BasicBlock) -> Unit raise LLVMValueError
+fn SwitchInst::getCase(Self, Int) -> (ConstantInt, BasicBlock)?
+fn SwitchInst::getCondition(Self) -> &Value
+fn SwitchInst::getDefaultDest(Self) -> BasicBlock
+fn SwitchInst::getNumCases(Self) -> Int
+impl Instruction for SwitchInst
+impl User for SwitchInst
+impl Value for SwitchInst
+impl Show for SwitchInst
+
+pub(all) enum TailCallKind {
+  NoTail
+  Tail
+  MustTail
+}
+impl Show for TailCallKind
+
+pub struct TokenType {
+  // private fields
+}
+impl AbstractType for TokenType
+impl Type for TokenType
+impl Eq for TokenType
+impl Hash for TokenType
+impl Show for TokenType
+
+type TypeBase
+impl Eq for TypeBase
+impl Hash for TypeBase
+
+pub enum TypeEnum {
+  HalfType(HalfType)
+  BFloatType(BFloatType)
+  FloatType(FloatType)
+  DoubleType(DoubleType)
+  FP128Type(FP128Type)
+  Int1Type(Int1Type)
+  Int8Type(Int8Type)
+  Int16Type(Int16Type)
+  Int32Type(Int32Type)
+  Int64Type(Int64Type)
+  VoidType(VoidType)
+  LabelType(LabelType)
+  MetadataType(MetadataType)
+  TokenType(TokenType)
+  FunctionType(FunctionType)
+  StructType(StructType)
+  ArrayType(ArrayType)
+  VectorType(VectorType)
+  ScalableVectorType(ScalableVectorType)
+  PointerType(PointerType)
+}
+fn TypeEnum::asTypeClass(Self) -> &Type
+impl Eq for TypeEnum
+impl Hash for TypeEnum
+impl Show for TypeEnum
+
+pub struct TypeSize {
+  // private fields
+}
+fn TypeSize::getFixed(UInt64) -> Self
+fn TypeSize::getFixedValue(Self) -> UInt64?
+fn TypeSize::getKnownMinValue(Self) -> UInt64
+fn TypeSize::getScalable(UInt64) -> Self
+fn TypeSize::isFixed(Self) -> Bool
+fn TypeSize::isNonZero(Self) -> Bool
+fn TypeSize::isScalable(Self) -> Bool
+fn TypeSize::isZero(Self) -> Bool
+impl Eq for TypeSize
+
+type UInt16Array
+fn UInt16Array::from(Array[UInt16]) -> Self
+fn UInt16Array::iter(Self) -> Iter[UInt16]
+fn UInt16Array::length(Self) -> Int
+impl Eq for UInt16Array
+impl Hash for UInt16Array
+impl Show for UInt16Array
+
+type UInt32Array
+fn UInt32Array::from(Array[UInt]) -> Self
+fn UInt32Array::iter(Self) -> Iter[UInt]
+fn UInt32Array::length(Self) -> Int
+impl Eq for UInt32Array
+impl Hash for UInt32Array
+impl Show for UInt32Array
+
+type UInt64Array
+fn UInt64Array::from(Array[UInt64]) -> Self
+fn UInt64Array::iter(Self) -> Iter[UInt64]
+fn UInt64Array::length(Self) -> Int
+impl Eq for UInt64Array
+impl Hash for UInt64Array
+impl Show for UInt64Array
+
+type UInt8Array
+fn UInt8Array::from(Array[@uint8.UInt8]) -> Self
+fn UInt8Array::iter(Self) -> Iter[@uint8.UInt8]
+fn UInt8Array::length(Self) -> Int
+impl Eq for UInt8Array
+impl Hash for UInt8Array
+impl Show for UInt8Array
+
+type UnSignedEnum
+impl Eq for UnSignedEnum
+impl Hash for UnSignedEnum
+impl Show for UnSignedEnum
+
+pub enum UnaryInstEnum {
+  AllocaInst(AllocaInst)
+  LoadInst(LoadInst)
+  ExtractValueInst(ExtractValueInst)
+  CastInst(CastInst)
+}
+
+type UserBase
+impl Eq for UserBase
+
+pub enum UserEnum {
+  LoadInst(LoadInst)
+  ExtractValueInst(ExtractValueInst)
+  CastInst(CastInst)
+  BinaryInst(BinaryInst)
+  ICmpInst(ICmpInst)
+  FCmpInst(FCmpInst)
+  StoreInst(StoreInst)
+  GetElementPtrInst(GetElementPtrInst)
+  SelectInst(SelectInst)
+  InsertValueInst(InsertValueInst)
+  PHINode(PHINode)
+  ReturnInst(ReturnInst)
+  BranchInst(BranchInst)
+  SwitchInst(SwitchInst)
+  CallInst(CallInst)
+}
+fn UserEnum::asUserClass(Self) -> &User
+
+type ValueBase
+impl Eq for ValueBase
+
+pub enum ValueEnum {
+  Function(Function)
+  ConstantInt(ConstantInt)
+  ConstantFP(ConstantFP)
+  ConstantPointerNull(ConstantPointerNull)
+  ConstantArray(ConstantArray)
+  ConstantVector(ConstantVector)
+  ConstantStruct(ConstantStruct)
+  Argument(Argument)
+  BasicBlock(BasicBlock)
+  AllocaInst(AllocaInst)
+  LoadInst(LoadInst)
+  ExtractValueInst(ExtractValueInst)
+  CastInst(CastInst)
+  BinaryInst(BinaryInst)
+  ICmpInst(ICmpInst)
+  FCmpInst(FCmpInst)
+  StoreInst(StoreInst)
+  GetElementPtrInst(GetElementPtrInst)
+  SelectInst(SelectInst)
+  InsertValueInst(InsertValueInst)
+  PHINode(PHINode)
+  ReturnInst(ReturnInst)
+  BranchInst(BranchInst)
+  SwitchInst(SwitchInst)
+  CallInst(CallInst)
+}
+fn ValueEnum::tryAsConstantEnum(Self) -> ConstantEnum?
+fn ValueEnum::tryAsInstEnum(Self) -> InstEnum?
+fn ValueEnum::tryAsUserEnum(Self) -> UserEnum?
+
+pub struct VectorType {
+  elementType : &Type
+  elementCount : Int
+  // private fields
+}
+fn VectorType::getElementCount(Self) -> Int
+fn VectorType::getElementType(Self) -> &Type
+impl AggregateType for VectorType
+impl Type for VectorType
+impl Eq for VectorType
+impl Hash for VectorType
+impl Show for VectorType
+
+pub(all) enum VisibilityTypes {
+  DefaultVisibility
+  HiddenVisibility
+  ProtectedVisibility
+}
+
+pub struct VoidType {
+  // private fields
+}
+impl AbstractType for VoidType
+impl Type for VoidType
+impl Eq for VoidType
+impl Hash for VoidType
+impl Show for VoidType
+
+impl Eq for &User
+
+// Type aliases
+
+// Traits
+pub trait AbstractType : Type {
+  asAbstractTypeEnum(Self) -> AbstractTypeEnum
+}
+
+pub trait AggregateType : Type {
+  asAggregateTypeEnum(Self) -> AggregateTypeEnum
+  getIndexedType(Self, ArrayView[Int]) -> &Type?
+}
+
+pub trait Constant : Value {
+  asConstantEnum(Self) -> ConstantEnum
+}
+
+pub trait FPType : PrimitiveType {
+  asFPTypeEnum(Self) -> FPTypeEnum
+  getFPMantissaWidth(Self) -> Int
+}
+
+pub trait Floating : Show {
+  asEnum(Self) -> FloatingEnum
+  to_float64(Self) -> Double
+}
+impl Floating for Float
+impl Floating for Double
+
+pub trait GlobalValue : Value {
+  getGlobalValueBase(Self) -> GlobalValueBase
+  asGlobalValueEnum(Self) -> GlobalValueEnum
+  getLinkage(Self) -> LinkageTypes
+  setLinkage(Self, LinkageTypes) -> Unit
+}
+
+trait InsertPoint
+impl InsertPoint for &Instruction
+
+pub trait Instruction : Value {
+  getInstBase(Self) -> InstBase
+  asInstEnum(Self) -> InstEnum
+  getParent(Self) -> Function
+  getBasicBlock(Self) -> BasicBlock?
+  getInstName(Self) -> String?
+  isIndependent(Self) -> Bool
+  next(Self) -> &Instruction?
+  prev(Self) -> &Instruction?
+  insertAfter(Self, &Instruction) -> Unit raise LLVMValueError
+  insertBefore(Self, &Instruction) -> Unit raise LLVMValueError
+  moveBefore(Self, &Instruction) -> Unit
+  moveAfter(Self, &Instruction) -> Unit
+  removeFromParent(Self) -> Unit
+  eraseFromParent(Self) -> Unit
+}
+
+trait IntegerNumber : Show
+impl IntegerNumber for Int
+impl IntegerNumber for Int16
+impl IntegerNumber for Int64
+impl IntegerNumber for UInt
+impl IntegerNumber for UInt16
+impl IntegerNumber for UInt64
+impl IntegerNumber for @int8.Int8
+impl IntegerNumber for @uint8.UInt8
+
+pub trait IntegerType : PrimitiveType {
+  asIntegerTypeEnum(Self) -> IntegerTypeEnum
+  getBitMask(Self) -> UInt64
+  getSignBit(Self) -> UInt64
+  getExtendedType(Self) -> &IntegerType?
+}
+
+pub trait Metadata : Show {
+  asMetadataEnum(Self) -> MetadataEnum
+}
+
+pub trait NamedValue : Value {
+}
+
+pub trait NumberArray : Show {
+  asEnum(Self) -> NumberArrayEnum
+}
+
+pub trait PrimitiveType : Type {
+  asPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum
+  getBitWidth(Self) -> Int
+}
+
+pub trait Signed : Show {
+  asEnum(Self) -> SignedEnum
+  convert_to_int64(Self) -> Int64
+}
+impl Signed for Int
+impl Signed for Int16
+impl Signed for Int64
+impl Signed for @int8.Int8
+
+pub trait Type : Show + Hash {
+  getTypeBase(Self) -> TypeBase
+  asTypeEnum(Self) -> TypeEnum
+  getContext(Self) -> Context
+  is16bitFPTy(Self) -> Bool
+  isIEEELikeFPTy(Self) -> Bool
+  isFloatingPointTy(Self) -> Bool
+  isScalableTargetExtTy(Self) -> Bool
+  isScalableTy(Self) -> Bool
+  isFPOrFPVectorTy(Self) -> Bool
+  isIntOrIntVectorTy(Self) -> Bool
+  isIntOrPtrTy(Self) -> Bool
+  isPtrOrPtrVectorTy(Self) -> Bool
+  canLosslesslyBitCastTo(Self, &Type) -> Bool
+  isEmptyTy(Self) -> Bool
+  isFirstClassType(Self) -> Bool
+  isSingleValueType(Self) -> Bool
+  isAggregateType(Self) -> Bool
+  isSized(Self) -> Bool
+  isValidGEPType(Self) -> Bool
+  getPrimitiveSizeInBits(Self) -> TypeSize
+  getScalarSizeInBits(Self) -> Int
+  getScalarType(Self) -> &Type
+  tryAsFPType(Self) -> &FPType?
+  tryAsFPTypeEnum(Self) -> FPTypeEnum?
+  tryAsIntType(Self) -> &IntegerType?
+  tryAsIntTypeEnum(Self) -> IntegerTypeEnum?
+  tryAsPrimitiveType(Self) -> &PrimitiveType?
+  tryAsPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum?
+  tryAsAggregateType(Self) -> &AggregateType?
+  tryAsAggregateTypeEnum(Self) -> AggregateTypeEnum?
+  tryAsAbstractType(Self) -> &AbstractType?
+  tryAsAbstractTypeEnum(Self) -> AbstractTypeEnum?
+}
+
+pub trait UnSigned : Show {
+  asEnum(Self) -> UnSignedEnum
+  convert_to_uint64(Self) -> UInt64
+  convert_to_int64(Self) -> Int64
+}
+impl UnSigned for UInt
+impl UnSigned for UInt16
+impl UnSigned for UInt64
+impl UnSigned for @uint8.UInt8
+
+pub trait UnaryInst : Instruction {
+  asUnaryInstEnum(Self) -> UnaryInstEnum
+}
+
+pub trait User : Value {
+  asUserEnum(Self) -> UserEnum
+  getUserBase(Self) -> UserBase
+  getOperands(Self) -> Array[&Value]
+  getOperand(Self, Int) -> &Value?
+  getNumOperands(Self) -> Int
+}
+
+pub trait Value : Show {
+  getValueBase(Self) -> ValueBase
+  asValueEnum(Self) -> ValueEnum
+  getType(Self) -> &Type
+  getContext(Self) -> Context
+  addUser(Self, &User) -> Unit
+  getValueRepr(Self) -> String
+  getName(Self) -> String?
+  setName(Self, String) -> Unit raise LLVMValueError
+  removeName(Self) -> Unit raise LLVMValueError
+  getNameOrSlot(Self) -> @Either.Either[String, UInt64]?
+  getNameOrSlotStr(Self) -> String
+  replaceAllUsersWith(Self, &Value) -> Unit
+  getUsers(Self) -> Array[&User]?
+  user_empty(Self) -> Bool
+  tryAsConstant(Self) -> &Constant?
+  tryAsConstantEnum(Self) -> ConstantEnum?
+  tryAsUser(Self) -> &User?
+  tryAsUserEnum(Self) -> UserEnum?
+  tryAsInst(Self) -> &Instruction?
+  tryAsInstEnum(Self) -> InstEnum?
+}
+
