@@ -921,10 +921,10 @@ pub struct GlobalVariable {
 
 ///|
 /// Thread-local storage modes for global variables
-pub enum ThreadLocalMode {
+pub(all) enum ThreadLocalMode {
   NotThreadLocal
   GeneralDynamicTLSModel
-  LocalDynamicTLSModel  
+  LocalDynamicTLSModel
   InitialExecTLSModel
   LocalExecTLSModel
 } derive(Eq)
@@ -946,11 +946,11 @@ fn GlobalVariable::new(
   valueType : &Type,
   name : String,
   initializer : &Constant?,
-  linkage~ : LinkageTypes = ExternalLinkage,
-  addressSpace~ : AddressSpace = AddressSpace(0),
-  isConstant~ : Bool = false,
-  threadLocalMode~ : ThreadLocalMode = NotThreadLocal,
-  isExternallyInitialized~ : Bool = false,
+  linkage? : LinkageTypes = ExternalLinkage,
+  addressSpace? : AddressSpace = AddressSpace(0),
+  isConstant? : Bool = false,
+  threadLocalMode? : ThreadLocalMode = NotThreadLocal,
+  isExternallyInitialized? : Bool = false,
   index : UInt,
   parent_module : Module,
 ) -> GlobalVariable {
@@ -959,7 +959,6 @@ fn GlobalVariable::new(
   let vty = ctx.getPtrTy(addressSpace~)
   let users = []
   let gv_base = GlobalValueBase::{ linkage, }
-  
   GlobalVariable::{
     uid,
     vty,
@@ -992,8 +991,8 @@ pub fn GlobalVariable::getInitializer(self : GlobalVariable) -> &Constant? {
 ///|
 /// Set the initializer of this global variable.
 pub fn GlobalVariable::setInitializer(
-  self : GlobalVariable, 
-  init : &Constant?
+  self : GlobalVariable,
+  init : &Constant?,
 ) -> Unit {
   self.initializer = init
 }
@@ -1012,7 +1011,10 @@ pub fn GlobalVariable::isConstant(self : GlobalVariable) -> Bool {
 
 ///|
 /// Set whether this global variable is constant.
-pub fn GlobalVariable::setConstant(self : GlobalVariable, isConstant : Bool) -> Unit {
+pub fn GlobalVariable::setConstant(
+  self : GlobalVariable,
+  isConstant : Bool,
+) -> Unit {
   self.isConstant = isConstant
 }
 
@@ -1024,21 +1026,26 @@ pub fn GlobalVariable::isMutable(self : GlobalVariable) -> Bool {
 
 ///|
 /// Set whether this global variable is mutable.
-pub fn GlobalVariable::setMutable(self : GlobalVariable, isMutable : Bool) -> Unit {
+pub fn GlobalVariable::setMutable(
+  self : GlobalVariable,
+  isMutable : Bool,
+) -> Unit {
   self.isConstant = not(isMutable)
 }
 
 ///|
 /// Get the thread-local storage mode of this global variable.
-pub fn GlobalVariable::getThreadLocalMode(self : GlobalVariable) -> ThreadLocalMode {
+pub fn GlobalVariable::getThreadLocalMode(
+  self : GlobalVariable,
+) -> ThreadLocalMode {
   self.threadLocalMode
 }
 
 ///|
 /// Set the thread-local storage mode of this global variable.
 pub fn GlobalVariable::setThreadLocalMode(
-  self : GlobalVariable, 
-  mode : ThreadLocalMode
+  self : GlobalVariable,
+  mode : ThreadLocalMode,
 ) -> Unit {
   self.threadLocalMode = mode
 }
@@ -1061,8 +1068,8 @@ pub fn GlobalVariable::isExternallyInitialized(self : GlobalVariable) -> Bool {
 ///|
 /// Set whether this global variable is externally initialized.
 pub fn GlobalVariable::setExternallyInitialized(
-  self : GlobalVariable, 
-  isExternal : Bool
+  self : GlobalVariable,
+  isExternal : Bool,
 ) -> Unit {
   self.isExternallyInitialized = isExternal
 }
@@ -1119,12 +1126,11 @@ pub impl Value for GlobalVariable with getNameOrSlot(self) {
 }
 
 ///|
-pub impl Value for GlobalVariable with setName(
-  self, 
-  name
-) -> Unit raise LLVMValueError {
+pub impl Value for GlobalVariable with setName(self, name) -> Unit raise LLVMValueError {
   if name.is_empty() {
-    raise LLVMValueError("Misuse `GlobalVariable::setName`: name cannot be empty")
+    raise LLVMValueError(
+      "Misuse `GlobalVariable::setName`: name cannot be empty",
+    )
   }
   if isInValidName(name) {
     let msg = "Misuse `GlobalVariable::setName`: " +
@@ -1161,36 +1167,33 @@ pub impl GlobalValue for GlobalVariable with asGlobalValueEnum(self) {
 ///|
 pub impl Show for GlobalVariable with output(self, logger) {
   // Format: [@name =] [linkage] [thread_local] [constant|global] type [initializer]
-  
+
   let name_str = "@\{self.name}"
-  
   let linkage_str = self.getLinkage().to_string()
   let linkage_part = if linkage_str.is_empty() { "" } else { linkage_str + " " }
-  
   let thread_local_str = self.threadLocalMode.to_string()
-  let thread_local_part = if thread_local_str.is_empty() { "" } else { thread_local_str + " " }
-  
+  let thread_local_part = if thread_local_str.is_empty() {
+    ""
+  } else {
+    thread_local_str + " "
+  }
   let constant_or_global = if self.isConstant { "constant" } else { "global" }
-  
   let type_str = self.valueType.to_string()
-  
   let init_str = match self.initializer {
     Some(init) => " " + init.getValueRepr()
     None => " zeroinitializer"
   }
-  
   let externally_init_str = if self.isExternallyInitialized {
     ", externally_initialized"
   } else {
     ""
   }
-  
+
   // Address space (only show if not default)
   let addr_space_str = match self.addressSpace {
     AddressSpace(0) => ""
     AddressSpace(n) => " addrspace(\{n})"
   }
-  
   let result = "\{name_str} = \{linkage_part}\{thread_local_part}\{constant_or_global} \{type_str}\{addr_space_str}\{init_str}\{externally_init_str}"
   logger.write_string(result)
 }

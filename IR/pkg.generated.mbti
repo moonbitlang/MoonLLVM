@@ -760,7 +760,44 @@ type GlobalValueBase
 
 pub enum GlobalValueEnum {
   Function(Function)
+  GlobalVariable(GlobalVariable)
 }
+
+pub struct GlobalVariable {
+  uid : UInt64
+  vty : PointerType
+  users : Array[&User]
+  gv_base : GlobalValueBase
+  parent_module : Module
+  index : UInt
+  addressSpace : AddressSpace
+  valueType : &Type
+  mut initializer : &Constant?
+  mut isConstant : Bool
+  mut threadLocalMode : ThreadLocalMode
+  mut isExternallyInitialized : Bool
+  // private fields
+}
+fn GlobalVariable::getAddressSpace(Self) -> AddressSpace
+fn GlobalVariable::getInitializer(Self) -> &Constant?
+fn GlobalVariable::getThreadLocalMode(Self) -> ThreadLocalMode
+fn GlobalVariable::getValueType(Self) -> &Type
+fn GlobalVariable::hasDefinition(Self) -> Bool
+fn GlobalVariable::hasInitializer(Self) -> Bool
+fn GlobalVariable::isConstant(Self) -> Bool
+fn GlobalVariable::isDeclaration(Self) -> Bool
+fn GlobalVariable::isExternallyInitialized(Self) -> Bool
+fn GlobalVariable::isMutable(Self) -> Bool
+fn GlobalVariable::isThreadLocal(Self) -> Bool
+fn GlobalVariable::setConstant(Self, Bool) -> Unit
+fn GlobalVariable::setExternallyInitialized(Self, Bool) -> Unit
+fn GlobalVariable::setInitializer(Self, &Constant?) -> Unit
+fn GlobalVariable::setMutable(Self, Bool) -> Unit
+fn GlobalVariable::setThreadLocalMode(Self, ThreadLocalMode) -> Unit
+impl GlobalValue for GlobalVariable
+impl Value for GlobalVariable
+impl Eq for GlobalVariable
+impl Show for GlobalVariable
 
 pub struct HalfType {
   // private fields
@@ -1057,6 +1094,7 @@ pub(all) enum LinkageTypes {
   ExternalWeakLinkage
   CommonLinkage
 }
+impl Eq for LinkageTypes
 impl Show for LinkageTypes
 
 pub(all) struct LoadInst {
@@ -1108,16 +1146,26 @@ impl Show for MetadataType
 pub struct Module {
   context : Context
   functions : Map[String, Function]
+  globalVariables : Map[String, GlobalVariable]
   srcFileName : String
   moduleID : String
   dataLayout : DataLayout
 }
 fn Module::addFunction(Self, FunctionType, String, linkage? : LinkageTypes, addressSpace? : AddressSpace) -> Function raise LLVMValueError
+fn Module::addGlobalConstant(Self, &Type, String, &Constant, linkage? : LinkageTypes, addressSpace? : AddressSpace) -> GlobalVariable raise LLVMValueError
+fn Module::addGlobalDeclaration(Self, &Type, String, mutable? : Bool, linkage? : LinkageTypes, addressSpace? : AddressSpace) -> GlobalVariable raise LLVMValueError
+fn Module::addGlobalVariable(Self, &Type, String, &Constant?, linkage? : LinkageTypes, addressSpace? : AddressSpace, isConstant? : Bool, threadLocalMode? : ThreadLocalMode, isExternallyInitialized? : Bool) -> GlobalVariable raise LLVMValueError
+fn Module::addZeroInitializedGlobal(Self, &Type, String, mutable? : Bool, linkage? : LinkageTypes, addressSpace? : AddressSpace) -> GlobalVariable raise LLVMValueError
 fn Module::dump(Self) -> Unit
 fn Module::getContext(Self) -> Context
 fn Module::getDataLayout(Self) -> DataLayout
 fn Module::getFunction(Self, String) -> Function?
+fn Module::getGlobalVariable(Self, String) -> GlobalVariable?
+fn Module::getGlobalVariables(Self) -> Array[GlobalVariable]
+fn Module::getNumGlobalVariables(Self) -> Int
+fn Module::hasGlobalVariable(Self, String) -> Bool
 fn Module::new(String, String, Context) -> Self
+fn Module::removeGlobalVariable(Self, String) -> Bool
 impl Show for Module
 
 type NumberArrayEnum
@@ -1368,6 +1416,15 @@ pub(all) enum TailCallKind {
 }
 impl Show for TailCallKind
 
+pub enum ThreadLocalMode {
+  NotThreadLocal
+  GeneralDynamicTLSModel
+  LocalDynamicTLSModel
+  InitialExecTLSModel
+  LocalExecTLSModel
+}
+impl Eq for ThreadLocalMode
+
 pub struct TokenType {
   // private fields
 }
@@ -1489,9 +1546,11 @@ fn UserEnum::asUserClass(Self) -> &User
 
 type ValueBase
 impl Eq for ValueBase
+impl Show for ValueBase
 
 pub enum ValueEnum {
   Function(Function)
+  GlobalVariable(GlobalVariable)
   ConstantInt(ConstantInt)
   ConstantFP(ConstantFP)
   ConstantPointerNull(ConstantPointerNull)

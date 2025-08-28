@@ -1,4 +1,5 @@
 //|
+
 ///|
 pub struct Module {
   context : Context
@@ -63,7 +64,10 @@ pub fn Module::addFunction(
 
 ///|
 /// Get a global variable by name.
-pub fn Module::getGlobalVariable(self : Module, name : String) -> GlobalVariable? {
+pub fn Module::getGlobalVariable(
+  self : Module,
+  name : String,
+) -> GlobalVariable? {
   self.globalVariables.get(name)
 }
 
@@ -108,7 +112,7 @@ pub fn Module::addGlobalVariable(
     let msg = "Misuse `Module::addGlobalVariable`: name '\{name}' conflicts with existing function."
     raise LLVMValueError(msg)
   }
-  
+
   // Validate initializer type if provided
   if initializer is Some(init) {
     guard init.getType() == valueType else {
@@ -116,7 +120,6 @@ pub fn Module::addGlobalVariable(
       raise LLVMValueError(msg)
     }
   }
-  
   let index = self.globalVariables.size().reinterpret_as_uint()
   let gv = GlobalVariable::new(
     valueType,
@@ -128,7 +131,7 @@ pub fn Module::addGlobalVariable(
     threadLocalMode~,
     isExternallyInitialized~,
     index,
-    self
+    self,
   )
   self.globalVariables.set(name, gv)
   gv
@@ -165,13 +168,15 @@ pub impl Show for Module with output(self, logger) {
   // Output named struct type in context
   let all_named_structs = self.context.getAllNamedStructTypes()
   all_named_structs.each(s => logger.write_string(s.full_info() + "\n\n"))
-  
+
   // Output global variables first
   if self.globalVariables.size() > 0 {
-    self.globalVariables.values().each(gv => logger.write_string(gv.to_string() + "\n"))
+    self.globalVariables
+    .values()
+    .each(gv => logger.write_string(gv.to_string() + "\n"))
     logger.write_string("\n")
   }
-  
+
   // Then output functions
   self.functions.values().each(f => logger.write_string(f.to_string() + "\n"))
 }
@@ -193,12 +198,12 @@ pub fn Module::addGlobalConstant(
   addressSpace? : AddressSpace = AddressSpace(0),
 ) -> GlobalVariable raise LLVMValueError {
   self.addGlobalVariable(
-    valueType, 
-    name, 
-    Some(initializer), 
-    linkage~, 
-    addressSpace~, 
-    isConstant=true
+    valueType,
+    name,
+    Some(initializer),
+    linkage~,
+    addressSpace~,
+    isConstant=true,
   )
 }
 
@@ -215,12 +220,12 @@ pub fn Module::addZeroInitializedGlobal(
 ) -> GlobalVariable raise LLVMValueError {
   let zero_init = self.context.getConstZero(valueType)
   self.addGlobalVariable(
-    valueType, 
-    name, 
-    Some(zero_init), 
-    linkage~, 
-    addressSpace~, 
-    isConstant=not(mutable)
+    valueType,
+    name,
+    Some(zero_init),
+    linkage~,
+    addressSpace~,
+    isConstant=not(mutable),
   )
 }
 
@@ -236,11 +241,11 @@ pub fn Module::addGlobalDeclaration(
   addressSpace? : AddressSpace = AddressSpace(0),
 ) -> GlobalVariable raise LLVMValueError {
   self.addGlobalVariable(
-    valueType, 
-    name, 
-    None, 
-    linkage~, 
-    addressSpace~, 
-    isConstant=not(mutable)
+    valueType,
+    name,
+    None,
+    linkage~,
+    addressSpace~,
+    isConstant=not(mutable),
   )
 }
