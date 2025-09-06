@@ -94,7 +94,7 @@ pub fn Module::addGlobalConstant(
   self : Self,
   ty : &Type,
   name : String,
-  initializer? : &Constant,
+  value : &Constant,
   linkage? : Linkage = ExternalLinkage,
 ) -> GlobalConstant raise LLVMValueError {
   if name.is_empty() {
@@ -110,7 +110,7 @@ pub fn Module::addGlobalConstant(
     raise LLVMValueError(msg)
   }
   let index = self.globals.size()
-  GlobalConstant::new(ty, name, linkage~, initializer~, index, self)
+  GlobalConstant::new(ty, name, value, index, self, linkage~)
 }
 
 ///|

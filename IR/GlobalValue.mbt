@@ -97,7 +97,12 @@ pub impl GlobalValue for GlobalVariable with getGlobalValueBase(self) {
 
 ///|
 pub impl Show for GlobalVariable with output(self, logger) {
-  let s = "@\{self.name} = \{self.linkage} global \{self.vty}"
+  let align = self.mod.getDataLayout().getAlignment(self.vty)
+  let initval_str = match self.initializer {
+    Some(i) => i.to_string()
+    None => "zeroinitializer"
+  }
+  let s = "@\{self.name} = \{self.linkage} global \{initval_str}, align \{align}"
   logger.write_string(s)
   logger.write_string("\n")
 }
@@ -128,17 +133,17 @@ pub struct GlobalConstant {
   index : Int
   mut name : String
   linkage : Ref[Linkage]
-  mut initializer : &Constant?
+  mut value : &Constant
 }
 
 ///|
 fn GlobalConstant::new(
   vty : &Type,
   name : String,
-  linkage~ : Linkage,
-  initializer~ : &Constant?,
+  value : &Constant,
   index : Int,
   mod : Module,
+  linkage~ : Linkage,
 ) -> GlobalConstant {
   let uid = valueUIDAssigner.assign()
   let users = []
@@ -149,7 +154,7 @@ fn GlobalConstant::new(
     mod,
     name,
     linkage: Ref::new(linkage),
-    initializer,
+    value,
     index,
   }
 }
@@ -214,20 +219,16 @@ pub impl GlobalValue for GlobalConstant with getGlobalValueBase(self) {
 
 ///|
 pub impl Show for GlobalConstant with output(self, logger) {
-  let s = "@\{self.name} = \{self.linkage} constant \{self.vty}"
+  let align = self.mod.getDataLayout().getAlignment(self.vty)
+  let s = "@\{self.name} = \{self.linkage} constant \{self.value}, align \{align}"
   logger.write_string(s)
   logger.write_string("\n")
 }
 
 ///|
-pub fn GlobalConstant::setInitializer(
+pub fn GlobalConstant::setValue(
   self : GlobalConstant,
   init : &Constant,
 ) -> Unit {
-  self.initializer = Some(init)
-}
-
-///|
-pub fn GlobalConstant::removeInitializer(self : GlobalConstant) -> Unit {
-  self.initializer = None
+  self.value = init
 }
