@@ -8,6 +8,8 @@ pub enum ValueEnum {
   // ======= Constant Values =======
   /// The following two is global values.
   Function(Function)
+  GlobalVariable(GlobalVariable)
+  GlobalConstant(GlobalConstant)
   //GlobalIFunc(GlobalIFunc)
 
   /// Base class for constants with no operands.
@@ -785,6 +787,8 @@ struct GlobalValueBase {
 ///|
 pub enum GlobalValueEnum {
   Function(Function)
+  GlobalVariable(GlobalVariable)
+  GlobalConstant(GlobalConstant)
   //GlobalIFunc(GlobalIFunc)
 }
 

@@ -214,7 +214,7 @@ pub struct Function {
   linkage : Ref[Linkage]
   program : Module
   /// index of the function in the program
-  index : UInt
+  index : Int
   priv mut name : String
   addressSpace : AddressSpace
   arguments : Array[Argument]
@@ -237,7 +237,7 @@ fn Function::new(
   name : String,
   linkage~ : Linkage,
   addressSpace~ : AddressSpace,
-  index : UInt,
+  index : Int,
   program : Module,
 ) -> Function {
   let uid = valueUIDAssigner.assign()
