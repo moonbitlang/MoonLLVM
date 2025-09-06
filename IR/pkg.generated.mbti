@@ -83,9 +83,9 @@ impl Value for Argument
 impl Show for Argument
 
 pub struct ArrayType {
+  ctx : Context
   elementType : &Type
   elementCount : Int
-  // private fields
 }
 fn ArrayType::getElementCount(Self) -> Int
 fn ArrayType::getElementType(Self) -> &Type
@@ -111,7 +111,7 @@ impl Show for AtomicOrdering
 type AttributeSet
 
 pub struct BFloatType {
-  // private fields
+  ctx : Context
 }
 impl FPType for BFloatType
 impl PrimitiveType for BFloatType
@@ -437,7 +437,7 @@ fn Context::getDoubleTy(Self) -> DoubleType
 fn Context::getFP128Ty(Self) -> FP128Type
 fn Context::getFixedVectorType(Self, &Type, Int) -> VectorType raise LLVMTypeError
 fn Context::getFloatTy(Self) -> FloatType
-fn Context::getFunctionType(Self, &Type, Array[&Type]) -> FunctionType raise LLVMTypeError
+fn Context::getFunctionType(Self, &Type, Array[&Type], isVarArg? : Bool) -> FunctionType raise LLVMTypeError
 fn Context::getHalfTy(Self) -> HalfType
 fn Context::getInt16Ty(Self) -> Int16Type
 fn Context::getInt1Ty(Self) -> Int1Type
@@ -478,7 +478,7 @@ impl Hash for DoubleArray
 impl Show for DoubleArray
 
 pub struct DoubleType {
-  // private fields
+  ctx : Context
 }
 impl FPType for DoubleType
 impl PrimitiveType for DoubleType
@@ -531,7 +531,7 @@ impl Value for FCmpInst
 impl Show for FCmpInst
 
 pub struct FP128Type {
-  // private fields
+  ctx : Context
 }
 impl FPType for FP128Type
 impl PrimitiveType for FP128Type
@@ -596,7 +596,7 @@ pub(all) enum FloatPredicate {
 impl Show for FloatPredicate
 
 pub struct FloatType {
-  // private fields
+  ctx : Context
 }
 impl FPType for FloatType
 impl PrimitiveType for FloatType
@@ -721,9 +721,10 @@ impl Eq for Function
 impl Show for Function
 
 pub struct FunctionType {
+  ctx : Context
   returnType : &Type
   paramTypes : Array[&Type]
-  // private fields
+  isVarArg : Bool
 }
 fn FunctionType::getNumParams(Self) -> Int
 fn FunctionType::getParamType(Self, Int) -> &Type?
@@ -763,7 +764,7 @@ pub enum GlobalValueEnum {
 }
 
 pub struct HalfType {
-  // private fields
+  ctx : Context
 }
 impl FPType for HalfType
 impl PrimitiveType for HalfType
@@ -929,7 +930,7 @@ impl Hash for Int16Array
 impl Show for Int16Array
 
 pub struct Int16Type {
-  // private fields
+  ctx : Context
 }
 fn Int16Type::getExtendedType(Self) -> Int32Type
 impl IntegerType for Int16Type
@@ -940,7 +941,7 @@ impl Hash for Int16Type
 impl Show for Int16Type
 
 pub struct Int1Type {
-  // private fields
+  ctx : Context
 }
 impl IntegerType for Int1Type
 impl PrimitiveType for Int1Type
@@ -958,7 +959,7 @@ impl Hash for Int32Array
 impl Show for Int32Array
 
 pub struct Int32Type {
-  // private fields
+  ctx : Context
 }
 fn Int32Type::getExtendedType(Self) -> Int64Type
 impl IntegerType for Int32Type
@@ -977,7 +978,7 @@ impl Hash for Int64Array
 impl Show for Int64Array
 
 pub struct Int64Type {
-  // private fields
+  ctx : Context
 }
 impl IntegerType for Int64Type
 impl PrimitiveType for Int64Type
@@ -995,7 +996,7 @@ impl Hash for Int8Array
 impl Show for Int8Array
 
 pub struct Int8Type {
-  // private fields
+  ctx : Context
 }
 fn Int8Type::getExtendedType(Self) -> Int16Type
 impl IntegerType for Int8Type
@@ -1036,7 +1037,7 @@ impl Show for IntegerTypeEnum
 type LLVMContextImpl
 
 pub struct LabelType {
-  // private fields
+  ctx : Context
 }
 impl AbstractType for LabelType
 impl Type for LabelType
@@ -1097,7 +1098,7 @@ pub enum MetadataEnum {
 }
 
 pub struct MetadataType {
-  // private fields
+  ctx : Context
 }
 impl AbstractType for MetadataType
 impl Type for MetadataType
@@ -1191,8 +1192,8 @@ impl Hash for ParamAttr
 impl Show for ParamAttr
 
 pub struct PointerType {
+  ctx : Context
   addressSpace : AddressSpace
-  // private fields
 }
 fn PointerType::getAddressSpace(Self) -> AddressSpace
 fn PointerType::isLoadableOrStorableType(&Type) -> Bool
@@ -1250,9 +1251,9 @@ impl Value for ReturnInst
 impl Show for ReturnInst
 
 pub struct ScalableVectorType {
+  ctx : Context
   elementType : &Type
   elementCount : Int
-  // private fields
 }
 fn ScalableVectorType::getElementCount(Self) -> Int
 fn ScalableVectorType::getElementType(Self) -> &Type
@@ -1318,6 +1319,7 @@ impl Value for StoreInst
 impl Show for StoreInst
 
 pub struct StructType {
+  ctx : Context
   elements : Array[&Type]
   // private fields
 }
@@ -1369,17 +1371,13 @@ pub(all) enum TailCallKind {
 impl Show for TailCallKind
 
 pub struct TokenType {
-  // private fields
+  ctx : Context
 }
 impl AbstractType for TokenType
 impl Type for TokenType
 impl Eq for TokenType
 impl Hash for TokenType
 impl Show for TokenType
-
-type TypeBase
-impl Eq for TypeBase
-impl Hash for TypeBase
 
 pub enum TypeEnum {
   HalfType(HalfType)
@@ -1522,9 +1520,9 @@ fn ValueEnum::tryAsInstEnum(Self) -> InstEnum?
 fn ValueEnum::tryAsUserEnum(Self) -> UserEnum?
 
 pub struct VectorType {
+  ctx : Context
   elementType : &Type
   elementCount : Int
-  // private fields
 }
 fn VectorType::getElementCount(Self) -> Int
 fn VectorType::getElementType(Self) -> &Type
@@ -1541,7 +1539,7 @@ pub(all) enum VisibilityTypes {
 }
 
 pub struct VoidType {
-  // private fields
+  ctx : Context
 }
 impl AbstractType for VoidType
 impl Type for VoidType
@@ -1649,9 +1647,8 @@ impl Signed for Int64
 impl Signed for @int8.Int8
 
 pub trait Type : Show + Hash {
-  getTypeBase(Self) -> TypeBase
-  asTypeEnum(Self) -> TypeEnum
   getContext(Self) -> Context
+  asTypeEnum(Self) -> TypeEnum
   is16bitFPTy(Self) -> Bool
   isIEEELikeFPTy(Self) -> Bool
   isFloatingPointTy(Self) -> Bool

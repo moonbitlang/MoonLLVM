@@ -780,13 +780,13 @@ pub enum AbstractTypeEnum {
 
 ///|
 pub struct HalfType {
-  ctx: Context
+  ctx : Context
 } derive(Eq, Hash)
 
 ///|
 /// Create a HalfType.
 fn HalfType::new(ctx : Context) -> HalfType {
-  HalfType::{ ctx  }
+  HalfType::{ ctx, }
 }
 
 ///|
@@ -821,12 +821,12 @@ pub impl PrimitiveType for HalfType with asPrimitiveTypeEnum(self) -> PrimitiveT
 ///|
 /// BFloatType
 pub struct BFloatType {
-  ctx: Context
+  ctx : Context
 } derive(Eq, Hash)
 
 ///|
 fn BFloatType::new(ctx : Context) -> BFloatType {
-  BFloatType::{ ctx }
+  BFloatType::{ ctx, }
 }
 
 ///|
@@ -861,12 +861,12 @@ pub impl PrimitiveType for BFloatType with asPrimitiveTypeEnum(self) -> Primitiv
 ///|
 /// FloatType
 pub struct FloatType {
-  ctx: Context
+  ctx : Context
 } derive(Eq, Hash)
 
 ///|
 fn FloatType::new(ctx : Context) -> FloatType {
-  FloatType::{ ctx }
+  FloatType::{ ctx, }
 }
 
 ///|
@@ -901,13 +901,13 @@ pub impl PrimitiveType for FloatType with asPrimitiveTypeEnum(self) -> Primitive
 ///|
 /// DoubleType
 pub struct DoubleType {
-  ctx: Context
+  ctx : Context
 } derive(Eq, Hash)
 
 ///|
 /// Create a DoubleType
 fn DoubleType::new(ctx : Context) -> DoubleType {
-  DoubleType::{ ctx }
+  DoubleType::{ ctx, }
 }
 
 ///|
@@ -942,13 +942,13 @@ pub impl PrimitiveType for DoubleType with asPrimitiveTypeEnum(self) -> Primitiv
 ///|
 /// FP128Ty
 pub struct FP128Type {
-  ctx: Context
+  ctx : Context
 } derive(Eq, Hash)
 
 ///|
 /// Create a FP128Ty.
-fn FP128Type::new(ctx: Context) -> FP128Type {
-  FP128Type::{ ctx }
+fn FP128Type::new(ctx : Context) -> FP128Type {
+  FP128Type::{ ctx, }
 }
 
 ///|
@@ -991,12 +991,12 @@ pub impl PrimitiveType for FP128Type with asPrimitiveTypeEnum(self) -> Primitive
 /// inspect(ctx.getInt1Ty(), content="i1")
 /// ```
 pub struct Int1Type {
-  ctx: Context
+  ctx : Context
 } derive(Eq, Hash)
 
 ///|
-fn Int1Type::new(ctx: Context) -> Int1Type {
-  Int1Type::{ ctx }
+fn Int1Type::new(ctx : Context) -> Int1Type {
+  Int1Type::{ ctx, }
 }
 
 ///|
@@ -1039,12 +1039,12 @@ pub impl PrimitiveType for Int1Type with asPrimitiveTypeEnum(self) -> PrimitiveT
 /// inspect(ctx.getInt8Ty(), content="i8")
 /// ```
 pub struct Int8Type {
-  ctx: Context
+  ctx : Context
 } derive(Eq, Hash)
 
 ///|
-fn Int8Type::new(ctx: Context) -> Int8Type {
-  Int8Type::{ ctx }
+fn Int8Type::new(ctx : Context) -> Int8Type {
+  Int8Type::{ ctx, }
 }
 
 ///|
@@ -1092,12 +1092,12 @@ pub impl PrimitiveType for Int8Type with asPrimitiveTypeEnum(self) -> PrimitiveT
 /// inspect(ctx.getInt16Ty(), content="i16")
 /// ```
 pub struct Int16Type {
-  ctx: Context
+  ctx : Context
 } derive(Eq, Hash)
 
 ///|
-fn Int16Type::new(ctx: Context) -> Int16Type {
-  Int16Type::{ ctx }
+fn Int16Type::new(ctx : Context) -> Int16Type {
+  Int16Type::{ ctx, }
 }
 
 ///|
@@ -1145,12 +1145,12 @@ pub impl PrimitiveType for Int16Type with asPrimitiveTypeEnum(self) -> Primitive
 /// inspect(ctx.getInt32Ty(), content="i32")
 /// ```
 pub struct Int32Type {
-  ctx: Context
+  ctx : Context
 } derive(Eq, Hash)
 
 ///|
-fn Int32Type::new(ctx: Context) -> Int32Type {
-  Int32Type::{ ctx }
+fn Int32Type::new(ctx : Context) -> Int32Type {
+  Int32Type::{ ctx, }
 }
 
 ///|
@@ -1198,12 +1198,12 @@ pub impl PrimitiveType for Int32Type with asPrimitiveTypeEnum(self) -> Primitive
 /// inspect(ctx.getInt64Ty(), content="i64")
 /// ```
 pub struct Int64Type {
-  ctx: Context
+  ctx : Context
 } derive(Eq, Hash)
 
 ///|
-fn Int64Type::new(ctx: Context) -> Int64Type {
-  Int64Type::{ ctx }
+fn Int64Type::new(ctx : Context) -> Int64Type {
+  Int64Type::{ ctx, }
 }
 
 ///|
@@ -1238,7 +1238,7 @@ pub impl PrimitiveType for Int64Type with asPrimitiveTypeEnum(self) -> Primitive
 ///|
 /// VoidType
 pub struct VoidType {
-  ctx: Context
+  ctx : Context
 } derive(Eq, Hash)
 
 ///|
@@ -1251,8 +1251,8 @@ pub struct VoidType {
 /// let voidty = ctx.getVoidTy()
 /// inspect(voidty, content="void")
 /// ```
-fn VoidType::new(ctx: Context) -> VoidType {
-  VoidType::{ ctx }
+fn VoidType::new(ctx : Context) -> VoidType {
+  VoidType::{ ctx, }
 }
 
 ///|
@@ -1282,7 +1282,7 @@ pub impl AbstractType for VoidType with asAbstractTypeEnum(self) -> AbstractType
 ///|
 /// LabelTy
 pub struct LabelType {
-  ctx: Context
+  ctx : Context
 } derive(Eq, Hash)
 
 ///|
@@ -1295,8 +1295,8 @@ pub struct LabelType {
 /// let labelty = ctx.getLabelTy()
 /// inspect(labelty, content="label")
 /// ```
-fn LabelType::new(ctx: Context) -> LabelType {
-  LabelType::{ ctx }
+fn LabelType::new(ctx : Context) -> LabelType {
+  LabelType::{ ctx, }
 }
 
 ///|
@@ -1325,7 +1325,7 @@ pub impl AbstractType for LabelType with asAbstractTypeEnum(self) -> AbstractTyp
 
 ///|
 pub struct MetadataType {
-  ctx: Context
+  ctx : Context
 } derive(Eq, Hash)
 
 ///|
@@ -1338,8 +1338,8 @@ pub struct MetadataType {
 /// let metadataty = ctx.getMetadataTy()
 /// inspect(metadataty, content="metadata")
 /// ```
-fn MetadataType::new(ctx: Context) -> MetadataType {
-  MetadataType::{ ctx }
+fn MetadataType::new(ctx : Context) -> MetadataType {
+  MetadataType::{ ctx, }
 }
 
 ///|
@@ -1369,7 +1369,7 @@ pub impl AbstractType for MetadataType with asAbstractTypeEnum(self) -> Abstract
 ///|
 /// TokenTy
 pub struct TokenType {
-  ctx: Context
+  ctx : Context
 } derive(Eq, Hash)
 
 ///|
@@ -1382,8 +1382,8 @@ pub struct TokenType {
 /// let tokenty = ctx.getTokenTy()
 /// inspect(tokenty, content="token")
 /// ```
-fn TokenType::new(ctx: Context) -> TokenType {
-  TokenType::{ ctx }
+fn TokenType::new(ctx : Context) -> TokenType {
+  TokenType::{ ctx, }
 }
 
 ///|
@@ -1425,10 +1425,10 @@ pub impl AbstractType for TokenType with asAbstractTypeEnum(self) -> AbstractTyp
 /// inspect(fty, content="void (i32, float, double)")
 /// ```
 pub struct FunctionType {
-  ctx: Context
+  ctx : Context
   returnType : &Type
   paramTypes : Array[&Type]
-  isVarArg: Bool
+  isVarArg : Bool
 } derive(Eq, Hash)
 
 ///|
@@ -1559,7 +1559,7 @@ pub impl AbstractType for FunctionType with asAbstractTypeEnum(self) -> Abstract
 /// inspect(sty.full_info(), content="%bar = type <{ i8, i16 }>")
 /// ```
 pub struct StructType {
-  ctx: Context
+  ctx : Context
   priv mut name : String?
   elements : Array[&Type]
   priv mut isPacked : Bool
@@ -1573,7 +1573,7 @@ pub struct StructType {
 /// Create a StructType.
 /// FIXME: this is may different from LLVM Cpp
 fn StructType::new(
-  ctx: Context,
+  ctx : Context,
   elements : Array[&Type],
   name~ : String?,
   isPacked~ : Bool,
@@ -1852,14 +1852,14 @@ pub impl AggregateType for StructType with asAggregateTypeEnum(self) -> Aggregat
 /// inspect(arrty.getElementType(), content="i32")
 /// ```
 pub struct ArrayType {
-  ctx: Context
+  ctx : Context
   elementType : &Type
   elementCount : Int
 } derive(Eq, Hash)
 
 ///|
 fn ArrayType::new(
-  ctx: Context,
+  ctx : Context,
   elementType : &Type,
   elementCount : Int,
 ) -> ArrayType raise LLVMTypeError {
@@ -1928,7 +1928,7 @@ pub impl AggregateType for ArrayType with asAggregateTypeEnum(self) -> Aggregate
 /// inspect(vecty.getElementType(), content="i32")
 /// ```
 pub struct VectorType {
-  ctx: Context
+  ctx : Context
   elementType : &Type
   elementCount : Int
 } derive(Eq, Hash)
@@ -1936,7 +1936,7 @@ pub struct VectorType {
 ///|
 /// Create a VectorType.
 fn VectorType::new(
-  ctx: Context,
+  ctx : Context,
   elementType : &Type,
   elementCount : Int,
 ) -> VectorType raise LLVMTypeError {
@@ -2009,7 +2009,7 @@ pub impl AggregateType for VectorType with asAggregateTypeEnum(self) -> Aggregat
 /// inspect(vecty.getElementType(), content="float")
 /// ```
 pub struct ScalableVectorType {
-  ctx: Context
+  ctx : Context
   elementType : &Type
   elementCount : Int
 } derive(Eq, Hash)
@@ -2017,7 +2017,7 @@ pub struct ScalableVectorType {
 ///|
 /// Create a ScalableVectorType.
 fn ScalableVectorType::new(
-  ctx: Context,
+  ctx : Context,
   elementType : &Type,
   elementCount : Int,
 ) -> ScalableVectorType raise LLVMTypeError {
@@ -2109,15 +2109,12 @@ pub fn AddressSpace::new(v : UInt) -> AddressSpace {
 /// assert_false(PointerType::isLoadableOrStorableType(voidty))
 /// ```
 pub struct PointerType {
-  ctx: Context
+  ctx : Context
   addressSpace : AddressSpace
 } derive(Eq, Hash)
 
 ///|
-fn PointerType::new(
-  ctx : Context,
-  addressSpace~ : AddressSpace,
-) -> PointerType {
+fn PointerType::new(ctx : Context, addressSpace~ : AddressSpace) -> PointerType {
   PointerType::{ ctx, addressSpace }
 }
 
