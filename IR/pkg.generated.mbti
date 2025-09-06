@@ -2,9 +2,9 @@
 package "Kaida-Amethyst/MoonLLVM/IR"
 
 import(
-  "Kaida-Amethyst/MoonLLVM/Either"
   "Kaida-Amethyst/MoonLLVM/int8"
   "Kaida-Amethyst/MoonLLVM/uint8"
+  "Kaida-Amethyst/either"
   "moonbitlang/core/set"
 )
 
@@ -276,7 +276,7 @@ impl Show for CastOps
 pub struct ConstantArray {
   uid : UInt64
   vty : ArrayType
-  data : @Either.Either[Array[&Constant], NumberArrayEnum]
+  data : @either.Either[Array[&Constant], NumberArrayEnum]
 }
 impl Value for ConstantArray
 impl Eq for ConstantArray
@@ -378,7 +378,7 @@ impl Show for ConstantStruct
 pub struct ConstantVector {
   uid : UInt64
   vty : VectorType
-  data : @Either.Either[Array[&Constant], NumberArrayEnum]
+  data : @either.Either[Array[&Constant], NumberArrayEnum]
 }
 impl Constant for ConstantVector
 impl Value for ConstantVector
@@ -1715,7 +1715,7 @@ pub trait Value : Show {
   getName(Self) -> String?
   setName(Self, String) -> Unit raise LLVMValueError
   removeName(Self) -> Unit raise LLVMValueError
-  getNameOrSlot(Self) -> @Either.Either[String, UInt64]?
+  getNameOrSlot(Self) -> @either.Either[String, UInt64]?
   getNameOrSlotStr(Self) -> String
   replaceAllUsersWith(Self, &Value) -> Unit
   getUsers(Self) -> Array[&User]?
