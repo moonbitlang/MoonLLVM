@@ -1,6 +1,7 @@
 ///|
 pub struct Module {
   context : Context
+  functions: Map[String, Function]
   globals : Map[String, &GlobalValue]
   srcFileName : String
   moduleID : String
@@ -15,6 +16,7 @@ pub fn Module::new(
 ) -> Module {
   Module::{
     context: ctx,
+    functions: Map::new(),
     globals: Map::new(),
     srcFileName,
     moduleID,
@@ -59,7 +61,7 @@ pub fn Module::addFunction(
     let msg = "Misuse `Module::addFunction`: global symbol '\{name}' already exists in the module."
     raise LLVMValueError(msg)
   }
-  let index = self.globals.size()
+  let index = self.functions.size()
   let f = Function::new(fty, name, linkage~, addressSpace~, index, self)
   self.globals.set(name, f)
   f
@@ -85,8 +87,9 @@ pub fn Module::addGlobalVariable(
     let msg = "Misuse `Module::addGlobalVariable`: global symbol '\{name}' already exists in the module."
     raise LLVMValueError(msg)
   }
-  let index = self.globals.size()
-  GlobalVariable::new(ty, name, linkage~, initializer~, index, self)
+  let g = GlobalVariable::new(ty, name, linkage~, initializer~, self)
+  self.globals.set(name, g)
+  g
 }
 
 ///|
@@ -109,8 +112,9 @@ pub fn Module::addGlobalConstant(
     let msg = "Misuse `Module::addGlobalConstant`: global symbol '\{name}' already exists in the module."
     raise LLVMValueError(msg)
   }
-  let index = self.globals.size()
-  GlobalConstant::new(ty, name, value, index, self, linkage~)
+  let g = GlobalConstant::new(ty, name, value, self, linkage~)
+  self.globals.set(name, g)
+  g
 }
 
 ///|
@@ -122,7 +126,14 @@ pub fn Module::getContext(self : Module) -> Context {
 pub impl Show for Module with output(self, logger) {
   logger.write_string(";; ModuleID = '\{self.moduleID}'\n")
   logger.write_string(";; Source File = \"\{self.srcFileName}\"\n\n")
-  self.globals.values().each(f => logger.write_string(f.to_string() + "\n"))
+  let global_var_and_consts = self.globals.values().filter(gv => match gv.asGlobalValueEnum() {
+    GlobalVariable(_) => true
+    GlobalConstant(_) => true
+    _ => false
+  }).collect()
+  global_var_and_consts.each(gv => logger.write_string(gv.to_string()))
+
+  self.functions.values().each(f => logger.write_string(f.to_string() + "\n"))
 }
 
 ///|

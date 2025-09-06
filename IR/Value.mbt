@@ -778,9 +778,9 @@ impl GlobalValue with setLinkage(self, linkage : Linkage) {
 ///|
 struct GlobalValueBase {
   linkage : Ref[Linkage]
-  //visibility: VisibilityTypes
+  //visibility: Visibility
   //unnamed_addr: UnnamedAddr
-  //dllStorageClass: DLLStorageClassTypes
+  //dllStorageClass: DLLStorageClass
   //threadLocal: ThreadLocalTypes
 }
 
@@ -839,14 +839,14 @@ pub impl Show for Linkage with output(self, logger) {
 }
 
 ///|
-pub(all) enum VisibilityTypes {
+pub(all) enum Visibility {
   DefaultVisibility
   HiddenVisibility
   ProtectedVisibility
 }
 
 ///|
-pub(all) enum DLLStorageClassTypes {
+pub(all) enum DLLStorageClass {
   DefaultDLLStorageClass
   /// Function to be imported from DLL.
   DLLImportStorageClass
