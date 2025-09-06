@@ -688,9 +688,9 @@ pub struct Function {
   uid : UInt64
   fty : FunctionType
   users : Array[&User]
-  gv_base : GlobalValueBase
+  linkage : Ref[Linkage]
   program : Module
-  index : UInt
+  index : Int
   addressSpace : AddressSpace
   arguments : Array[Argument]
   symbols : Map[String, &Value]
@@ -757,11 +757,45 @@ impl User for GetElementPtrInst
 impl Value for GetElementPtrInst
 impl Show for GetElementPtrInst
 
+pub struct GlobalConstant {
+  uid : UInt64
+  vty : &Type
+  users : Array[&User]
+  mod : Module
+  index : Int
+  mut name : String
+  linkage : Ref[Linkage]
+  mut initializer : &Constant?
+}
+fn GlobalConstant::removeInitializer(Self) -> Unit
+fn GlobalConstant::setInitializer(Self, &Constant) -> Unit
+impl GlobalValue for GlobalConstant
+impl Value for GlobalConstant
+impl Show for GlobalConstant
+
 type GlobalValueBase
 
 pub enum GlobalValueEnum {
   Function(Function)
+  GlobalVariable(GlobalVariable)
+  GlobalConstant(GlobalConstant)
 }
+
+pub struct GlobalVariable {
+  uid : UInt64
+  vty : &Type
+  users : Array[&User]
+  mod : Module
+  index : Int
+  mut name : String
+  linkage : Ref[Linkage]
+  mut initializer : &Constant?
+}
+fn GlobalVariable::removeInitializer(Self) -> Unit
+fn GlobalVariable::setInitializer(Self, &Constant) -> Unit
+impl GlobalValue for GlobalVariable
+impl Value for GlobalVariable
+impl Show for GlobalVariable
 
 pub struct HalfType {
   ctx : Context
@@ -1045,7 +1079,7 @@ impl Eq for LabelType
 impl Hash for LabelType
 impl Show for LabelType
 
-pub(all) enum LinkageTypes {
+pub(all) enum Linkage {
   ExternalLinkage
   AvailableExternallyLinkage
   LinkOnceAnyLinkage
@@ -1058,7 +1092,7 @@ pub(all) enum LinkageTypes {
   ExternalWeakLinkage
   CommonLinkage
 }
-impl Show for LinkageTypes
+impl Show for Linkage
 
 pub(all) struct LoadInst {
   uid : UInt64
@@ -1108,12 +1142,14 @@ impl Show for MetadataType
 
 pub struct Module {
   context : Context
-  functions : Map[String, Function]
+  globals : Map[String, &GlobalValue]
   srcFileName : String
   moduleID : String
   dataLayout : DataLayout
 }
-fn Module::addFunction(Self, FunctionType, String, linkage? : LinkageTypes, addressSpace? : AddressSpace) -> Function raise LLVMValueError
+fn Module::addFunction(Self, FunctionType, String, linkage? : Linkage, addressSpace? : AddressSpace) -> Function raise LLVMValueError
+fn Module::addGlobalConstant(Self, &Type, String, initializer? : &Constant, linkage? : Linkage) -> GlobalConstant raise LLVMValueError
+fn Module::addGlobalVariable(Self, &Type, String, initializer? : &Constant, linkage? : Linkage) -> GlobalVariable raise LLVMValueError
 fn Module::dump(Self) -> Unit
 fn Module::getContext(Self) -> Context
 fn Module::getDataLayout(Self) -> DataLayout
@@ -1490,6 +1526,8 @@ impl Eq for ValueBase
 
 pub enum ValueEnum {
   Function(Function)
+  GlobalVariable(GlobalVariable)
+  GlobalConstant(GlobalConstant)
   ConstantInt(ConstantInt)
   ConstantFP(ConstantFP)
   ConstantPointerNull(ConstantPointerNull)
@@ -1580,8 +1618,8 @@ impl Floating for Double
 pub trait GlobalValue : Value {
   getGlobalValueBase(Self) -> GlobalValueBase
   asGlobalValueEnum(Self) -> GlobalValueEnum
-  getLinkage(Self) -> LinkageTypes
-  setLinkage(Self, LinkageTypes) -> Unit
+  getLinkage(Self) -> Linkage
+  setLinkage(Self, Linkage) -> Unit
 }
 
 trait InsertPoint

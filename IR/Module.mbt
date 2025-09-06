@@ -1,7 +1,7 @@
 ///|
 pub struct Module {
   context : Context
-  globals: Map[String, &GlobalValue]
+  globals : Map[String, &GlobalValue]
   srcFileName : String
   moduleID : String
   dataLayout : DataLayout
@@ -25,10 +25,11 @@ pub fn Module::new(
 ///|
 pub fn Module::getFunction(self : Module, name : String) -> Function? {
   match self.globals.get(name) {
-    Some(f) => match f.asGlobalValueEnum() {
-      Function(func) => Some(func)
-      _ => None
-    }
+    Some(f) =>
+      match f.asGlobalValueEnum() {
+        Function(func) => Some(func)
+        _ => None
+      }
     None => None
   }
 }
@@ -64,6 +65,7 @@ pub fn Module::addFunction(
   f
 }
 
+///|
 pub fn Module::addGlobalVariable(
   self : Self,
   ty : &Type,
