@@ -759,23 +759,23 @@ impl Eq for &Constant with equal(self, other) {
 pub trait GlobalValue: Value {
   getGlobalValueBase(Self) -> GlobalValueBase
   asGlobalValueEnum(Self) -> GlobalValueEnum
-  getLinkage(Self) -> LinkageTypes = _
-  setLinkage(Self, linkage : LinkageTypes) -> Unit = _
+  getLinkage(Self) -> Linkage = _
+  setLinkage(Self, linkage : Linkage) -> Unit = _
 }
 
 ///|
 impl GlobalValue with getLinkage(self) {
-  self.getGlobalValueBase().linkage
+  self.getGlobalValueBase().linkage.val
 }
 
 ///|
-impl GlobalValue with setLinkage(self, linkage : LinkageTypes) {
-  self.getGlobalValueBase().linkage = linkage
+impl GlobalValue with setLinkage(self, linkage : Linkage) {
+  self.getGlobalValueBase().linkage.val = linkage
 }
 
 ///|
 struct GlobalValueBase {
-  mut linkage : LinkageTypes
+  linkage : Ref[Linkage]
   //visibility: VisibilityTypes
   //unnamed_addr: UnnamedAddr
   //dllStorageClass: DLLStorageClassTypes
@@ -789,7 +789,7 @@ pub enum GlobalValueEnum {
 }
 
 ///|
-pub(all) enum LinkageTypes {
+pub(all) enum Linkage {
   /// Externally visible function
   ExternalLinkage
   /// Available for inspection, not emission.
@@ -817,7 +817,7 @@ pub(all) enum LinkageTypes {
 }
 
 ///|
-pub impl Show for LinkageTypes with output(self, logger) {
+pub impl Show for Linkage with output(self, logger) {
   let s = match self {
     ExternalLinkage => ""
     AvailableExternallyLinkage => "available_externally"

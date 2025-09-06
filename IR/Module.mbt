@@ -37,7 +37,7 @@ pub fn Module::addFunction(
   self : Module,
   fty : FunctionType,
   name : String,
-  linkage? : LinkageTypes = ExternalLinkage,
+  linkage? : Linkage = ExternalLinkage,
   addressSpace? : AddressSpace = AddressSpace(0),
 ) -> Function raise LLVMValueError {
   if name.is_empty() {

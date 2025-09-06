@@ -211,7 +211,7 @@ pub struct Function {
 
   // Users of the function.
   users : Array[&User]
-  gv_base : GlobalValueBase
+  linkage : Ref[Linkage]
   program : Module
   /// index of the function in the program
   index : UInt
@@ -235,14 +235,13 @@ pub struct Function {
 fn Function::new(
   fty : FunctionType,
   name : String,
-  linkage~ : LinkageTypes,
+  linkage~ : Linkage,
   addressSpace~ : AddressSpace,
   index : UInt,
   program : Module,
 ) -> Function {
   let uid = valueUIDAssigner.assign()
   let users = []
-  let gv_base = GlobalValueBase::{ linkage, }
   let arguments = Array::new()
   let symbols = Map::new()
   let attrSet = AttributeSet::new()
@@ -251,7 +250,7 @@ fn Function::new(
     uid,
     fty,
     users,
-    gv_base,
+    linkage: Ref::new(linkage),
     program,
     index,
     name,
@@ -494,7 +493,7 @@ pub impl Value for Function with asValueEnum(self) {
 
 ///|
 pub impl GlobalValue for Function with getGlobalValueBase(self) {
-  self.gv_base
+  GlobalValueBase::{ linkage: self.linkage }
 }
 
 ///|
