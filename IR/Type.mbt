@@ -1459,6 +1459,7 @@ pub struct FunctionType {
   priv base : TypeBase
   returnType : &Type
   paramTypes : Array[&Type]
+  isVarArg: Bool
 } derive(Eq, Hash)
 
 ///|
@@ -1466,6 +1467,7 @@ pub struct FunctionType {
 fn FunctionType::new(
   returnType : &Type,
   paramsTypes : Array[&Type],
+  isVarArg? : Bool = false,
 ) -> FunctionType raise LLVMTypeError {
   let context = returnType.getContext()
   if not(FunctionType::isValidReturnType(returnType)) {
@@ -1478,7 +1480,7 @@ fn FunctionType::new(
   }
   let paramTypes = paramsTypes.copy()
   let base = TypeBase::new(context)
-  FunctionType::{ base, returnType, paramTypes }
+  FunctionType::{ base, returnType, paramTypes, isVarArg }
 }
 
 ///|
@@ -1530,6 +1532,9 @@ pub fn FunctionType::getParamType(self : FunctionType, idx : Int) -> &Type? {
 pub impl Show for FunctionType with output(self, logger : &Logger) {
   let ret_str = self.getReturnType().to_string()
   let param_strs = self.param_iter().map(p => "\{p}").collect()
+  if self.isVarArg {
+    param_strs.push("...")
+  }
   let param_str = param_strs.join(", ")
   logger.write_string("\{ret_str} (\{param_str})")
 }

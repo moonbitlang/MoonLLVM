@@ -295,9 +295,10 @@ pub fn Context::getFunctionType(
   self : Context,
   returnType : &Type,
   paramTypes : Array[&Type],
+  isVarArg?: Bool = false,
 ) -> FunctionType raise LLVMTypeError {
   ignore(self)
-  FunctionType::new(returnType, paramTypes)
+  FunctionType::new(returnType, paramTypes, isVarArg~)
 }
 
 ///|
