@@ -439,7 +439,7 @@ pub fn Function::getParamAttrs(
 }
 
 ///|
-pub impl Eq for Function with op_equal(self, other) {
+pub impl Eq for Function with equal(self, other) {
   self.index == other.index
 }
 

@@ -6,6 +6,6 @@ pub trait FunctionPass {
 }
 
 ///|
-pub impl Eq for &FunctionPass with op_equal(self, other) {
+pub impl Eq for &FunctionPass with equal(self, other) {
   self.name() == other.name()
 }

@@ -161,7 +161,7 @@ pub trait Type: Show + Hash {
 }
 
 ///|
-impl Eq for &Type with op_equal(self, other) {
+impl Eq for &Type with equal(self, other) {
   self.asTypeEnum() == other.asTypeEnum()
 }
 
@@ -504,7 +504,7 @@ pub trait IntegerType: PrimitiveType {
 }
 
 ///|
-impl Eq for &IntegerType with op_equal(self, other) {
+impl Eq for &IntegerType with equal(self, other) {
   self.asIntegerTypeEnum() == other.asIntegerTypeEnum()
 }
 
@@ -593,7 +593,7 @@ pub trait FPType: PrimitiveType {
 }
 
 ///|
-impl Eq for &FPType with op_equal(self, other) {
+impl Eq for &FPType with equal(self, other) {
   self.asFPTypeEnum() == other.asFPTypeEnum()
 }
 
@@ -1835,7 +1835,7 @@ pub impl Show for StructType with output(self, logger : &Logger) {
 }
 
 ///|
-pub impl Eq for StructType with op_equal(self, other) {
+pub impl Eq for StructType with equal(self, other) {
   match (self.name, other.name) {
     (Some(n1), Some(n2)) => n1 == n2
     (Some(_), None) => false

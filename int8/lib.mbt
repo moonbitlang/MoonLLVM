@@ -48,28 +48,28 @@ pub fn Int8::to_uint64(self : Int8) -> UInt64 {
 }
 
 ///|
-pub impl Add for Int8 with op_add(self : Int8, other : Int8) -> Int8 {
+pub impl Add for Int8 with add(self : Int8, other : Int8) -> Int8 {
   let Int8(v1) = self
   let Int8(v2) = other
   Int8::from(v1 + v2)
 }
 
 ///|
-pub impl Sub for Int8 with op_sub(self : Int8, other : Int8) -> Int8 {
+pub impl Sub for Int8 with sub(self : Int8, other : Int8) -> Int8 {
   let Int8(v1) = self
   let Int8(v2) = other
   Int8::from(v1 - v2)
 }
 
 ///|
-pub impl Mul for Int8 with op_mul(self : Int8, other : Int8) -> Int8 {
+pub impl Mul for Int8 with mul(self : Int8, other : Int8) -> Int8 {
   let Int8(v1) = self
   let Int8(v2) = other
   Int8::from(v1 * v2)
 }
 
 ///|
-pub impl Div for Int8 with op_div(self : Int8, other : Int8) -> Int8 {
+pub impl Div for Int8 with div(self : Int8, other : Int8) -> Int8 {
   let Int8(v1) = self
   let Int8(v2) = other
   Int8::from(v1 / v2)

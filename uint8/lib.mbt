@@ -47,28 +47,28 @@ pub fn UInt8::to_uint64(self : UInt8) -> UInt64 {
 }
 
 ///|
-pub impl Add for UInt8 with op_add(self, other) {
+pub impl Add for UInt8 with add(self, other) {
   let UInt8(val1) = self
   let UInt8(val2) = other
   UInt8(val1 + val2)
 }
 
 ///|
-pub impl Sub for UInt8 with op_sub(self, other) {
+pub impl Sub for UInt8 with sub(self, other) {
   let UInt8(val1) = self
   let UInt8(val2) = other
   UInt8(val1 - val2)
 }
 
 ///|
-pub impl Mul for UInt8 with op_mul(self, other) {
+pub impl Mul for UInt8 with mul(self, other) {
   let UInt8(val1) = self
   let UInt8(val2) = other
   UInt8(val1 * val2)
 }
 
 ///|
-pub impl Div for UInt8 with op_div(self, other) {
+pub impl Div for UInt8 with div(self, other) {
   let UInt8(val1) = self
   let UInt8(val2) = other
   UInt8(val1 / val2)

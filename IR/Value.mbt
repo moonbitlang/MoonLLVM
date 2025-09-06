@@ -197,7 +197,7 @@ pub trait Value: Show {
 }
 
 ///|
-impl Eq for &Value with op_equal(self, other) {
+impl Eq for &Value with equal(self, other) {
   self.getValueBase() == other.getValueBase()
 }
 
@@ -451,7 +451,7 @@ pub trait User: Value {
 }
 
 ///|
-pub impl Eq for &User with op_equal(self, other) {
+pub impl Eq for &User with equal(self, other) {
   self.getValueBase().uid == other.getValueBase().uid
 }
 
@@ -747,7 +747,7 @@ pub trait Constant: Value {
 }
 
 ///|
-impl Eq for &Constant with op_equal(self, other) {
+impl Eq for &Constant with equal(self, other) {
   self.asConstantEnum() == other.asConstantEnum()
 }
 

@@ -220,7 +220,7 @@ pub impl Value for BasicBlock with asValueEnum(self) {
 }
 
 ///|
-pub impl Eq for BasicBlock with op_equal(self, other) {
+pub impl Eq for BasicBlock with equal(self, other) {
   self.parent == other.parent && self.id == other.id
 }
 

@@ -71,7 +71,7 @@ pub fn Context::new() -> Context {
 }
 
 ///|
-pub impl Eq for Context with op_equal(self, other) {
+pub impl Eq for Context with equal(self, other) {
   self.key == other.key
 }
 
