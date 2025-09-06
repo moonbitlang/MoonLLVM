@@ -50,9 +50,8 @@ pub fn TypeEnum::asTypeClass(self : TypeEnum) -> &Type {
 
 ///|
 pub trait Type: Show + Hash {
-  getTypeBase(Self) -> TypeBase
+  getContext(Self) -> Context
   asTypeEnum(Self) -> TypeEnum
-  getContext(Self) -> Context = _
   //print(Self, logger: &Logger, isForDebug~ = false, noDetails~ = false)
   //dump(Self)
 
@@ -163,11 +162,6 @@ pub trait Type: Show + Hash {
 ///|
 impl Eq for &Type with equal(self, other) {
   self.asTypeEnum() == other.asTypeEnum()
-}
-
-///|
-impl Type with getContext(self) -> Context {
-  self.getTypeBase().context
 }
 
 ///|
@@ -781,32 +775,23 @@ pub enum AbstractTypeEnum {
 } derive(Show)
 
 // ====================================================================
-// TypeBase
-// ====================================================================
-
-///|
-struct TypeBase {
-  context : Context
-} derive(Eq, Hash)
-
-///|
-fn TypeBase::new(context : Context) -> TypeBase {
-  TypeBase::{ context, }
-}
-
-// ====================================================================
 // HalfType
 // ====================================================================
 
 ///|
 pub struct HalfType {
-  priv base : TypeBase
+  ctx: Context
 } derive(Eq, Hash)
 
 ///|
 /// Create a HalfType.
-fn HalfType::new(context : Context) -> HalfType {
-  HalfType::{ base: TypeBase::new(context) }
+fn HalfType::new(ctx : Context) -> HalfType {
+  HalfType::{ ctx  }
+}
+
+///|
+pub impl Type for HalfType with getContext(self) -> Context {
+  self.ctx
 }
 
 ///|
@@ -817,11 +802,6 @@ pub impl Show for HalfType with output(_, logger : &Logger) {
 ///|
 pub impl Type for HalfType with asTypeEnum(self) -> TypeEnum {
   TypeEnum::HalfType(self)
-}
-
-///|
-pub impl Type for HalfType with getTypeBase(self) -> TypeBase {
-  self.base
 }
 
 ///|
@@ -841,12 +821,12 @@ pub impl PrimitiveType for HalfType with asPrimitiveTypeEnum(self) -> PrimitiveT
 ///|
 /// BFloatType
 pub struct BFloatType {
-  priv base : TypeBase
+  ctx: Context
 } derive(Eq, Hash)
 
 ///|
-fn BFloatType::new(context : Context) -> BFloatType {
-  BFloatType::{ base: TypeBase::new(context) }
+fn BFloatType::new(ctx : Context) -> BFloatType {
+  BFloatType::{ ctx }
 }
 
 ///|
@@ -860,8 +840,8 @@ pub impl Type for BFloatType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for BFloatType with getTypeBase(self) -> TypeBase {
-  self.base
+pub impl Type for BFloatType with getContext(self) -> Context {
+  self.ctx
 }
 
 ///|
@@ -881,13 +861,12 @@ pub impl PrimitiveType for BFloatType with asPrimitiveTypeEnum(self) -> Primitiv
 ///|
 /// FloatType
 pub struct FloatType {
-  priv base : TypeBase
+  ctx: Context
 } derive(Eq, Hash)
 
 ///|
-fn FloatType::new(context : Context) -> FloatType {
-  let base = TypeBase::new(context)
-  FloatType::{ base, }
+fn FloatType::new(ctx : Context) -> FloatType {
+  FloatType::{ ctx }
 }
 
 ///|
@@ -901,8 +880,8 @@ pub impl Type for FloatType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for FloatType with getTypeBase(self) -> TypeBase {
-  self.base
+pub impl Type for FloatType with getContext(self) -> Context {
+  self.ctx
 }
 
 ///|
@@ -922,14 +901,13 @@ pub impl PrimitiveType for FloatType with asPrimitiveTypeEnum(self) -> Primitive
 ///|
 /// DoubleType
 pub struct DoubleType {
-  priv base : TypeBase
+  ctx: Context
 } derive(Eq, Hash)
 
 ///|
 /// Create a DoubleType
-fn DoubleType::new(context : Context) -> DoubleType {
-  let base = TypeBase::new(context)
-  DoubleType::{ base, }
+fn DoubleType::new(ctx : Context) -> DoubleType {
+  DoubleType::{ ctx }
 }
 
 ///|
@@ -943,8 +921,8 @@ pub impl Type for DoubleType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for DoubleType with getTypeBase(self) -> TypeBase {
-  self.base
+pub impl Type for DoubleType with getContext(self) -> Context {
+  self.ctx
 }
 
 ///|
@@ -964,14 +942,13 @@ pub impl PrimitiveType for DoubleType with asPrimitiveTypeEnum(self) -> Primitiv
 ///|
 /// FP128Ty
 pub struct FP128Type {
-  priv base : TypeBase
+  ctx: Context
 } derive(Eq, Hash)
 
 ///|
 /// Create a FP128Ty.
-fn FP128Type::new(context : Context) -> FP128Type {
-  let base = TypeBase::new(context)
-  FP128Type::{ base, }
+fn FP128Type::new(ctx: Context) -> FP128Type {
+  FP128Type::{ ctx }
 }
 
 ///|
@@ -985,8 +962,8 @@ pub impl Type for FP128Type with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for FP128Type with getTypeBase(self) -> TypeBase {
-  self.base
+pub impl Type for FP128Type with getContext(self) -> Context {
+  self.ctx
 }
 
 ///|
@@ -1014,13 +991,12 @@ pub impl PrimitiveType for FP128Type with asPrimitiveTypeEnum(self) -> Primitive
 /// inspect(ctx.getInt1Ty(), content="i1")
 /// ```
 pub struct Int1Type {
-  priv base : TypeBase
+  ctx: Context
 } derive(Eq, Hash)
 
 ///|
-fn Int1Type::new(context : Context) -> Int1Type {
-  let base = TypeBase::new(context)
-  Int1Type::{ base, }
+fn Int1Type::new(ctx: Context) -> Int1Type {
+  Int1Type::{ ctx }
 }
 
 ///|
@@ -1034,8 +1010,8 @@ pub impl Type for Int1Type with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for Int1Type with getTypeBase(self) -> TypeBase {
-  self.base
+pub impl Type for Int1Type with getContext(self) -> Context {
+  self.ctx
 }
 
 ///|
@@ -1063,13 +1039,12 @@ pub impl PrimitiveType for Int1Type with asPrimitiveTypeEnum(self) -> PrimitiveT
 /// inspect(ctx.getInt8Ty(), content="i8")
 /// ```
 pub struct Int8Type {
-  priv base : TypeBase
+  ctx: Context
 } derive(Eq, Hash)
 
 ///|
-fn Int8Type::new(context : Context) -> Int8Type {
-  let base = TypeBase::new(context)
-  Int8Type::{ base, }
+fn Int8Type::new(ctx: Context) -> Int8Type {
+  Int8Type::{ ctx }
 }
 
 ///|
@@ -1088,8 +1063,8 @@ pub impl Type for Int8Type with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for Int8Type with getTypeBase(self) -> TypeBase {
-  self.base
+pub impl Type for Int8Type with getContext(self) -> Context {
+  self.ctx
 }
 
 ///|
@@ -1117,13 +1092,12 @@ pub impl PrimitiveType for Int8Type with asPrimitiveTypeEnum(self) -> PrimitiveT
 /// inspect(ctx.getInt16Ty(), content="i16")
 /// ```
 pub struct Int16Type {
-  priv base : TypeBase
+  ctx: Context
 } derive(Eq, Hash)
 
 ///|
-fn Int16Type::new(context : Context) -> Int16Type {
-  let base = TypeBase::new(context)
-  Int16Type::{ base, }
+fn Int16Type::new(ctx: Context) -> Int16Type {
+  Int16Type::{ ctx }
 }
 
 ///|
@@ -1142,8 +1116,8 @@ pub impl Type for Int16Type with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for Int16Type with getTypeBase(self) -> TypeBase {
-  self.base
+pub impl Type for Int16Type with getContext(self) -> Context {
+  self.ctx
 }
 
 ///|
@@ -1171,13 +1145,12 @@ pub impl PrimitiveType for Int16Type with asPrimitiveTypeEnum(self) -> Primitive
 /// inspect(ctx.getInt32Ty(), content="i32")
 /// ```
 pub struct Int32Type {
-  priv base : TypeBase
+  ctx: Context
 } derive(Eq, Hash)
 
 ///|
-fn Int32Type::new(context : Context) -> Int32Type {
-  let base = TypeBase::new(context)
-  Int32Type::{ base, }
+fn Int32Type::new(ctx: Context) -> Int32Type {
+  Int32Type::{ ctx }
 }
 
 ///|
@@ -1196,8 +1169,8 @@ pub impl Type for Int32Type with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for Int32Type with getTypeBase(self) -> TypeBase {
-  self.base
+pub impl Type for Int32Type with getContext(self) -> Context {
+  self.ctx
 }
 
 ///|
@@ -1225,13 +1198,12 @@ pub impl PrimitiveType for Int32Type with asPrimitiveTypeEnum(self) -> Primitive
 /// inspect(ctx.getInt64Ty(), content="i64")
 /// ```
 pub struct Int64Type {
-  priv base : TypeBase
+  ctx: Context
 } derive(Eq, Hash)
 
 ///|
-fn Int64Type::new(context : Context) -> Int64Type {
-  let base = TypeBase::new(context)
-  Int64Type::{ base, }
+fn Int64Type::new(ctx: Context) -> Int64Type {
+  Int64Type::{ ctx }
 }
 
 ///|
@@ -1245,8 +1217,8 @@ pub impl Type for Int64Type with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for Int64Type with getTypeBase(self) -> TypeBase {
-  self.base
+pub impl Type for Int64Type with getContext(self) -> Context {
+  self.ctx
 }
 
 ///|
@@ -1266,7 +1238,7 @@ pub impl PrimitiveType for Int64Type with asPrimitiveTypeEnum(self) -> Primitive
 ///|
 /// VoidType
 pub struct VoidType {
-  priv base : TypeBase
+  ctx: Context
 } derive(Eq, Hash)
 
 ///|
@@ -1279,9 +1251,8 @@ pub struct VoidType {
 /// let voidty = ctx.getVoidTy()
 /// inspect(voidty, content="void")
 /// ```
-fn VoidType::new(context : Context) -> VoidType {
-  let base = TypeBase::new(context)
-  VoidType::{ base, }
+fn VoidType::new(ctx: Context) -> VoidType {
+  VoidType::{ ctx }
 }
 
 ///|
@@ -1290,8 +1261,8 @@ pub impl Show for VoidType with output(_, logger : &Logger) {
 }
 
 ///|
-pub impl Type for VoidType with getTypeBase(self) -> TypeBase {
-  self.base
+pub impl Type for VoidType with getContext(self) -> Context {
+  self.ctx
 }
 
 ///|
@@ -1311,7 +1282,7 @@ pub impl AbstractType for VoidType with asAbstractTypeEnum(self) -> AbstractType
 ///|
 /// LabelTy
 pub struct LabelType {
-  priv base : TypeBase
+  ctx: Context
 } derive(Eq, Hash)
 
 ///|
@@ -1324,9 +1295,8 @@ pub struct LabelType {
 /// let labelty = ctx.getLabelTy()
 /// inspect(labelty, content="label")
 /// ```
-fn LabelType::new(context : Context) -> LabelType {
-  let base = TypeBase::new(context)
-  LabelType::{ base, }
+fn LabelType::new(ctx: Context) -> LabelType {
+  LabelType::{ ctx }
 }
 
 ///|
@@ -1340,8 +1310,8 @@ pub impl Type for LabelType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for LabelType with getTypeBase(self) -> TypeBase {
-  self.base
+pub impl Type for LabelType with getContext(self) -> Context {
+  self.ctx
 }
 
 ///|
@@ -1355,7 +1325,7 @@ pub impl AbstractType for LabelType with asAbstractTypeEnum(self) -> AbstractTyp
 
 ///|
 pub struct MetadataType {
-  priv base : TypeBase
+  ctx: Context
 } derive(Eq, Hash)
 
 ///|
@@ -1368,9 +1338,8 @@ pub struct MetadataType {
 /// let metadataty = ctx.getMetadataTy()
 /// inspect(metadataty, content="metadata")
 /// ```
-fn MetadataType::new(context : Context) -> MetadataType {
-  let base = TypeBase::new(context)
-  MetadataType::{ base, }
+fn MetadataType::new(ctx: Context) -> MetadataType {
+  MetadataType::{ ctx }
 }
 
 ///|
@@ -1384,8 +1353,8 @@ pub impl Type for MetadataType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for MetadataType with getTypeBase(self) -> TypeBase {
-  self.base
+pub impl Type for MetadataType with getContext(self) -> Context {
+  self.ctx
 }
 
 ///|
@@ -1400,7 +1369,7 @@ pub impl AbstractType for MetadataType with asAbstractTypeEnum(self) -> Abstract
 ///|
 /// TokenTy
 pub struct TokenType {
-  priv base : TypeBase
+  ctx: Context
 } derive(Eq, Hash)
 
 ///|
@@ -1413,8 +1382,8 @@ pub struct TokenType {
 /// let tokenty = ctx.getTokenTy()
 /// inspect(tokenty, content="token")
 /// ```
-fn TokenType::new(context : Context) -> TokenType {
-  TokenType::{ base: TypeBase::new(context) }
+fn TokenType::new(ctx: Context) -> TokenType {
+  TokenType::{ ctx }
 }
 
 ///|
@@ -1428,8 +1397,8 @@ pub impl Type for TokenType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for TokenType with getTypeBase(self) -> TypeBase {
-  self.base
+pub impl Type for TokenType with getContext(self) -> Context {
+  self.ctx
 }
 
 ///|
@@ -1456,7 +1425,7 @@ pub impl AbstractType for TokenType with asAbstractTypeEnum(self) -> AbstractTyp
 /// inspect(fty, content="void (i32, float, double)")
 /// ```
 pub struct FunctionType {
-  priv base : TypeBase
+  ctx: Context
   returnType : &Type
   paramTypes : Array[&Type]
   isVarArg: Bool
@@ -1469,7 +1438,7 @@ fn FunctionType::new(
   paramsTypes : Array[&Type],
   isVarArg? : Bool = false,
 ) -> FunctionType raise LLVMTypeError {
-  let context = returnType.getContext()
+  let ctx = returnType.getContext()
   if not(FunctionType::isValidReturnType(returnType)) {
     raise InValidFunctionReturnType(returnType)
   }
@@ -1479,8 +1448,7 @@ fn FunctionType::new(
     }
   }
   let paramTypes = paramsTypes.copy()
-  let base = TypeBase::new(context)
-  FunctionType::{ base, returnType, paramTypes, isVarArg }
+  FunctionType::{ ctx, returnType, paramTypes, isVarArg }
 }
 
 ///|
@@ -1558,8 +1526,8 @@ pub impl Type for FunctionType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for FunctionType with getTypeBase(self) -> TypeBase {
-  self.base
+pub impl Type for FunctionType with getContext(self) -> Context {
+  self.ctx
 }
 
 ///|
@@ -1591,7 +1559,7 @@ pub impl AbstractType for FunctionType with asAbstractTypeEnum(self) -> Abstract
 /// inspect(sty.full_info(), content="%bar = type <{ i8, i16 }>")
 /// ```
 pub struct StructType {
-  priv base : TypeBase
+  ctx: Context
   priv mut name : String?
   elements : Array[&Type]
   priv mut isPacked : Bool
@@ -1605,7 +1573,7 @@ pub struct StructType {
 /// Create a StructType.
 /// FIXME: this is may different from LLVM Cpp
 fn StructType::new(
-  context : Context,
+  ctx: Context,
   elements : Array[&Type],
   name~ : String?,
   isPacked~ : Bool,
@@ -1614,8 +1582,7 @@ fn StructType::new(
     raise OpaqueStructMustHaveName
   }
   let elements = elements.copy()
-  let namedStructTypes = context.pimpl.unwrap().namedStructTypes
-  let base = TypeBase::new(context)
+  let namedStructTypes = ctx.pimpl.unwrap().namedStructTypes
   let name = match name {
     Some("") => raise InValidStructName("")
     Some(n) if namedStructTypes.contains(n) => raise DuplicateStructName(n)
@@ -1625,12 +1592,12 @@ fn StructType::new(
   //let containsScalableVector = false
   //let containsNonGlobalTargetExtType = false
   //let containsNonLocalTargetExtType = false
-  let sty = StructType::{ base, name, elements, isPacked, isSized: None }
+  let sty = StructType::{ ctx, name, elements, isPacked, isSized: None }
   //containsScalableVector,
   //containsNonGlobalTargetExtType,
   //containsNonLocalTargetExtType
   if name is Some(n) {
-    context.pimpl.unwrap().namedStructTypes.set(n, sty)
+    ctx.pimpl.unwrap().namedStructTypes.set(n, sty)
   }
   sty
 }
@@ -1855,8 +1822,8 @@ pub impl Type for StructType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for StructType with getTypeBase(self) -> TypeBase {
-  self.base
+pub impl Type for StructType with getContext(self) -> Context {
+  self.ctx
 }
 
 ///|
@@ -1885,22 +1852,21 @@ pub impl AggregateType for StructType with asAggregateTypeEnum(self) -> Aggregat
 /// inspect(arrty.getElementType(), content="i32")
 /// ```
 pub struct ArrayType {
-  priv base : TypeBase
+  ctx: Context
   elementType : &Type
   elementCount : Int
 } derive(Eq, Hash)
 
 ///|
 fn ArrayType::new(
-  context : Context,
+  ctx: Context,
   elementType : &Type,
   elementCount : Int,
 ) -> ArrayType raise LLVMTypeError {
   guard ArrayType::isValidElementType(elementType) else {
     raise InValidArrayElementType(elementType)
   }
-  let base = TypeBase::new(context)
-  ArrayType::{ base, elementType, elementCount }
+  ArrayType::{ ctx, elementType, elementCount }
 }
 
 ///|
@@ -1933,8 +1899,8 @@ pub impl Type for ArrayType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for ArrayType with getTypeBase(self) -> TypeBase {
-  self.base
+pub impl Type for ArrayType with getContext(self) -> Context {
+  self.ctx
 }
 
 ///|
@@ -1962,7 +1928,7 @@ pub impl AggregateType for ArrayType with asAggregateTypeEnum(self) -> Aggregate
 /// inspect(vecty.getElementType(), content="i32")
 /// ```
 pub struct VectorType {
-  priv base : TypeBase
+  ctx: Context
   elementType : &Type
   elementCount : Int
 } derive(Eq, Hash)
@@ -1970,15 +1936,14 @@ pub struct VectorType {
 ///|
 /// Create a VectorType.
 fn VectorType::new(
-  context : Context,
+  ctx: Context,
   elementType : &Type,
   elementCount : Int,
 ) -> VectorType raise LLVMTypeError {
   guard VectorType::isValidElementType(elementType) else {
     raise InValidVectorElementType(elementType)
   }
-  let base = TypeBase::new(context)
-  VectorType::{ base, elementType, elementCount }
+  VectorType::{ ctx, elementType, elementCount }
 }
 
 ///|
@@ -2015,8 +1980,8 @@ pub impl Type for VectorType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for VectorType with getTypeBase(self) -> TypeBase {
-  self.base
+pub impl Type for VectorType with getContext(self) -> Context {
+  self.ctx
 }
 
 ///|
@@ -2044,7 +2009,7 @@ pub impl AggregateType for VectorType with asAggregateTypeEnum(self) -> Aggregat
 /// inspect(vecty.getElementType(), content="float")
 /// ```
 pub struct ScalableVectorType {
-  priv base : TypeBase
+  ctx: Context
   elementType : &Type
   elementCount : Int
 } derive(Eq, Hash)
@@ -2052,15 +2017,14 @@ pub struct ScalableVectorType {
 ///|
 /// Create a ScalableVectorType.
 fn ScalableVectorType::new(
-  context : Context,
+  ctx: Context,
   elementType : &Type,
   elementCount : Int,
 ) -> ScalableVectorType raise LLVMTypeError {
   guard ScalableVectorType::isValidElementType(elementType) else {
     raise InValidVectorElementType(elementType)
   }
-  let base = TypeBase::new(context)
-  ScalableVectorType::{ base, elementType, elementCount }
+  ScalableVectorType::{ ctx, elementType, elementCount }
 }
 
 ///|
@@ -2099,8 +2063,8 @@ pub impl Type for ScalableVectorType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for ScalableVectorType with getTypeBase(self) -> TypeBase {
-  self.base
+pub impl Type for ScalableVectorType with getContext(self) -> Context {
+  self.ctx
 }
 
 ///|
@@ -2145,17 +2109,16 @@ pub fn AddressSpace::new(v : UInt) -> AddressSpace {
 /// assert_false(PointerType::isLoadableOrStorableType(voidty))
 /// ```
 pub struct PointerType {
-  priv base : TypeBase
+  ctx: Context
   addressSpace : AddressSpace
 } derive(Eq, Hash)
 
 ///|
 fn PointerType::new(
-  context : Context,
+  ctx : Context,
   addressSpace~ : AddressSpace,
 ) -> PointerType {
-  let base = TypeBase::new(context)
-  PointerType::{ base, addressSpace }
+  PointerType::{ ctx, addressSpace }
 }
 
 ///|
@@ -2190,6 +2153,6 @@ pub impl Type for PointerType with asTypeEnum(self) -> TypeEnum {
 }
 
 ///|
-pub impl Type for PointerType with getTypeBase(self) -> TypeBase {
-  self.base
+pub impl Type for PointerType with getContext(self) -> Context {
+  self.ctx
 }
