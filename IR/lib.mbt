@@ -1,5 +1,5 @@
 ///|
-typealias @Either.Either
+typealias @either.Either
 
 ///|
 typealias @int8.Int8

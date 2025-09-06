@@ -9,11 +9,11 @@ test "Function" {
 
   // create function
   let fval = prog.addFunction(fty, "add")
-  inspect(fval, content="declare i32 @add(i32, i32)")
+  inspect(fval, content="declare i32 @add(i32, i32)\n")
 
   // Set linkage
   fval.setLinkage(PrivateLinkage)
-  inspect(fval, content="declare private i32 @add(i32, i32)")
+  inspect(fval, content="declare private i32 @add(i32, i32)\n")
   fval.setLinkage(ExternalLinkage)
 
   // add attribute `alwaysinline`.
@@ -21,6 +21,7 @@ test "Function" {
   let expect =
     #|; Function Attrs: alwaysinline
     #|declare i32 @add(i32, i32) #0
+    #|
   inspect(fval, content=expect)
 
   // add attribute `builtin`.
@@ -28,6 +29,7 @@ test "Function" {
   let expect =
     #|; Function Attrs: alwaysinline builtin
     #|declare i32 @add(i32, i32) #0
+    #|
   inspect(fval, content=expect)
 
   // get args.
@@ -40,5 +42,6 @@ test "Function" {
   let expect =
     #|; Function Attrs: alwaysinline builtin
     #|declare i32 @add(i32 noalias, i32 nonnull) #0
+    #|
   inspect(fval, content=expect)
 }
