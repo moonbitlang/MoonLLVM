@@ -778,8 +778,8 @@ impl GlobalValue with setLinkage(self, linkage : Linkage) {
 ///|
 struct GlobalValueBase {
   linkage : Ref[Linkage]
-  //visibility: Visibility
-  //unnamed_addr: UnnamedAddr
+  visibility: Ref[Visibility]
+  unnamed_addr: Ref[UnnamedAddr]
   //dllStorageClass: DLLStorageClass
   //threadLocal: ThreadLocalTypes
 }
@@ -795,54 +795,78 @@ pub enum GlobalValueEnum {
 ///|
 pub(all) enum Linkage {
   /// Externally visible function
-  ExternalLinkage
+  External
   /// Available for inspection, not emission.
-  AvailableExternallyLinkage
+  AvailableExternally
   /// Keep one copy of function when linking (inline)
-  LinkOnceAnyLinkage
+  LinkOnceAny
   /// Keep one copy of function when linking,\
   /// but only replaced by something equivalent.
-  LinkOnceODRLinkage
+  LinkOnceODR
   /// Keep one copy of named function when linking (weak)
-  WeakAnyLinkage
+  WeakAny
   /// Keep one copy of named function when linkin,
   /// but only replaced by something equivalent.
-  WeakODRLinkage
+  WeakODR
   /// Special purpose, only applies to global arrays
-  AppendingLinkage
+  Appending
   /// Rename collisions when linking (static functions).
-  InternalLinkage
+  Internal
   /// Like Internal, but omit from symbol table.
-  PrivateLinkage
+  Private
   /// ExternalWeak linkage description.
-  ExternalWeakLinkage
+  ExternalWeak
   /// Tentative definitions.
-  CommonLinkage
+  Common
 }
 
 ///|
 pub impl Show for Linkage with output(self, logger) {
   let s = match self {
-    ExternalLinkage => ""
-    AvailableExternallyLinkage => "available_externally"
-    LinkOnceODRLinkage => "linkonce_odr"
-    LinkOnceAnyLinkage => "linkonce"
-    WeakAnyLinkage => "weak"
-    WeakODRLinkage => "weak_odr"
-    AppendingLinkage => "appending"
-    InternalLinkage => "internal"
-    PrivateLinkage => "private"
-    ExternalWeakLinkage => "external_weak"
-    CommonLinkage => "common"
+    External => ""
+    AvailableExternally => "available_externally"
+    LinkOnceODR => "linkonce_odr"
+    LinkOnceAny => "linkonce"
+    WeakAny => "weak"
+    WeakODR => "weak_odr"
+    Appending => "appending"
+    Internal => "internal"
+    Private => "private"
+    ExternalWeak => "external_weak"
+    Common => "common"
   }
   logger.write_string(s)
 }
 
 ///|
 pub(all) enum Visibility {
-  DefaultVisibility
-  HiddenVisibility
-  ProtectedVisibility
+  Default
+  Hidden
+  Protected
+}
+
+pub impl Show for Visibility with output(self, logger) {
+  let s = match self {
+    Default => ""
+    Hidden => "dso_local"
+    Protected => "protected"
+  }
+  logger.write_string(s)
+}
+
+pub(all) enum UnnamedAddr {
+  NoUnnamedAddr
+  Local
+  Global
+}
+
+pub impl Show for UnnamedAddr with output(self, logger) {
+  let s = match self {
+    NoUnnamedAddr => ""
+    Local => "local_unnamed_addr"
+    Global => "unnamed_addr"
+  }
+  logger.write_string(s)
 }
 
 ///|

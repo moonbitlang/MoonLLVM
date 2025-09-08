@@ -212,6 +212,8 @@ pub struct Function {
   // Users of the function.
   users : Array[&User]
   linkage : Ref[Linkage]
+  visibility: Ref[Visibility]
+  unnamed_addr: Ref[UnnamedAddr]
   program : Module
   /// index of the function in the program
   index : Int
@@ -236,6 +238,8 @@ fn Function::new(
   fty : FunctionType,
   name : String,
   linkage~ : Linkage,
+  visibility~ : Visibility,
+  unnamed_addr~ : UnnamedAddr,
   addressSpace~ : AddressSpace,
   index : Int,
   program : Module,
@@ -251,6 +255,8 @@ fn Function::new(
     fty,
     users,
     linkage: Ref::new(linkage),
+    visibility: Ref::new(visibility),
+    unnamed_addr: Ref::new(unnamed_addr),
     program,
     index,
     name,
@@ -493,7 +499,11 @@ pub impl Value for Function with asValueEnum(self) {
 
 ///|
 pub impl GlobalValue for Function with getGlobalValueBase(self) {
-  GlobalValueBase::{ linkage: self.linkage }
+  GlobalValueBase::{
+    linkage: self.linkage,
+    visibility: self.visibility,
+    unnamed_addr: self.unnamed_addr
+  }
 }
 
 ///|

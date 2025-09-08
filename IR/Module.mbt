@@ -46,7 +46,9 @@ pub fn Module::addFunction(
   self : Module,
   fty : FunctionType,
   name : String,
-  linkage? : Linkage = ExternalLinkage,
+  linkage? : Linkage = External,
+  visibility? : Visibility = Default,
+  unnamed_addr? : UnnamedAddr = NoUnnamedAddr,
   addressSpace? : AddressSpace = AddressSpace(0),
 ) -> Function raise LLVMValueError {
   if name.is_empty() {
@@ -62,7 +64,7 @@ pub fn Module::addFunction(
     raise LLVMValueError(msg)
   }
   let index = self.functions.size()
-  let f = Function::new(fty, name, linkage~, addressSpace~, index, self)
+  let f = Function::new(fty, name, linkage~, visibility~, unnamed_addr~, addressSpace~, index, self)
   self.globals.set(name, f)
   f
 }
@@ -73,7 +75,9 @@ pub fn Module::addGlobalVariable(
   ty : &Type,
   name : String,
   initializer? : &Constant,
-  linkage? : Linkage = ExternalLinkage,
+  linkage? : Linkage = External,
+  visibility? : Visibility = Default,
+  unnamed_addr? : UnnamedAddr = NoUnnamedAddr,
 ) -> GlobalVariable raise LLVMValueError {
   if name.is_empty() {
     let msg = "Misuse `Module::addGlobalVariable`: global variable name cannot be empty."
@@ -87,7 +91,7 @@ pub fn Module::addGlobalVariable(
     let msg = "Misuse `Module::addGlobalVariable`: global symbol '\{name}' already exists in the module."
     raise LLVMValueError(msg)
   }
-  let g = GlobalVariable::new(ty, name, linkage~, initializer~, self)
+  let g = GlobalVariable::new(ty, name, linkage~, visibility~, unnamed_addr~, initializer~, self)
   self.globals.set(name, g)
   g
 }
@@ -98,7 +102,9 @@ pub fn Module::addGlobalConstant(
   ty : &Type,
   name : String,
   value : &Constant,
-  linkage? : Linkage = ExternalLinkage,
+  linkage? : Linkage = External,
+  visibility? : Visibility = Default,
+  unnamed_addr? : UnnamedAddr = NoUnnamedAddr,
 ) -> GlobalConstant raise LLVMValueError {
   if name.is_empty() {
     let msg = "Misuse `Module::addGlobalConstant`: global constant name cannot be empty."
@@ -112,7 +118,7 @@ pub fn Module::addGlobalConstant(
     let msg = "Misuse `Module::addGlobalConstant`: global symbol '\{name}' already exists in the module."
     raise LLVMValueError(msg)
   }
-  let g = GlobalConstant::new(ty, name, value, self, linkage~)
+  let g = GlobalConstant::new(ty, name, value, self, linkage~, visibility~, unnamed_addr~)
   self.globals.set(name, g)
   g
 }

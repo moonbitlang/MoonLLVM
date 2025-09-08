@@ -10,6 +10,8 @@ pub struct GlobalVariable {
   mod : Module
   mut name : String
   linkage : Ref[Linkage]
+  visibility: Ref[Visibility]
+  unnamed_addr: Ref[UnnamedAddr]
   mut initializer : &Constant?
 }
 
@@ -17,8 +19,10 @@ pub struct GlobalVariable {
 fn GlobalVariable::new(
   vty : &Type,
   name : String,
-  linkage~ : Linkage,
   initializer~ : &Constant?,
+  linkage~ : Linkage,
+  visibility~ : Visibility = Visibility::Default,
+  unnamed_addr~ : UnnamedAddr = UnnamedAddr::NoUnnamedAddr,
   mod : Module,
 ) -> GlobalVariable {
   let uid = valueUIDAssigner.assign()
@@ -30,6 +34,8 @@ fn GlobalVariable::new(
     mod,
     name,
     linkage: Ref::new(linkage),
+    visibility: Ref::new(visibility),
+    unnamed_addr: Ref::new(unnamed_addr),
     initializer,
   }
 }
@@ -89,19 +95,32 @@ pub impl GlobalValue for GlobalVariable with asGlobalValueEnum(self) {
 
 ///|
 pub impl GlobalValue for GlobalVariable with getGlobalValueBase(self) {
-  GlobalValueBase::{ linkage: self.linkage }
+  GlobalValueBase::{ linkage: self.linkage, visibility: self.visibility, unnamed_addr: self.unnamed_addr }
 }
 
 ///|
 pub impl Show for GlobalVariable with output(self, logger) {
   let align = self.mod.getDataLayout().getAlignment(self.vty)
-  let initval_str = match self.initializer {
-    Some(i) => i.to_string()
-    None => "zeroinitializer"
+  logger.write_string("@\{self.name} = ")
+  let linkage_str = self.linkage.val.to_string()
+  if !linkage_str.is_empty() {
+    logger.write_string("\{linkage_str} ")
   }
-  let s = "@\{self.name} = \{self.linkage.val} global \{initval_str}, align \{align}"
-  logger.write_string(s)
-  logger.write_string("\n")
+  let visibility_str = self.visibility.val.to_string()
+  if !visibility_str.is_empty() {
+    logger.write_string("\{visibility_str} ")
+  }
+  let unnamed_addr_str = self.unnamed_addr.val.to_string()
+  if !unnamed_addr_str.is_empty() {
+    logger.write_string("\{unnamed_addr_str} ")
+  }
+  logger.write_string("global ")
+  if self.initializer is Some(i) {
+    logger.write_string("\{i}")
+  } else {
+    logger.write_string("zeroinitializer")
+  }
+  logger.write_string(", \{align}\n")
 }
 
 ///|
@@ -129,6 +148,8 @@ pub struct GlobalConstant {
   mod : Module
   mut name : String
   linkage : Ref[Linkage]
+  visibility: Ref[Visibility]
+  unnamed_addr: Ref[UnnamedAddr]
   mut value : &Constant
 }
 
@@ -139,6 +160,8 @@ fn GlobalConstant::new(
   value : &Constant,
   mod : Module,
   linkage~ : Linkage,
+  visibility~ : Visibility,
+  unnamed_addr~ : UnnamedAddr
 ) -> GlobalConstant {
   let uid = valueUIDAssigner.assign()
   let users = []
@@ -149,6 +172,8 @@ fn GlobalConstant::new(
     mod,
     name,
     linkage: Ref::new(linkage),
+    visibility: Ref::new(visibility),
+    unnamed_addr: Ref::new(unnamed_addr),
     value,
   }
 }
@@ -208,15 +233,26 @@ pub impl GlobalValue for GlobalConstant with asGlobalValueEnum(self) {
 
 ///|
 pub impl GlobalValue for GlobalConstant with getGlobalValueBase(self) {
-  GlobalValueBase::{ linkage: self.linkage }
+  GlobalValueBase::{ linkage: self.linkage, visibility: self.visibility, unnamed_addr: self.unnamed_addr }
 }
 
 ///|
 pub impl Show for GlobalConstant with output(self, logger) {
   let align = self.mod.getDataLayout().getAlignment(self.vty)
-  let s = "@\{self.name} = \{self.linkage.val} constant \{self.value}, align \{align}"
-  logger.write_string(s)
-  logger.write_string("\n")
+  logger.write_string("@\{self.name} = ")
+  let linkage_str = self.linkage.val.to_string()
+  if !linkage_str.is_empty() {
+    logger.write_string("\{linkage_str} ")
+  }
+  let visibility_str = self.visibility.val.to_string()
+  if !visibility_str.is_empty() {
+    logger.write_string("\{visibility_str} ")
+  }
+  let unnamed_addr_str = self.unnamed_addr.val.to_string()
+  if !unnamed_addr_str.is_empty() {
+    logger.write_string("\{unnamed_addr_str} ")
+  }
+  logger.write_string("constant \{self.value}, \{align}\n")
 }
 
 ///|

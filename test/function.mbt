@@ -12,9 +12,9 @@ test "Function" {
   inspect(fval, content="declare i32 @add(i32, i32)\n")
 
   // Set linkage
-  fval.setLinkage(PrivateLinkage)
+  fval.setLinkage(Private)
   inspect(fval, content="declare private i32 @add(i32, i32)\n")
-  fval.setLinkage(ExternalLinkage)
+  fval.setLinkage(External)
 
   // add attribute `alwaysinline`.
   fval.addAttr(AlwaysInline)
