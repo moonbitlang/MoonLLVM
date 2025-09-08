@@ -199,7 +199,7 @@ pub trait Value: Show {
 }
 
 ///|
-impl Eq for &Value with equal(self, other) {
+pub impl Eq for &Value with equal(self, other) {
   self.getValueBase() == other.getValueBase()
 }
 
@@ -386,7 +386,7 @@ impl Value with tryAsInstEnum(self) {
 }
 
 ///|
-impl Hash for &Value with hash_combine(self, hasher) {
+pub impl Hash for &Value with hash_combine(self, hasher) {
   hasher.combine_uint64(self.getValueBase().uid)
 }
 
@@ -542,6 +542,7 @@ pub trait Instruction: Value {
   getInstBase(Self) -> InstBase
   asInstEnum(Self) -> InstEnum
   getParent(Self) -> Function
+  getModule(Self) -> Module = _
   getBasicBlock(Self) -> BasicBlock? = _
   getInstName(Self) -> String? = _
   isIndependent(Self) -> Bool = _
@@ -553,6 +554,10 @@ pub trait Instruction: Value {
   moveAfter(Self, &Instruction) -> Unit = _
   removeFromParent(Self) -> Unit = _
   eraseFromParent(Self) -> Unit = _
+}
+
+impl Instruction with getModule(self) {
+  self.getParent().mod
 }
 
 ///|

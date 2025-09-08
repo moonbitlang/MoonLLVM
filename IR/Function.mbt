@@ -214,7 +214,7 @@ pub struct Function {
   linkage : Ref[Linkage]
   visibility: Ref[Visibility]
   unnamed_addr: Ref[UnnamedAddr]
-  program : Module
+  mod : Module
   /// index of the function in the program
   index : Int
   priv mut name : String
@@ -242,7 +242,7 @@ fn Function::new(
   unnamed_addr~ : UnnamedAddr,
   addressSpace~ : AddressSpace,
   index : Int,
-  program : Module,
+  mod : Module,
 ) -> Function {
   let uid = valueUIDAssigner.assign()
   let users = []
@@ -257,7 +257,7 @@ fn Function::new(
     linkage: Ref::new(linkage),
     visibility: Ref::new(visibility),
     unnamed_addr: Ref::new(unnamed_addr),
-    program,
+    mod,
     index,
     name,
     addressSpace,
@@ -417,7 +417,7 @@ pub fn Function::clearSlot(self : Function) -> Unit {
 
 ///|
 pub fn Function::getDataLayout(self : Function) -> DataLayout {
-  self.program.dataLayout
+  self.mod.dataLayout
 }
 
 ///|

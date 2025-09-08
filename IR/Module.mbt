@@ -66,6 +66,7 @@ pub fn Module::addFunction(
   let index = self.functions.size()
   let f = Function::new(fty, name, linkage~, visibility~, unnamed_addr~, addressSpace~, index, self)
   self.globals.set(name, f)
+  self.functions.set(name, f)
   f
 }
 
@@ -138,8 +139,8 @@ pub impl Show for Module with output(self, logger) {
     _ => false
   }).collect()
   global_var_and_consts.each(gv => logger.write_string(gv.to_string()))
-
-  self.functions.values().each(f => logger.write_string(f.to_string() + "\n"))
+  let func_str = self.functions.values().map(f => f.to_string()).join("\n")
+  logger.write_string(func_str)
 }
 
 ///|
