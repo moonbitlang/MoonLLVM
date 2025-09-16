@@ -147,6 +147,7 @@ pub trait Type: Show + Hash {
   /// type.
   getScalarSizeInBits(Self) -> Int = _
   getScalarType(Self) -> &Type = _
+
   tryAsFPType(Self) -> &FPType? = _
   tryAsFPTypeEnum(Self) -> FPTypeEnum? = _
   tryAsIntType(Self) -> &IntegerType? = _

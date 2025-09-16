@@ -2742,3 +2742,78 @@ pub impl Show for ConstantStruct with output(self, logger) {
   let data_str = self.getValueRepr()
   logger.write_string("\{self.getType()} { \{data_str} }")
 }
+
+// ====================================================================
+// ConstantString
+// ====================================================================
+
+pub struct ConstantString {
+  // unique identifier for this value
+  uid : UInt64
+
+  // Value Type, vty must be ArrayType of Int8Type
+  vty : ArrayType
+
+  // the value of this constant
+  data: String
+} derive(Eq)
+
+fn ConstantString::new(ctx: Context, data: String) -> ConstantString {
+  let vty = (try? ctx.getArrayType(ctx.getInt8Ty(), data.length() + 1)).unwrap()
+  let uid = valueUIDAssigner.assign()
+  ConstantString::{ uid, vty, data }
+}
+
+pub impl Value for ConstantString with getValueBase(self) -> ValueBase {
+  ValueBase::{ uid: self.uid, vty: self.vty, users: [] }
+}
+
+pub impl Value for ConstantString with asValueEnum(self) -> ValueEnum {
+  ConstantString(self)
+}
+
+pub impl Value for ConstantString with getValueRepr(self) -> String {
+  let str_builder = StringBuilder::new()
+  for c in self.data {
+    match c {
+      '\n' => str_builder.write_string("\\0A")
+      '\r' => str_builder.write_string("\\0D")
+      '\t' => str_builder.write_string("\\09")
+      '\"' => str_builder.write_string("\\22")
+      '\\' => str_builder.write_string("\\5C")
+      c => str_builder.write_char(c)
+    }
+  }
+  str_builder.write_string("\\00")
+  let s= str_builder.to_string()
+  "c\"\{s}\""
+}
+
+pub impl Value for ConstantString with getName(_) {
+  None
+}
+
+pub impl Value for ConstantString with setName(_, _) {
+  let msg = "Calling always failed function `ConstantString::setName`. " +
+    "Set name for ConstantString is not allowed."
+  raise LLVMValueError(msg)
+}
+
+
+pub impl Value for ConstantString with removeName(_) {
+  ()
+}
+
+pub impl Value for ConstantString with getNameOrSlot(_) {
+  None
+}
+
+pub impl Constant for ConstantString with asConstantEnum(self) -> ConstantEnum {
+  ConstantString(self)
+}
+
+pub impl Show for ConstantString with output(self, logger) {
+  let val_str = self.getValueRepr()
+  let len = self.data.length() + 1
+  logger.write_string("[\{len} x i8] \{val_str}")
+}

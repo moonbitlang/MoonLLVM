@@ -34,6 +34,8 @@
 //  let const200 = ctx.getConstInt32(200)
 //  let s = mod.addGlobalConstant(i32ty, "s", const200);
 //
+//  let s2 = mod.addGlobalString("Hello, world!\n")
+//
 //  // init function
 //  let init_arr_fty = ctx.getFunctionType(void_ty, []);
 //  let _ = mod.addFunction(init_arr_fty, "init_arr");

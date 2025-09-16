@@ -3,6 +3,7 @@ pub struct Module {
   context : Context
   functions: Map[String, Function]
   globals : Map[String, &GlobalValue]
+  mut globalstr_count: Int
   srcFileName : String
   moduleID : String
   dataLayout : DataLayout
@@ -18,6 +19,7 @@ pub fn Module::new(
     context: ctx,
     functions: Map::new(),
     globals: Map::new(),
+    globalstr_count: 0,
     srcFileName,
     moduleID,
     dataLayout: DataLayout::new(Little),
@@ -122,6 +124,22 @@ pub fn Module::addGlobalConstant(
   let g = GlobalConstant::new(ty, name, value, self, linkage~, visibility~, unnamed_addr~)
   self.globals.set(name, g)
   g
+}
+
+///|
+pub fn Module::addGlobalString(self: Self, string: String, name?: String = "") -> GlobalConstant raise {
+  let ctx = self.getContext()
+  let const_str = ConstantString::new(ctx, string)
+  let ty = const_str.getType()
+  let name = match name {
+    "" => {
+      self.globalstr_count += 1
+      "gstr" + self.globalstr_count.to_string()
+    }
+    n => n
+  }
+  let gvar = self.addGlobalConstant(ty, name, const_str, linkage=Private, unnamed_addr=Global)
+  gvar
 }
 
 ///|

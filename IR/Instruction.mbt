@@ -4747,6 +4747,7 @@ pub impl Show for CallInst with output(self, logger) {
   let callee = self.callee
   let fty = callee.getFunctionType()
   let ret_ty = fty.getReturnType()
+  let is_var_arg = fty.isVarArg
   let is_void_ret = ret_ty.asTypeEnum() is VoidType(_)
   let prefix = if is_void_ret { "" } else { self.getValueRepr() }
   let tail_str = self.tailCallKind.to_string()
@@ -4774,13 +4775,21 @@ pub impl Show for CallInst with output(self, logger) {
   } else {
     "\{tail_str} call"
   }
+  let var_arg_func_mark = if is_var_arg {
+    let param_ty_strs = fty.getParamTypes().map(t => t.to_string())
+    param_ty_strs.push("...")
+    let param_ty_str = param_ty_strs.join(", ")
+    " (\{param_ty_str})"
+  } else {
+    ""
+  }
   if is_void_ret {
     logger.write_string(
-      "  \{call_prefix}\{ret_attrs_str} \{ret_ty} @\{callee.name}(\{args_str})",
+      "  \{call_prefix}\{ret_attrs_str} \{ret_ty}\{var_arg_func_mark} @\{callee.name}(\{args_str})",
     )
   } else {
     logger.write_string(
-      "  \{prefix} = \{call_prefix}\{ret_attrs_str} \{ret_ty} @\{callee.name}(\{args_str})",
+      "  \{prefix} = \{call_prefix}\{ret_attrs_str} \{ret_ty}\{var_arg_func_mark} @\{callee.name}(\{args_str})",
     )
   }
 }

@@ -6,6 +6,7 @@
 pub struct GlobalVariable {
   uid : UInt64
   vty : &Type
+  elementTy: &Type
   users : Array[&User]
   mod : Module
   mut name : String
@@ -17,7 +18,7 @@ pub struct GlobalVariable {
 
 ///|
 fn GlobalVariable::new(
-  vty : &Type,
+  vty: &Type,
   name : String,
   initializer~ : &Constant?,
   linkage~ : Linkage,
@@ -26,10 +27,20 @@ fn GlobalVariable::new(
   mod : Module,
 ) -> GlobalVariable {
   let uid = valueUIDAssigner.assign()
+  let ctx = vty.getContext()
+  let elementTy = match vty.asTypeEnum() {
+    ArrayType(a) => a.getElementType()
+    _ => vty
+  }
+  let vty = match vty.asTypeEnum() {
+    ArrayType(_) => (ctx.getPtrTy() : &Type)
+    _ => vty
+  }
   let users = []
   GlobalVariable::{
     uid,
     vty,
+    elementTy,
     users,
     mod,
     name,
@@ -100,7 +111,7 @@ pub impl GlobalValue for GlobalVariable with getGlobalValueBase(self) {
 
 ///|
 pub impl Show for GlobalVariable with output(self, logger) {
-  let align = self.mod.getDataLayout().getAlignment(self.vty)
+  let align = self.mod.getDataLayout().getAlignment(self.elementTy)
   logger.write_string("@\{self.name} = ")
   let linkage_str = self.linkage.val.to_string()
   if !linkage_str.is_empty() {
@@ -144,6 +155,10 @@ pub fn GlobalVariable::removeInitializer(self : GlobalVariable) -> Unit {
 pub struct GlobalConstant {
   uid : UInt64
   vty : &Type
+  
+  // For Global Array, it's type is PointerType, 
+  // and it has element type
+  elementTy: &Type
   users : Array[&User]
   mod : Module
   mut name : String
@@ -164,10 +179,20 @@ fn GlobalConstant::new(
   unnamed_addr~ : UnnamedAddr
 ) -> GlobalConstant {
   let uid = valueUIDAssigner.assign()
+  let ctx = vty.getContext()
+  let elementTy = match vty.asTypeEnum() {
+    ArrayType(a) => a.getElementType()
+    _ => vty
+  }
+  let vty = match vty.asTypeEnum() {
+    ArrayType(_) => (ctx.getPtrTy() : &Type)
+    _ => vty
+  }
   let users = []
   GlobalConstant::{
     uid,
     vty,
+    elementTy,
     users,
     mod,
     name,
@@ -238,7 +263,7 @@ pub impl GlobalValue for GlobalConstant with getGlobalValueBase(self) {
 
 ///|
 pub impl Show for GlobalConstant with output(self, logger) {
-  let align = self.mod.getDataLayout().getAlignment(self.vty)
+  let align = self.mod.getDataLayout().getAlignment(self.elementTy)
   logger.write_string("@\{self.name} = ")
   let linkage_str = self.linkage.val.to_string()
   if !linkage_str.is_empty() {
