@@ -1076,6 +1076,17 @@ pub fn Context::getConstDoubleArray(
   ConstantArray::newDoubleArray(ty, data)
 }
 
+///|
+pub fn Context::getConstArray(
+  self : Context,
+  elementType : &Type,
+  data : Array[&Constant],
+) -> ConstantArray {
+  let len = data.length()
+  let ty = (try? self.getArrayType(elementType, len)).unwrap()
+  ConstantArray::newConstantArray(ty, data)
+}
+
 // ---------------------------
 
 ///|
@@ -1325,7 +1336,7 @@ pub fn Context::getConstZero(
     FP128Type(t) => ConstantFP::new(t, 0.0)
 
     // Pointer Type
-    PointerType(t) => ConstantPointerNull::new(t)
+    PointerType(_) => ConstantPointerNull::new(self)
 
     // Aggregate and Other Types where zero value is complex or not applicable
     //ArrayType(t) => llvm_unreachable("getConstZero: Unimplemented for ArrayType \{t.to_string()}")
@@ -1355,6 +1366,16 @@ pub fn Context::getConstZero(
       raise LLVMValueError(msg)
     }
   }
+}
+
+///|
+pub fn Context::getConstPointerNull(
+  self : Context,
+  ty: &Type,
+  addressSpace~: UInt = 0,
+) -> ConstantPointerNull {
+  ignore(ty) // TODO: remove this in the future.
+  ConstantPointerNull::new(self, addressSpace~)
 }
 
 ///|

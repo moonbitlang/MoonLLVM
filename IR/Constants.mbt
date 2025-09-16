@@ -1041,8 +1041,7 @@ pub fn ConstantInt::sitofp(self : ConstantInt, dst_ty : &FPType) -> ConstantFP {
 /// ```
 pub fn ConstantInt::inttoptr(self : ConstantInt) -> ConstantPointerNull {
   let ctx = self.getType().getContext()
-  let ptr_ty = ctx.getPtrTy()
-  ConstantPointerNull::new(ptr_ty)
+  ConstantPointerNull::new(ctx)
 }
 
 ///|
@@ -1761,10 +1760,8 @@ pub struct ConstantPointerNull {
 } derive(Eq)
 
 ///|
-fn ConstantPointerNull::new(vty : PointerType) -> ConstantPointerNull {
-  guard vty.asTypeEnum() is PointerType(_) else {
-    llvm_unreachable("ConstantPointerNull::new: vty is not PointerType")
-  }
+fn ConstantPointerNull::new(ctx: Context, addressSpace~: UInt = 0) -> ConstantPointerNull {
+  let vty = PointerType::new(ctx, addressSpace=AddressSpace(addressSpace))
   let uid = valueUIDAssigner.assign()
   ConstantPointerNull::{ uid, vty }
 }
@@ -2079,6 +2076,29 @@ fn ConstantArray::newDoubleArray(
   ConstantArray::{ uid, vty, data }
 }
 
+fn ConstantArray::newConstantArray(
+  vty : ArrayType,
+  data : Array[&Constant],
+) -> ConstantArray {
+  let eleCnt = vty.getElementCount()
+  guard data.length() == eleCnt else {
+    llvm_unreachable(
+      "ConstantArray::new: data length is not equal to element count",
+    )
+  }
+  let eleTy = vty.elementType
+  let consistency = data
+    .map(d => d.getType())
+    .fold(init=true, fn(acc, ty) { acc && ty == eleTy })
+  guard consistency else {
+    llvm_unreachable(
+      "ConstantArray::new: data type is not consistent with elementType",
+    )
+  }
+  let uid = valueUIDAssigner.assign()
+  ConstantArray::{ uid, vty, data: Either::Left(data) }
+}
+
 ///|
 pub impl Value for ConstantArray with getValueBase(self) {
   ValueBase::{ uid: self.uid, vty: self.vty, users: [] }
@@ -2149,7 +2169,7 @@ pub impl Value for ConstantArray with getNameOrSlot(_) {
 }
 
 ///|
-impl Constant for ConstantArray with asConstantEnum(self) {
+pub impl Constant for ConstantArray with asConstantEnum(self) {
   ConstantArray(self)
 }
 
