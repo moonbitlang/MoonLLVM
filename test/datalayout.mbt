@@ -187,3 +187,170 @@ test "DataLayout Array Types" {
   let outer_array = ctx.getArrayType(inner_array, 3)
   assert_eq(datalayout.getTypeAllocSize(outer_array), 24) // 8 * 3 = 24
 }
+
+///|
+test "DataLayout Struct Offset Basic" {
+  let ctx = Context::new()
+  let mod = ctx.addModule("offset_basic")
+  let datalayout = mod.getDataLayout()
+  let i8ty = ctx.getInt8Ty()
+  let i16ty = ctx.getInt16Ty()
+  let i32ty = ctx.getInt32Ty()
+  let i64ty = ctx.getInt64Ty()
+
+  // Test basic offset calculation
+  // struct { i8, i32, i16 } - with alignment padding
+  let basic_struct = ctx.getStructType([i8ty, i32ty, i16ty])
+
+  // Field offsets:
+  // i8:  offset 0
+  // i32: offset 4 (aligned to 4 bytes)
+  // i16: offset 8 (aligned to 2 bytes)
+  assert_eq(datalayout.getStructTypeOffset(basic_struct, 0), 0) // i8 at offset 0
+  assert_eq(datalayout.getStructTypeOffset(basic_struct, 1), 4) // i32 at offset 4
+  assert_eq(datalayout.getStructTypeOffset(basic_struct, 2), 8) // i16 at offset 8
+
+  // Test struct with larger alignment requirements
+  // struct { i8, i64, i8 }
+  let align_struct = ctx.getStructType([i8ty, i64ty, i8ty])
+
+  // Field offsets:
+  // i8:  offset 0
+  // i64: offset 8 (aligned to 8 bytes)
+  // i8:  offset 16
+  assert_eq(datalayout.getStructTypeOffset(align_struct, 0), 0) // i8 at offset 0
+  assert_eq(datalayout.getStructTypeOffset(align_struct, 1), 8) // i64 at offset 8
+  assert_eq(datalayout.getStructTypeOffset(align_struct, 2), 16) // i8 at offset 16
+}
+
+///|
+test "DataLayout Struct Offset Packed vs Non-Packed" {
+  let ctx = Context::new()
+  let mod = ctx.addModule("offset_packed")
+  let datalayout = mod.getDataLayout()
+  let i8ty = ctx.getInt8Ty()
+  let i32ty = ctx.getInt32Ty()
+  let i64ty = ctx.getInt64Ty()
+
+  // Test non-packed struct
+  let normal_struct = ctx.getStructType([i8ty, i32ty, i64ty])
+
+  // Non-packed offsets (with alignment):
+  // i8:  offset 0
+  // i32: offset 4 (aligned to 4 bytes)
+  // i64: offset 8 (aligned to 8 bytes)
+  assert_eq(datalayout.getStructTypeOffset(normal_struct, 0), 0) // i8
+  assert_eq(datalayout.getStructTypeOffset(normal_struct, 1), 4) // i32
+  assert_eq(datalayout.getStructTypeOffset(normal_struct, 2), 8) // i64
+
+  // Test packed struct (no alignment padding)
+  let packed_struct = ctx.getStructType([i8ty, i32ty, i64ty], isPacked=true)
+
+  // Packed offsets (no alignment):
+  // i8:  offset 0
+  // i32: offset 1 (no alignment)
+  // i64: offset 5 (no alignment)
+  assert_eq(datalayout.getStructTypeOffset(packed_struct, 0), 0) // i8
+  assert_eq(datalayout.getStructTypeOffset(packed_struct, 1), 1) // i32
+  assert_eq(datalayout.getStructTypeOffset(packed_struct, 2), 5) // i64
+}
+
+///|
+test "DataLayout Struct Offset Complex Alignment" {
+  let ctx = Context::new()
+  let mod = ctx.addModule("offset_complex")
+  let datalayout = mod.getDataLayout()
+  let i8ty = ctx.getInt8Ty()
+  let i16ty = ctx.getInt16Ty()
+  let i32ty = ctx.getInt32Ty()
+  let i64ty = ctx.getInt64Ty()
+  let f64ty = ctx.getDoubleTy()
+
+  // Test complex struct with multiple alignment requirements
+  // struct { i8, i16, i8, i32, i8, i64, i8, f64 }
+  let complex_struct = ctx.getStructType([
+    i8ty, i16ty, i8ty, i32ty, i8ty, i64ty, i8ty, f64ty,
+  ])
+
+  // Expected offsets:
+  // i8:  offset 0
+  // i16: offset 2 (aligned to 2 bytes, skip 1 byte)
+  // i8:  offset 4 
+  // i32: offset 8 (aligned to 4 bytes, skip 3 bytes)
+  // i8:  offset 12
+  // i64: offset 16 (aligned to 8 bytes, skip 3 bytes)
+  // i8:  offset 24
+  // f64: offset 32 (aligned to 8 bytes, skip 7 bytes)
+  assert_eq(datalayout.getStructTypeOffset(complex_struct, 0), 0) // i8
+  assert_eq(datalayout.getStructTypeOffset(complex_struct, 1), 2) // i16
+  assert_eq(datalayout.getStructTypeOffset(complex_struct, 2), 4) // i8
+  assert_eq(datalayout.getStructTypeOffset(complex_struct, 3), 8) // i32
+  assert_eq(datalayout.getStructTypeOffset(complex_struct, 4), 12) // i8
+  assert_eq(datalayout.getStructTypeOffset(complex_struct, 5), 16) // i64
+  assert_eq(datalayout.getStructTypeOffset(complex_struct, 6), 24) // i8
+  assert_eq(datalayout.getStructTypeOffset(complex_struct, 7), 32) // f64
+}
+
+///|
+test "DataLayout Struct Offset Nested Structs" {
+  let ctx = Context::new()
+  let mod = ctx.addModule("offset_nested")
+  let datalayout = mod.getDataLayout()
+  let i8ty = ctx.getInt8Ty()
+  let i32ty = ctx.getInt32Ty()
+  let i64ty = ctx.getInt64Ty()
+
+  // Create inner structs
+  let inner1 = ctx.getStructType([i8ty, i32ty]) // size 8, align 4
+  let inner2 = ctx.getStructType([i64ty, i8ty]) // size 16, align 8
+
+  // Test nested struct offsets
+  // struct { inner1, i8, inner2 }
+  let nested_struct = ctx.getStructType([inner1, i8ty, inner2])
+
+  // Expected offsets:
+  // inner1: offset 0
+  // i8:     offset 8
+  // inner2: offset 16 (aligned to 8 bytes, skip 7 bytes)
+  assert_eq(datalayout.getStructTypeOffset(nested_struct, 0), 0) // inner1
+  assert_eq(datalayout.getStructTypeOffset(nested_struct, 1), 8) // i8  
+  assert_eq(datalayout.getStructTypeOffset(nested_struct, 2), 16) // inner2
+
+  // Test another arrangement
+  // struct { i8, inner1, inner2 }
+  let nested_struct2 = ctx.getStructType([i8ty, inner1, inner2])
+
+  // Expected offsets:
+  // i8:     offset 0
+  // inner1: offset 4 (aligned to 4 bytes, skip 3 bytes)
+  // inner2: offset 16 (aligned to 8 bytes, skip 4 bytes)
+  assert_eq(datalayout.getStructTypeOffset(nested_struct2, 0), 0) // i8
+  assert_eq(datalayout.getStructTypeOffset(nested_struct2, 1), 4) // inner1
+  assert_eq(datalayout.getStructTypeOffset(nested_struct2, 2), 16) // inner2
+}
+
+///|
+test "DataLayout Struct Offset Edge Cases" {
+  let ctx = Context::new()
+  let mod = ctx.addModule("offset_edge")
+  let datalayout = mod.getDataLayout()
+  let i8ty = ctx.getInt8Ty()
+  let i32ty = ctx.getInt32Ty()
+
+  // Test boundary conditions
+  let test_struct = ctx.getStructType([i8ty, i32ty, i8ty])
+
+  // Test invalid indices
+  assert_eq(datalayout.getStructTypeOffset(test_struct, -1), 0) // negative index
+  assert_eq(datalayout.getStructTypeOffset(test_struct, 3), 0) // out of bounds
+  assert_eq(datalayout.getStructTypeOffset(test_struct, 10), 0) // way out of bounds
+
+  // Test empty struct
+  let empty_struct = ctx.getStructType([], name="empty_offset")
+  assert_eq(datalayout.getStructTypeOffset(empty_struct, 0), 0) // empty struct
+
+  // Test single element struct
+  let single_struct = ctx.getStructType([i32ty])
+  assert_eq(datalayout.getStructTypeOffset(single_struct, 0), 0) // single element at 0
+  assert_eq(datalayout.getStructTypeOffset(single_struct, 1), 0) // out of bounds
+}

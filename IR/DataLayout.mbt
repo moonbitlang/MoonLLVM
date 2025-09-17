@@ -175,15 +175,41 @@ pub fn DataLayout::getStructTypeOffset(
 ) -> Int {
   letrec align_to = (size, align) => (size + align - 1) / align * align
 
+  // Handle bounds checking
+  if index < 0 || index >= sty.elements().length() {
+    return 0 // Return 0 for invalid indices
+  }
+
+  // Handle empty/opaque structs
+  if sty.isOpaque() || sty.elements().length() == 0 {
+    return 0
+  }
   let mut offset : Int = 0
-  for i, ele in sty.elements {
-    if i == index {
-      break
+
+  // For packed structs, no alignment padding between fields
+  if sty.isPacked() {
+    for i in 0..<index {
+      let ele = sty.elements()[i]
+      offset += DataLayout::getTypeAllocSize(self, ele)
     }
+    return offset
+  }
+
+  // For non-packed structs, align each field to its natural alignment
+  for i in 0..<index {
+    let ele = sty.elements()[i]
     let Align(align) = DataLayout::getAlignment(self, ele)
     let align = align.to_int()
     offset = align_to(offset, align)
     offset += DataLayout::getTypeAllocSize(self, ele)
+  }
+
+  // Align the offset for the requested element
+  if index < sty.elements().length() {
+    let target_ele = sty.elements()[index]
+    let Align(align) = DataLayout::getAlignment(self, target_ele)
+    let align = align.to_int()
+    offset = align_to(offset, align)
   }
   offset
 }
