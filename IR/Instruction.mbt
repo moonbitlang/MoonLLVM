@@ -1587,7 +1587,7 @@ pub impl Instruction for ICmpInst with getParent(self) {
 }
 
 ///|
-impl Show for ICmpInst with output(self, logger) {
+pub impl Show for ICmpInst with output(self, logger) {
   let lhs_ty = self.lhs.getType()
   let repr = self.getValueRepr()
   let lhs_repr = self.lhs.getValueRepr()

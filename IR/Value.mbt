@@ -143,6 +143,39 @@ pub fn ValueEnum::tryAsInstEnum(self : ValueEnum) -> InstEnum? {
   }
 }
 
+pub fn ValueEnum::asValueClass(self : ValueEnum) -> &Value {
+  match self {
+    Function(f) => f as &Value
+    GlobalVariable(g) => g
+    GlobalConstant(g) => g
+    ConstantInt(c) => c
+    ConstantFP(c) => c
+    ConstantPointerNull(c) => c
+    ConstantArray(c) => c
+    ConstantVector(c) => c
+    ConstantString(c) => c
+    ConstantStruct(c) => c
+    Argument(a) => a
+    BasicBlock(b) => b
+    AllocaInst(i) => i
+    LoadInst(i) => i
+    ExtractValueInst(i) => i
+    CastInst(i) => i
+    BinaryInst(b) => b
+    ICmpInst(i) => i
+    FCmpInst(i) => i
+    StoreInst(s) => s
+    GetElementPtrInst(g) => g
+    SelectInst(s) => s
+    InsertValueInst(i) => i
+    PHINode(p) => p
+    ReturnInst(r) => r
+    BranchInst(b) => b
+    SwitchInst(s) => s
+    CallInst(c) => c
+  }
+}
+
 ///|
 pub trait Value: Show {
   getValueBase(Self) -> ValueBase

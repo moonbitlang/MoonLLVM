@@ -14,6 +14,7 @@ pub struct GlobalVariable {
   visibility: Ref[Visibility]
   unnamed_addr: Ref[UnnamedAddr]
   mut initializer : &Constant?
+  initializerTy : &Type
 }
 
 ///|
@@ -32,6 +33,7 @@ fn GlobalVariable::new(
     ArrayType(a) => a.getElementType()
     _ => vty
   }
+  let initializerTy = vty
   let vty = match vty.asTypeEnum() {
     ArrayType(_) => (ctx.getPtrTy() : &Type)
     _ => vty
@@ -48,6 +50,7 @@ fn GlobalVariable::new(
     visibility: Ref::new(visibility),
     unnamed_addr: Ref::new(unnamed_addr),
     initializer,
+    initializerTy,
   }
 }
 
@@ -129,7 +132,7 @@ pub impl Show for GlobalVariable with output(self, logger) {
   if self.initializer is Some(i) {
     logger.write_string("\{i}")
   } else {
-    logger.write_string("zeroinitializer")
+    logger.write_string("\{self.initializerTy} zeroinitializer")
   }
   logger.write_string(", \{align}\n")
 }
