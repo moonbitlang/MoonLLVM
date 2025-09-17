@@ -143,6 +143,7 @@ pub fn ValueEnum::tryAsInstEnum(self : ValueEnum) -> InstEnum? {
   }
 }
 
+///|
 pub fn ValueEnum::asValueClass(self : ValueEnum) -> &Value {
   match self {
     Function(f) => f as &Value
@@ -593,6 +594,7 @@ pub trait Instruction: Value {
   eraseFromParent(Self) -> Unit = _
 }
 
+///|
 impl Instruction with getModule(self) {
   self.getParent().mod
 }
@@ -821,8 +823,8 @@ impl GlobalValue with setLinkage(self, linkage : Linkage) {
 ///|
 struct GlobalValueBase {
   linkage : Ref[Linkage]
-  visibility: Ref[Visibility]
-  unnamed_addr: Ref[UnnamedAddr]
+  visibility : Ref[Visibility]
+  unnamed_addr : Ref[UnnamedAddr]
   //dllStorageClass: DLLStorageClass
   //threadLocal: ThreadLocalTypes
 }
@@ -888,6 +890,7 @@ pub(all) enum Visibility {
   Protected
 }
 
+///|
 pub impl Show for Visibility with output(self, logger) {
   let s = match self {
     Default => ""
@@ -897,12 +900,14 @@ pub impl Show for Visibility with output(self, logger) {
   logger.write_string(s)
 }
 
+///|
 pub(all) enum UnnamedAddr {
   NoUnnamedAddr
   Local
   Global
 }
 
+///|
 pub impl Show for UnnamedAddr with output(self, logger) {
   let s = match self {
     NoUnnamedAddr => ""

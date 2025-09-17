@@ -278,6 +278,7 @@ pub struct ConstantArray {
   vty : ArrayType
   data : @either.Either[Array[&Constant], NumberArrayEnum]
 }
+impl Constant for ConstantArray
 impl Value for ConstantArray
 impl Eq for ConstantArray
 impl Show for ConstantArray
@@ -288,6 +289,7 @@ pub enum ConstantEnum {
   ConstantPointerNull(ConstantPointerNull)
   ConstantArray(ConstantArray)
   ConstantVector(ConstantVector)
+  ConstantString(ConstantString)
   ConstantStruct(ConstantStruct)
 }
 impl Eq for ConstantEnum
@@ -360,6 +362,16 @@ impl Value for ConstantPointerNull
 impl Eq for ConstantPointerNull
 impl Show for ConstantPointerNull
 
+pub struct ConstantString {
+  uid : UInt64
+  vty : ArrayType
+  data : String
+}
+impl Constant for ConstantString
+impl Value for ConstantString
+impl Eq for ConstantString
+impl Show for ConstantString
+
 pub struct ConstantStruct {
   uid : UInt64
   vty : StructType
@@ -393,6 +405,7 @@ fn Context::addModule(Self, String, source_file? : String?) -> Module
 fn Context::createBuilder(Self) -> IRBuilder
 fn Context::getArrayType(Self, &Type, Int) -> ArrayType raise LLVMTypeError
 fn Context::getBFloatTy(Self) -> BFloatType
+fn Context::getConstArray(Self, &Type, Array[&Constant]) -> ConstantArray
 fn Context::getConstBool(Self, Bool) -> ConstantInt
 fn Context::getConstDouble(Self, Double) -> ConstantFP
 fn Context::getConstDoubleArray(Self, Array[Double]) -> ConstantArray
@@ -417,6 +430,7 @@ fn Context::getConstInt8Array(Self, Array[Int]) -> ConstantArray
 fn Context::getConstInt8Vector(Self, Array[Int]) -> ConstantVector
 fn Context::getConstNaNDouble(Self, isNegative? : Bool) -> ConstantFP
 fn Context::getConstNaNFloat(Self, isNegative? : Bool) -> ConstantFP
+fn Context::getConstPointerNull(Self, &Type, addressSpace? : UInt) -> ConstantPointerNull
 fn Context::getConstQNaNDouble(Self, isNegative? : Bool) -> ConstantFP
 fn Context::getConstQNaNFloat(Self, isNegative? : Bool) -> ConstantFP
 fn Context::getConstSNaNDouble(Self, isNegative? : Bool) -> ConstantFP
@@ -457,7 +471,7 @@ fn Context::new() -> Self
 impl Eq for Context
 impl Hash for Context
 
-pub(all) enum DLLStorageClassTypes {
+pub(all) enum DLLStorageClass {
   DefaultDLLStorageClass
   DLLImportStorageClass
   DLLExportStorageClass
@@ -467,6 +481,7 @@ pub struct DataLayout {
   endian : Endian
 }
 fn DataLayout::getEndian(Self) -> Endian
+fn DataLayout::getStructTypeOffset(Self, StructType, Int) -> Int
 fn DataLayout::getTypeAllocSize(Self, &Type) -> Int
 
 type DoubleArray
@@ -689,7 +704,9 @@ pub struct Function {
   fty : FunctionType
   users : Array[&User]
   linkage : Ref[Linkage]
-  program : Module
+  visibility : Ref[Visibility]
+  unnamed_addr : Ref[UnnamedAddr]
+  mod : Module
   index : Int
   addressSpace : AddressSpace
   arguments : Array[Argument]
@@ -760,15 +777,16 @@ impl Show for GetElementPtrInst
 pub struct GlobalConstant {
   uid : UInt64
   vty : &Type
+  elementTy : &Type
   users : Array[&User]
   mod : Module
-  index : Int
   mut name : String
   linkage : Ref[Linkage]
-  mut initializer : &Constant?
+  visibility : Ref[Visibility]
+  unnamed_addr : Ref[UnnamedAddr]
+  mut value : &Constant
 }
-fn GlobalConstant::removeInitializer(Self) -> Unit
-fn GlobalConstant::setInitializer(Self, &Constant) -> Unit
+fn GlobalConstant::setValue(Self, &Constant) -> Unit
 impl GlobalValue for GlobalConstant
 impl Value for GlobalConstant
 impl Show for GlobalConstant
@@ -784,12 +802,15 @@ pub enum GlobalValueEnum {
 pub struct GlobalVariable {
   uid : UInt64
   vty : &Type
+  elementTy : &Type
   users : Array[&User]
   mod : Module
-  index : Int
   mut name : String
   linkage : Ref[Linkage]
+  visibility : Ref[Visibility]
+  unnamed_addr : Ref[UnnamedAddr]
   mut initializer : &Constant?
+  initializerTy : &Type
 }
 fn GlobalVariable::removeInitializer(Self) -> Unit
 fn GlobalVariable::setInitializer(Self, &Constant) -> Unit
@@ -823,6 +844,7 @@ pub struct ICmpInst {
 impl Instruction for ICmpInst
 impl User for ICmpInst
 impl Value for ICmpInst
+impl Show for ICmpInst
 
 pub struct IRBuilder {
   ctx : Context
@@ -865,6 +887,7 @@ fn IRBuilder::createFPTrunc(Self, &Value, &FPType, name? : String) -> &Value rai
 fn IRBuilder::createFRem(Self, &Value, &Value, name? : String, fast_math_flags? : @set.Set[FastMathFlag]) -> &Value raise
 fn IRBuilder::createFSub(Self, &Value, &Value, name? : String, fast_math_flags? : @set.Set[FastMathFlag]) -> &Value raise
 fn IRBuilder::createGEP(Self, &Value, &Type, Array[&Value], name? : String, inbounds? : Bool) -> &Value raise
+fn IRBuilder::createGlobalString(Self, String, name? : String) -> GlobalConstant raise
 fn IRBuilder::createICmp(Self, IntPredicate, &Value, &Value, name? : String) -> &Value raise
 fn IRBuilder::createICmpEQ(Self, &Value, &Value, name? : String) -> &Value raise
 fn IRBuilder::createICmpNE(Self, &Value, &Value, name? : String) -> &Value raise
@@ -907,8 +930,10 @@ fn IRBuilder::createUIToFP(Self, &Value, &FPType, name? : String) -> &Value rais
 fn IRBuilder::createURem(Self, &Value, &Value, name? : String) -> &Value raise
 fn IRBuilder::createXor(Self, &Value, &Value, name? : String) -> &Value raise
 fn IRBuilder::createZExt(Self, &Value, &IntegerType, name? : String) -> &Value raise
+fn IRBuilder::getContext(Self) -> Context
 fn IRBuilder::getInsertBlock(Self) -> BasicBlock
 fn IRBuilder::getInsertFunction(Self) -> Function
+fn IRBuilder::getModule(Self) -> Module
 fn[T : InsertPoint] IRBuilder::setInsertPoint(Self, T) -> Unit
 
 pub struct InsertValueInst {
@@ -1080,17 +1105,17 @@ impl Hash for LabelType
 impl Show for LabelType
 
 pub(all) enum Linkage {
-  ExternalLinkage
-  AvailableExternallyLinkage
-  LinkOnceAnyLinkage
-  LinkOnceODRLinkage
-  WeakAnyLinkage
-  WeakODRLinkage
-  AppendingLinkage
-  InternalLinkage
-  PrivateLinkage
-  ExternalWeakLinkage
-  CommonLinkage
+  External
+  AvailableExternally
+  LinkOnceAny
+  LinkOnceODR
+  WeakAny
+  WeakODR
+  Appending
+  Internal
+  Private
+  ExternalWeak
+  Common
 }
 impl Show for Linkage
 
@@ -1142,14 +1167,17 @@ impl Show for MetadataType
 
 pub struct Module {
   context : Context
+  functions : Map[String, Function]
   globals : Map[String, &GlobalValue]
+  mut globalstr_count : Int
   srcFileName : String
   moduleID : String
   dataLayout : DataLayout
 }
-fn Module::addFunction(Self, FunctionType, String, linkage? : Linkage, addressSpace? : AddressSpace) -> Function raise LLVMValueError
-fn Module::addGlobalConstant(Self, &Type, String, initializer? : &Constant, linkage? : Linkage) -> GlobalConstant raise LLVMValueError
-fn Module::addGlobalVariable(Self, &Type, String, initializer? : &Constant, linkage? : Linkage) -> GlobalVariable raise LLVMValueError
+fn Module::addFunction(Self, FunctionType, String, linkage? : Linkage, visibility? : Visibility, unnamed_addr? : UnnamedAddr, addressSpace? : AddressSpace) -> Function raise LLVMValueError
+fn Module::addGlobalConstant(Self, &Type, String, &Constant, linkage? : Linkage, visibility? : Visibility, unnamed_addr? : UnnamedAddr) -> GlobalConstant raise LLVMValueError
+fn Module::addGlobalString(Self, String, name? : String) -> GlobalConstant raise
+fn Module::addGlobalVariable(Self, &Type, String, initializer? : &Constant, linkage? : Linkage, visibility? : Visibility, unnamed_addr? : UnnamedAddr) -> GlobalVariable raise LLVMValueError
 fn Module::dump(Self) -> Unit
 fn Module::getContext(Self) -> Context
 fn Module::getDataLayout(Self) -> DataLayout
@@ -1499,6 +1527,13 @@ pub enum UnaryInstEnum {
   CastInst(CastInst)
 }
 
+pub(all) enum UnnamedAddr {
+  NoUnnamedAddr
+  Local
+  Global
+}
+impl Show for UnnamedAddr
+
 type UserBase
 impl Eq for UserBase
 
@@ -1533,6 +1568,7 @@ pub enum ValueEnum {
   ConstantPointerNull(ConstantPointerNull)
   ConstantArray(ConstantArray)
   ConstantVector(ConstantVector)
+  ConstantString(ConstantString)
   ConstantStruct(ConstantStruct)
   Argument(Argument)
   BasicBlock(BasicBlock)
@@ -1553,6 +1589,7 @@ pub enum ValueEnum {
   SwitchInst(SwitchInst)
   CallInst(CallInst)
 }
+fn ValueEnum::asValueClass(Self) -> &Value
 fn ValueEnum::tryAsConstantEnum(Self) -> ConstantEnum?
 fn ValueEnum::tryAsInstEnum(Self) -> InstEnum?
 fn ValueEnum::tryAsUserEnum(Self) -> UserEnum?
@@ -1570,11 +1607,12 @@ impl Eq for VectorType
 impl Hash for VectorType
 impl Show for VectorType
 
-pub(all) enum VisibilityTypes {
-  DefaultVisibility
-  HiddenVisibility
-  ProtectedVisibility
+pub(all) enum Visibility {
+  Default
+  Hidden
+  Protected
 }
+impl Show for Visibility
 
 pub struct VoidType {
   ctx : Context
@@ -1586,6 +1624,9 @@ impl Hash for VoidType
 impl Show for VoidType
 
 impl Eq for &User
+
+impl Eq for &Value
+impl Hash for &Value
 
 // Type aliases
 
@@ -1629,6 +1670,7 @@ pub trait Instruction : Value {
   getInstBase(Self) -> InstBase
   asInstEnum(Self) -> InstEnum
   getParent(Self) -> Function
+  getModule(Self) -> Module
   getBasicBlock(Self) -> BasicBlock?
   getInstName(Self) -> String?
   isIndependent(Self) -> Bool

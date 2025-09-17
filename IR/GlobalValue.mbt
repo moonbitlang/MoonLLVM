@@ -6,25 +6,25 @@
 pub struct GlobalVariable {
   uid : UInt64
   vty : &Type
-  elementTy: &Type
+  elementTy : &Type
   users : Array[&User]
   mod : Module
   mut name : String
   linkage : Ref[Linkage]
-  visibility: Ref[Visibility]
-  unnamed_addr: Ref[UnnamedAddr]
+  visibility : Ref[Visibility]
+  unnamed_addr : Ref[UnnamedAddr]
   mut initializer : &Constant?
   initializerTy : &Type
 }
 
 ///|
 fn GlobalVariable::new(
-  vty: &Type,
+  vty : &Type,
   name : String,
   initializer~ : &Constant?,
   linkage~ : Linkage,
-  visibility~ : Visibility = Visibility::Default,
-  unnamed_addr~ : UnnamedAddr = UnnamedAddr::NoUnnamedAddr,
+  visibility? : Visibility = Visibility::Default,
+  unnamed_addr? : UnnamedAddr = UnnamedAddr::NoUnnamedAddr,
   mod : Module,
 ) -> GlobalVariable {
   let uid = valueUIDAssigner.assign()
@@ -109,7 +109,11 @@ pub impl GlobalValue for GlobalVariable with asGlobalValueEnum(self) {
 
 ///|
 pub impl GlobalValue for GlobalVariable with getGlobalValueBase(self) {
-  GlobalValueBase::{ linkage: self.linkage, visibility: self.visibility, unnamed_addr: self.unnamed_addr }
+  GlobalValueBase::{
+    linkage: self.linkage,
+    visibility: self.visibility,
+    unnamed_addr: self.unnamed_addr,
+  }
 }
 
 ///|
@@ -158,16 +162,16 @@ pub fn GlobalVariable::removeInitializer(self : GlobalVariable) -> Unit {
 pub struct GlobalConstant {
   uid : UInt64
   vty : &Type
-  
+
   // For Global Array, it's type is PointerType, 
   // and it has element type
-  elementTy: &Type
+  elementTy : &Type
   users : Array[&User]
   mod : Module
   mut name : String
   linkage : Ref[Linkage]
-  visibility: Ref[Visibility]
-  unnamed_addr: Ref[UnnamedAddr]
+  visibility : Ref[Visibility]
+  unnamed_addr : Ref[UnnamedAddr]
   mut value : &Constant
 }
 
@@ -179,7 +183,7 @@ fn GlobalConstant::new(
   mod : Module,
   linkage~ : Linkage,
   visibility~ : Visibility,
-  unnamed_addr~ : UnnamedAddr
+  unnamed_addr~ : UnnamedAddr,
 ) -> GlobalConstant {
   let uid = valueUIDAssigner.assign()
   let ctx = vty.getContext()
@@ -261,7 +265,11 @@ pub impl GlobalValue for GlobalConstant with asGlobalValueEnum(self) {
 
 ///|
 pub impl GlobalValue for GlobalConstant with getGlobalValueBase(self) {
-  GlobalValueBase::{ linkage: self.linkage, visibility: self.visibility, unnamed_addr: self.unnamed_addr }
+  GlobalValueBase::{
+    linkage: self.linkage,
+    visibility: self.visibility,
+    unnamed_addr: self.unnamed_addr,
+  }
 }
 
 ///|

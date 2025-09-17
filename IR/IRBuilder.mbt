@@ -75,12 +75,13 @@ pub fn IRBuilder::getInsertBlock(self : IRBuilder) -> BasicBlock {
   self.bb.unwrap()
 }
 
+///|
 pub fn IRBuilder::getContext(self : IRBuilder) -> Context {
   self.ctx
 }
 
 ///|
-pub fn IRBuilder::getModule(self: IRBuilder) -> Module {
+pub fn IRBuilder::getModule(self : IRBuilder) -> Module {
   self.getInsertFunction().mod
 }
 
@@ -3593,8 +3594,13 @@ pub fn IRBuilder::createCall(
     }
   }
   fn min(a, b) {
-    if a < b { a } else { b }
+    if a < b {
+      a
+    } else {
+      b
+    }
   }
+
   let min_param_cnt = min(num_args, expected_params)
   for i in 0..<min_param_cnt {
     let arg_ty = args[i].getType()
@@ -3755,9 +3761,9 @@ pub fn IRBuilder::createInsertValue(
 
 ///|
 pub fn IRBuilder::createGlobalString(
-  self: Self,
-  string: String,
-  name? : String = ""
+  self : Self,
+  string : String,
+  name? : String = "",
 ) -> GlobalConstant raise {
   let mod = self.getModule()
   mod.addGlobalString(string, name~)

@@ -212,8 +212,8 @@ pub struct Function {
   // Users of the function.
   users : Array[&User]
   linkage : Ref[Linkage]
-  visibility: Ref[Visibility]
-  unnamed_addr: Ref[UnnamedAddr]
+  visibility : Ref[Visibility]
+  unnamed_addr : Ref[UnnamedAddr]
   mod : Module
   /// index of the function in the program
   index : Int
@@ -502,7 +502,7 @@ pub impl GlobalValue for Function with getGlobalValueBase(self) {
   GlobalValueBase::{
     linkage: self.linkage,
     visibility: self.visibility,
-    unnamed_addr: self.unnamed_addr
+    unnamed_addr: self.unnamed_addr,
   }
 }
 

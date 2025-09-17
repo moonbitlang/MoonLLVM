@@ -1371,8 +1371,8 @@ pub fn Context::getConstZero(
 ///|
 pub fn Context::getConstPointerNull(
   self : Context,
-  ty: &Type,
-  addressSpace~: UInt = 0,
+  ty : &Type,
+  addressSpace? : UInt = 0,
 ) -> ConstantPointerNull {
   ignore(ty) // TODO: remove this in the future.
   ConstantPointerNull::new(self, addressSpace~)

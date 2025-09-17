@@ -1760,7 +1760,10 @@ pub struct ConstantPointerNull {
 } derive(Eq)
 
 ///|
-fn ConstantPointerNull::new(ctx: Context, addressSpace~: UInt = 0) -> ConstantPointerNull {
+fn ConstantPointerNull::new(
+  ctx : Context,
+  addressSpace? : UInt = 0,
+) -> ConstantPointerNull {
   let vty = PointerType::new(ctx, addressSpace=AddressSpace(addressSpace))
   let uid = valueUIDAssigner.assign()
   ConstantPointerNull::{ uid, vty }
@@ -2076,6 +2079,7 @@ fn ConstantArray::newDoubleArray(
   ConstantArray::{ uid, vty, data }
 }
 
+///|
 fn ConstantArray::newConstantArray(
   vty : ArrayType,
   data : Array[&Constant],
@@ -2747,6 +2751,7 @@ pub impl Show for ConstantStruct with output(self, logger) {
 // ConstantString
 // ====================================================================
 
+///|
 pub struct ConstantString {
   // unique identifier for this value
   uid : UInt64
@@ -2755,23 +2760,27 @@ pub struct ConstantString {
   vty : ArrayType
 
   // the value of this constant
-  data: String
+  data : String
 } derive(Eq)
 
-fn ConstantString::new(ctx: Context, data: String) -> ConstantString {
+///|
+fn ConstantString::new(ctx : Context, data : String) -> ConstantString {
   let vty = (try? ctx.getArrayType(ctx.getInt8Ty(), data.length() + 1)).unwrap()
   let uid = valueUIDAssigner.assign()
   ConstantString::{ uid, vty, data }
 }
 
+///|
 pub impl Value for ConstantString with getValueBase(self) -> ValueBase {
   ValueBase::{ uid: self.uid, vty: self.vty, users: [] }
 }
 
+///|
 pub impl Value for ConstantString with asValueEnum(self) -> ValueEnum {
   ConstantString(self)
 }
 
+///|
 pub impl Value for ConstantString with getValueRepr(self) -> String {
   let str_builder = StringBuilder::new()
   for c in self.data {
@@ -2785,33 +2794,38 @@ pub impl Value for ConstantString with getValueRepr(self) -> String {
     }
   }
   str_builder.write_string("\\00")
-  let s= str_builder.to_string()
+  let s = str_builder.to_string()
   "c\"\{s}\""
 }
 
+///|
 pub impl Value for ConstantString with getName(_) {
   None
 }
 
+///|
 pub impl Value for ConstantString with setName(_, _) {
   let msg = "Calling always failed function `ConstantString::setName`. " +
     "Set name for ConstantString is not allowed."
   raise LLVMValueError(msg)
 }
 
-
+///|
 pub impl Value for ConstantString with removeName(_) {
   ()
 }
 
+///|
 pub impl Value for ConstantString with getNameOrSlot(_) {
   None
 }
 
+///|
 pub impl Constant for ConstantString with asConstantEnum(self) -> ConstantEnum {
   ConstantString(self)
 }
 
+///|
 pub impl Show for ConstantString with output(self, logger) {
   let val_str = self.getValueRepr()
   let len = self.data.length() + 1

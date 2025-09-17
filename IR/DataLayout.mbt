@@ -149,7 +149,13 @@ fn DataLayout::getAlignment(self : DataLayout, ty : &Type) -> Align {
 
 //
 // Note: It did not consider the packed struct
-pub fn DataLayout::getStructTypeOffset(self: Self, sty: StructType, index: Int) -> Int {
+
+///|
+pub fn DataLayout::getStructTypeOffset(
+  self : Self,
+  sty : StructType,
+  index : Int,
+) -> Int {
   letrec align_to = (size, align) => (size + align - 1) / align * align
 
   let mut offset : Int = 0
