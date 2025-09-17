@@ -85,6 +85,19 @@ pub fn DataLayout::getTypeAllocSize(self : Self, ty : &Type) -> Int {
 fn DataLayout::getStructTypeAllocSize(self : Self, ty : StructType) -> Int {
   letrec align_to = (size, align) => (size + align - 1) / align * align
 
+  // Handle packed structs specially
+  if ty.isPacked() {
+    let mut size : Int = 0
+    for ele in ty.elements {
+      size += DataLayout::getTypeAllocSize(self, ele)
+    }
+    return size
+  }
+
+  // Handle empty/opaque structs
+  if ty.isOpaque() || ty.elements().length() == 0 {
+    return 0
+  }
   let mut size : Int = 0
   for ele in ty.elements {
     let Align(align) = DataLayout::getAlignment(self, ele)
@@ -92,17 +105,21 @@ fn DataLayout::getStructTypeAllocSize(self : Self, ty : StructType) -> Int {
     size = align_to(size, align)
     size += DataLayout::getTypeAllocSize(self, ele)
   }
+
+  // Add tail padding to align to the struct's natural alignment
+  let Align(struct_align) = DataLayout::getAlignment(self, ty)
+  let struct_align = struct_align.to_int()
+  size = align_to(size, struct_align)
   size
 }
 
 ///|
 fn DataLayout::getArrayTypeAllocSize(self : Self, ty : ArrayType) -> Int {
-  let Align(align) = DataLayout::getAlignment(self, ty.getElementType())
-  let align = align.to_int()
-  let size = DataLayout::getTypeAllocSize(self, ty.getElementType())
+  let element_size = DataLayout::getTypeAllocSize(self, ty.getElementType())
   let count = ty.getElementCount()
-  // Align the size to the element alignment
-  (size * count + align - 1) / align * align
+
+  // Arrays don't add extra padding beyond what elements need
+  element_size * count
 }
 
 ///|
