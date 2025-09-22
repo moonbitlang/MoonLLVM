@@ -85,6 +85,10 @@ pub fn Argument::addAttr(self : Argument, attr : ParamAttr) -> Unit {
   attrSet.add(attr)
 }
 
+pub fn Argument::getModule(self : Argument) -> Module {
+  self.parent.getModule()
+}
+
 ///|
 pub impl Value for Argument with getValueBase(self) {
   ValueBase::{ uid: self.uid, vty: self.vty, users: self.users }
@@ -283,6 +287,11 @@ fn Function::new(
 // TODO: Not fully implemented.
 
 ///|
+pub fn Function::getModule(self : Function) -> Module {
+  self.mod
+}
+
+///|
 pub fn Function::getFunctionType(self : Function) -> FunctionType {
   self.fty
 }
@@ -315,6 +324,14 @@ pub fn Function::getParamTypes(self : Function) -> Array[&Type] {
 ///|
 pub fn Function::getNumBasicBlocks(self : Function) -> Int {
   self.basicBlocks.length()
+}
+
+pub fn Function::getEntryBlock(self : Function) -> BasicBlock? {
+  when(self.basicBlocks.length() > 0, fn() { self.basicBlocks[0] })
+}
+
+pub fn Function::isDeclaration(self : Function) -> Bool {
+  self.basicBlocks.length() == 0
 }
 
 ///|

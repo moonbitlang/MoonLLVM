@@ -584,6 +584,7 @@ pub trait Instruction: Value {
   getBasicBlock(Self) -> BasicBlock? = _
   getInstName(Self) -> String? = _
   isIndependent(Self) -> Bool = _
+  isTerminator(Self) -> Bool = _
   next(Self) -> &Instruction? = _
   prev(Self) -> &Instruction? = _
   insertAfter(Self, &Instruction) -> Unit raise LLVMValueError = _
@@ -632,6 +633,15 @@ impl Instruction with isIndependent(self) {
   let prev = self.prev()
   let next = self.next()
   bb is None && prev is None && next is None
+}
+
+impl Instruction with isTerminator(self) {
+  match self.asInstEnum() {
+    ReturnInst(_) => true
+    BranchInst(_) => true
+    SwitchInst(_) => true
+    _ => false
+  }
 }
 
 ///|
