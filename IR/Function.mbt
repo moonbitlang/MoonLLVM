@@ -85,6 +85,7 @@ pub fn Argument::addAttr(self : Argument, attr : ParamAttr) -> Unit {
   attrSet.add(attr)
 }
 
+///|
 pub fn Argument::getModule(self : Argument) -> Module {
   self.parent.getModule()
 }
@@ -326,10 +327,12 @@ pub fn Function::getNumBasicBlocks(self : Function) -> Int {
   self.basicBlocks.length()
 }
 
+///|
 pub fn Function::getEntryBlock(self : Function) -> BasicBlock? {
   when(self.basicBlocks.length() > 0, fn() { self.basicBlocks[0] })
 }
 
+///|
 pub fn Function::isDeclaration(self : Function) -> Bool {
   self.basicBlocks.length() == 0
 }

@@ -127,7 +127,7 @@ test "Struct Type Functionality Test" {
   let f64ty = ctx.getDoubleTy()
 
   // opaque and anonymous is not allowed
-  assert_true((try? ctx.getStructType([])).is_err())
+  assert_true((try? ctx.getStructType([])) is Err(_))
 
   // opaque
   let opaque_ty = ctx.getStructType([], name="bar")
@@ -143,20 +143,20 @@ test "Struct Type Functionality Test" {
   assert_eq(named.getName().unwrap(), "foo")
 
   // setName for literal
-  assert_true((try? literal.setName("foo")).is_err()) // will raise DuplicateStructName Error
-  assert_true((try? named.setName("baz")).is_ok())
+  assert_true((try? literal.setName("foo")) is Err(_)) // will raise DuplicateStructName Error
+  assert_true((try? named.setName("baz")) is Ok(_))
   assert_eq(named.getName().unwrap(), "baz")
-  assert_true((try? literal.setName("foo")).is_ok())
+  assert_true((try? literal.setName("foo")) is Ok(_))
   inspect(literal.full_info(), content="%foo = type { i32, float, double }")
 
   // setBody for opaque
   let elements : Array[&Type] = [f64ty, i32ty, f32ty]
-  assert_true((try? opaque_ty.setBody(elements, isPacked=true)).is_ok())
+  assert_true((try? opaque_ty.setBody(elements, isPacked=true)) is Ok(_))
   inspect(opaque_ty.full_info(), content="%bar = type <{ double, i32, float }>")
   assert_false(opaque_ty.isOpaque())
 
   // Ensure the body will not effect by changing the elements outside.
   elements.push(f32ty)
   inspect(opaque_ty.full_info(), content="%bar = type <{ double, i32, float }>")
-  assert_false((try? opaque_ty.setBody(elements, isPacked=false)).is_ok())
+  assert_false((try? opaque_ty.setBody(elements, isPacked=false)) is Ok(_))
 }

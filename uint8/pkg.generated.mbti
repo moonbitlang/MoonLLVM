@@ -13,6 +13,7 @@ pub struct UInt8(Byte)
 fn UInt8::from(Byte) -> Self
 fn UInt8::from_int64(Int64) -> Self
 fn UInt8::from_uint64(UInt64) -> Self
+#deprecated
 fn UInt8::inner(Self) -> Byte
 fn UInt8::to_int(Self) -> Int
 fn UInt8::to_int64(Self) -> Int64

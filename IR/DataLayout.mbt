@@ -14,6 +14,7 @@ fn Align::isPowerOfTwo(n : UInt64) -> Bool {
   n > 0 && (n & (n - 1)) == 0
 }
 
+///|
 pub fn Align::to_int64(self : Align) -> Int64 {
   let Align(v) = self
   v.reinterpret_as_int64()

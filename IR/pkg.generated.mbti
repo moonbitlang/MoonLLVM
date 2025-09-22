@@ -29,6 +29,7 @@ pub enum AbstractTypeEnum {
 impl Show for AbstractTypeEnum
 
 pub struct AddressSpace(UInt)
+#deprecated
 fn AddressSpace::inner(Self) -> UInt
 fn AddressSpace::new(UInt) -> Self
 impl Default for AddressSpace
@@ -50,6 +51,7 @@ impl Show for AggregateTypeEnum
 
 type Align
 fn Align::new(UInt64) -> Self
+fn Align::to_int64(Self) -> Int64
 impl Eq for Align
 impl Show for Align
 
@@ -79,6 +81,7 @@ pub struct Argument {
   mut name : String?
 }
 fn Argument::addAttr(Self, ParamAttr) -> Unit
+fn Argument::getModule(Self) -> Module
 impl Value for Argument
 impl Show for Argument
 
@@ -131,12 +134,16 @@ pub struct BasicBlock {
 }
 fn BasicBlock::firstInst(Self) -> &Instruction?
 fn BasicBlock::getLabel(Self) -> String
+fn BasicBlock::getModule(Self) -> Module
 fn BasicBlock::getParent(Self) -> Function
+fn BasicBlock::getSuccessors(Self) -> Array[Self]
+fn BasicBlock::getTerminator(Self) -> &Instruction?
 fn BasicBlock::instIter(Self) -> Iter[&Instruction]
 fn BasicBlock::lastInst(Self) -> &Instruction?
 impl InsertPoint for BasicBlock
 impl Value for BasicBlock
 impl Eq for BasicBlock
+impl Hash for BasicBlock
 impl Show for BasicBlock
 
 pub struct BinaryInst {
@@ -720,8 +727,10 @@ fn Function::addBasicBlock(Self, name? : String, before? : BasicBlock?) -> Basic
 fn Function::clearSlot(Self) -> Unit
 fn Function::getArg(Self, Int) -> Argument?
 fn Function::getDataLayout(Self) -> DataLayout
+fn Function::getEntryBlock(Self) -> BasicBlock?
 fn Function::getFunctionAttrs(Self) -> @set.Set[FnAttr]
 fn Function::getFunctionType(Self) -> FunctionType
+fn Function::getModule(Self) -> Module
 fn Function::getNumArgs(Self) -> Int
 fn Function::getNumBasicBlocks(Self) -> Int
 fn Function::getNumParams(Self) -> Int
@@ -731,6 +740,7 @@ fn Function::getReturnAttrs(Self) -> @set.Set[RetAttr]
 fn Function::getReturnType(Self) -> &Type
 fn[V : Value] Function::getSlot(Self, V) -> UInt64?
 fn Function::hasBody(Self) -> Bool
+fn Function::isDeclaration(Self) -> Bool
 fn Function::processSlot(Self) -> Unit
 impl GlobalValue for Function
 impl Value for Function
@@ -1674,6 +1684,7 @@ pub trait Instruction : Value {
   getBasicBlock(Self) -> BasicBlock?
   getInstName(Self) -> String?
   isIndependent(Self) -> Bool
+  isTerminator(Self) -> Bool
   next(Self) -> &Instruction?
   prev(Self) -> &Instruction?
   insertAfter(Self, &Instruction) -> Unit raise LLVMValueError

@@ -635,6 +635,7 @@ impl Instruction with isIndependent(self) {
   bb is None && prev is None && next is None
 }
 
+///|
 impl Instruction with isTerminator(self) {
   match self.asInstEnum() {
     ReturnInst(_) => true

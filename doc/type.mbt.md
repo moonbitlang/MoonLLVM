@@ -3,6 +3,7 @@
 Initial a new type.
 
 ```moonbit
+///|
 test "Init Type" {
   let ctx = @IR.Context::new()
 
@@ -33,7 +34,7 @@ test "Init Type" {
   // Struct Type
   // Notice that this may raise error, because some type cannot be one of element type of
   // struction, for example, FunctionType.(You can only store function pointer to it).
-  let struct_type = ctx.getStructType([i16ty, i32ty, i64ty], name = "foo")
+  let struct_type = ctx.getStructType([i16ty, i32ty, i64ty], name="foo")
   inspect(struct_type, content="%foo")
 }
 ```

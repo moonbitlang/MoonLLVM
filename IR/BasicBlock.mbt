@@ -137,10 +137,12 @@ pub fn BasicBlock::getParent(self : BasicBlock) -> Function {
   self.parent
 }
 
+///|
 pub fn BasicBlock::getModule(self : BasicBlock) -> Module {
   self.parent.getModule()
 }
 
+///|
 pub fn BasicBlock::getTerminator(self : BasicBlock) -> &Instruction? {
   match self.lastInst() {
     Some(inst) if inst.isTerminator() => Some(inst)
@@ -148,23 +150,25 @@ pub fn BasicBlock::getTerminator(self : BasicBlock) -> &Instruction? {
   }
 }
 
+///|
 pub fn BasicBlock::getSuccessors(self : BasicBlock) -> Array[BasicBlock] {
   match self.getTerminator() {
-    Some(term) => match term.asInstEnum() {
-      BranchInst({trueBlock: Some(true_bb), falseBlock: Some(false_bb), ..}) =>
-        [true_bb, false_bb]
-      BranchInst({trueBlock: Some(true_bb), falseBlock: None, ..}) =>
-        [true_bb]
-      SwitchInst({defaultDest, cases, ..}) => {
-        let succs : Array[BasicBlock] = [defaultDest]
-        for case in cases {
-          let (_, bb) = case
-          succs.push(bb)
+    Some(term) =>
+      match term.asInstEnum() {
+        BranchInst({ trueBlock: Some(true_bb), falseBlock: Some(false_bb), .. }) =>
+          [true_bb, false_bb]
+        BranchInst({ trueBlock: Some(true_bb), falseBlock: None, .. }) =>
+          [true_bb]
+        SwitchInst({ defaultDest, cases, .. }) => {
+          let succs : Array[BasicBlock] = [defaultDest]
+          for case in cases {
+            let (_, bb) = case
+            succs.push(bb)
+          }
+          succs
         }
-        succs
+        _ => []
       }
-      _ => []
-    }
     None => []
   }
 }
