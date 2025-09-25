@@ -321,11 +321,11 @@ pub fn Context::getFunctionType(
 /// inspect(sty.full_info(), content="%foo = type { i32, float, double }")
 ///
 /// // Cannot create a ananymous struct type with empty elements.
-/// assert_true((try? ctx.getStructType([])).is_err())
+/// assert_true((try? ctx.getStructType([])) is Err(_))
 ///
 /// // Cannot create a struct which has same name with other struct.
 /// // the `foo` struct is already created.
-/// assert_true((try? ctx.getStructType([], name="foo")).is_err())
+/// assert_true((try? ctx.getStructType([], name="foo")) is Err(_))
 /// ```
 pub fn Context::getStructType(
   self : Context,

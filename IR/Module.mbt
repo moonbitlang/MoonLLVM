@@ -3,6 +3,7 @@ pub struct Module {
   context : Context
   functions : Map[String, Function]
   globals : Map[String, &GlobalValue]
+  global_strings: Map[String, GlobalConstant]
   mut globalstr_count : Int
   srcFileName : String
   moduleID : String
@@ -19,6 +20,7 @@ pub fn Module::new(
     context: ctx,
     functions: Map::new(),
     globals: Map::new(),
+    global_strings: Map::new(),
     globalstr_count: 0,
     srcFileName,
     moduleID,
@@ -157,6 +159,9 @@ pub fn Module::addGlobalString(
   string : String,
   name? : String = "",
 ) -> GlobalConstant raise {
+  if self.global_strings.contains(string) {
+    return self.global_strings[string]
+  }
   let ctx = self.getContext()
   let const_str = ConstantString::new(ctx, string)
   let ty = const_str.getType()
