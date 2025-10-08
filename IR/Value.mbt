@@ -232,6 +232,8 @@ pub trait Value: Show {
   tryAsUserEnum(Self) -> UserEnum? = _
   tryAsInst(Self) -> &Instruction? = _
   tryAsInstEnum(Self) -> InstEnum? = _
+  tryAsGlobalValue(Self) -> &GlobalValue? = _
+  tryAsGlobalValueEnum(Self) -> GlobalValueEnum? = _
 }
 
 ///|
@@ -419,6 +421,26 @@ impl Value with tryAsInstEnum(self) {
     BranchInst(b) => Some(BranchInst(b))
     SwitchInst(s) => Some(SwitchInst(s))
     CallInst(c) => Some(CallInst(c))
+    _ => None
+  }
+}
+
+impl Value with tryAsGlobalValue(self) {
+  match self.asValueEnum() {
+    Function(f) => Some((f : &GlobalValue))
+    GlobalVariable(g) => Some(g)
+    GlobalConstant(g) => Some(g)
+    //GlobalIFunc(g) => Some(g)
+    _ => None
+  }
+}
+
+impl Value with tryAsGlobalValueEnum(self) {
+  match self.asValueEnum() {
+    Function(f) => Some(Function(f))
+    GlobalVariable(g) => Some(GlobalVariable(g))
+    GlobalConstant(g) => Some(GlobalConstant(g))
+    //GlobalIFunc(g) => Some(GlobalIFunc(g))
     _ => None
   }
 }
@@ -817,8 +839,19 @@ impl Eq for &Constant with equal(self, other) {
 pub trait GlobalValue: Value {
   getGlobalValueBase(Self) -> GlobalValueBase
   asGlobalValueEnum(Self) -> GlobalValueEnum
+  getModule(Self) -> Module = _
   getLinkage(Self) -> Linkage = _
   setLinkage(Self, linkage : Linkage) -> Unit = _
+  setUnnamedAddr(Self, unnamed_addr : UnnamedAddr) -> Unit = _
+}
+
+///|
+impl GlobalValue with getModule(self) {
+  match self.asGlobalValueEnum() {
+    Function({mod, ..}) => mod
+    GlobalVariable({mod, ..}) => mod
+    GlobalConstant({mod, ..}) => mod
+  }
 }
 
 ///|
@@ -829,6 +862,10 @@ impl GlobalValue with getLinkage(self) {
 ///|
 impl GlobalValue with setLinkage(self, linkage : Linkage) {
   self.getGlobalValueBase().linkage.val = linkage
+}
+
+impl GlobalValue with setUnnamedAddr(self, unnamed_addr : UnnamedAddr) {
+  self.getGlobalValueBase().unnamed_addr.val = unnamed_addr
 }
 
 ///|
