@@ -555,6 +555,25 @@ impl User for FCmpInst
 impl Value for FCmpInst
 impl Show for FCmpInst
 
+pub struct FNegInst {
+  uid : UInt64
+  vty : &Type
+  users : Array[&User]
+  mut name : String?
+  operand : &Value
+  parent : Function
+  bb : Ref[BasicBlock?]
+  prev : Ref[&Instruction?]
+  next : Ref[&Instruction?]
+  fast_math_flags : @set.Set[FastMathFlag]
+}
+fn FNegInst::new(&Value, Function, name~ : String?, @set.Set[FastMathFlag]) -> Self
+impl Instruction for FNegInst
+impl UnaryInst for FNegInst
+impl User for FNegInst
+impl Value for FNegInst
+impl Show for FNegInst
+
 pub struct FP128Type {
   ctx : Context
 }
@@ -894,6 +913,7 @@ fn IRBuilder::createFCmpUNE(Self, &Value, &Value, name? : String) -> &Value rais
 fn IRBuilder::createFCmpUNO(Self, &Value, &Value, name? : String) -> &Value raise
 fn IRBuilder::createFDiv(Self, &Value, &Value, name? : String, fast_math_flags? : @set.Set[FastMathFlag]) -> &Value raise
 fn IRBuilder::createFMul(Self, &Value, &Value, name? : String, fast_math_flags? : @set.Set[FastMathFlag]) -> &Value raise
+fn IRBuilder::createFNeg(Self, &Value, name? : String, fast_math_flags? : @set.Set[FastMathFlag]) -> &Value raise
 fn IRBuilder::createFPExt(Self, &Value, &FPType, name? : String) -> &Value raise
 fn IRBuilder::createFPToSI(Self, &Value, &IntegerType, name? : String) -> &Value raise
 fn IRBuilder::createFPToUI(Self, &Value, &IntegerType, name? : String) -> &Value raise
@@ -979,6 +999,7 @@ pub enum InstEnum {
   AllocaInst(AllocaInst)
   LoadInst(LoadInst)
   ExtractValueInst(ExtractValueInst)
+  FNegInst(FNegInst)
   CastInst(CastInst)
   BinaryInst(BinaryInst)
   ICmpInst(ICmpInst)
@@ -1539,6 +1560,7 @@ pub enum UnaryInstEnum {
   AllocaInst(AllocaInst)
   LoadInst(LoadInst)
   ExtractValueInst(ExtractValueInst)
+  FNegInst(FNegInst)
   CastInst(CastInst)
 }
 
@@ -1555,6 +1577,7 @@ impl Eq for UserBase
 pub enum UserEnum {
   LoadInst(LoadInst)
   ExtractValueInst(ExtractValueInst)
+  FNegInst(FNegInst)
   CastInst(CastInst)
   BinaryInst(BinaryInst)
   ICmpInst(ICmpInst)
@@ -1590,6 +1613,7 @@ pub enum ValueEnum {
   AllocaInst(AllocaInst)
   LoadInst(LoadInst)
   ExtractValueInst(ExtractValueInst)
+  FNegInst(FNegInst)
   CastInst(CastInst)
   BinaryInst(BinaryInst)
   ICmpInst(ICmpInst)
