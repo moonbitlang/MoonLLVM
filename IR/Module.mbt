@@ -199,7 +199,11 @@ pub impl Show for Module with output(self, logger) {
       _ => false
     })
     .collect()
-  global_var_and_consts.each(gv => logger.write_string(gv.to_string()))
+  global_var_and_consts.each(gv => logger.write_string("\{gv}\n"))
+  let { namedStructTypes , .. } = self.context.pimpl.unwrap()
+  for _, st in namedStructTypes {
+    logger.write_string(st.full_info() + "\n\n")
+  }
   let func_str = self.functions.values().map(f => f.to_string()).join("\n")
   logger.write_string(func_str)
 }

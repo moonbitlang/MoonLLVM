@@ -944,8 +944,6 @@ pub impl Show for FastMathFlag with output(self, logger) {
 /// let xor_result = builder.createXor(arg1, arg2, name="xor_result")
 /// inspect(xor_result, content = "  %xor_result = xor i32 %0, %1")
 /// ```
-
-///|
 pub struct BinaryInst {
   // --- ValueBase ---
 
