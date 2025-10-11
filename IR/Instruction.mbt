@@ -904,7 +904,8 @@ pub impl Show for FastMathFlag with output(self, logger) {
   logger.write_string(str)
 }
 
-///| BinaryInst represents a binary operation instruction that performs arithmetic or logical operations on two operands.
+///|
+/// BinaryInst represents a binary operation instruction that performs arithmetic or logical operations on two operands.
 ///
 /// **Note**:
 ///

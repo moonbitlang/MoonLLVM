@@ -304,14 +304,23 @@ pub fn DataLayout::getStructTypeOffset(
   offset
 }
 
+///|
 pub fn DataLayout::getTypeAllocSizeInBits(self : Self, ty : &Type) -> Int {
   DataLayout::getTypeAllocSize(self, ty) * 8
 }
 
-pub fn DataLayout::getStructTypeAllocSizeInBits(self : Self, ty : StructType) -> Int {
+///|
+pub fn DataLayout::getStructTypeAllocSizeInBits(
+  self : Self,
+  ty : StructType,
+) -> Int {
   DataLayout::getStructTypeAllocSize(self, ty) * 8
 }
 
-pub fn DataLayout::getArrayTypeAllocSizeInBits(self : Self, ty : ArrayType) -> Int {
+///|
+pub fn DataLayout::getArrayTypeAllocSizeInBits(
+  self : Self,
+  ty : ArrayType,
+) -> Int {
   DataLayout::getArrayTypeAllocSize(self, ty) * 8
 }

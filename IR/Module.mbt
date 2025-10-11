@@ -3,7 +3,7 @@ pub struct Module {
   context : Context
   functions : Map[String, Function]
   globals : Map[String, &GlobalValue]
-  global_strings: Map[String, GlobalConstant]
+  global_strings : Map[String, GlobalConstant]
   mut globalstr_count : Int
   srcFileName : String
   moduleID : String
@@ -200,7 +200,7 @@ pub impl Show for Module with output(self, logger) {
     })
     .collect()
   global_var_and_consts.each(gv => logger.write_string("\{gv}\n"))
-  let { namedStructTypes , .. } = self.context.pimpl.unwrap()
+  let { namedStructTypes, .. } = self.context.pimpl.unwrap()
   for _, st in namedStructTypes {
     logger.write_string(st.full_info() + "\n\n")
   }

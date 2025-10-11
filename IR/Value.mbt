@@ -425,6 +425,7 @@ impl Value with tryAsInstEnum(self) {
   }
 }
 
+///|
 impl Value with tryAsGlobalValue(self) {
   match self.asValueEnum() {
     Function(f) => Some((f : &GlobalValue))
@@ -435,6 +436,7 @@ impl Value with tryAsGlobalValue(self) {
   }
 }
 
+///|
 impl Value with tryAsGlobalValueEnum(self) {
   match self.asValueEnum() {
     Function(f) => Some(Function(f))
@@ -848,9 +850,9 @@ pub trait GlobalValue: Value {
 ///|
 impl GlobalValue with getModule(self) {
   match self.asGlobalValueEnum() {
-    Function({mod, ..}) => mod
-    GlobalVariable({mod, ..}) => mod
-    GlobalConstant({mod, ..}) => mod
+    Function({ mod, .. }) => mod
+    GlobalVariable({ mod, .. }) => mod
+    GlobalConstant({ mod, .. }) => mod
   }
 }
 
@@ -864,6 +866,7 @@ impl GlobalValue with setLinkage(self, linkage : Linkage) {
   self.getGlobalValueBase().linkage.val = linkage
 }
 
+///|
 impl GlobalValue with setUnnamedAddr(self, unnamed_addr : UnnamedAddr) {
   self.getGlobalValueBase().unnamed_addr.val = unnamed_addr
 }

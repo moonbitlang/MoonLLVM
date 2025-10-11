@@ -487,9 +487,12 @@ pub(all) enum DLLStorageClass {
 pub struct DataLayout {
   endian : Endian
 }
+fn DataLayout::getArrayTypeAllocSizeInBits(Self, ArrayType) -> Int
 fn DataLayout::getEndian(Self) -> Endian
+fn DataLayout::getStructTypeAllocSizeInBits(Self, StructType) -> Int
 fn DataLayout::getStructTypeOffset(Self, StructType, Int) -> Int
 fn DataLayout::getTypeAllocSize(Self, &Type) -> Int
+fn DataLayout::getTypeAllocSizeInBits(Self, &Type) -> Int
 
 type DoubleArray
 fn DoubleArray::from(Array[Double]) -> Self
@@ -740,6 +743,7 @@ fn Function::getReturnAttrs(Self) -> @set.Set[RetAttr]
 fn Function::getReturnType(Self) -> &Type
 fn[V : Value] Function::getSlot(Self, V) -> UInt64?
 fn Function::hasBody(Self) -> Bool
+fn Function::instIter(Self) -> Iter[&Instruction]
 fn Function::isDeclaration(Self) -> Bool
 fn Function::processSlot(Self) -> Unit
 impl GlobalValue for Function
@@ -1179,6 +1183,7 @@ pub struct Module {
   context : Context
   functions : Map[String, Function]
   globals : Map[String, &GlobalValue]
+  global_strings : Map[String, GlobalConstant]
   mut globalstr_count : Int
   srcFileName : String
   moduleID : String
@@ -1669,8 +1674,10 @@ impl Floating for Double
 pub trait GlobalValue : Value {
   getGlobalValueBase(Self) -> GlobalValueBase
   asGlobalValueEnum(Self) -> GlobalValueEnum
+  getModule(Self) -> Module
   getLinkage(Self) -> Linkage
   setLinkage(Self, Linkage) -> Unit
+  setUnnamedAddr(Self, UnnamedAddr) -> Unit
 }
 
 trait InsertPoint
@@ -1814,5 +1821,7 @@ pub trait Value : Show {
   tryAsUserEnum(Self) -> UserEnum?
   tryAsInst(Self) -> &Instruction?
   tryAsInstEnum(Self) -> InstEnum?
+  tryAsGlobalValue(Self) -> &GlobalValue?
+  tryAsGlobalValueEnum(Self) -> GlobalValueEnum?
 }
 

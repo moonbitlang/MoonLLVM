@@ -338,7 +338,7 @@ pub fn Function::isDeclaration(self : Function) -> Bool {
 }
 
 ///|
-pub fn Function::instIter(self: Function) -> Iter[&Instruction] {
+pub fn Function::instIter(self : Function) -> Iter[&Instruction] {
   letrec f = yield_ => {
     for bb in self.basicBlocks {
       loop bb.head {
@@ -351,6 +351,7 @@ pub fn Function::instIter(self: Function) -> Iter[&Instruction] {
     }
     IterEnd
   }
+
   Iter::new(f)
 }
 
