@@ -16,8 +16,8 @@ jobs:
             version: stable
           - name: macos-latest
             version: stable
-          - name: macos-13
-            version: stable
+          # - name: macos-13
+            # version: stable
           - name: windows-latest
             version: stable
 
