@@ -45,6 +45,7 @@ pub enum ValueEnum {
   AllocaInst(AllocaInst)
   LoadInst(LoadInst)
   ExtractValueInst(ExtractValueInst)
+  FNegInst(FNegInst)
   // FreezeInst(FreezeInst)
   CastInst(CastInst)
   BinaryInst(BinaryInst)
@@ -161,6 +162,7 @@ pub fn ValueEnum::asValueClass(self : ValueEnum) -> &Value {
     AllocaInst(i) => i
     LoadInst(i) => i
     ExtractValueInst(i) => i
+    FNegInst(i) => i
     CastInst(i) => i
     BinaryInst(b) => b
     ICmpInst(i) => i
@@ -543,6 +545,7 @@ pub enum UserEnum {
   //VAArgInst(VAArgInst)
   ExtractValueInst(ExtractValueInst)
   //FreezeInst(FreezeInst)
+  FNegInst(FNegInst)
   CastInst(CastInst)
   BinaryInst(BinaryInst)
   ICmpInst(ICmpInst)
@@ -568,6 +571,7 @@ pub fn UserEnum::asUserClass(self : Self) -> &User {
     FCmpInst(c) => c
     StoreInst(s) => s
     CastInst(c) => c
+    FNegInst(f) => f
     GetElementPtrInst(g) => g
     SelectInst(s) => s
     InsertValueInst(i) => i
@@ -636,6 +640,7 @@ impl Instruction with getInstName(self) {
     LoadInst(i) => i.getName()
     ExtractValueInst(i) => i.getName()
     CastInst(i) => i.getName()
+    FNegInst(i) => i.getName()
     BinaryInst(i) => i.getName()
     ICmpInst(i) => i.getName()
     FCmpInst(i) => i.getName()
@@ -774,6 +779,7 @@ pub enum InstEnum {
   //VAArgInst(VAArgInst)
   ExtractValueInst(ExtractValueInst)
   //FreezeInst(FreezeInst)
+  FNegInst(FNegInst)
   CastInst(CastInst)
   BinaryInst(BinaryInst)
   ICmpInst(ICmpInst)
@@ -805,6 +811,7 @@ pub enum UnaryInstEnum {
   //VAArgInst(VAArgInst)
   ExtractValueInst(ExtractValueInst)
   //FreezeInst(FreezeInst)
+  FNegInst(FNegInst)
   CastInst(CastInst)
 }
 

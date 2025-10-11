@@ -1230,6 +1230,53 @@ pub fn IRBuilder::createFSub(
 }
 
 ///|
+/// Create an FNeg Instruction
+///
+/// **Note:**
+///
+/// This creates a floating-point negation instruction. The operand must be a floating-point type.
+///
+/// ```moonbit
+/// let ctx = Context::new()
+/// let mod = ctx.addModule("demo")
+/// let builder = ctx.createBuilder()
+///
+/// let f32_ty = ctx.getFloatTy()
+/// let fty = ctx.getFunctionType(f32_ty, [f32_ty])
+///
+/// let fval = mod.addFunction(fty, "fneg_demo")
+/// let bb = fval.addBasicBlock(name="entry")
+/// let arg = fval.getArg(0).unwrap()
+/// 
+/// builder.setInsertPoint(bb)
+/// let fneg = builder.createFNeg(arg, name="neg_value")
+/// inspect(fneg, content = "  %neg_value = fneg float %0")
+/// assert_true(fneg.asValueEnum() is FNegInst(_))
+/// ```
+pub fn IRBuilder::createFNeg(
+  self : IRBuilder,
+  value : &Value,
+  name? : String = "",
+  fast_math_flags? : Set[FastMathFlag] = Set::new(),
+) -> &Value raise Error {
+  let ty = value.getType()
+  guard ty.tryAsFPTypeEnum() is Some(_) else {
+    let msg = "Misuse `IRBuilder::createFNeg`, " +
+      "the operand must be a floating-point type, " +
+      "got `{ty}`"
+    raise LLVMValueError(msg)
+  }
+  let parent = self.getInsertFunction()
+  let name = match name {
+    "" => None
+    _ => Some(name)
+  }
+  let inst = FNegInst::new(value, parent, name~, fast_math_flags)
+  self.insert(inst)
+  inst
+}
+
+///|
 /// Create an FMul Instruction
 ///
 /// **Note:**
