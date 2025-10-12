@@ -341,17 +341,12 @@ pub fn Function::isDeclaration(self : Function) -> Bool {
 pub fn Function::instIter(self : Function) -> Iter[&Instruction] {
   letrec f = yield_ => {
     for bb in self.basicBlocks {
-      loop bb.head {
-        Some(inst) => {
-          guard yield_(inst) is IterContinue else { return IterEnd }
-          continue inst.next()
-        }
-        None => return IterContinue
+      for i in bb.instIter() {
+        guard yield_(i) is IterContinue else { return IterEnd }
       }
     }
-    IterEnd
+    IterContinue
   }
-
   Iter::new(f)
 }
 
