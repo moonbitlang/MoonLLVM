@@ -10,13 +10,33 @@ let min_value : Int8
 
 // Types and methods
 pub struct Int8(Int)
+fn Int8::add(Self, Self) -> Self // from trait `Add`
+fn Int8::compare(Self, Self) -> Int // from trait `Compare`
+fn Int8::div(Self, Self) -> Self // from trait `Div`
+fn Int8::equal(Self, Self) -> Bool // from trait `Eq`
 fn Int8::from(Int) -> Self
 fn Int8::from_int64(Int64) -> Self
 fn Int8::from_uint64(UInt64) -> Self
+fn Int8::hash(Self) -> Int // from trait `Hash`
+fn Int8::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
 #deprecated
 fn Int8::inner(Self) -> Int
+fn Int8::mul(Self, Self) -> Self // from trait `Mul`
+#deprecated
+fn Int8::op_add(Self, Self) -> Self // from trait `Add`
+#deprecated
+fn Int8::op_div(Self, Self) -> Self // from trait `Div`
+#deprecated
+fn Int8::op_equal(Self, Self) -> Bool // from trait `Eq`
+#deprecated
+fn Int8::op_mul(Self, Self) -> Self // from trait `Mul`
+#deprecated
+fn Int8::op_sub(Self, Self) -> Self // from trait `Sub`
+fn Int8::output(Self, &Logger) -> Unit // from trait `Show`
+fn Int8::sub(Self, Self) -> Self // from trait `Sub`
 fn Int8::to_int(Self) -> Int
 fn Int8::to_int64(Self) -> Int64
+fn Int8::to_string(Self) -> String // from trait `Show`
 fn Int8::to_uint(Self) -> UInt
 fn Int8::to_uint64(Self) -> UInt64
 impl Add for Int8

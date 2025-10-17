@@ -13,9 +13,13 @@ fn warning_elimination() -> Unit
 
 // Errors
 type LLVMTypeError
+fn LLVMTypeError::output(Self, &Logger) -> Unit // from trait `Show`
+fn LLVMTypeError::to_string(Self) -> String // from trait `Show`
 impl Show for LLVMTypeError
 
 pub suberror LLVMValueError String
+fn LLVMValueError::output(Self, &Logger) -> Unit // from trait `Show`
+fn LLVMValueError::to_string(Self) -> String // from trait `Show`
 impl Show for LLVMValueError
 
 // Types and methods
@@ -26,12 +30,22 @@ pub enum AbstractTypeEnum {
   TokenType(TokenType)
   FunctionType(FunctionType)
 }
+fn AbstractTypeEnum::output(Self, &Logger) -> Unit // from trait `Show`
+fn AbstractTypeEnum::to_string(Self) -> String // from trait `Show`
 impl Show for AbstractTypeEnum
 
 pub struct AddressSpace(UInt)
+fn AddressSpace::default() -> Self // from trait `Default`
+fn AddressSpace::equal(Self, Self) -> Bool // from trait `Eq`
+fn AddressSpace::hash(Self) -> Int // from trait `Hash`
+fn AddressSpace::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
 #deprecated
 fn AddressSpace::inner(Self) -> UInt
 fn AddressSpace::new(UInt) -> Self
+#deprecated
+fn AddressSpace::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn AddressSpace::output(Self, &Logger) -> Unit // from trait `Show`
+fn AddressSpace::to_string(Self) -> String // from trait `Show`
 impl Default for AddressSpace
 impl Eq for AddressSpace
 impl Hash for AddressSpace
@@ -44,14 +58,24 @@ pub enum AggregateTypeEnum {
   ScalableVectorType(ScalableVectorType)
 }
 fn AggregateTypeEnum::asTypeClass(Self) -> &Type
+fn AggregateTypeEnum::equal(Self, Self) -> Bool // from trait `Eq`
 fn AggregateTypeEnum::getIndexedType(Self, ArrayView[Int]) -> &Type?
+#deprecated
+fn AggregateTypeEnum::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn AggregateTypeEnum::output(Self, &Logger) -> Unit // from trait `Show`
 fn AggregateTypeEnum::toTypeEnum(Self) -> TypeEnum
+fn AggregateTypeEnum::to_string(Self) -> String // from trait `Show`
 impl Eq for AggregateTypeEnum
 impl Show for AggregateTypeEnum
 
 type Align
+fn Align::equal(Self, Self) -> Bool // from trait `Eq`
 fn Align::new(UInt64) -> Self
+#deprecated
+fn Align::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn Align::output(Self, &Logger) -> Unit // from trait `Show`
 fn Align::to_int64(Self) -> Int64
+fn Align::to_string(Self) -> String // from trait `Show`
 impl Eq for Align
 impl Show for Align
 
@@ -67,6 +91,47 @@ pub struct AllocaInst {
   prev : Ref[&Instruction?]
   next : Ref[&Instruction?]
 }
+fn AllocaInst::addUser(Self, &User) -> Unit // from trait `Value`
+fn AllocaInst::asInstEnum(Self) -> InstEnum // from trait `Instruction`
+fn AllocaInst::asUnaryInstEnum(Self) -> UnaryInstEnum // from trait `UnaryInst`
+fn AllocaInst::asValueEnum(Self) -> ValueEnum // from trait `Value`
+fn AllocaInst::eraseFromParent(Self) -> Unit // from trait `Instruction`
+fn AllocaInst::getBasicBlock(Self) -> BasicBlock? // from trait `Instruction`
+fn AllocaInst::getContext(Self) -> Context // from trait `Value`
+fn AllocaInst::getInstBase(Self) -> InstBase // from trait `Instruction`
+fn AllocaInst::getInstName(Self) -> String? // from trait `Instruction`
+fn AllocaInst::getModule(Self) -> Module // from trait `Instruction`
+fn AllocaInst::getName(Self) -> String? // from trait `Value`
+fn AllocaInst::getNameOrSlot(Self) -> @either.Either[String, UInt64]? // from trait `Value`
+fn AllocaInst::getNameOrSlotStr(Self) -> String // from trait `Value`
+fn AllocaInst::getParent(Self) -> Function // from trait `Instruction`
+fn AllocaInst::getType(Self) -> &Type // from trait `Value`
+fn AllocaInst::getUsers(Self) -> Array[&User]? // from trait `Value`
+fn AllocaInst::getValueBase(Self) -> ValueBase // from trait `Value`
+fn AllocaInst::getValueRepr(Self) -> String // from trait `Value`
+fn AllocaInst::insertAfter(Self, &Instruction) -> Unit raise LLVMValueError // from trait `Instruction`
+fn AllocaInst::insertBefore(Self, &Instruction) -> Unit raise LLVMValueError // from trait `Instruction`
+fn AllocaInst::isIndependent(Self) -> Bool // from trait `Instruction`
+fn AllocaInst::isTerminator(Self) -> Bool // from trait `Instruction`
+fn AllocaInst::moveAfter(Self, &Instruction) -> Unit // from trait `Instruction`
+fn AllocaInst::moveBefore(Self, &Instruction) -> Unit // from trait `Instruction`
+fn AllocaInst::next(Self) -> &Instruction? // from trait `Instruction`
+fn AllocaInst::output(Self, &Logger) -> Unit // from trait `Show`
+fn AllocaInst::prev(Self) -> &Instruction? // from trait `Instruction`
+fn AllocaInst::removeFromParent(Self) -> Unit // from trait `Instruction`
+fn AllocaInst::removeName(Self) -> Unit raise LLVMValueError // from trait `Value`
+fn AllocaInst::replaceAllUsersWith(Self, &Value) -> Unit // from trait `Value`
+fn AllocaInst::setName(Self, String) -> Unit raise LLVMValueError // from trait `Value`
+fn AllocaInst::to_string(Self) -> String // from trait `Show`
+fn AllocaInst::tryAsConstant(Self) -> &Constant? // from trait `Value`
+fn AllocaInst::tryAsConstantEnum(Self) -> ConstantEnum? // from trait `Value`
+fn AllocaInst::tryAsGlobalValue(Self) -> &GlobalValue? // from trait `Value`
+fn AllocaInst::tryAsGlobalValueEnum(Self) -> GlobalValueEnum? // from trait `Value`
+fn AllocaInst::tryAsInst(Self) -> &Instruction? // from trait `Value`
+fn AllocaInst::tryAsInstEnum(Self) -> InstEnum? // from trait `Value`
+fn AllocaInst::tryAsUser(Self) -> &User? // from trait `Value`
+fn AllocaInst::tryAsUserEnum(Self) -> UserEnum? // from trait `Value`
+fn AllocaInst::user_empty(Self) -> Bool // from trait `Value`
 impl Instruction for AllocaInst
 impl UnaryInst for AllocaInst
 impl Value for AllocaInst
@@ -81,7 +146,31 @@ pub struct Argument {
   mut name : String?
 }
 fn Argument::addAttr(Self, ParamAttr) -> Unit
+fn Argument::addUser(Self, &User) -> Unit // from trait `Value`
+fn Argument::asValueEnum(Self) -> ValueEnum // from trait `Value`
+fn Argument::getContext(Self) -> Context // from trait `Value`
 fn Argument::getModule(Self) -> Module
+fn Argument::getName(Self) -> String? // from trait `Value`
+fn Argument::getNameOrSlot(Self) -> @either.Either[String, UInt64]? // from trait `Value`
+fn Argument::getNameOrSlotStr(Self) -> String // from trait `Value`
+fn Argument::getType(Self) -> &Type // from trait `Value`
+fn Argument::getUsers(Self) -> Array[&User]? // from trait `Value`
+fn Argument::getValueBase(Self) -> ValueBase // from trait `Value`
+fn Argument::getValueRepr(Self) -> String // from trait `Value`
+fn Argument::output(Self, &Logger) -> Unit // from trait `Show`
+fn Argument::removeName(Self) -> Unit raise LLVMValueError // from trait `Value`
+fn Argument::replaceAllUsersWith(Self, &Value) -> Unit // from trait `Value`
+fn Argument::setName(Self, String) -> Unit raise LLVMValueError // from trait `Value`
+fn Argument::to_string(Self) -> String // from trait `Show`
+fn Argument::tryAsConstant(Self) -> &Constant? // from trait `Value`
+fn Argument::tryAsConstantEnum(Self) -> ConstantEnum? // from trait `Value`
+fn Argument::tryAsGlobalValue(Self) -> &GlobalValue? // from trait `Value`
+fn Argument::tryAsGlobalValueEnum(Self) -> GlobalValueEnum? // from trait `Value`
+fn Argument::tryAsInst(Self) -> &Instruction? // from trait `Value`
+fn Argument::tryAsInstEnum(Self) -> InstEnum? // from trait `Value`
+fn Argument::tryAsUser(Self) -> &User? // from trait `Value`
+fn Argument::tryAsUserEnum(Self) -> UserEnum? // from trait `Value`
+fn Argument::user_empty(Self) -> Bool // from trait `Value`
 impl Value for Argument
 impl Show for Argument
 
@@ -90,8 +179,48 @@ pub struct ArrayType {
   elementType : &Type
   elementCount : Int
 }
+fn ArrayType::asAggregateTypeEnum(Self) -> AggregateTypeEnum // from trait `AggregateType`
+fn ArrayType::asTypeEnum(Self) -> TypeEnum // from trait `Type`
+fn ArrayType::canLosslesslyBitCastTo(Self, &Type) -> Bool // from trait `Type`
+fn ArrayType::equal(Self, Self) -> Bool // from trait `Eq`
+fn ArrayType::getContext(Self) -> Context // from trait `Type`
 fn ArrayType::getElementCount(Self) -> Int
 fn ArrayType::getElementType(Self) -> &Type
+fn ArrayType::getIndexedType(Self, ArrayView[Int]) -> &Type? // from trait `AggregateType`
+fn ArrayType::getPrimitiveSizeInBits(Self) -> TypeSize // from trait `Type`
+fn ArrayType::getScalarSizeInBits(Self) -> Int // from trait `Type`
+fn ArrayType::getScalarType(Self) -> &Type // from trait `Type`
+fn ArrayType::hash(Self) -> Int // from trait `Hash`
+fn ArrayType::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+fn ArrayType::is16bitFPTy(Self) -> Bool // from trait `Type`
+fn ArrayType::isAggregateType(Self) -> Bool // from trait `Type`
+fn ArrayType::isEmptyTy(Self) -> Bool // from trait `Type`
+fn ArrayType::isFPOrFPVectorTy(Self) -> Bool // from trait `Type`
+fn ArrayType::isFirstClassType(Self) -> Bool // from trait `Type`
+fn ArrayType::isFloatingPointTy(Self) -> Bool // from trait `Type`
+fn ArrayType::isIEEELikeFPTy(Self) -> Bool // from trait `Type`
+fn ArrayType::isIntOrIntVectorTy(Self) -> Bool // from trait `Type`
+fn ArrayType::isIntOrPtrTy(Self) -> Bool // from trait `Type`
+fn ArrayType::isPtrOrPtrVectorTy(Self) -> Bool // from trait `Type`
+fn ArrayType::isScalableTargetExtTy(Self) -> Bool // from trait `Type`
+fn ArrayType::isScalableTy(Self) -> Bool // from trait `Type`
+fn ArrayType::isSingleValueType(Self) -> Bool // from trait `Type`
+fn ArrayType::isSized(Self) -> Bool // from trait `Type`
+fn ArrayType::isValidGEPType(Self) -> Bool // from trait `Type`
+#deprecated
+fn ArrayType::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn ArrayType::output(Self, &Logger) -> Unit // from trait `Show`
+fn ArrayType::to_string(Self) -> String // from trait `Show`
+fn ArrayType::tryAsAbstractType(Self) -> &AbstractType? // from trait `Type`
+fn ArrayType::tryAsAbstractTypeEnum(Self) -> AbstractTypeEnum? // from trait `Type`
+fn ArrayType::tryAsAggregateType(Self) -> &AggregateType? // from trait `Type`
+fn ArrayType::tryAsAggregateTypeEnum(Self) -> AggregateTypeEnum? // from trait `Type`
+fn ArrayType::tryAsFPType(Self) -> &FPType? // from trait `Type`
+fn ArrayType::tryAsFPTypeEnum(Self) -> FPTypeEnum? // from trait `Type`
+fn ArrayType::tryAsIntType(Self) -> &IntegerType? // from trait `Type`
+fn ArrayType::tryAsIntTypeEnum(Self) -> IntegerTypeEnum? // from trait `Type`
+fn ArrayType::tryAsPrimitiveType(Self) -> &PrimitiveType? // from trait `Type`
+fn ArrayType::tryAsPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum? // from trait `Type`
 impl AggregateType for ArrayType
 impl Type for ArrayType
 impl Eq for ArrayType
@@ -107,6 +236,13 @@ pub(all) enum AtomicOrdering {
   AcquireRelease
   SequentiallyConsistent
 }
+fn AtomicOrdering::equal(Self, Self) -> Bool // from trait `Eq`
+fn AtomicOrdering::hash(Self) -> Int // from trait `Hash`
+fn AtomicOrdering::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+#deprecated
+fn AtomicOrdering::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn AtomicOrdering::output(Self, &Logger) -> Unit // from trait `Show`
+fn AtomicOrdering::to_string(Self) -> String // from trait `Show`
 impl Eq for AtomicOrdering
 impl Hash for AtomicOrdering
 impl Show for AtomicOrdering
@@ -116,6 +252,48 @@ type AttributeSet
 pub struct BFloatType {
   ctx : Context
 }
+fn BFloatType::asFPTypeEnum(Self) -> FPTypeEnum // from trait `FPType`
+fn BFloatType::asPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum // from trait `PrimitiveType`
+fn BFloatType::asTypeEnum(Self) -> TypeEnum // from trait `Type`
+fn BFloatType::canLosslesslyBitCastTo(Self, &Type) -> Bool // from trait `Type`
+fn BFloatType::equal(Self, Self) -> Bool // from trait `Eq`
+fn BFloatType::getBitWidth(Self) -> Int // from trait `PrimitiveType`
+fn BFloatType::getContext(Self) -> Context // from trait `Type`
+fn BFloatType::getFPMantissaWidth(Self) -> Int // from trait `FPType`
+fn BFloatType::getPrimitiveSizeInBits(Self) -> TypeSize // from trait `Type`
+fn BFloatType::getScalarSizeInBits(Self) -> Int // from trait `Type`
+fn BFloatType::getScalarType(Self) -> &Type // from trait `Type`
+fn BFloatType::hash(Self) -> Int // from trait `Hash`
+fn BFloatType::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+fn BFloatType::is16bitFPTy(Self) -> Bool // from trait `Type`
+fn BFloatType::isAggregateType(Self) -> Bool // from trait `Type`
+fn BFloatType::isEmptyTy(Self) -> Bool // from trait `Type`
+fn BFloatType::isFPOrFPVectorTy(Self) -> Bool // from trait `Type`
+fn BFloatType::isFirstClassType(Self) -> Bool // from trait `Type`
+fn BFloatType::isFloatingPointTy(Self) -> Bool // from trait `Type`
+fn BFloatType::isIEEELikeFPTy(Self) -> Bool // from trait `Type`
+fn BFloatType::isIntOrIntVectorTy(Self) -> Bool // from trait `Type`
+fn BFloatType::isIntOrPtrTy(Self) -> Bool // from trait `Type`
+fn BFloatType::isPtrOrPtrVectorTy(Self) -> Bool // from trait `Type`
+fn BFloatType::isScalableTargetExtTy(Self) -> Bool // from trait `Type`
+fn BFloatType::isScalableTy(Self) -> Bool // from trait `Type`
+fn BFloatType::isSingleValueType(Self) -> Bool // from trait `Type`
+fn BFloatType::isSized(Self) -> Bool // from trait `Type`
+fn BFloatType::isValidGEPType(Self) -> Bool // from trait `Type`
+#deprecated
+fn BFloatType::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn BFloatType::output(Self, &Logger) -> Unit // from trait `Show`
+fn BFloatType::to_string(Self) -> String // from trait `Show`
+fn BFloatType::tryAsAbstractType(Self) -> &AbstractType? // from trait `Type`
+fn BFloatType::tryAsAbstractTypeEnum(Self) -> AbstractTypeEnum? // from trait `Type`
+fn BFloatType::tryAsAggregateType(Self) -> &AggregateType? // from trait `Type`
+fn BFloatType::tryAsAggregateTypeEnum(Self) -> AggregateTypeEnum? // from trait `Type`
+fn BFloatType::tryAsFPType(Self) -> &FPType? // from trait `Type`
+fn BFloatType::tryAsFPTypeEnum(Self) -> FPTypeEnum? // from trait `Type`
+fn BFloatType::tryAsIntType(Self) -> &IntegerType? // from trait `Type`
+fn BFloatType::tryAsIntTypeEnum(Self) -> IntegerTypeEnum? // from trait `Type`
+fn BFloatType::tryAsPrimitiveType(Self) -> &PrimitiveType? // from trait `Type`
+fn BFloatType::tryAsPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum? // from trait `Type`
 impl FPType for BFloatType
 impl PrimitiveType for BFloatType
 impl Type for BFloatType
@@ -132,14 +310,44 @@ pub struct BasicBlock {
   id : Int
   preds : Array[BasicBlock]
 }
+fn BasicBlock::addUser(Self, &User) -> Unit // from trait `Value`
+fn BasicBlock::asValueEnum(Self) -> ValueEnum // from trait `Value`
+fn BasicBlock::equal(Self, Self) -> Bool // from trait `Eq`
 fn BasicBlock::firstInst(Self) -> &Instruction?
+fn BasicBlock::getContext(Self) -> Context // from trait `Value`
 fn BasicBlock::getLabel(Self) -> String
 fn BasicBlock::getModule(Self) -> Module
+fn BasicBlock::getName(Self) -> String? // from trait `Value`
+fn BasicBlock::getNameOrSlot(Self) -> @either.Either[String, UInt64]? // from trait `Value`
+fn BasicBlock::getNameOrSlotStr(Self) -> String // from trait `Value`
 fn BasicBlock::getParent(Self) -> Function
 fn BasicBlock::getSuccessors(Self) -> Array[Self]
 fn BasicBlock::getTerminator(Self) -> &Instruction?
+fn BasicBlock::getType(Self) -> &Type // from trait `Value`
+fn BasicBlock::getUsers(Self) -> Array[&User]? // from trait `Value`
+fn BasicBlock::getValueBase(Self) -> ValueBase // from trait `Value`
+fn BasicBlock::getValueRepr(Self) -> String // from trait `Value`
+fn BasicBlock::hash(Self) -> Int // from trait `Hash`
+fn BasicBlock::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
 fn BasicBlock::instIter(Self) -> Iter[&Instruction]
 fn BasicBlock::lastInst(Self) -> &Instruction?
+#deprecated
+fn BasicBlock::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn BasicBlock::output(Self, &Logger) -> Unit // from trait `Show`
+fn BasicBlock::removeFromParent(Self) -> Unit
+fn BasicBlock::removeName(Self) -> Unit raise LLVMValueError // from trait `Value`
+fn BasicBlock::replaceAllUsersWith(Self, &Value) -> Unit // from trait `Value`
+fn BasicBlock::setName(Self, String) -> Unit raise LLVMValueError // from trait `Value`
+fn BasicBlock::to_string(Self) -> String // from trait `Show`
+fn BasicBlock::tryAsConstant(Self) -> &Constant? // from trait `Value`
+fn BasicBlock::tryAsConstantEnum(Self) -> ConstantEnum? // from trait `Value`
+fn BasicBlock::tryAsGlobalValue(Self) -> &GlobalValue? // from trait `Value`
+fn BasicBlock::tryAsGlobalValueEnum(Self) -> GlobalValueEnum? // from trait `Value`
+fn BasicBlock::tryAsInst(Self) -> &Instruction? // from trait `Value`
+fn BasicBlock::tryAsInstEnum(Self) -> InstEnum? // from trait `Value`
+fn BasicBlock::tryAsUser(Self) -> &User? // from trait `Value`
+fn BasicBlock::tryAsUserEnum(Self) -> UserEnum? // from trait `Value`
+fn BasicBlock::user_empty(Self) -> Bool // from trait `Value`
 impl InsertPoint for BasicBlock
 impl Value for BasicBlock
 impl Eq for BasicBlock
@@ -161,6 +369,51 @@ pub struct BinaryInst {
   flags : @set.Set[BinaryOpFlags]
   fast_math_flags : @set.Set[FastMathFlag]
 }
+fn BinaryInst::addUser(Self, &User) -> Unit // from trait `Value`
+fn BinaryInst::asInstEnum(Self) -> InstEnum // from trait `Instruction`
+fn BinaryInst::asUserEnum(Self) -> UserEnum // from trait `User`
+fn BinaryInst::asValueEnum(Self) -> ValueEnum // from trait `Value`
+fn BinaryInst::eraseFromParent(Self) -> Unit // from trait `Instruction`
+fn BinaryInst::getBasicBlock(Self) -> BasicBlock? // from trait `Instruction`
+fn BinaryInst::getContext(Self) -> Context // from trait `Value`
+fn BinaryInst::getInstBase(Self) -> InstBase // from trait `Instruction`
+fn BinaryInst::getInstName(Self) -> String? // from trait `Instruction`
+fn BinaryInst::getModule(Self) -> Module // from trait `Instruction`
+fn BinaryInst::getName(Self) -> String? // from trait `Value`
+fn BinaryInst::getNameOrSlot(Self) -> @either.Either[String, UInt64]? // from trait `Value`
+fn BinaryInst::getNameOrSlotStr(Self) -> String // from trait `Value`
+fn BinaryInst::getNumOperands(Self) -> Int // from trait `User`
+fn BinaryInst::getOperand(Self, Int) -> &Value? // from trait `User`
+fn BinaryInst::getOperands(Self) -> Array[&Value] // from trait `User`
+fn BinaryInst::getParent(Self) -> Function // from trait `Instruction`
+fn BinaryInst::getType(Self) -> &Type // from trait `Value`
+fn BinaryInst::getUserBase(Self) -> UserBase // from trait `User`
+fn BinaryInst::getUsers(Self) -> Array[&User]? // from trait `Value`
+fn BinaryInst::getValueBase(Self) -> ValueBase // from trait `Value`
+fn BinaryInst::getValueRepr(Self) -> String // from trait `Value`
+fn BinaryInst::insertAfter(Self, &Instruction) -> Unit raise LLVMValueError // from trait `Instruction`
+fn BinaryInst::insertBefore(Self, &Instruction) -> Unit raise LLVMValueError // from trait `Instruction`
+fn BinaryInst::isIndependent(Self) -> Bool // from trait `Instruction`
+fn BinaryInst::isTerminator(Self) -> Bool // from trait `Instruction`
+fn BinaryInst::moveAfter(Self, &Instruction) -> Unit // from trait `Instruction`
+fn BinaryInst::moveBefore(Self, &Instruction) -> Unit // from trait `Instruction`
+fn BinaryInst::next(Self) -> &Instruction? // from trait `Instruction`
+fn BinaryInst::output(Self, &Logger) -> Unit // from trait `Show`
+fn BinaryInst::prev(Self) -> &Instruction? // from trait `Instruction`
+fn BinaryInst::removeFromParent(Self) -> Unit // from trait `Instruction`
+fn BinaryInst::removeName(Self) -> Unit raise LLVMValueError // from trait `Value`
+fn BinaryInst::replaceAllUsersWith(Self, &Value) -> Unit // from trait `Value`
+fn BinaryInst::setName(Self, String) -> Unit raise LLVMValueError // from trait `Value`
+fn BinaryInst::to_string(Self) -> String // from trait `Show`
+fn BinaryInst::tryAsConstant(Self) -> &Constant? // from trait `Value`
+fn BinaryInst::tryAsConstantEnum(Self) -> ConstantEnum? // from trait `Value`
+fn BinaryInst::tryAsGlobalValue(Self) -> &GlobalValue? // from trait `Value`
+fn BinaryInst::tryAsGlobalValueEnum(Self) -> GlobalValueEnum? // from trait `Value`
+fn BinaryInst::tryAsInst(Self) -> &Instruction? // from trait `Value`
+fn BinaryInst::tryAsInstEnum(Self) -> InstEnum? // from trait `Value`
+fn BinaryInst::tryAsUser(Self) -> &User? // from trait `Value`
+fn BinaryInst::tryAsUserEnum(Self) -> UserEnum? // from trait `Value`
+fn BinaryInst::user_empty(Self) -> Bool // from trait `Value`
 impl Instruction for BinaryInst
 impl User for BinaryInst
 impl Value for BinaryInst
@@ -171,6 +424,13 @@ pub enum BinaryOpFlags {
   NoSignedWrap
   Exact
 }
+fn BinaryOpFlags::equal(Self, Self) -> Bool // from trait `Eq`
+fn BinaryOpFlags::hash(Self) -> Int // from trait `Hash`
+fn BinaryOpFlags::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+#deprecated
+fn BinaryOpFlags::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn BinaryOpFlags::output(Self, &Logger) -> Unit // from trait `Show`
+fn BinaryOpFlags::to_string(Self) -> String // from trait `Show`
 impl Eq for BinaryOpFlags
 impl Hash for BinaryOpFlags
 impl Show for BinaryOpFlags
@@ -195,6 +455,13 @@ pub enum BinaryOps {
   Or
   Xor
 }
+fn BinaryOps::equal(Self, Self) -> Bool // from trait `Eq`
+fn BinaryOps::hash(Self) -> Int // from trait `Hash`
+fn BinaryOps::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+#deprecated
+fn BinaryOps::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn BinaryOps::output(Self, &Logger) -> Unit // from trait `Show`
+fn BinaryOps::to_string(Self) -> String // from trait `Show`
 impl Eq for BinaryOps
 impl Hash for BinaryOps
 impl Show for BinaryOps
@@ -210,10 +477,55 @@ pub struct BranchInst {
   prev : Ref[&Instruction?]
   next : Ref[&Instruction?]
 }
+fn BranchInst::addUser(Self, &User) -> Unit // from trait `Value`
+fn BranchInst::asInstEnum(Self) -> InstEnum // from trait `Instruction`
+fn BranchInst::asUserEnum(Self) -> UserEnum // from trait `User`
+fn BranchInst::asValueEnum(Self) -> ValueEnum // from trait `Value`
+fn BranchInst::eraseFromParent(Self) -> Unit // from trait `Instruction`
+fn BranchInst::getBasicBlock(Self) -> BasicBlock? // from trait `Instruction`
+fn BranchInst::getContext(Self) -> Context // from trait `Value`
+fn BranchInst::getInstBase(Self) -> InstBase // from trait `Instruction`
+fn BranchInst::getInstName(Self) -> String? // from trait `Instruction`
+fn BranchInst::getModule(Self) -> Module // from trait `Instruction`
+fn BranchInst::getName(Self) -> String? // from trait `Value`
+fn BranchInst::getNameOrSlot(Self) -> @either.Either[String, UInt64]? // from trait `Value`
+fn BranchInst::getNameOrSlotStr(Self) -> String // from trait `Value`
+fn BranchInst::getNumOperands(Self) -> Int // from trait `User`
 fn BranchInst::getNumSuccessors(Self) -> Int
+fn BranchInst::getOperand(Self, Int) -> &Value? // from trait `User`
+fn BranchInst::getOperands(Self) -> Array[&Value] // from trait `User`
+fn BranchInst::getParent(Self) -> Function // from trait `Instruction`
 fn BranchInst::getSuccessor(Self, Int) -> BasicBlock?
+fn BranchInst::getType(Self) -> &Type // from trait `Value`
+fn BranchInst::getUserBase(Self) -> UserBase // from trait `User`
+fn BranchInst::getUsers(Self) -> Array[&User]? // from trait `Value`
+fn BranchInst::getValueBase(Self) -> ValueBase // from trait `Value`
+fn BranchInst::getValueRepr(Self) -> String // from trait `Value`
+fn BranchInst::insertAfter(Self, &Instruction) -> Unit raise LLVMValueError // from trait `Instruction`
+fn BranchInst::insertBefore(Self, &Instruction) -> Unit raise LLVMValueError // from trait `Instruction`
 fn BranchInst::isConditional(Self) -> Bool
+fn BranchInst::isIndependent(Self) -> Bool // from trait `Instruction`
+fn BranchInst::isTerminator(Self) -> Bool // from trait `Instruction`
 fn BranchInst::isUnconditional(Self) -> Bool
+fn BranchInst::moveAfter(Self, &Instruction) -> Unit // from trait `Instruction`
+fn BranchInst::moveBefore(Self, &Instruction) -> Unit // from trait `Instruction`
+fn BranchInst::next(Self) -> &Instruction? // from trait `Instruction`
+fn BranchInst::output(Self, &Logger) -> Unit // from trait `Show`
+fn BranchInst::prev(Self) -> &Instruction? // from trait `Instruction`
+fn BranchInst::removeFromParent(Self) -> Unit // from trait `Instruction`
+fn BranchInst::removeName(Self) -> Unit raise LLVMValueError // from trait `Value`
+fn BranchInst::replaceAllUsersWith(Self, &Value) -> Unit // from trait `Value`
+fn BranchInst::setName(Self, String) -> Unit raise LLVMValueError // from trait `Value`
+fn BranchInst::to_string(Self) -> String // from trait `Show`
+fn BranchInst::tryAsConstant(Self) -> &Constant? // from trait `Value`
+fn BranchInst::tryAsConstantEnum(Self) -> ConstantEnum? // from trait `Value`
+fn BranchInst::tryAsGlobalValue(Self) -> &GlobalValue? // from trait `Value`
+fn BranchInst::tryAsGlobalValueEnum(Self) -> GlobalValueEnum? // from trait `Value`
+fn BranchInst::tryAsInst(Self) -> &Instruction? // from trait `Value`
+fn BranchInst::tryAsInstEnum(Self) -> InstEnum? // from trait `Value`
+fn BranchInst::tryAsUser(Self) -> &User? // from trait `Value`
+fn BranchInst::tryAsUserEnum(Self) -> UserEnum? // from trait `Value`
+fn BranchInst::user_empty(Self) -> Bool // from trait `Value`
 impl Instruction for BranchInst
 impl User for BranchInst
 impl Value for BranchInst
@@ -232,13 +544,58 @@ pub struct CallInst {
   next : Ref[&Instruction?]
   mut tailCallKind : TailCallKind
 }
+fn CallInst::addUser(Self, &User) -> Unit // from trait `Value`
+fn CallInst::asInstEnum(Self) -> InstEnum // from trait `Instruction`
+fn CallInst::asUserEnum(Self) -> UserEnum // from trait `User`
+fn CallInst::asValueEnum(Self) -> ValueEnum // from trait `Value`
+fn CallInst::eraseFromParent(Self) -> Unit // from trait `Instruction`
 fn CallInst::getArgOperand(Self, Int) -> &Value?
+fn CallInst::getBasicBlock(Self) -> BasicBlock? // from trait `Instruction`
 fn CallInst::getCallee(Self) -> Function
+fn CallInst::getContext(Self) -> Context // from trait `Value`
 fn CallInst::getFunctionType(Self) -> FunctionType
+fn CallInst::getInstBase(Self) -> InstBase // from trait `Instruction`
+fn CallInst::getInstName(Self) -> String? // from trait `Instruction`
+fn CallInst::getModule(Self) -> Module // from trait `Instruction`
+fn CallInst::getName(Self) -> String? // from trait `Value`
+fn CallInst::getNameOrSlot(Self) -> @either.Either[String, UInt64]? // from trait `Value`
+fn CallInst::getNameOrSlotStr(Self) -> String // from trait `Value`
 fn CallInst::getNumArgs(Self) -> Int
+fn CallInst::getNumOperands(Self) -> Int // from trait `User`
+fn CallInst::getOperand(Self, Int) -> &Value? // from trait `User`
+fn CallInst::getOperands(Self) -> Array[&Value] // from trait `User`
+fn CallInst::getParent(Self) -> Function // from trait `Instruction`
 fn CallInst::getTailCallKind(Self) -> TailCallKind
+fn CallInst::getType(Self) -> &Type // from trait `Value`
+fn CallInst::getUserBase(Self) -> UserBase // from trait `User`
+fn CallInst::getUsers(Self) -> Array[&User]? // from trait `Value`
+fn CallInst::getValueBase(Self) -> ValueBase // from trait `Value`
+fn CallInst::getValueRepr(Self) -> String // from trait `Value`
+fn CallInst::insertAfter(Self, &Instruction) -> Unit raise LLVMValueError // from trait `Instruction`
+fn CallInst::insertBefore(Self, &Instruction) -> Unit raise LLVMValueError // from trait `Instruction`
+fn CallInst::isIndependent(Self) -> Bool // from trait `Instruction`
 fn CallInst::isTailCall(Self) -> Bool
+fn CallInst::isTerminator(Self) -> Bool // from trait `Instruction`
+fn CallInst::moveAfter(Self, &Instruction) -> Unit // from trait `Instruction`
+fn CallInst::moveBefore(Self, &Instruction) -> Unit // from trait `Instruction`
+fn CallInst::next(Self) -> &Instruction? // from trait `Instruction`
+fn CallInst::output(Self, &Logger) -> Unit // from trait `Show`
+fn CallInst::prev(Self) -> &Instruction? // from trait `Instruction`
+fn CallInst::removeFromParent(Self) -> Unit // from trait `Instruction`
+fn CallInst::removeName(Self) -> Unit raise LLVMValueError // from trait `Value`
+fn CallInst::replaceAllUsersWith(Self, &Value) -> Unit // from trait `Value`
+fn CallInst::setName(Self, String) -> Unit raise LLVMValueError // from trait `Value`
 fn CallInst::setTailCallKind(Self, TailCallKind) -> Unit
+fn CallInst::to_string(Self) -> String // from trait `Show`
+fn CallInst::tryAsConstant(Self) -> &Constant? // from trait `Value`
+fn CallInst::tryAsConstantEnum(Self) -> ConstantEnum? // from trait `Value`
+fn CallInst::tryAsGlobalValue(Self) -> &GlobalValue? // from trait `Value`
+fn CallInst::tryAsGlobalValueEnum(Self) -> GlobalValueEnum? // from trait `Value`
+fn CallInst::tryAsInst(Self) -> &Instruction? // from trait `Value`
+fn CallInst::tryAsInstEnum(Self) -> InstEnum? // from trait `Value`
+fn CallInst::tryAsUser(Self) -> &User? // from trait `Value`
+fn CallInst::tryAsUserEnum(Self) -> UserEnum? // from trait `Value`
+fn CallInst::user_empty(Self) -> Bool // from trait `Value`
 impl Instruction for CallInst
 impl User for CallInst
 impl Value for CallInst
@@ -256,6 +613,52 @@ pub struct CastInst {
   next : Ref[&Instruction?]
   opcode : CastOps
 }
+fn CastInst::addUser(Self, &User) -> Unit // from trait `Value`
+fn CastInst::asInstEnum(Self) -> InstEnum // from trait `Instruction`
+fn CastInst::asUnaryInstEnum(Self) -> UnaryInstEnum // from trait `UnaryInst`
+fn CastInst::asUserEnum(Self) -> UserEnum // from trait `User`
+fn CastInst::asValueEnum(Self) -> ValueEnum // from trait `Value`
+fn CastInst::eraseFromParent(Self) -> Unit // from trait `Instruction`
+fn CastInst::getBasicBlock(Self) -> BasicBlock? // from trait `Instruction`
+fn CastInst::getContext(Self) -> Context // from trait `Value`
+fn CastInst::getInstBase(Self) -> InstBase // from trait `Instruction`
+fn CastInst::getInstName(Self) -> String? // from trait `Instruction`
+fn CastInst::getModule(Self) -> Module // from trait `Instruction`
+fn CastInst::getName(Self) -> String? // from trait `Value`
+fn CastInst::getNameOrSlot(Self) -> @either.Either[String, UInt64]? // from trait `Value`
+fn CastInst::getNameOrSlotStr(Self) -> String // from trait `Value`
+fn CastInst::getNumOperands(Self) -> Int // from trait `User`
+fn CastInst::getOperand(Self, Int) -> &Value? // from trait `User`
+fn CastInst::getOperands(Self) -> Array[&Value] // from trait `User`
+fn CastInst::getParent(Self) -> Function // from trait `Instruction`
+fn CastInst::getType(Self) -> &Type // from trait `Value`
+fn CastInst::getUserBase(Self) -> UserBase // from trait `User`
+fn CastInst::getUsers(Self) -> Array[&User]? // from trait `Value`
+fn CastInst::getValueBase(Self) -> ValueBase // from trait `Value`
+fn CastInst::getValueRepr(Self) -> String // from trait `Value`
+fn CastInst::insertAfter(Self, &Instruction) -> Unit raise LLVMValueError // from trait `Instruction`
+fn CastInst::insertBefore(Self, &Instruction) -> Unit raise LLVMValueError // from trait `Instruction`
+fn CastInst::isIndependent(Self) -> Bool // from trait `Instruction`
+fn CastInst::isTerminator(Self) -> Bool // from trait `Instruction`
+fn CastInst::moveAfter(Self, &Instruction) -> Unit // from trait `Instruction`
+fn CastInst::moveBefore(Self, &Instruction) -> Unit // from trait `Instruction`
+fn CastInst::next(Self) -> &Instruction? // from trait `Instruction`
+fn CastInst::output(Self, &Logger) -> Unit // from trait `Show`
+fn CastInst::prev(Self) -> &Instruction? // from trait `Instruction`
+fn CastInst::removeFromParent(Self) -> Unit // from trait `Instruction`
+fn CastInst::removeName(Self) -> Unit raise LLVMValueError // from trait `Value`
+fn CastInst::replaceAllUsersWith(Self, &Value) -> Unit // from trait `Value`
+fn CastInst::setName(Self, String) -> Unit raise LLVMValueError // from trait `Value`
+fn CastInst::to_string(Self) -> String // from trait `Show`
+fn CastInst::tryAsConstant(Self) -> &Constant? // from trait `Value`
+fn CastInst::tryAsConstantEnum(Self) -> ConstantEnum? // from trait `Value`
+fn CastInst::tryAsGlobalValue(Self) -> &GlobalValue? // from trait `Value`
+fn CastInst::tryAsGlobalValueEnum(Self) -> GlobalValueEnum? // from trait `Value`
+fn CastInst::tryAsInst(Self) -> &Instruction? // from trait `Value`
+fn CastInst::tryAsInstEnum(Self) -> InstEnum? // from trait `Value`
+fn CastInst::tryAsUser(Self) -> &User? // from trait `Value`
+fn CastInst::tryAsUserEnum(Self) -> UserEnum? // from trait `Value`
+fn CastInst::user_empty(Self) -> Bool // from trait `Value`
 impl Instruction for CastInst
 impl UnaryInst for CastInst
 impl User for CastInst
@@ -276,6 +679,13 @@ pub(all) enum CastOps {
   IntToPtr
   BitCast
 }
+fn CastOps::equal(Self, Self) -> Bool // from trait `Eq`
+fn CastOps::hash(Self) -> Int // from trait `Hash`
+fn CastOps::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+#deprecated
+fn CastOps::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn CastOps::output(Self, &Logger) -> Unit // from trait `Show`
+fn CastOps::to_string(Self) -> String // from trait `Show`
 impl Eq for CastOps
 impl Hash for CastOps
 impl Show for CastOps
@@ -285,6 +695,34 @@ pub struct ConstantArray {
   vty : ArrayType
   data : @either.Either[Array[&Constant], NumberArrayEnum]
 }
+fn ConstantArray::addUser(Self, &User) -> Unit // from trait `Value`
+fn ConstantArray::asConstantEnum(Self) -> ConstantEnum // from trait `Constant`
+fn ConstantArray::asValueEnum(Self) -> ValueEnum // from trait `Value`
+fn ConstantArray::equal(Self, Self) -> Bool // from trait `Eq`
+fn ConstantArray::getContext(Self) -> Context // from trait `Value`
+fn ConstantArray::getName(Self) -> String? // from trait `Value`
+fn ConstantArray::getNameOrSlot(Self) -> @either.Either[String, UInt64]? // from trait `Value`
+fn ConstantArray::getNameOrSlotStr(Self) -> String // from trait `Value`
+fn ConstantArray::getType(Self) -> &Type // from trait `Value`
+fn ConstantArray::getUsers(Self) -> Array[&User]? // from trait `Value`
+fn ConstantArray::getValueBase(Self) -> ValueBase // from trait `Value`
+fn ConstantArray::getValueRepr(Self) -> String // from trait `Value`
+#deprecated
+fn ConstantArray::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn ConstantArray::output(Self, &Logger) -> Unit // from trait `Show`
+fn ConstantArray::removeName(Self) -> Unit raise LLVMValueError // from trait `Value`
+fn ConstantArray::replaceAllUsersWith(Self, &Value) -> Unit // from trait `Value`
+fn ConstantArray::setName(Self, String) -> Unit raise LLVMValueError // from trait `Value`
+fn ConstantArray::to_string(Self) -> String // from trait `Show`
+fn ConstantArray::tryAsConstant(Self) -> &Constant? // from trait `Value`
+fn ConstantArray::tryAsConstantEnum(Self) -> ConstantEnum? // from trait `Value`
+fn ConstantArray::tryAsGlobalValue(Self) -> &GlobalValue? // from trait `Value`
+fn ConstantArray::tryAsGlobalValueEnum(Self) -> GlobalValueEnum? // from trait `Value`
+fn ConstantArray::tryAsInst(Self) -> &Instruction? // from trait `Value`
+fn ConstantArray::tryAsInstEnum(Self) -> InstEnum? // from trait `Value`
+fn ConstantArray::tryAsUser(Self) -> &User? // from trait `Value`
+fn ConstantArray::tryAsUserEnum(Self) -> UserEnum? // from trait `Value`
+fn ConstantArray::user_empty(Self) -> Bool // from trait `Value`
 impl Constant for ConstantArray
 impl Value for ConstantArray
 impl Eq for ConstantArray
@@ -299,6 +737,9 @@ pub enum ConstantEnum {
   ConstantString(ConstantString)
   ConstantStruct(ConstantStruct)
 }
+fn ConstantEnum::equal(Self, Self) -> Bool // from trait `Eq`
+#deprecated
+fn ConstantEnum::op_equal(Self, Self) -> Bool // from trait `Eq`
 impl Eq for ConstantEnum
 
 pub struct ConstantFP {
@@ -307,19 +748,47 @@ pub struct ConstantFP {
   value : Double
 }
 fn ConstantFP::add(Self, Self) -> Self raise LLVMValueError
+fn ConstantFP::addUser(Self, &User) -> Unit // from trait `Value`
+fn ConstantFP::asConstantEnum(Self) -> ConstantEnum // from trait `Constant`
+fn ConstantFP::asValueEnum(Self) -> ValueEnum // from trait `Value`
 fn ConstantFP::bitcast(Self, &PrimitiveType) -> &Constant raise LLVMValueError
 fn ConstantFP::compare(Self, FloatPredicate, Self) -> ConstantInt raise LLVMValueError
 fn ConstantFP::div(Self, Self) -> Self raise LLVMValueError
+fn ConstantFP::equal(Self, Self) -> Bool // from trait `Eq`
 fn[T : Floating] ConstantFP::equals(Self, T) -> Bool
 fn[T : Floating] ConstantFP::exactlyEquals(Self, T) -> Bool
 fn ConstantFP::fpext(Self, &FPType) -> Self raise LLVMValueError
 fn ConstantFP::fptosi(Self, &IntegerType) -> ConstantInt
 fn ConstantFP::fptoui(Self, &IntegerType) -> ConstantInt
 fn ConstantFP::fptrunc(Self, &FPType) -> Self raise LLVMValueError
+fn ConstantFP::getContext(Self) -> Context // from trait `Value`
 fn ConstantFP::getFPType(Self) -> &FPType
+fn ConstantFP::getName(Self) -> String? // from trait `Value`
+fn ConstantFP::getNameOrSlot(Self) -> @either.Either[String, UInt64]? // from trait `Value`
+fn ConstantFP::getNameOrSlotStr(Self) -> String // from trait `Value`
+fn ConstantFP::getType(Self) -> &Type // from trait `Value`
+fn ConstantFP::getUsers(Self) -> Array[&User]? // from trait `Value`
 fn ConstantFP::getValue(Self) -> Double
+fn ConstantFP::getValueBase(Self) -> ValueBase // from trait `Value`
+fn ConstantFP::getValueRepr(Self) -> String // from trait `Value`
 fn ConstantFP::mul(Self, Self) -> Self raise LLVMValueError
+#deprecated
+fn ConstantFP::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn ConstantFP::output(Self, &Logger) -> Unit // from trait `Show`
+fn ConstantFP::removeName(Self) -> Unit raise LLVMValueError // from trait `Value`
+fn ConstantFP::replaceAllUsersWith(Self, &Value) -> Unit // from trait `Value`
+fn ConstantFP::setName(Self, String) -> Unit raise LLVMValueError // from trait `Value`
 fn ConstantFP::sub(Self, Self) -> Self raise LLVMValueError
+fn ConstantFP::to_string(Self) -> String // from trait `Show`
+fn ConstantFP::tryAsConstant(Self) -> &Constant? // from trait `Value`
+fn ConstantFP::tryAsConstantEnum(Self) -> ConstantEnum? // from trait `Value`
+fn ConstantFP::tryAsGlobalValue(Self) -> &GlobalValue? // from trait `Value`
+fn ConstantFP::tryAsGlobalValueEnum(Self) -> GlobalValueEnum? // from trait `Value`
+fn ConstantFP::tryAsInst(Self) -> &Instruction? // from trait `Value`
+fn ConstantFP::tryAsInstEnum(Self) -> InstEnum? // from trait `Value`
+fn ConstantFP::tryAsUser(Self) -> &User? // from trait `Value`
+fn ConstantFP::tryAsUserEnum(Self) -> UserEnum? // from trait `Value`
+fn ConstantFP::user_empty(Self) -> Bool // from trait `Value`
 impl Constant for ConstantFP
 impl Value for ConstantFP
 impl Eq for ConstantFP
@@ -331,28 +800,56 @@ pub struct ConstantInt {
   value : Int64
 }
 fn ConstantInt::add(Self, Self) -> Self raise LLVMValueError
+fn ConstantInt::addUser(Self, &User) -> Unit // from trait `Value`
+fn ConstantInt::asConstantEnum(Self) -> ConstantEnum // from trait `Constant`
+fn ConstantInt::asValueEnum(Self) -> ValueEnum // from trait `Value`
 fn ConstantInt::ashr(Self, Self) -> Self raise LLVMValueError
 fn ConstantInt::bitcast(Self, &PrimitiveType) -> &Constant raise LLVMValueError
 fn ConstantInt::compare(Self, IntPredicate, Self) -> Self raise LLVMValueError
 fn ConstantInt::compute_and(Self, Self) -> Self raise LLVMValueError
 fn ConstantInt::compute_shl(Self, Self) -> Self raise LLVMValueError
+fn ConstantInt::equal(Self, Self) -> Bool // from trait `Eq`
 fn[T : IntegerNumber] ConstantInt::equals(Self, T) -> Bool
+fn ConstantInt::getContext(Self) -> Context // from trait `Value`
 fn ConstantInt::getIntegerType(Self) -> &IntegerType
+fn ConstantInt::getName(Self) -> String? // from trait `Value`
+fn ConstantInt::getNameOrSlot(Self) -> @either.Either[String, UInt64]? // from trait `Value`
+fn ConstantInt::getNameOrSlotStr(Self) -> String // from trait `Value`
+fn ConstantInt::getType(Self) -> &Type // from trait `Value`
+fn ConstantInt::getUsers(Self) -> Array[&User]? // from trait `Value`
 fn ConstantInt::getValueAsInt64(Self) -> Int64
+fn ConstantInt::getValueBase(Self) -> ValueBase // from trait `Value`
+fn ConstantInt::getValueRepr(Self) -> String // from trait `Value`
 fn ConstantInt::inttoptr(Self) -> ConstantPointerNull
 fn ConstantInt::isMaxValue(Self) -> Bool
 fn ConstantInt::isMinValue(Self) -> Bool
 fn ConstantInt::isNegative(Self) -> Bool
 fn ConstantInt::lshr(Self, Self) -> Self raise LLVMValueError
 fn ConstantInt::mul(Self, Self) -> Self raise LLVMValueError
+#deprecated
+fn ConstantInt::op_equal(Self, Self) -> Bool // from trait `Eq`
 fn ConstantInt::or(Self, Self) -> Self raise LLVMValueError
+fn ConstantInt::output(Self, &Logger) -> Unit // from trait `Show`
+fn ConstantInt::removeName(Self) -> Unit raise LLVMValueError // from trait `Value`
+fn ConstantInt::replaceAllUsersWith(Self, &Value) -> Unit // from trait `Value`
 fn ConstantInt::sdiv(Self, Self) -> Self raise LLVMValueError
+fn ConstantInt::setName(Self, String) -> Unit raise LLVMValueError // from trait `Value`
 fn ConstantInt::sext(Self, &IntegerType) -> Self raise LLVMValueError
 fn ConstantInt::sitofp(Self, &FPType) -> ConstantFP
 fn ConstantInt::sub(Self, Self) -> Self raise LLVMValueError
+fn ConstantInt::to_string(Self) -> String // from trait `Show`
 fn ConstantInt::trunc(Self, &IntegerType) -> Self raise LLVMValueError
+fn ConstantInt::tryAsConstant(Self) -> &Constant? // from trait `Value`
+fn ConstantInt::tryAsConstantEnum(Self) -> ConstantEnum? // from trait `Value`
+fn ConstantInt::tryAsGlobalValue(Self) -> &GlobalValue? // from trait `Value`
+fn ConstantInt::tryAsGlobalValueEnum(Self) -> GlobalValueEnum? // from trait `Value`
+fn ConstantInt::tryAsInst(Self) -> &Instruction? // from trait `Value`
+fn ConstantInt::tryAsInstEnum(Self) -> InstEnum? // from trait `Value`
+fn ConstantInt::tryAsUser(Self) -> &User? // from trait `Value`
+fn ConstantInt::tryAsUserEnum(Self) -> UserEnum? // from trait `Value`
 fn ConstantInt::udiv(Self, Self) -> Self raise LLVMValueError
 fn ConstantInt::uitofp(Self, &FPType) -> ConstantFP
+fn ConstantInt::user_empty(Self) -> Bool // from trait `Value`
 fn ConstantInt::xor(Self, Self) -> Self raise LLVMValueError
 fn ConstantInt::zext(Self, &IntegerType) -> Self raise LLVMValueError
 impl Constant for ConstantInt
@@ -364,6 +861,34 @@ pub struct ConstantPointerNull {
   uid : UInt64
   vty : PointerType
 }
+fn ConstantPointerNull::addUser(Self, &User) -> Unit // from trait `Value`
+fn ConstantPointerNull::asConstantEnum(Self) -> ConstantEnum // from trait `Constant`
+fn ConstantPointerNull::asValueEnum(Self) -> ValueEnum // from trait `Value`
+fn ConstantPointerNull::equal(Self, Self) -> Bool // from trait `Eq`
+fn ConstantPointerNull::getContext(Self) -> Context // from trait `Value`
+fn ConstantPointerNull::getName(Self) -> String? // from trait `Value`
+fn ConstantPointerNull::getNameOrSlot(Self) -> @either.Either[String, UInt64]? // from trait `Value`
+fn ConstantPointerNull::getNameOrSlotStr(Self) -> String // from trait `Value`
+fn ConstantPointerNull::getType(Self) -> &Type // from trait `Value`
+fn ConstantPointerNull::getUsers(Self) -> Array[&User]? // from trait `Value`
+fn ConstantPointerNull::getValueBase(Self) -> ValueBase // from trait `Value`
+fn ConstantPointerNull::getValueRepr(Self) -> String // from trait `Value`
+#deprecated
+fn ConstantPointerNull::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn ConstantPointerNull::output(Self, &Logger) -> Unit // from trait `Show`
+fn ConstantPointerNull::removeName(Self) -> Unit raise LLVMValueError // from trait `Value`
+fn ConstantPointerNull::replaceAllUsersWith(Self, &Value) -> Unit // from trait `Value`
+fn ConstantPointerNull::setName(Self, String) -> Unit raise LLVMValueError // from trait `Value`
+fn ConstantPointerNull::to_string(Self) -> String // from trait `Show`
+fn ConstantPointerNull::tryAsConstant(Self) -> &Constant? // from trait `Value`
+fn ConstantPointerNull::tryAsConstantEnum(Self) -> ConstantEnum? // from trait `Value`
+fn ConstantPointerNull::tryAsGlobalValue(Self) -> &GlobalValue? // from trait `Value`
+fn ConstantPointerNull::tryAsGlobalValueEnum(Self) -> GlobalValueEnum? // from trait `Value`
+fn ConstantPointerNull::tryAsInst(Self) -> &Instruction? // from trait `Value`
+fn ConstantPointerNull::tryAsInstEnum(Self) -> InstEnum? // from trait `Value`
+fn ConstantPointerNull::tryAsUser(Self) -> &User? // from trait `Value`
+fn ConstantPointerNull::tryAsUserEnum(Self) -> UserEnum? // from trait `Value`
+fn ConstantPointerNull::user_empty(Self) -> Bool // from trait `Value`
 impl Constant for ConstantPointerNull
 impl Value for ConstantPointerNull
 impl Eq for ConstantPointerNull
@@ -374,6 +899,34 @@ pub struct ConstantString {
   vty : ArrayType
   data : String
 }
+fn ConstantString::addUser(Self, &User) -> Unit // from trait `Value`
+fn ConstantString::asConstantEnum(Self) -> ConstantEnum // from trait `Constant`
+fn ConstantString::asValueEnum(Self) -> ValueEnum // from trait `Value`
+fn ConstantString::equal(Self, Self) -> Bool // from trait `Eq`
+fn ConstantString::getContext(Self) -> Context // from trait `Value`
+fn ConstantString::getName(Self) -> String? // from trait `Value`
+fn ConstantString::getNameOrSlot(Self) -> @either.Either[String, UInt64]? // from trait `Value`
+fn ConstantString::getNameOrSlotStr(Self) -> String // from trait `Value`
+fn ConstantString::getType(Self) -> &Type // from trait `Value`
+fn ConstantString::getUsers(Self) -> Array[&User]? // from trait `Value`
+fn ConstantString::getValueBase(Self) -> ValueBase // from trait `Value`
+fn ConstantString::getValueRepr(Self) -> String // from trait `Value`
+#deprecated
+fn ConstantString::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn ConstantString::output(Self, &Logger) -> Unit // from trait `Show`
+fn ConstantString::removeName(Self) -> Unit raise LLVMValueError // from trait `Value`
+fn ConstantString::replaceAllUsersWith(Self, &Value) -> Unit // from trait `Value`
+fn ConstantString::setName(Self, String) -> Unit raise LLVMValueError // from trait `Value`
+fn ConstantString::to_string(Self) -> String // from trait `Show`
+fn ConstantString::tryAsConstant(Self) -> &Constant? // from trait `Value`
+fn ConstantString::tryAsConstantEnum(Self) -> ConstantEnum? // from trait `Value`
+fn ConstantString::tryAsGlobalValue(Self) -> &GlobalValue? // from trait `Value`
+fn ConstantString::tryAsGlobalValueEnum(Self) -> GlobalValueEnum? // from trait `Value`
+fn ConstantString::tryAsInst(Self) -> &Instruction? // from trait `Value`
+fn ConstantString::tryAsInstEnum(Self) -> InstEnum? // from trait `Value`
+fn ConstantString::tryAsUser(Self) -> &User? // from trait `Value`
+fn ConstantString::tryAsUserEnum(Self) -> UserEnum? // from trait `Value`
+fn ConstantString::user_empty(Self) -> Bool // from trait `Value`
 impl Constant for ConstantString
 impl Value for ConstantString
 impl Eq for ConstantString
@@ -384,11 +937,39 @@ pub struct ConstantStruct {
   vty : StructType
   elements : Array[&Constant]
 }
+fn ConstantStruct::addUser(Self, &User) -> Unit // from trait `Value`
+fn ConstantStruct::asConstantEnum(Self) -> ConstantEnum // from trait `Constant`
+fn ConstantStruct::asValueEnum(Self) -> ValueEnum // from trait `Value`
+fn ConstantStruct::equal(Self, Self) -> Bool // from trait `Eq`
 fn ConstantStruct::extractValue(Self, ArrayView[Int]) -> &Constant?
+fn ConstantStruct::getContext(Self) -> Context // from trait `Value`
 fn ConstantStruct::getElement(Self, Int) -> &Constant?
 fn ConstantStruct::getElements(Self) -> Array[&Constant]
+fn ConstantStruct::getName(Self) -> String? // from trait `Value`
+fn ConstantStruct::getNameOrSlot(Self) -> @either.Either[String, UInt64]? // from trait `Value`
+fn ConstantStruct::getNameOrSlotStr(Self) -> String // from trait `Value`
+fn ConstantStruct::getType(Self) -> &Type // from trait `Value`
+fn ConstantStruct::getUsers(Self) -> Array[&User]? // from trait `Value`
+fn ConstantStruct::getValueBase(Self) -> ValueBase // from trait `Value`
+fn ConstantStruct::getValueRepr(Self) -> String // from trait `Value`
 fn ConstantStruct::insertValue(Self, ArrayView[Int], &Constant) -> Self?
 fn ConstantStruct::new(StructType, Array[&Constant]) -> Self
+#deprecated
+fn ConstantStruct::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn ConstantStruct::output(Self, &Logger) -> Unit // from trait `Show`
+fn ConstantStruct::removeName(Self) -> Unit raise LLVMValueError // from trait `Value`
+fn ConstantStruct::replaceAllUsersWith(Self, &Value) -> Unit // from trait `Value`
+fn ConstantStruct::setName(Self, String) -> Unit raise LLVMValueError // from trait `Value`
+fn ConstantStruct::to_string(Self) -> String // from trait `Show`
+fn ConstantStruct::tryAsConstant(Self) -> &Constant? // from trait `Value`
+fn ConstantStruct::tryAsConstantEnum(Self) -> ConstantEnum? // from trait `Value`
+fn ConstantStruct::tryAsGlobalValue(Self) -> &GlobalValue? // from trait `Value`
+fn ConstantStruct::tryAsGlobalValueEnum(Self) -> GlobalValueEnum? // from trait `Value`
+fn ConstantStruct::tryAsInst(Self) -> &Instruction? // from trait `Value`
+fn ConstantStruct::tryAsInstEnum(Self) -> InstEnum? // from trait `Value`
+fn ConstantStruct::tryAsUser(Self) -> &User? // from trait `Value`
+fn ConstantStruct::tryAsUserEnum(Self) -> UserEnum? // from trait `Value`
+fn ConstantStruct::user_empty(Self) -> Bool // from trait `Value`
 impl Constant for ConstantStruct
 impl Value for ConstantStruct
 impl Eq for ConstantStruct
@@ -399,6 +980,34 @@ pub struct ConstantVector {
   vty : VectorType
   data : @either.Either[Array[&Constant], NumberArrayEnum]
 }
+fn ConstantVector::addUser(Self, &User) -> Unit // from trait `Value`
+fn ConstantVector::asConstantEnum(Self) -> ConstantEnum // from trait `Constant`
+fn ConstantVector::asValueEnum(Self) -> ValueEnum // from trait `Value`
+fn ConstantVector::equal(Self, Self) -> Bool // from trait `Eq`
+fn ConstantVector::getContext(Self) -> Context // from trait `Value`
+fn ConstantVector::getName(Self) -> String? // from trait `Value`
+fn ConstantVector::getNameOrSlot(Self) -> @either.Either[String, UInt64]? // from trait `Value`
+fn ConstantVector::getNameOrSlotStr(Self) -> String // from trait `Value`
+fn ConstantVector::getType(Self) -> &Type // from trait `Value`
+fn ConstantVector::getUsers(Self) -> Array[&User]? // from trait `Value`
+fn ConstantVector::getValueBase(Self) -> ValueBase // from trait `Value`
+fn ConstantVector::getValueRepr(Self) -> String // from trait `Value`
+#deprecated
+fn ConstantVector::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn ConstantVector::output(Self, &Logger) -> Unit // from trait `Show`
+fn ConstantVector::removeName(Self) -> Unit raise LLVMValueError // from trait `Value`
+fn ConstantVector::replaceAllUsersWith(Self, &Value) -> Unit // from trait `Value`
+fn ConstantVector::setName(Self, String) -> Unit raise LLVMValueError // from trait `Value`
+fn ConstantVector::to_string(Self) -> String // from trait `Show`
+fn ConstantVector::tryAsConstant(Self) -> &Constant? // from trait `Value`
+fn ConstantVector::tryAsConstantEnum(Self) -> ConstantEnum? // from trait `Value`
+fn ConstantVector::tryAsGlobalValue(Self) -> &GlobalValue? // from trait `Value`
+fn ConstantVector::tryAsGlobalValueEnum(Self) -> GlobalValueEnum? // from trait `Value`
+fn ConstantVector::tryAsInst(Self) -> &Instruction? // from trait `Value`
+fn ConstantVector::tryAsInstEnum(Self) -> InstEnum? // from trait `Value`
+fn ConstantVector::tryAsUser(Self) -> &User? // from trait `Value`
+fn ConstantVector::tryAsUserEnum(Self) -> UserEnum? // from trait `Value`
+fn ConstantVector::user_empty(Self) -> Bool // from trait `Value`
 impl Constant for ConstantVector
 impl Value for ConstantVector
 impl Eq for ConstantVector
@@ -410,6 +1019,7 @@ pub struct Context {
 }
 fn Context::addModule(Self, String, source_file? : String?) -> Module
 fn Context::createBuilder(Self) -> IRBuilder
+fn Context::equal(Self, Self) -> Bool // from trait `Eq`
 fn Context::getArrayType(Self, &Type, Int) -> ArrayType raise LLVMTypeError
 fn Context::getBFloatTy(Self) -> BFloatType
 fn Context::getConstArray(Self, &Type, Array[&Constant]) -> ConstantArray
@@ -474,7 +1084,11 @@ fn Context::getStructType(Self, Array[&Type], name? : String, isPacked? : Bool) 
 fn Context::getStructTypeByName(Self, String) -> StructType?
 fn Context::getTokenTy(Self) -> TokenType
 fn Context::getVoidTy(Self) -> VoidType
+fn Context::hash(Self) -> Int // from trait `Hash`
+fn Context::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
 fn Context::new() -> Self
+#deprecated
+fn Context::op_equal(Self, Self) -> Bool // from trait `Eq`
 impl Eq for Context
 impl Hash for Context
 
@@ -495,9 +1109,16 @@ fn DataLayout::getTypeAllocSize(Self, &Type) -> Int
 fn DataLayout::getTypeAllocSizeInBits(Self, &Type) -> Int
 
 type DoubleArray
+fn DoubleArray::equal(Self, Self) -> Bool // from trait `Eq`
 fn DoubleArray::from(Array[Double]) -> Self
+fn DoubleArray::hash(Self) -> Int // from trait `Hash`
+fn DoubleArray::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
 fn DoubleArray::iter(Self) -> Iter[Double]
 fn DoubleArray::length(Self) -> Int
+#deprecated
+fn DoubleArray::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn DoubleArray::output(Self, &Logger) -> Unit // from trait `Show`
+fn DoubleArray::to_string(Self) -> String // from trait `Show`
 impl Eq for DoubleArray
 impl Hash for DoubleArray
 impl Show for DoubleArray
@@ -505,6 +1126,48 @@ impl Show for DoubleArray
 pub struct DoubleType {
   ctx : Context
 }
+fn DoubleType::asFPTypeEnum(Self) -> FPTypeEnum // from trait `FPType`
+fn DoubleType::asPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum // from trait `PrimitiveType`
+fn DoubleType::asTypeEnum(Self) -> TypeEnum // from trait `Type`
+fn DoubleType::canLosslesslyBitCastTo(Self, &Type) -> Bool // from trait `Type`
+fn DoubleType::equal(Self, Self) -> Bool // from trait `Eq`
+fn DoubleType::getBitWidth(Self) -> Int // from trait `PrimitiveType`
+fn DoubleType::getContext(Self) -> Context // from trait `Type`
+fn DoubleType::getFPMantissaWidth(Self) -> Int // from trait `FPType`
+fn DoubleType::getPrimitiveSizeInBits(Self) -> TypeSize // from trait `Type`
+fn DoubleType::getScalarSizeInBits(Self) -> Int // from trait `Type`
+fn DoubleType::getScalarType(Self) -> &Type // from trait `Type`
+fn DoubleType::hash(Self) -> Int // from trait `Hash`
+fn DoubleType::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+fn DoubleType::is16bitFPTy(Self) -> Bool // from trait `Type`
+fn DoubleType::isAggregateType(Self) -> Bool // from trait `Type`
+fn DoubleType::isEmptyTy(Self) -> Bool // from trait `Type`
+fn DoubleType::isFPOrFPVectorTy(Self) -> Bool // from trait `Type`
+fn DoubleType::isFirstClassType(Self) -> Bool // from trait `Type`
+fn DoubleType::isFloatingPointTy(Self) -> Bool // from trait `Type`
+fn DoubleType::isIEEELikeFPTy(Self) -> Bool // from trait `Type`
+fn DoubleType::isIntOrIntVectorTy(Self) -> Bool // from trait `Type`
+fn DoubleType::isIntOrPtrTy(Self) -> Bool // from trait `Type`
+fn DoubleType::isPtrOrPtrVectorTy(Self) -> Bool // from trait `Type`
+fn DoubleType::isScalableTargetExtTy(Self) -> Bool // from trait `Type`
+fn DoubleType::isScalableTy(Self) -> Bool // from trait `Type`
+fn DoubleType::isSingleValueType(Self) -> Bool // from trait `Type`
+fn DoubleType::isSized(Self) -> Bool // from trait `Type`
+fn DoubleType::isValidGEPType(Self) -> Bool // from trait `Type`
+#deprecated
+fn DoubleType::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn DoubleType::output(Self, &Logger) -> Unit // from trait `Show`
+fn DoubleType::to_string(Self) -> String // from trait `Show`
+fn DoubleType::tryAsAbstractType(Self) -> &AbstractType? // from trait `Type`
+fn DoubleType::tryAsAbstractTypeEnum(Self) -> AbstractTypeEnum? // from trait `Type`
+fn DoubleType::tryAsAggregateType(Self) -> &AggregateType? // from trait `Type`
+fn DoubleType::tryAsAggregateTypeEnum(Self) -> AggregateTypeEnum? // from trait `Type`
+fn DoubleType::tryAsFPType(Self) -> &FPType? // from trait `Type`
+fn DoubleType::tryAsFPTypeEnum(Self) -> FPTypeEnum? // from trait `Type`
+fn DoubleType::tryAsIntType(Self) -> &IntegerType? // from trait `Type`
+fn DoubleType::tryAsIntTypeEnum(Self) -> IntegerTypeEnum? // from trait `Type`
+fn DoubleType::tryAsPrimitiveType(Self) -> &PrimitiveType? // from trait `Type`
+fn DoubleType::tryAsPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum? // from trait `Type`
 impl FPType for DoubleType
 impl PrimitiveType for DoubleType
 impl Type for DoubleType
@@ -529,8 +1192,54 @@ pub struct ExtractValueInst {
   next : Ref[&Instruction?]
   indices : Array[Int]
 }
+fn ExtractValueInst::addUser(Self, &User) -> Unit // from trait `Value`
+fn ExtractValueInst::asInstEnum(Self) -> InstEnum // from trait `Instruction`
+fn ExtractValueInst::asUnaryInstEnum(Self) -> UnaryInstEnum // from trait `UnaryInst`
+fn ExtractValueInst::asUserEnum(Self) -> UserEnum // from trait `User`
+fn ExtractValueInst::asValueEnum(Self) -> ValueEnum // from trait `Value`
+fn ExtractValueInst::eraseFromParent(Self) -> Unit // from trait `Instruction`
 fn ExtractValueInst::getAggregateOperand(Self) -> &Value
+fn ExtractValueInst::getBasicBlock(Self) -> BasicBlock? // from trait `Instruction`
+fn ExtractValueInst::getContext(Self) -> Context // from trait `Value`
 fn ExtractValueInst::getIndices(Self) -> Array[Int]
+fn ExtractValueInst::getInstBase(Self) -> InstBase // from trait `Instruction`
+fn ExtractValueInst::getInstName(Self) -> String? // from trait `Instruction`
+fn ExtractValueInst::getModule(Self) -> Module // from trait `Instruction`
+fn ExtractValueInst::getName(Self) -> String? // from trait `Value`
+fn ExtractValueInst::getNameOrSlot(Self) -> @either.Either[String, UInt64]? // from trait `Value`
+fn ExtractValueInst::getNameOrSlotStr(Self) -> String // from trait `Value`
+fn ExtractValueInst::getNumOperands(Self) -> Int // from trait `User`
+fn ExtractValueInst::getOperand(Self, Int) -> &Value? // from trait `User`
+fn ExtractValueInst::getOperands(Self) -> Array[&Value] // from trait `User`
+fn ExtractValueInst::getParent(Self) -> Function // from trait `Instruction`
+fn ExtractValueInst::getType(Self) -> &Type // from trait `Value`
+fn ExtractValueInst::getUserBase(Self) -> UserBase // from trait `User`
+fn ExtractValueInst::getUsers(Self) -> Array[&User]? // from trait `Value`
+fn ExtractValueInst::getValueBase(Self) -> ValueBase // from trait `Value`
+fn ExtractValueInst::getValueRepr(Self) -> String // from trait `Value`
+fn ExtractValueInst::insertAfter(Self, &Instruction) -> Unit raise LLVMValueError // from trait `Instruction`
+fn ExtractValueInst::insertBefore(Self, &Instruction) -> Unit raise LLVMValueError // from trait `Instruction`
+fn ExtractValueInst::isIndependent(Self) -> Bool // from trait `Instruction`
+fn ExtractValueInst::isTerminator(Self) -> Bool // from trait `Instruction`
+fn ExtractValueInst::moveAfter(Self, &Instruction) -> Unit // from trait `Instruction`
+fn ExtractValueInst::moveBefore(Self, &Instruction) -> Unit // from trait `Instruction`
+fn ExtractValueInst::next(Self) -> &Instruction? // from trait `Instruction`
+fn ExtractValueInst::output(Self, &Logger) -> Unit // from trait `Show`
+fn ExtractValueInst::prev(Self) -> &Instruction? // from trait `Instruction`
+fn ExtractValueInst::removeFromParent(Self) -> Unit // from trait `Instruction`
+fn ExtractValueInst::removeName(Self) -> Unit raise LLVMValueError // from trait `Value`
+fn ExtractValueInst::replaceAllUsersWith(Self, &Value) -> Unit // from trait `Value`
+fn ExtractValueInst::setName(Self, String) -> Unit raise LLVMValueError // from trait `Value`
+fn ExtractValueInst::to_string(Self) -> String // from trait `Show`
+fn ExtractValueInst::tryAsConstant(Self) -> &Constant? // from trait `Value`
+fn ExtractValueInst::tryAsConstantEnum(Self) -> ConstantEnum? // from trait `Value`
+fn ExtractValueInst::tryAsGlobalValue(Self) -> &GlobalValue? // from trait `Value`
+fn ExtractValueInst::tryAsGlobalValueEnum(Self) -> GlobalValueEnum? // from trait `Value`
+fn ExtractValueInst::tryAsInst(Self) -> &Instruction? // from trait `Value`
+fn ExtractValueInst::tryAsInstEnum(Self) -> InstEnum? // from trait `Value`
+fn ExtractValueInst::tryAsUser(Self) -> &User? // from trait `Value`
+fn ExtractValueInst::tryAsUserEnum(Self) -> UserEnum? // from trait `Value`
+fn ExtractValueInst::user_empty(Self) -> Bool // from trait `Value`
 impl Instruction for ExtractValueInst
 impl UnaryInst for ExtractValueInst
 impl User for ExtractValueInst
@@ -550,6 +1259,51 @@ pub struct FCmpInst {
   next : Ref[&Instruction?]
   predicate : FloatPredicate
 }
+fn FCmpInst::addUser(Self, &User) -> Unit // from trait `Value`
+fn FCmpInst::asInstEnum(Self) -> InstEnum // from trait `Instruction`
+fn FCmpInst::asUserEnum(Self) -> UserEnum // from trait `User`
+fn FCmpInst::asValueEnum(Self) -> ValueEnum // from trait `Value`
+fn FCmpInst::eraseFromParent(Self) -> Unit // from trait `Instruction`
+fn FCmpInst::getBasicBlock(Self) -> BasicBlock? // from trait `Instruction`
+fn FCmpInst::getContext(Self) -> Context // from trait `Value`
+fn FCmpInst::getInstBase(Self) -> InstBase // from trait `Instruction`
+fn FCmpInst::getInstName(Self) -> String? // from trait `Instruction`
+fn FCmpInst::getModule(Self) -> Module // from trait `Instruction`
+fn FCmpInst::getName(Self) -> String? // from trait `Value`
+fn FCmpInst::getNameOrSlot(Self) -> @either.Either[String, UInt64]? // from trait `Value`
+fn FCmpInst::getNameOrSlotStr(Self) -> String // from trait `Value`
+fn FCmpInst::getNumOperands(Self) -> Int // from trait `User`
+fn FCmpInst::getOperand(Self, Int) -> &Value? // from trait `User`
+fn FCmpInst::getOperands(Self) -> Array[&Value] // from trait `User`
+fn FCmpInst::getParent(Self) -> Function // from trait `Instruction`
+fn FCmpInst::getType(Self) -> &Type // from trait `Value`
+fn FCmpInst::getUserBase(Self) -> UserBase // from trait `User`
+fn FCmpInst::getUsers(Self) -> Array[&User]? // from trait `Value`
+fn FCmpInst::getValueBase(Self) -> ValueBase // from trait `Value`
+fn FCmpInst::getValueRepr(Self) -> String // from trait `Value`
+fn FCmpInst::insertAfter(Self, &Instruction) -> Unit raise LLVMValueError // from trait `Instruction`
+fn FCmpInst::insertBefore(Self, &Instruction) -> Unit raise LLVMValueError // from trait `Instruction`
+fn FCmpInst::isIndependent(Self) -> Bool // from trait `Instruction`
+fn FCmpInst::isTerminator(Self) -> Bool // from trait `Instruction`
+fn FCmpInst::moveAfter(Self, &Instruction) -> Unit // from trait `Instruction`
+fn FCmpInst::moveBefore(Self, &Instruction) -> Unit // from trait `Instruction`
+fn FCmpInst::next(Self) -> &Instruction? // from trait `Instruction`
+fn FCmpInst::output(Self, &Logger) -> Unit // from trait `Show`
+fn FCmpInst::prev(Self) -> &Instruction? // from trait `Instruction`
+fn FCmpInst::removeFromParent(Self) -> Unit // from trait `Instruction`
+fn FCmpInst::removeName(Self) -> Unit raise LLVMValueError // from trait `Value`
+fn FCmpInst::replaceAllUsersWith(Self, &Value) -> Unit // from trait `Value`
+fn FCmpInst::setName(Self, String) -> Unit raise LLVMValueError // from trait `Value`
+fn FCmpInst::to_string(Self) -> String // from trait `Show`
+fn FCmpInst::tryAsConstant(Self) -> &Constant? // from trait `Value`
+fn FCmpInst::tryAsConstantEnum(Self) -> ConstantEnum? // from trait `Value`
+fn FCmpInst::tryAsGlobalValue(Self) -> &GlobalValue? // from trait `Value`
+fn FCmpInst::tryAsGlobalValueEnum(Self) -> GlobalValueEnum? // from trait `Value`
+fn FCmpInst::tryAsInst(Self) -> &Instruction? // from trait `Value`
+fn FCmpInst::tryAsInstEnum(Self) -> InstEnum? // from trait `Value`
+fn FCmpInst::tryAsUser(Self) -> &User? // from trait `Value`
+fn FCmpInst::tryAsUserEnum(Self) -> UserEnum? // from trait `Value`
+fn FCmpInst::user_empty(Self) -> Bool // from trait `Value`
 impl Instruction for FCmpInst
 impl User for FCmpInst
 impl Value for FCmpInst
@@ -567,7 +1321,53 @@ pub struct FNegInst {
   next : Ref[&Instruction?]
   fast_math_flags : @set.Set[FastMathFlag]
 }
+fn FNegInst::addUser(Self, &User) -> Unit // from trait `Value`
+fn FNegInst::asInstEnum(Self) -> InstEnum // from trait `Instruction`
+fn FNegInst::asUnaryInstEnum(Self) -> UnaryInstEnum // from trait `UnaryInst`
+fn FNegInst::asUserEnum(Self) -> UserEnum // from trait `User`
+fn FNegInst::asValueEnum(Self) -> ValueEnum // from trait `Value`
+fn FNegInst::eraseFromParent(Self) -> Unit // from trait `Instruction`
+fn FNegInst::getBasicBlock(Self) -> BasicBlock? // from trait `Instruction`
+fn FNegInst::getContext(Self) -> Context // from trait `Value`
+fn FNegInst::getInstBase(Self) -> InstBase // from trait `Instruction`
+fn FNegInst::getInstName(Self) -> String? // from trait `Instruction`
+fn FNegInst::getModule(Self) -> Module // from trait `Instruction`
+fn FNegInst::getName(Self) -> String? // from trait `Value`
+fn FNegInst::getNameOrSlot(Self) -> @either.Either[String, UInt64]? // from trait `Value`
+fn FNegInst::getNameOrSlotStr(Self) -> String // from trait `Value`
+fn FNegInst::getNumOperands(Self) -> Int // from trait `User`
+fn FNegInst::getOperand(Self, Int) -> &Value? // from trait `User`
+fn FNegInst::getOperands(Self) -> Array[&Value] // from trait `User`
+fn FNegInst::getParent(Self) -> Function // from trait `Instruction`
+fn FNegInst::getType(Self) -> &Type // from trait `Value`
+fn FNegInst::getUserBase(Self) -> UserBase // from trait `User`
+fn FNegInst::getUsers(Self) -> Array[&User]? // from trait `Value`
+fn FNegInst::getValueBase(Self) -> ValueBase // from trait `Value`
+fn FNegInst::getValueRepr(Self) -> String // from trait `Value`
+fn FNegInst::insertAfter(Self, &Instruction) -> Unit raise LLVMValueError // from trait `Instruction`
+fn FNegInst::insertBefore(Self, &Instruction) -> Unit raise LLVMValueError // from trait `Instruction`
+fn FNegInst::isIndependent(Self) -> Bool // from trait `Instruction`
+fn FNegInst::isTerminator(Self) -> Bool // from trait `Instruction`
+fn FNegInst::moveAfter(Self, &Instruction) -> Unit // from trait `Instruction`
+fn FNegInst::moveBefore(Self, &Instruction) -> Unit // from trait `Instruction`
 fn FNegInst::new(&Value, Function, name~ : String?, @set.Set[FastMathFlag]) -> Self
+fn FNegInst::next(Self) -> &Instruction? // from trait `Instruction`
+fn FNegInst::output(Self, &Logger) -> Unit // from trait `Show`
+fn FNegInst::prev(Self) -> &Instruction? // from trait `Instruction`
+fn FNegInst::removeFromParent(Self) -> Unit // from trait `Instruction`
+fn FNegInst::removeName(Self) -> Unit raise LLVMValueError // from trait `Value`
+fn FNegInst::replaceAllUsersWith(Self, &Value) -> Unit // from trait `Value`
+fn FNegInst::setName(Self, String) -> Unit raise LLVMValueError // from trait `Value`
+fn FNegInst::to_string(Self) -> String // from trait `Show`
+fn FNegInst::tryAsConstant(Self) -> &Constant? // from trait `Value`
+fn FNegInst::tryAsConstantEnum(Self) -> ConstantEnum? // from trait `Value`
+fn FNegInst::tryAsGlobalValue(Self) -> &GlobalValue? // from trait `Value`
+fn FNegInst::tryAsGlobalValueEnum(Self) -> GlobalValueEnum? // from trait `Value`
+fn FNegInst::tryAsInst(Self) -> &Instruction? // from trait `Value`
+fn FNegInst::tryAsInstEnum(Self) -> InstEnum? // from trait `Value`
+fn FNegInst::tryAsUser(Self) -> &User? // from trait `Value`
+fn FNegInst::tryAsUserEnum(Self) -> UserEnum? // from trait `Value`
+fn FNegInst::user_empty(Self) -> Bool // from trait `Value`
 impl Instruction for FNegInst
 impl UnaryInst for FNegInst
 impl User for FNegInst
@@ -577,6 +1377,48 @@ impl Show for FNegInst
 pub struct FP128Type {
   ctx : Context
 }
+fn FP128Type::asFPTypeEnum(Self) -> FPTypeEnum // from trait `FPType`
+fn FP128Type::asPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum // from trait `PrimitiveType`
+fn FP128Type::asTypeEnum(Self) -> TypeEnum // from trait `Type`
+fn FP128Type::canLosslesslyBitCastTo(Self, &Type) -> Bool // from trait `Type`
+fn FP128Type::equal(Self, Self) -> Bool // from trait `Eq`
+fn FP128Type::getBitWidth(Self) -> Int // from trait `PrimitiveType`
+fn FP128Type::getContext(Self) -> Context // from trait `Type`
+fn FP128Type::getFPMantissaWidth(Self) -> Int // from trait `FPType`
+fn FP128Type::getPrimitiveSizeInBits(Self) -> TypeSize // from trait `Type`
+fn FP128Type::getScalarSizeInBits(Self) -> Int // from trait `Type`
+fn FP128Type::getScalarType(Self) -> &Type // from trait `Type`
+fn FP128Type::hash(Self) -> Int // from trait `Hash`
+fn FP128Type::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+fn FP128Type::is16bitFPTy(Self) -> Bool // from trait `Type`
+fn FP128Type::isAggregateType(Self) -> Bool // from trait `Type`
+fn FP128Type::isEmptyTy(Self) -> Bool // from trait `Type`
+fn FP128Type::isFPOrFPVectorTy(Self) -> Bool // from trait `Type`
+fn FP128Type::isFirstClassType(Self) -> Bool // from trait `Type`
+fn FP128Type::isFloatingPointTy(Self) -> Bool // from trait `Type`
+fn FP128Type::isIEEELikeFPTy(Self) -> Bool // from trait `Type`
+fn FP128Type::isIntOrIntVectorTy(Self) -> Bool // from trait `Type`
+fn FP128Type::isIntOrPtrTy(Self) -> Bool // from trait `Type`
+fn FP128Type::isPtrOrPtrVectorTy(Self) -> Bool // from trait `Type`
+fn FP128Type::isScalableTargetExtTy(Self) -> Bool // from trait `Type`
+fn FP128Type::isScalableTy(Self) -> Bool // from trait `Type`
+fn FP128Type::isSingleValueType(Self) -> Bool // from trait `Type`
+fn FP128Type::isSized(Self) -> Bool // from trait `Type`
+fn FP128Type::isValidGEPType(Self) -> Bool // from trait `Type`
+#deprecated
+fn FP128Type::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn FP128Type::output(Self, &Logger) -> Unit // from trait `Show`
+fn FP128Type::to_string(Self) -> String // from trait `Show`
+fn FP128Type::tryAsAbstractType(Self) -> &AbstractType? // from trait `Type`
+fn FP128Type::tryAsAbstractTypeEnum(Self) -> AbstractTypeEnum? // from trait `Type`
+fn FP128Type::tryAsAggregateType(Self) -> &AggregateType? // from trait `Type`
+fn FP128Type::tryAsAggregateTypeEnum(Self) -> AggregateTypeEnum? // from trait `Type`
+fn FP128Type::tryAsFPType(Self) -> &FPType? // from trait `Type`
+fn FP128Type::tryAsFPTypeEnum(Self) -> FPTypeEnum? // from trait `Type`
+fn FP128Type::tryAsIntType(Self) -> &IntegerType? // from trait `Type`
+fn FP128Type::tryAsIntTypeEnum(Self) -> IntegerTypeEnum? // from trait `Type`
+fn FP128Type::tryAsPrimitiveType(Self) -> &PrimitiveType? // from trait `Type`
+fn FP128Type::tryAsPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum? // from trait `Type`
 impl FPType for FP128Type
 impl PrimitiveType for FP128Type
 impl Type for FP128Type
@@ -593,8 +1435,13 @@ pub enum FPTypeEnum {
 }
 fn FPTypeEnum::asFPTypeClass(Self) -> &FPType
 fn FPTypeEnum::asTypeClass(Self) -> &Type
+fn FPTypeEnum::equal(Self, Self) -> Bool // from trait `Eq`
 fn FPTypeEnum::getBitWidth(Self) -> Int
 fn FPTypeEnum::getFPMantissaWidth(Self) -> Int
+#deprecated
+fn FPTypeEnum::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn FPTypeEnum::output(Self, &Logger) -> Unit // from trait `Show`
+fn FPTypeEnum::to_string(Self) -> String // from trait `Show`
 impl Eq for FPTypeEnum
 impl Show for FPTypeEnum
 
@@ -607,14 +1454,28 @@ pub(all) enum FastMathFlag {
   AllowContract
   ApproxFunc
 }
+fn FastMathFlag::equal(Self, Self) -> Bool // from trait `Eq`
+fn FastMathFlag::hash(Self) -> Int // from trait `Hash`
+fn FastMathFlag::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+#deprecated
+fn FastMathFlag::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn FastMathFlag::output(Self, &Logger) -> Unit // from trait `Show`
+fn FastMathFlag::to_string(Self) -> String // from trait `Show`
 impl Eq for FastMathFlag
 impl Hash for FastMathFlag
 impl Show for FastMathFlag
 
 type FloatArray
+fn FloatArray::equal(Self, Self) -> Bool // from trait `Eq`
 fn FloatArray::from(Array[Float]) -> Self
+fn FloatArray::hash(Self) -> Int // from trait `Hash`
+fn FloatArray::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
 fn FloatArray::iter(Self) -> Iter[Float]
 fn FloatArray::length(Self) -> Int
+#deprecated
+fn FloatArray::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn FloatArray::output(Self, &Logger) -> Unit // from trait `Show`
+fn FloatArray::to_string(Self) -> String // from trait `Show`
 impl Eq for FloatArray
 impl Hash for FloatArray
 impl Show for FloatArray
@@ -637,11 +1498,55 @@ pub(all) enum FloatPredicate {
   UNE
   TRUE
 }
+fn FloatPredicate::output(Self, &Logger) -> Unit // from trait `Show`
+fn FloatPredicate::to_string(Self) -> String // from trait `Show`
 impl Show for FloatPredicate
 
 pub struct FloatType {
   ctx : Context
 }
+fn FloatType::asFPTypeEnum(Self) -> FPTypeEnum // from trait `FPType`
+fn FloatType::asPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum // from trait `PrimitiveType`
+fn FloatType::asTypeEnum(Self) -> TypeEnum // from trait `Type`
+fn FloatType::canLosslesslyBitCastTo(Self, &Type) -> Bool // from trait `Type`
+fn FloatType::equal(Self, Self) -> Bool // from trait `Eq`
+fn FloatType::getBitWidth(Self) -> Int // from trait `PrimitiveType`
+fn FloatType::getContext(Self) -> Context // from trait `Type`
+fn FloatType::getFPMantissaWidth(Self) -> Int // from trait `FPType`
+fn FloatType::getPrimitiveSizeInBits(Self) -> TypeSize // from trait `Type`
+fn FloatType::getScalarSizeInBits(Self) -> Int // from trait `Type`
+fn FloatType::getScalarType(Self) -> &Type // from trait `Type`
+fn FloatType::hash(Self) -> Int // from trait `Hash`
+fn FloatType::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+fn FloatType::is16bitFPTy(Self) -> Bool // from trait `Type`
+fn FloatType::isAggregateType(Self) -> Bool // from trait `Type`
+fn FloatType::isEmptyTy(Self) -> Bool // from trait `Type`
+fn FloatType::isFPOrFPVectorTy(Self) -> Bool // from trait `Type`
+fn FloatType::isFirstClassType(Self) -> Bool // from trait `Type`
+fn FloatType::isFloatingPointTy(Self) -> Bool // from trait `Type`
+fn FloatType::isIEEELikeFPTy(Self) -> Bool // from trait `Type`
+fn FloatType::isIntOrIntVectorTy(Self) -> Bool // from trait `Type`
+fn FloatType::isIntOrPtrTy(Self) -> Bool // from trait `Type`
+fn FloatType::isPtrOrPtrVectorTy(Self) -> Bool // from trait `Type`
+fn FloatType::isScalableTargetExtTy(Self) -> Bool // from trait `Type`
+fn FloatType::isScalableTy(Self) -> Bool // from trait `Type`
+fn FloatType::isSingleValueType(Self) -> Bool // from trait `Type`
+fn FloatType::isSized(Self) -> Bool // from trait `Type`
+fn FloatType::isValidGEPType(Self) -> Bool // from trait `Type`
+#deprecated
+fn FloatType::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn FloatType::output(Self, &Logger) -> Unit // from trait `Show`
+fn FloatType::to_string(Self) -> String // from trait `Show`
+fn FloatType::tryAsAbstractType(Self) -> &AbstractType? // from trait `Type`
+fn FloatType::tryAsAbstractTypeEnum(Self) -> AbstractTypeEnum? // from trait `Type`
+fn FloatType::tryAsAggregateType(Self) -> &AggregateType? // from trait `Type`
+fn FloatType::tryAsAggregateTypeEnum(Self) -> AggregateTypeEnum? // from trait `Type`
+fn FloatType::tryAsFPType(Self) -> &FPType? // from trait `Type`
+fn FloatType::tryAsFPTypeEnum(Self) -> FPTypeEnum? // from trait `Type`
+fn FloatType::tryAsIntType(Self) -> &IntegerType? // from trait `Type`
+fn FloatType::tryAsIntTypeEnum(Self) -> IntegerTypeEnum? // from trait `Type`
+fn FloatType::tryAsPrimitiveType(Self) -> &PrimitiveType? // from trait `Type`
+fn FloatType::tryAsPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum? // from trait `Type`
 impl FPType for FloatType
 impl PrimitiveType for FloatType
 impl Type for FloatType
@@ -650,6 +1555,13 @@ impl Hash for FloatType
 impl Show for FloatType
 
 type FloatingEnum
+fn FloatingEnum::equal(Self, Self) -> Bool // from trait `Eq`
+fn FloatingEnum::hash(Self) -> Int // from trait `Hash`
+fn FloatingEnum::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+#deprecated
+fn FloatingEnum::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn FloatingEnum::output(Self, &Logger) -> Unit // from trait `Show`
+fn FloatingEnum::to_string(Self) -> String // from trait `Show`
 impl Eq for FloatingEnum
 impl Hash for FloatingEnum
 impl Show for FloatingEnum
@@ -724,6 +1636,13 @@ pub(all) enum FnAttr {
   DenormalFPMath
   DenormalFPMathF32
 }
+fn FnAttr::equal(Self, Self) -> Bool // from trait `Eq`
+fn FnAttr::hash(Self) -> Int // from trait `Hash`
+fn FnAttr::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+#deprecated
+fn FnAttr::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn FnAttr::output(Self, &Logger) -> Unit // from trait `Show`
+fn FnAttr::to_string(Self) -> String // from trait `Show`
 impl Eq for FnAttr
 impl Hash for FnAttr
 impl Show for FnAttr
@@ -746,13 +1665,23 @@ pub struct Function {
 }
 fn Function::addAttr(Self, FnAttr) -> Unit
 fn Function::addBasicBlock(Self, name? : String, before? : BasicBlock?) -> BasicBlock
+fn Function::addUser(Self, &User) -> Unit // from trait `Value`
+fn Function::asGlobalValueEnum(Self) -> GlobalValueEnum // from trait `GlobalValue`
+fn Function::asValueEnum(Self) -> ValueEnum // from trait `Value`
 fn Function::clearSlot(Self) -> Unit
+fn Function::equal(Self, Self) -> Bool // from trait `Eq`
 fn Function::getArg(Self, Int) -> Argument?
+fn Function::getContext(Self) -> Context // from trait `Value`
 fn Function::getDataLayout(Self) -> DataLayout
 fn Function::getEntryBlock(Self) -> BasicBlock?
 fn Function::getFunctionAttrs(Self) -> @set.Set[FnAttr]
 fn Function::getFunctionType(Self) -> FunctionType
+fn Function::getGlobalValueBase(Self) -> GlobalValueBase // from trait `GlobalValue`
+fn Function::getLinkage(Self) -> Linkage // from trait `GlobalValue`
 fn Function::getModule(Self) -> Module
+fn Function::getName(Self) -> String? // from trait `Value`
+fn Function::getNameOrSlot(Self) -> @either.Either[String, UInt64]? // from trait `Value`
+fn Function::getNameOrSlotStr(Self) -> String // from trait `Value`
 fn Function::getNumArgs(Self) -> Int
 fn Function::getNumBasicBlocks(Self) -> Int
 fn Function::getNumParams(Self) -> Int
@@ -761,10 +1690,34 @@ fn Function::getParamTypes(Self) -> Array[&Type]
 fn Function::getReturnAttrs(Self) -> @set.Set[RetAttr]
 fn Function::getReturnType(Self) -> &Type
 fn[V : Value] Function::getSlot(Self, V) -> UInt64?
+fn Function::getType(Self) -> &Type // from trait `Value`
+fn Function::getUsers(Self) -> Array[&User]? // from trait `Value`
+fn Function::getValueBase(Self) -> ValueBase // from trait `Value`
+fn Function::getValueRepr(Self) -> String // from trait `Value`
 fn Function::hasBody(Self) -> Bool
 fn Function::instIter(Self) -> Iter[&Instruction]
 fn Function::isDeclaration(Self) -> Bool
+#deprecated
+fn Function::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn Function::output(Self, &Logger) -> Unit // from trait `Show`
 fn Function::processSlot(Self) -> Unit
+fn Function::removeBasicBlock(Self, BasicBlock) -> Unit
+fn Function::removeName(Self) -> Unit raise LLVMValueError // from trait `Value`
+fn Function::removeUnreachableBlocks(Self) -> Unit
+fn Function::replaceAllUsersWith(Self, &Value) -> Unit // from trait `Value`
+fn Function::setLinkage(Self, Linkage) -> Unit // from trait `GlobalValue`
+fn Function::setName(Self, String) -> Unit raise LLVMValueError // from trait `Value`
+fn Function::setUnnamedAddr(Self, UnnamedAddr) -> Unit // from trait `GlobalValue`
+fn Function::to_string(Self) -> String // from trait `Show`
+fn Function::tryAsConstant(Self) -> &Constant? // from trait `Value`
+fn Function::tryAsConstantEnum(Self) -> ConstantEnum? // from trait `Value`
+fn Function::tryAsGlobalValue(Self) -> &GlobalValue? // from trait `Value`
+fn Function::tryAsGlobalValueEnum(Self) -> GlobalValueEnum? // from trait `Value`
+fn Function::tryAsInst(Self) -> &Instruction? // from trait `Value`
+fn Function::tryAsInstEnum(Self) -> InstEnum? // from trait `Value`
+fn Function::tryAsUser(Self) -> &User? // from trait `Value`
+fn Function::tryAsUserEnum(Self) -> UserEnum? // from trait `Value`
+fn Function::user_empty(Self) -> Bool // from trait `Value`
 impl GlobalValue for Function
 impl Value for Function
 impl Eq for Function
@@ -776,12 +1729,51 @@ pub struct FunctionType {
   paramTypes : Array[&Type]
   isVarArg : Bool
 }
+fn FunctionType::asAbstractTypeEnum(Self) -> AbstractTypeEnum // from trait `AbstractType`
+fn FunctionType::asTypeEnum(Self) -> TypeEnum // from trait `Type`
+fn FunctionType::canLosslesslyBitCastTo(Self, &Type) -> Bool // from trait `Type`
+fn FunctionType::equal(Self, Self) -> Bool // from trait `Eq`
+fn FunctionType::getContext(Self) -> Context // from trait `Type`
 fn FunctionType::getNumParams(Self) -> Int
 fn FunctionType::getParamType(Self, Int) -> &Type?
 fn FunctionType::getParamTypes(Self) -> Array[&Type]
+fn FunctionType::getPrimitiveSizeInBits(Self) -> TypeSize // from trait `Type`
 fn FunctionType::getReturnType(Self) -> &Type
+fn FunctionType::getScalarSizeInBits(Self) -> Int // from trait `Type`
+fn FunctionType::getScalarType(Self) -> &Type // from trait `Type`
+fn FunctionType::hash(Self) -> Int // from trait `Hash`
+fn FunctionType::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+fn FunctionType::is16bitFPTy(Self) -> Bool // from trait `Type`
+fn FunctionType::isAggregateType(Self) -> Bool // from trait `Type`
+fn FunctionType::isEmptyTy(Self) -> Bool // from trait `Type`
+fn FunctionType::isFPOrFPVectorTy(Self) -> Bool // from trait `Type`
+fn FunctionType::isFirstClassType(Self) -> Bool // from trait `Type`
+fn FunctionType::isFloatingPointTy(Self) -> Bool // from trait `Type`
+fn FunctionType::isIEEELikeFPTy(Self) -> Bool // from trait `Type`
+fn FunctionType::isIntOrIntVectorTy(Self) -> Bool // from trait `Type`
+fn FunctionType::isIntOrPtrTy(Self) -> Bool // from trait `Type`
+fn FunctionType::isPtrOrPtrVectorTy(Self) -> Bool // from trait `Type`
+fn FunctionType::isScalableTargetExtTy(Self) -> Bool // from trait `Type`
+fn FunctionType::isScalableTy(Self) -> Bool // from trait `Type`
+fn FunctionType::isSingleValueType(Self) -> Bool // from trait `Type`
+fn FunctionType::isSized(Self) -> Bool // from trait `Type`
+fn FunctionType::isValidGEPType(Self) -> Bool // from trait `Type`
+#deprecated
+fn FunctionType::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn FunctionType::output(Self, &Logger) -> Unit // from trait `Show`
 fn FunctionType::param_iter(Self) -> Iter[&Type]
 fn FunctionType::params(Self) -> Array[&Type]
+fn FunctionType::to_string(Self) -> String // from trait `Show`
+fn FunctionType::tryAsAbstractType(Self) -> &AbstractType? // from trait `Type`
+fn FunctionType::tryAsAbstractTypeEnum(Self) -> AbstractTypeEnum? // from trait `Type`
+fn FunctionType::tryAsAggregateType(Self) -> &AggregateType? // from trait `Type`
+fn FunctionType::tryAsAggregateTypeEnum(Self) -> AggregateTypeEnum? // from trait `Type`
+fn FunctionType::tryAsFPType(Self) -> &FPType? // from trait `Type`
+fn FunctionType::tryAsFPTypeEnum(Self) -> FPTypeEnum? // from trait `Type`
+fn FunctionType::tryAsIntType(Self) -> &IntegerType? // from trait `Type`
+fn FunctionType::tryAsIntTypeEnum(Self) -> IntegerTypeEnum? // from trait `Type`
+fn FunctionType::tryAsPrimitiveType(Self) -> &PrimitiveType? // from trait `Type`
+fn FunctionType::tryAsPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum? // from trait `Type`
 impl AbstractType for FunctionType
 impl Type for FunctionType
 impl Eq for FunctionType
@@ -802,6 +1794,51 @@ pub struct GetElementPtrInst {
   isInbounds : Bool
   pointeeType : &Type
 }
+fn GetElementPtrInst::addUser(Self, &User) -> Unit // from trait `Value`
+fn GetElementPtrInst::asInstEnum(Self) -> InstEnum // from trait `Instruction`
+fn GetElementPtrInst::asUserEnum(Self) -> UserEnum // from trait `User`
+fn GetElementPtrInst::asValueEnum(Self) -> ValueEnum // from trait `Value`
+fn GetElementPtrInst::eraseFromParent(Self) -> Unit // from trait `Instruction`
+fn GetElementPtrInst::getBasicBlock(Self) -> BasicBlock? // from trait `Instruction`
+fn GetElementPtrInst::getContext(Self) -> Context // from trait `Value`
+fn GetElementPtrInst::getInstBase(Self) -> InstBase // from trait `Instruction`
+fn GetElementPtrInst::getInstName(Self) -> String? // from trait `Instruction`
+fn GetElementPtrInst::getModule(Self) -> Module // from trait `Instruction`
+fn GetElementPtrInst::getName(Self) -> String? // from trait `Value`
+fn GetElementPtrInst::getNameOrSlot(Self) -> @either.Either[String, UInt64]? // from trait `Value`
+fn GetElementPtrInst::getNameOrSlotStr(Self) -> String // from trait `Value`
+fn GetElementPtrInst::getNumOperands(Self) -> Int // from trait `User`
+fn GetElementPtrInst::getOperand(Self, Int) -> &Value? // from trait `User`
+fn GetElementPtrInst::getOperands(Self) -> Array[&Value] // from trait `User`
+fn GetElementPtrInst::getParent(Self) -> Function // from trait `Instruction`
+fn GetElementPtrInst::getType(Self) -> &Type // from trait `Value`
+fn GetElementPtrInst::getUserBase(Self) -> UserBase // from trait `User`
+fn GetElementPtrInst::getUsers(Self) -> Array[&User]? // from trait `Value`
+fn GetElementPtrInst::getValueBase(Self) -> ValueBase // from trait `Value`
+fn GetElementPtrInst::getValueRepr(Self) -> String // from trait `Value`
+fn GetElementPtrInst::insertAfter(Self, &Instruction) -> Unit raise LLVMValueError // from trait `Instruction`
+fn GetElementPtrInst::insertBefore(Self, &Instruction) -> Unit raise LLVMValueError // from trait `Instruction`
+fn GetElementPtrInst::isIndependent(Self) -> Bool // from trait `Instruction`
+fn GetElementPtrInst::isTerminator(Self) -> Bool // from trait `Instruction`
+fn GetElementPtrInst::moveAfter(Self, &Instruction) -> Unit // from trait `Instruction`
+fn GetElementPtrInst::moveBefore(Self, &Instruction) -> Unit // from trait `Instruction`
+fn GetElementPtrInst::next(Self) -> &Instruction? // from trait `Instruction`
+fn GetElementPtrInst::output(Self, &Logger) -> Unit // from trait `Show`
+fn GetElementPtrInst::prev(Self) -> &Instruction? // from trait `Instruction`
+fn GetElementPtrInst::removeFromParent(Self) -> Unit // from trait `Instruction`
+fn GetElementPtrInst::removeName(Self) -> Unit raise LLVMValueError // from trait `Value`
+fn GetElementPtrInst::replaceAllUsersWith(Self, &Value) -> Unit // from trait `Value`
+fn GetElementPtrInst::setName(Self, String) -> Unit raise LLVMValueError // from trait `Value`
+fn GetElementPtrInst::to_string(Self) -> String // from trait `Show`
+fn GetElementPtrInst::tryAsConstant(Self) -> &Constant? // from trait `Value`
+fn GetElementPtrInst::tryAsConstantEnum(Self) -> ConstantEnum? // from trait `Value`
+fn GetElementPtrInst::tryAsGlobalValue(Self) -> &GlobalValue? // from trait `Value`
+fn GetElementPtrInst::tryAsGlobalValueEnum(Self) -> GlobalValueEnum? // from trait `Value`
+fn GetElementPtrInst::tryAsInst(Self) -> &Instruction? // from trait `Value`
+fn GetElementPtrInst::tryAsInstEnum(Self) -> InstEnum? // from trait `Value`
+fn GetElementPtrInst::tryAsUser(Self) -> &User? // from trait `Value`
+fn GetElementPtrInst::tryAsUserEnum(Self) -> UserEnum? // from trait `Value`
+fn GetElementPtrInst::user_empty(Self) -> Bool // from trait `Value`
 impl Instruction for GetElementPtrInst
 impl User for GetElementPtrInst
 impl Value for GetElementPtrInst
@@ -819,7 +1856,37 @@ pub struct GlobalConstant {
   unnamed_addr : Ref[UnnamedAddr]
   mut value : &Constant
 }
+fn GlobalConstant::addUser(Self, &User) -> Unit // from trait `Value`
+fn GlobalConstant::asGlobalValueEnum(Self) -> GlobalValueEnum // from trait `GlobalValue`
+fn GlobalConstant::asValueEnum(Self) -> ValueEnum // from trait `Value`
+fn GlobalConstant::getContext(Self) -> Context // from trait `Value`
+fn GlobalConstant::getGlobalValueBase(Self) -> GlobalValueBase // from trait `GlobalValue`
+fn GlobalConstant::getLinkage(Self) -> Linkage // from trait `GlobalValue`
+fn GlobalConstant::getModule(Self) -> Module // from trait `GlobalValue`
+fn GlobalConstant::getName(Self) -> String? // from trait `Value`
+fn GlobalConstant::getNameOrSlot(Self) -> @either.Either[String, UInt64]? // from trait `Value`
+fn GlobalConstant::getNameOrSlotStr(Self) -> String // from trait `Value`
+fn GlobalConstant::getType(Self) -> &Type // from trait `Value`
+fn GlobalConstant::getUsers(Self) -> Array[&User]? // from trait `Value`
+fn GlobalConstant::getValueBase(Self) -> ValueBase // from trait `Value`
+fn GlobalConstant::getValueRepr(Self) -> String // from trait `Value`
+fn GlobalConstant::output(Self, &Logger) -> Unit // from trait `Show`
+fn GlobalConstant::removeName(Self) -> Unit raise LLVMValueError // from trait `Value`
+fn GlobalConstant::replaceAllUsersWith(Self, &Value) -> Unit // from trait `Value`
+fn GlobalConstant::setLinkage(Self, Linkage) -> Unit // from trait `GlobalValue`
+fn GlobalConstant::setName(Self, String) -> Unit raise LLVMValueError // from trait `Value`
+fn GlobalConstant::setUnnamedAddr(Self, UnnamedAddr) -> Unit // from trait `GlobalValue`
 fn GlobalConstant::setValue(Self, &Constant) -> Unit
+fn GlobalConstant::to_string(Self) -> String // from trait `Show`
+fn GlobalConstant::tryAsConstant(Self) -> &Constant? // from trait `Value`
+fn GlobalConstant::tryAsConstantEnum(Self) -> ConstantEnum? // from trait `Value`
+fn GlobalConstant::tryAsGlobalValue(Self) -> &GlobalValue? // from trait `Value`
+fn GlobalConstant::tryAsGlobalValueEnum(Self) -> GlobalValueEnum? // from trait `Value`
+fn GlobalConstant::tryAsInst(Self) -> &Instruction? // from trait `Value`
+fn GlobalConstant::tryAsInstEnum(Self) -> InstEnum? // from trait `Value`
+fn GlobalConstant::tryAsUser(Self) -> &User? // from trait `Value`
+fn GlobalConstant::tryAsUserEnum(Self) -> UserEnum? // from trait `Value`
+fn GlobalConstant::user_empty(Self) -> Bool // from trait `Value`
 impl GlobalValue for GlobalConstant
 impl Value for GlobalConstant
 impl Show for GlobalConstant
@@ -845,8 +1912,38 @@ pub struct GlobalVariable {
   mut initializer : &Constant?
   initializerTy : &Type
 }
+fn GlobalVariable::addUser(Self, &User) -> Unit // from trait `Value`
+fn GlobalVariable::asGlobalValueEnum(Self) -> GlobalValueEnum // from trait `GlobalValue`
+fn GlobalVariable::asValueEnum(Self) -> ValueEnum // from trait `Value`
+fn GlobalVariable::getContext(Self) -> Context // from trait `Value`
+fn GlobalVariable::getGlobalValueBase(Self) -> GlobalValueBase // from trait `GlobalValue`
+fn GlobalVariable::getLinkage(Self) -> Linkage // from trait `GlobalValue`
+fn GlobalVariable::getModule(Self) -> Module // from trait `GlobalValue`
+fn GlobalVariable::getName(Self) -> String? // from trait `Value`
+fn GlobalVariable::getNameOrSlot(Self) -> @either.Either[String, UInt64]? // from trait `Value`
+fn GlobalVariable::getNameOrSlotStr(Self) -> String // from trait `Value`
+fn GlobalVariable::getType(Self) -> &Type // from trait `Value`
+fn GlobalVariable::getUsers(Self) -> Array[&User]? // from trait `Value`
+fn GlobalVariable::getValueBase(Self) -> ValueBase // from trait `Value`
+fn GlobalVariable::getValueRepr(Self) -> String // from trait `Value`
+fn GlobalVariable::output(Self, &Logger) -> Unit // from trait `Show`
 fn GlobalVariable::removeInitializer(Self) -> Unit
+fn GlobalVariable::removeName(Self) -> Unit raise LLVMValueError // from trait `Value`
+fn GlobalVariable::replaceAllUsersWith(Self, &Value) -> Unit // from trait `Value`
 fn GlobalVariable::setInitializer(Self, &Constant) -> Unit
+fn GlobalVariable::setLinkage(Self, Linkage) -> Unit // from trait `GlobalValue`
+fn GlobalVariable::setName(Self, String) -> Unit raise LLVMValueError // from trait `Value`
+fn GlobalVariable::setUnnamedAddr(Self, UnnamedAddr) -> Unit // from trait `GlobalValue`
+fn GlobalVariable::to_string(Self) -> String // from trait `Show`
+fn GlobalVariable::tryAsConstant(Self) -> &Constant? // from trait `Value`
+fn GlobalVariable::tryAsConstantEnum(Self) -> ConstantEnum? // from trait `Value`
+fn GlobalVariable::tryAsGlobalValue(Self) -> &GlobalValue? // from trait `Value`
+fn GlobalVariable::tryAsGlobalValueEnum(Self) -> GlobalValueEnum? // from trait `Value`
+fn GlobalVariable::tryAsInst(Self) -> &Instruction? // from trait `Value`
+fn GlobalVariable::tryAsInstEnum(Self) -> InstEnum? // from trait `Value`
+fn GlobalVariable::tryAsUser(Self) -> &User? // from trait `Value`
+fn GlobalVariable::tryAsUserEnum(Self) -> UserEnum? // from trait `Value`
+fn GlobalVariable::user_empty(Self) -> Bool // from trait `Value`
 impl GlobalValue for GlobalVariable
 impl Value for GlobalVariable
 impl Show for GlobalVariable
@@ -854,6 +1951,48 @@ impl Show for GlobalVariable
 pub struct HalfType {
   ctx : Context
 }
+fn HalfType::asFPTypeEnum(Self) -> FPTypeEnum // from trait `FPType`
+fn HalfType::asPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum // from trait `PrimitiveType`
+fn HalfType::asTypeEnum(Self) -> TypeEnum // from trait `Type`
+fn HalfType::canLosslesslyBitCastTo(Self, &Type) -> Bool // from trait `Type`
+fn HalfType::equal(Self, Self) -> Bool // from trait `Eq`
+fn HalfType::getBitWidth(Self) -> Int // from trait `PrimitiveType`
+fn HalfType::getContext(Self) -> Context // from trait `Type`
+fn HalfType::getFPMantissaWidth(Self) -> Int // from trait `FPType`
+fn HalfType::getPrimitiveSizeInBits(Self) -> TypeSize // from trait `Type`
+fn HalfType::getScalarSizeInBits(Self) -> Int // from trait `Type`
+fn HalfType::getScalarType(Self) -> &Type // from trait `Type`
+fn HalfType::hash(Self) -> Int // from trait `Hash`
+fn HalfType::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+fn HalfType::is16bitFPTy(Self) -> Bool // from trait `Type`
+fn HalfType::isAggregateType(Self) -> Bool // from trait `Type`
+fn HalfType::isEmptyTy(Self) -> Bool // from trait `Type`
+fn HalfType::isFPOrFPVectorTy(Self) -> Bool // from trait `Type`
+fn HalfType::isFirstClassType(Self) -> Bool // from trait `Type`
+fn HalfType::isFloatingPointTy(Self) -> Bool // from trait `Type`
+fn HalfType::isIEEELikeFPTy(Self) -> Bool // from trait `Type`
+fn HalfType::isIntOrIntVectorTy(Self) -> Bool // from trait `Type`
+fn HalfType::isIntOrPtrTy(Self) -> Bool // from trait `Type`
+fn HalfType::isPtrOrPtrVectorTy(Self) -> Bool // from trait `Type`
+fn HalfType::isScalableTargetExtTy(Self) -> Bool // from trait `Type`
+fn HalfType::isScalableTy(Self) -> Bool // from trait `Type`
+fn HalfType::isSingleValueType(Self) -> Bool // from trait `Type`
+fn HalfType::isSized(Self) -> Bool // from trait `Type`
+fn HalfType::isValidGEPType(Self) -> Bool // from trait `Type`
+#deprecated
+fn HalfType::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn HalfType::output(Self, &Logger) -> Unit // from trait `Show`
+fn HalfType::to_string(Self) -> String // from trait `Show`
+fn HalfType::tryAsAbstractType(Self) -> &AbstractType? // from trait `Type`
+fn HalfType::tryAsAbstractTypeEnum(Self) -> AbstractTypeEnum? // from trait `Type`
+fn HalfType::tryAsAggregateType(Self) -> &AggregateType? // from trait `Type`
+fn HalfType::tryAsAggregateTypeEnum(Self) -> AggregateTypeEnum? // from trait `Type`
+fn HalfType::tryAsFPType(Self) -> &FPType? // from trait `Type`
+fn HalfType::tryAsFPTypeEnum(Self) -> FPTypeEnum? // from trait `Type`
+fn HalfType::tryAsIntType(Self) -> &IntegerType? // from trait `Type`
+fn HalfType::tryAsIntTypeEnum(Self) -> IntegerTypeEnum? // from trait `Type`
+fn HalfType::tryAsPrimitiveType(Self) -> &PrimitiveType? // from trait `Type`
+fn HalfType::tryAsPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum? // from trait `Type`
 impl FPType for HalfType
 impl PrimitiveType for HalfType
 impl Type for HalfType
@@ -874,6 +2013,51 @@ pub struct ICmpInst {
   next : Ref[&Instruction?]
   predicate : IntPredicate
 }
+fn ICmpInst::addUser(Self, &User) -> Unit // from trait `Value`
+fn ICmpInst::asInstEnum(Self) -> InstEnum // from trait `Instruction`
+fn ICmpInst::asUserEnum(Self) -> UserEnum // from trait `User`
+fn ICmpInst::asValueEnum(Self) -> ValueEnum // from trait `Value`
+fn ICmpInst::eraseFromParent(Self) -> Unit // from trait `Instruction`
+fn ICmpInst::getBasicBlock(Self) -> BasicBlock? // from trait `Instruction`
+fn ICmpInst::getContext(Self) -> Context // from trait `Value`
+fn ICmpInst::getInstBase(Self) -> InstBase // from trait `Instruction`
+fn ICmpInst::getInstName(Self) -> String? // from trait `Instruction`
+fn ICmpInst::getModule(Self) -> Module // from trait `Instruction`
+fn ICmpInst::getName(Self) -> String? // from trait `Value`
+fn ICmpInst::getNameOrSlot(Self) -> @either.Either[String, UInt64]? // from trait `Value`
+fn ICmpInst::getNameOrSlotStr(Self) -> String // from trait `Value`
+fn ICmpInst::getNumOperands(Self) -> Int // from trait `User`
+fn ICmpInst::getOperand(Self, Int) -> &Value? // from trait `User`
+fn ICmpInst::getOperands(Self) -> Array[&Value] // from trait `User`
+fn ICmpInst::getParent(Self) -> Function // from trait `Instruction`
+fn ICmpInst::getType(Self) -> &Type // from trait `Value`
+fn ICmpInst::getUserBase(Self) -> UserBase // from trait `User`
+fn ICmpInst::getUsers(Self) -> Array[&User]? // from trait `Value`
+fn ICmpInst::getValueBase(Self) -> ValueBase // from trait `Value`
+fn ICmpInst::getValueRepr(Self) -> String // from trait `Value`
+fn ICmpInst::insertAfter(Self, &Instruction) -> Unit raise LLVMValueError // from trait `Instruction`
+fn ICmpInst::insertBefore(Self, &Instruction) -> Unit raise LLVMValueError // from trait `Instruction`
+fn ICmpInst::isIndependent(Self) -> Bool // from trait `Instruction`
+fn ICmpInst::isTerminator(Self) -> Bool // from trait `Instruction`
+fn ICmpInst::moveAfter(Self, &Instruction) -> Unit // from trait `Instruction`
+fn ICmpInst::moveBefore(Self, &Instruction) -> Unit // from trait `Instruction`
+fn ICmpInst::next(Self) -> &Instruction? // from trait `Instruction`
+fn ICmpInst::output(Self, &Logger) -> Unit // from trait `Show`
+fn ICmpInst::prev(Self) -> &Instruction? // from trait `Instruction`
+fn ICmpInst::removeFromParent(Self) -> Unit // from trait `Instruction`
+fn ICmpInst::removeName(Self) -> Unit raise LLVMValueError // from trait `Value`
+fn ICmpInst::replaceAllUsersWith(Self, &Value) -> Unit // from trait `Value`
+fn ICmpInst::setName(Self, String) -> Unit raise LLVMValueError // from trait `Value`
+fn ICmpInst::to_string(Self) -> String // from trait `Show`
+fn ICmpInst::tryAsConstant(Self) -> &Constant? // from trait `Value`
+fn ICmpInst::tryAsConstantEnum(Self) -> ConstantEnum? // from trait `Value`
+fn ICmpInst::tryAsGlobalValue(Self) -> &GlobalValue? // from trait `Value`
+fn ICmpInst::tryAsGlobalValueEnum(Self) -> GlobalValueEnum? // from trait `Value`
+fn ICmpInst::tryAsInst(Self) -> &Instruction? // from trait `Value`
+fn ICmpInst::tryAsInstEnum(Self) -> InstEnum? // from trait `Value`
+fn ICmpInst::tryAsUser(Self) -> &User? // from trait `Value`
+fn ICmpInst::tryAsUserEnum(Self) -> UserEnum? // from trait `Value`
+fn ICmpInst::user_empty(Self) -> Bool // from trait `Value`
 impl Instruction for ICmpInst
 impl User for ICmpInst
 impl Value for ICmpInst
@@ -983,9 +2167,54 @@ pub struct InsertValueInst {
   next : Ref[&Instruction?]
   indices : Array[Int]
 }
+fn InsertValueInst::addUser(Self, &User) -> Unit // from trait `Value`
+fn InsertValueInst::asInstEnum(Self) -> InstEnum // from trait `Instruction`
+fn InsertValueInst::asUserEnum(Self) -> UserEnum // from trait `User`
+fn InsertValueInst::asValueEnum(Self) -> ValueEnum // from trait `Value`
+fn InsertValueInst::eraseFromParent(Self) -> Unit // from trait `Instruction`
 fn InsertValueInst::getAggregateOperand(Self) -> &Value
+fn InsertValueInst::getBasicBlock(Self) -> BasicBlock? // from trait `Instruction`
+fn InsertValueInst::getContext(Self) -> Context // from trait `Value`
 fn InsertValueInst::getIndices(Self) -> Array[Int]
 fn InsertValueInst::getInsertedValueOperand(Self) -> &Value
+fn InsertValueInst::getInstBase(Self) -> InstBase // from trait `Instruction`
+fn InsertValueInst::getInstName(Self) -> String? // from trait `Instruction`
+fn InsertValueInst::getModule(Self) -> Module // from trait `Instruction`
+fn InsertValueInst::getName(Self) -> String? // from trait `Value`
+fn InsertValueInst::getNameOrSlot(Self) -> @either.Either[String, UInt64]? // from trait `Value`
+fn InsertValueInst::getNameOrSlotStr(Self) -> String // from trait `Value`
+fn InsertValueInst::getNumOperands(Self) -> Int // from trait `User`
+fn InsertValueInst::getOperand(Self, Int) -> &Value? // from trait `User`
+fn InsertValueInst::getOperands(Self) -> Array[&Value] // from trait `User`
+fn InsertValueInst::getParent(Self) -> Function // from trait `Instruction`
+fn InsertValueInst::getType(Self) -> &Type // from trait `Value`
+fn InsertValueInst::getUserBase(Self) -> UserBase // from trait `User`
+fn InsertValueInst::getUsers(Self) -> Array[&User]? // from trait `Value`
+fn InsertValueInst::getValueBase(Self) -> ValueBase // from trait `Value`
+fn InsertValueInst::getValueRepr(Self) -> String // from trait `Value`
+fn InsertValueInst::insertAfter(Self, &Instruction) -> Unit raise LLVMValueError // from trait `Instruction`
+fn InsertValueInst::insertBefore(Self, &Instruction) -> Unit raise LLVMValueError // from trait `Instruction`
+fn InsertValueInst::isIndependent(Self) -> Bool // from trait `Instruction`
+fn InsertValueInst::isTerminator(Self) -> Bool // from trait `Instruction`
+fn InsertValueInst::moveAfter(Self, &Instruction) -> Unit // from trait `Instruction`
+fn InsertValueInst::moveBefore(Self, &Instruction) -> Unit // from trait `Instruction`
+fn InsertValueInst::next(Self) -> &Instruction? // from trait `Instruction`
+fn InsertValueInst::output(Self, &Logger) -> Unit // from trait `Show`
+fn InsertValueInst::prev(Self) -> &Instruction? // from trait `Instruction`
+fn InsertValueInst::removeFromParent(Self) -> Unit // from trait `Instruction`
+fn InsertValueInst::removeName(Self) -> Unit raise LLVMValueError // from trait `Value`
+fn InsertValueInst::replaceAllUsersWith(Self, &Value) -> Unit // from trait `Value`
+fn InsertValueInst::setName(Self, String) -> Unit raise LLVMValueError // from trait `Value`
+fn InsertValueInst::to_string(Self) -> String // from trait `Show`
+fn InsertValueInst::tryAsConstant(Self) -> &Constant? // from trait `Value`
+fn InsertValueInst::tryAsConstantEnum(Self) -> ConstantEnum? // from trait `Value`
+fn InsertValueInst::tryAsGlobalValue(Self) -> &GlobalValue? // from trait `Value`
+fn InsertValueInst::tryAsGlobalValueEnum(Self) -> GlobalValueEnum? // from trait `Value`
+fn InsertValueInst::tryAsInst(Self) -> &Instruction? // from trait `Value`
+fn InsertValueInst::tryAsInstEnum(Self) -> InstEnum? // from trait `Value`
+fn InsertValueInst::tryAsUser(Self) -> &User? // from trait `Value`
+fn InsertValueInst::tryAsUserEnum(Self) -> UserEnum? // from trait `Value`
+fn InsertValueInst::user_empty(Self) -> Bool // from trait `Value`
 impl Instruction for InsertValueInst
 impl User for InsertValueInst
 impl Value for InsertValueInst
@@ -1016,9 +2245,16 @@ pub enum InstEnum {
 }
 
 type Int16Array
+fn Int16Array::equal(Self, Self) -> Bool // from trait `Eq`
 fn Int16Array::from(Array[Int16]) -> Self
+fn Int16Array::hash(Self) -> Int // from trait `Hash`
+fn Int16Array::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
 fn Int16Array::iter(Self) -> Iter[Int16]
 fn Int16Array::length(Self) -> Int
+#deprecated
+fn Int16Array::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn Int16Array::output(Self, &Logger) -> Unit // from trait `Show`
+fn Int16Array::to_string(Self) -> String // from trait `Show`
 impl Eq for Int16Array
 impl Hash for Int16Array
 impl Show for Int16Array
@@ -1026,7 +2262,50 @@ impl Show for Int16Array
 pub struct Int16Type {
   ctx : Context
 }
+fn Int16Type::asIntegerTypeEnum(Self) -> IntegerTypeEnum // from trait `IntegerType`
+fn Int16Type::asPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum // from trait `PrimitiveType`
+fn Int16Type::asTypeEnum(Self) -> TypeEnum // from trait `Type`
+fn Int16Type::canLosslesslyBitCastTo(Self, &Type) -> Bool // from trait `Type`
+fn Int16Type::equal(Self, Self) -> Bool // from trait `Eq`
+fn Int16Type::getBitMask(Self) -> UInt64 // from trait `IntegerType`
+fn Int16Type::getBitWidth(Self) -> Int // from trait `PrimitiveType`
+fn Int16Type::getContext(Self) -> Context // from trait `Type`
 fn Int16Type::getExtendedType(Self) -> Int32Type
+fn Int16Type::getPrimitiveSizeInBits(Self) -> TypeSize // from trait `Type`
+fn Int16Type::getScalarSizeInBits(Self) -> Int // from trait `Type`
+fn Int16Type::getScalarType(Self) -> &Type // from trait `Type`
+fn Int16Type::getSignBit(Self) -> UInt64 // from trait `IntegerType`
+fn Int16Type::hash(Self) -> Int // from trait `Hash`
+fn Int16Type::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+fn Int16Type::is16bitFPTy(Self) -> Bool // from trait `Type`
+fn Int16Type::isAggregateType(Self) -> Bool // from trait `Type`
+fn Int16Type::isEmptyTy(Self) -> Bool // from trait `Type`
+fn Int16Type::isFPOrFPVectorTy(Self) -> Bool // from trait `Type`
+fn Int16Type::isFirstClassType(Self) -> Bool // from trait `Type`
+fn Int16Type::isFloatingPointTy(Self) -> Bool // from trait `Type`
+fn Int16Type::isIEEELikeFPTy(Self) -> Bool // from trait `Type`
+fn Int16Type::isIntOrIntVectorTy(Self) -> Bool // from trait `Type`
+fn Int16Type::isIntOrPtrTy(Self) -> Bool // from trait `Type`
+fn Int16Type::isPtrOrPtrVectorTy(Self) -> Bool // from trait `Type`
+fn Int16Type::isScalableTargetExtTy(Self) -> Bool // from trait `Type`
+fn Int16Type::isScalableTy(Self) -> Bool // from trait `Type`
+fn Int16Type::isSingleValueType(Self) -> Bool // from trait `Type`
+fn Int16Type::isSized(Self) -> Bool // from trait `Type`
+fn Int16Type::isValidGEPType(Self) -> Bool // from trait `Type`
+#deprecated
+fn Int16Type::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn Int16Type::output(Self, &Logger) -> Unit // from trait `Show`
+fn Int16Type::to_string(Self) -> String // from trait `Show`
+fn Int16Type::tryAsAbstractType(Self) -> &AbstractType? // from trait `Type`
+fn Int16Type::tryAsAbstractTypeEnum(Self) -> AbstractTypeEnum? // from trait `Type`
+fn Int16Type::tryAsAggregateType(Self) -> &AggregateType? // from trait `Type`
+fn Int16Type::tryAsAggregateTypeEnum(Self) -> AggregateTypeEnum? // from trait `Type`
+fn Int16Type::tryAsFPType(Self) -> &FPType? // from trait `Type`
+fn Int16Type::tryAsFPTypeEnum(Self) -> FPTypeEnum? // from trait `Type`
+fn Int16Type::tryAsIntType(Self) -> &IntegerType? // from trait `Type`
+fn Int16Type::tryAsIntTypeEnum(Self) -> IntegerTypeEnum? // from trait `Type`
+fn Int16Type::tryAsPrimitiveType(Self) -> &PrimitiveType? // from trait `Type`
+fn Int16Type::tryAsPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum? // from trait `Type`
 impl IntegerType for Int16Type
 impl PrimitiveType for Int16Type
 impl Type for Int16Type
@@ -1037,6 +2316,50 @@ impl Show for Int16Type
 pub struct Int1Type {
   ctx : Context
 }
+fn Int1Type::asIntegerTypeEnum(Self) -> IntegerTypeEnum // from trait `IntegerType`
+fn Int1Type::asPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum // from trait `PrimitiveType`
+fn Int1Type::asTypeEnum(Self) -> TypeEnum // from trait `Type`
+fn Int1Type::canLosslesslyBitCastTo(Self, &Type) -> Bool // from trait `Type`
+fn Int1Type::equal(Self, Self) -> Bool // from trait `Eq`
+fn Int1Type::getBitMask(Self) -> UInt64 // from trait `IntegerType`
+fn Int1Type::getBitWidth(Self) -> Int // from trait `PrimitiveType`
+fn Int1Type::getContext(Self) -> Context // from trait `Type`
+fn Int1Type::getExtendedType(Self) -> &IntegerType? // from trait `IntegerType`
+fn Int1Type::getPrimitiveSizeInBits(Self) -> TypeSize // from trait `Type`
+fn Int1Type::getScalarSizeInBits(Self) -> Int // from trait `Type`
+fn Int1Type::getScalarType(Self) -> &Type // from trait `Type`
+fn Int1Type::getSignBit(Self) -> UInt64 // from trait `IntegerType`
+fn Int1Type::hash(Self) -> Int // from trait `Hash`
+fn Int1Type::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+fn Int1Type::is16bitFPTy(Self) -> Bool // from trait `Type`
+fn Int1Type::isAggregateType(Self) -> Bool // from trait `Type`
+fn Int1Type::isEmptyTy(Self) -> Bool // from trait `Type`
+fn Int1Type::isFPOrFPVectorTy(Self) -> Bool // from trait `Type`
+fn Int1Type::isFirstClassType(Self) -> Bool // from trait `Type`
+fn Int1Type::isFloatingPointTy(Self) -> Bool // from trait `Type`
+fn Int1Type::isIEEELikeFPTy(Self) -> Bool // from trait `Type`
+fn Int1Type::isIntOrIntVectorTy(Self) -> Bool // from trait `Type`
+fn Int1Type::isIntOrPtrTy(Self) -> Bool // from trait `Type`
+fn Int1Type::isPtrOrPtrVectorTy(Self) -> Bool // from trait `Type`
+fn Int1Type::isScalableTargetExtTy(Self) -> Bool // from trait `Type`
+fn Int1Type::isScalableTy(Self) -> Bool // from trait `Type`
+fn Int1Type::isSingleValueType(Self) -> Bool // from trait `Type`
+fn Int1Type::isSized(Self) -> Bool // from trait `Type`
+fn Int1Type::isValidGEPType(Self) -> Bool // from trait `Type`
+#deprecated
+fn Int1Type::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn Int1Type::output(Self, &Logger) -> Unit // from trait `Show`
+fn Int1Type::to_string(Self) -> String // from trait `Show`
+fn Int1Type::tryAsAbstractType(Self) -> &AbstractType? // from trait `Type`
+fn Int1Type::tryAsAbstractTypeEnum(Self) -> AbstractTypeEnum? // from trait `Type`
+fn Int1Type::tryAsAggregateType(Self) -> &AggregateType? // from trait `Type`
+fn Int1Type::tryAsAggregateTypeEnum(Self) -> AggregateTypeEnum? // from trait `Type`
+fn Int1Type::tryAsFPType(Self) -> &FPType? // from trait `Type`
+fn Int1Type::tryAsFPTypeEnum(Self) -> FPTypeEnum? // from trait `Type`
+fn Int1Type::tryAsIntType(Self) -> &IntegerType? // from trait `Type`
+fn Int1Type::tryAsIntTypeEnum(Self) -> IntegerTypeEnum? // from trait `Type`
+fn Int1Type::tryAsPrimitiveType(Self) -> &PrimitiveType? // from trait `Type`
+fn Int1Type::tryAsPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum? // from trait `Type`
 impl IntegerType for Int1Type
 impl PrimitiveType for Int1Type
 impl Type for Int1Type
@@ -1045,9 +2368,16 @@ impl Hash for Int1Type
 impl Show for Int1Type
 
 type Int32Array
+fn Int32Array::equal(Self, Self) -> Bool // from trait `Eq`
 fn Int32Array::from(Array[Int]) -> Self
+fn Int32Array::hash(Self) -> Int // from trait `Hash`
+fn Int32Array::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
 fn Int32Array::iter(Self) -> Iter[Int]
 fn Int32Array::length(Self) -> Int
+#deprecated
+fn Int32Array::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn Int32Array::output(Self, &Logger) -> Unit // from trait `Show`
+fn Int32Array::to_string(Self) -> String // from trait `Show`
 impl Eq for Int32Array
 impl Hash for Int32Array
 impl Show for Int32Array
@@ -1055,7 +2385,50 @@ impl Show for Int32Array
 pub struct Int32Type {
   ctx : Context
 }
+fn Int32Type::asIntegerTypeEnum(Self) -> IntegerTypeEnum // from trait `IntegerType`
+fn Int32Type::asPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum // from trait `PrimitiveType`
+fn Int32Type::asTypeEnum(Self) -> TypeEnum // from trait `Type`
+fn Int32Type::canLosslesslyBitCastTo(Self, &Type) -> Bool // from trait `Type`
+fn Int32Type::equal(Self, Self) -> Bool // from trait `Eq`
+fn Int32Type::getBitMask(Self) -> UInt64 // from trait `IntegerType`
+fn Int32Type::getBitWidth(Self) -> Int // from trait `PrimitiveType`
+fn Int32Type::getContext(Self) -> Context // from trait `Type`
 fn Int32Type::getExtendedType(Self) -> Int64Type
+fn Int32Type::getPrimitiveSizeInBits(Self) -> TypeSize // from trait `Type`
+fn Int32Type::getScalarSizeInBits(Self) -> Int // from trait `Type`
+fn Int32Type::getScalarType(Self) -> &Type // from trait `Type`
+fn Int32Type::getSignBit(Self) -> UInt64 // from trait `IntegerType`
+fn Int32Type::hash(Self) -> Int // from trait `Hash`
+fn Int32Type::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+fn Int32Type::is16bitFPTy(Self) -> Bool // from trait `Type`
+fn Int32Type::isAggregateType(Self) -> Bool // from trait `Type`
+fn Int32Type::isEmptyTy(Self) -> Bool // from trait `Type`
+fn Int32Type::isFPOrFPVectorTy(Self) -> Bool // from trait `Type`
+fn Int32Type::isFirstClassType(Self) -> Bool // from trait `Type`
+fn Int32Type::isFloatingPointTy(Self) -> Bool // from trait `Type`
+fn Int32Type::isIEEELikeFPTy(Self) -> Bool // from trait `Type`
+fn Int32Type::isIntOrIntVectorTy(Self) -> Bool // from trait `Type`
+fn Int32Type::isIntOrPtrTy(Self) -> Bool // from trait `Type`
+fn Int32Type::isPtrOrPtrVectorTy(Self) -> Bool // from trait `Type`
+fn Int32Type::isScalableTargetExtTy(Self) -> Bool // from trait `Type`
+fn Int32Type::isScalableTy(Self) -> Bool // from trait `Type`
+fn Int32Type::isSingleValueType(Self) -> Bool // from trait `Type`
+fn Int32Type::isSized(Self) -> Bool // from trait `Type`
+fn Int32Type::isValidGEPType(Self) -> Bool // from trait `Type`
+#deprecated
+fn Int32Type::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn Int32Type::output(Self, &Logger) -> Unit // from trait `Show`
+fn Int32Type::to_string(Self) -> String // from trait `Show`
+fn Int32Type::tryAsAbstractType(Self) -> &AbstractType? // from trait `Type`
+fn Int32Type::tryAsAbstractTypeEnum(Self) -> AbstractTypeEnum? // from trait `Type`
+fn Int32Type::tryAsAggregateType(Self) -> &AggregateType? // from trait `Type`
+fn Int32Type::tryAsAggregateTypeEnum(Self) -> AggregateTypeEnum? // from trait `Type`
+fn Int32Type::tryAsFPType(Self) -> &FPType? // from trait `Type`
+fn Int32Type::tryAsFPTypeEnum(Self) -> FPTypeEnum? // from trait `Type`
+fn Int32Type::tryAsIntType(Self) -> &IntegerType? // from trait `Type`
+fn Int32Type::tryAsIntTypeEnum(Self) -> IntegerTypeEnum? // from trait `Type`
+fn Int32Type::tryAsPrimitiveType(Self) -> &PrimitiveType? // from trait `Type`
+fn Int32Type::tryAsPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum? // from trait `Type`
 impl IntegerType for Int32Type
 impl PrimitiveType for Int32Type
 impl Type for Int32Type
@@ -1064,9 +2437,16 @@ impl Hash for Int32Type
 impl Show for Int32Type
 
 type Int64Array
+fn Int64Array::equal(Self, Self) -> Bool // from trait `Eq`
 fn Int64Array::from(Array[Int64]) -> Self
+fn Int64Array::hash(Self) -> Int // from trait `Hash`
+fn Int64Array::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
 fn Int64Array::iter(Self) -> Iter[Int64]
 fn Int64Array::length(Self) -> Int
+#deprecated
+fn Int64Array::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn Int64Array::output(Self, &Logger) -> Unit // from trait `Show`
+fn Int64Array::to_string(Self) -> String // from trait `Show`
 impl Eq for Int64Array
 impl Hash for Int64Array
 impl Show for Int64Array
@@ -1074,6 +2454,50 @@ impl Show for Int64Array
 pub struct Int64Type {
   ctx : Context
 }
+fn Int64Type::asIntegerTypeEnum(Self) -> IntegerTypeEnum // from trait `IntegerType`
+fn Int64Type::asPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum // from trait `PrimitiveType`
+fn Int64Type::asTypeEnum(Self) -> TypeEnum // from trait `Type`
+fn Int64Type::canLosslesslyBitCastTo(Self, &Type) -> Bool // from trait `Type`
+fn Int64Type::equal(Self, Self) -> Bool // from trait `Eq`
+fn Int64Type::getBitMask(Self) -> UInt64 // from trait `IntegerType`
+fn Int64Type::getBitWidth(Self) -> Int // from trait `PrimitiveType`
+fn Int64Type::getContext(Self) -> Context // from trait `Type`
+fn Int64Type::getExtendedType(Self) -> &IntegerType? // from trait `IntegerType`
+fn Int64Type::getPrimitiveSizeInBits(Self) -> TypeSize // from trait `Type`
+fn Int64Type::getScalarSizeInBits(Self) -> Int // from trait `Type`
+fn Int64Type::getScalarType(Self) -> &Type // from trait `Type`
+fn Int64Type::getSignBit(Self) -> UInt64 // from trait `IntegerType`
+fn Int64Type::hash(Self) -> Int // from trait `Hash`
+fn Int64Type::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+fn Int64Type::is16bitFPTy(Self) -> Bool // from trait `Type`
+fn Int64Type::isAggregateType(Self) -> Bool // from trait `Type`
+fn Int64Type::isEmptyTy(Self) -> Bool // from trait `Type`
+fn Int64Type::isFPOrFPVectorTy(Self) -> Bool // from trait `Type`
+fn Int64Type::isFirstClassType(Self) -> Bool // from trait `Type`
+fn Int64Type::isFloatingPointTy(Self) -> Bool // from trait `Type`
+fn Int64Type::isIEEELikeFPTy(Self) -> Bool // from trait `Type`
+fn Int64Type::isIntOrIntVectorTy(Self) -> Bool // from trait `Type`
+fn Int64Type::isIntOrPtrTy(Self) -> Bool // from trait `Type`
+fn Int64Type::isPtrOrPtrVectorTy(Self) -> Bool // from trait `Type`
+fn Int64Type::isScalableTargetExtTy(Self) -> Bool // from trait `Type`
+fn Int64Type::isScalableTy(Self) -> Bool // from trait `Type`
+fn Int64Type::isSingleValueType(Self) -> Bool // from trait `Type`
+fn Int64Type::isSized(Self) -> Bool // from trait `Type`
+fn Int64Type::isValidGEPType(Self) -> Bool // from trait `Type`
+#deprecated
+fn Int64Type::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn Int64Type::output(Self, &Logger) -> Unit // from trait `Show`
+fn Int64Type::to_string(Self) -> String // from trait `Show`
+fn Int64Type::tryAsAbstractType(Self) -> &AbstractType? // from trait `Type`
+fn Int64Type::tryAsAbstractTypeEnum(Self) -> AbstractTypeEnum? // from trait `Type`
+fn Int64Type::tryAsAggregateType(Self) -> &AggregateType? // from trait `Type`
+fn Int64Type::tryAsAggregateTypeEnum(Self) -> AggregateTypeEnum? // from trait `Type`
+fn Int64Type::tryAsFPType(Self) -> &FPType? // from trait `Type`
+fn Int64Type::tryAsFPTypeEnum(Self) -> FPTypeEnum? // from trait `Type`
+fn Int64Type::tryAsIntType(Self) -> &IntegerType? // from trait `Type`
+fn Int64Type::tryAsIntTypeEnum(Self) -> IntegerTypeEnum? // from trait `Type`
+fn Int64Type::tryAsPrimitiveType(Self) -> &PrimitiveType? // from trait `Type`
+fn Int64Type::tryAsPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum? // from trait `Type`
 impl IntegerType for Int64Type
 impl PrimitiveType for Int64Type
 impl Type for Int64Type
@@ -1082,9 +2506,16 @@ impl Hash for Int64Type
 impl Show for Int64Type
 
 type Int8Array
+fn Int8Array::equal(Self, Self) -> Bool // from trait `Eq`
 fn Int8Array::from(Array[@int8.Int8]) -> Self
+fn Int8Array::hash(Self) -> Int // from trait `Hash`
+fn Int8Array::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
 fn Int8Array::iter(Self) -> Iter[@int8.Int8]
 fn Int8Array::length(Self) -> Int
+#deprecated
+fn Int8Array::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn Int8Array::output(Self, &Logger) -> Unit // from trait `Show`
+fn Int8Array::to_string(Self) -> String // from trait `Show`
 impl Eq for Int8Array
 impl Hash for Int8Array
 impl Show for Int8Array
@@ -1092,7 +2523,50 @@ impl Show for Int8Array
 pub struct Int8Type {
   ctx : Context
 }
+fn Int8Type::asIntegerTypeEnum(Self) -> IntegerTypeEnum // from trait `IntegerType`
+fn Int8Type::asPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum // from trait `PrimitiveType`
+fn Int8Type::asTypeEnum(Self) -> TypeEnum // from trait `Type`
+fn Int8Type::canLosslesslyBitCastTo(Self, &Type) -> Bool // from trait `Type`
+fn Int8Type::equal(Self, Self) -> Bool // from trait `Eq`
+fn Int8Type::getBitMask(Self) -> UInt64 // from trait `IntegerType`
+fn Int8Type::getBitWidth(Self) -> Int // from trait `PrimitiveType`
+fn Int8Type::getContext(Self) -> Context // from trait `Type`
 fn Int8Type::getExtendedType(Self) -> Int16Type
+fn Int8Type::getPrimitiveSizeInBits(Self) -> TypeSize // from trait `Type`
+fn Int8Type::getScalarSizeInBits(Self) -> Int // from trait `Type`
+fn Int8Type::getScalarType(Self) -> &Type // from trait `Type`
+fn Int8Type::getSignBit(Self) -> UInt64 // from trait `IntegerType`
+fn Int8Type::hash(Self) -> Int // from trait `Hash`
+fn Int8Type::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+fn Int8Type::is16bitFPTy(Self) -> Bool // from trait `Type`
+fn Int8Type::isAggregateType(Self) -> Bool // from trait `Type`
+fn Int8Type::isEmptyTy(Self) -> Bool // from trait `Type`
+fn Int8Type::isFPOrFPVectorTy(Self) -> Bool // from trait `Type`
+fn Int8Type::isFirstClassType(Self) -> Bool // from trait `Type`
+fn Int8Type::isFloatingPointTy(Self) -> Bool // from trait `Type`
+fn Int8Type::isIEEELikeFPTy(Self) -> Bool // from trait `Type`
+fn Int8Type::isIntOrIntVectorTy(Self) -> Bool // from trait `Type`
+fn Int8Type::isIntOrPtrTy(Self) -> Bool // from trait `Type`
+fn Int8Type::isPtrOrPtrVectorTy(Self) -> Bool // from trait `Type`
+fn Int8Type::isScalableTargetExtTy(Self) -> Bool // from trait `Type`
+fn Int8Type::isScalableTy(Self) -> Bool // from trait `Type`
+fn Int8Type::isSingleValueType(Self) -> Bool // from trait `Type`
+fn Int8Type::isSized(Self) -> Bool // from trait `Type`
+fn Int8Type::isValidGEPType(Self) -> Bool // from trait `Type`
+#deprecated
+fn Int8Type::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn Int8Type::output(Self, &Logger) -> Unit // from trait `Show`
+fn Int8Type::to_string(Self) -> String // from trait `Show`
+fn Int8Type::tryAsAbstractType(Self) -> &AbstractType? // from trait `Type`
+fn Int8Type::tryAsAbstractTypeEnum(Self) -> AbstractTypeEnum? // from trait `Type`
+fn Int8Type::tryAsAggregateType(Self) -> &AggregateType? // from trait `Type`
+fn Int8Type::tryAsAggregateTypeEnum(Self) -> AggregateTypeEnum? // from trait `Type`
+fn Int8Type::tryAsFPType(Self) -> &FPType? // from trait `Type`
+fn Int8Type::tryAsFPTypeEnum(Self) -> FPTypeEnum? // from trait `Type`
+fn Int8Type::tryAsIntType(Self) -> &IntegerType? // from trait `Type`
+fn Int8Type::tryAsIntTypeEnum(Self) -> IntegerTypeEnum? // from trait `Type`
+fn Int8Type::tryAsPrimitiveType(Self) -> &PrimitiveType? // from trait `Type`
+fn Int8Type::tryAsPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum? // from trait `Type`
 impl IntegerType for Int8Type
 impl PrimitiveType for Int8Type
 impl Type for Int8Type
@@ -1112,6 +2586,8 @@ pub(all) enum IntPredicate {
   SLT
   SLE
 }
+fn IntPredicate::output(Self, &Logger) -> Unit // from trait `Show`
+fn IntPredicate::to_string(Self) -> String // from trait `Show`
 impl Show for IntPredicate
 
 pub enum IntegerTypeEnum {
@@ -1123,7 +2599,14 @@ pub enum IntegerTypeEnum {
 }
 fn IntegerTypeEnum::asIntegerTypeClass(Self) -> &IntegerType
 fn IntegerTypeEnum::asTypeClass(Self) -> &Type
+fn IntegerTypeEnum::equal(Self, Self) -> Bool // from trait `Eq`
 fn IntegerTypeEnum::getBitWidth(Self) -> Int
+fn IntegerTypeEnum::hash(Self) -> Int // from trait `Hash`
+fn IntegerTypeEnum::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+#deprecated
+fn IntegerTypeEnum::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn IntegerTypeEnum::output(Self, &Logger) -> Unit // from trait `Show`
+fn IntegerTypeEnum::to_string(Self) -> String // from trait `Show`
 impl Eq for IntegerTypeEnum
 impl Hash for IntegerTypeEnum
 impl Show for IntegerTypeEnum
@@ -1133,6 +2616,45 @@ type LLVMContextImpl
 pub struct LabelType {
   ctx : Context
 }
+fn LabelType::asAbstractTypeEnum(Self) -> AbstractTypeEnum // from trait `AbstractType`
+fn LabelType::asTypeEnum(Self) -> TypeEnum // from trait `Type`
+fn LabelType::canLosslesslyBitCastTo(Self, &Type) -> Bool // from trait `Type`
+fn LabelType::equal(Self, Self) -> Bool // from trait `Eq`
+fn LabelType::getContext(Self) -> Context // from trait `Type`
+fn LabelType::getPrimitiveSizeInBits(Self) -> TypeSize // from trait `Type`
+fn LabelType::getScalarSizeInBits(Self) -> Int // from trait `Type`
+fn LabelType::getScalarType(Self) -> &Type // from trait `Type`
+fn LabelType::hash(Self) -> Int // from trait `Hash`
+fn LabelType::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+fn LabelType::is16bitFPTy(Self) -> Bool // from trait `Type`
+fn LabelType::isAggregateType(Self) -> Bool // from trait `Type`
+fn LabelType::isEmptyTy(Self) -> Bool // from trait `Type`
+fn LabelType::isFPOrFPVectorTy(Self) -> Bool // from trait `Type`
+fn LabelType::isFirstClassType(Self) -> Bool // from trait `Type`
+fn LabelType::isFloatingPointTy(Self) -> Bool // from trait `Type`
+fn LabelType::isIEEELikeFPTy(Self) -> Bool // from trait `Type`
+fn LabelType::isIntOrIntVectorTy(Self) -> Bool // from trait `Type`
+fn LabelType::isIntOrPtrTy(Self) -> Bool // from trait `Type`
+fn LabelType::isPtrOrPtrVectorTy(Self) -> Bool // from trait `Type`
+fn LabelType::isScalableTargetExtTy(Self) -> Bool // from trait `Type`
+fn LabelType::isScalableTy(Self) -> Bool // from trait `Type`
+fn LabelType::isSingleValueType(Self) -> Bool // from trait `Type`
+fn LabelType::isSized(Self) -> Bool // from trait `Type`
+fn LabelType::isValidGEPType(Self) -> Bool // from trait `Type`
+#deprecated
+fn LabelType::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn LabelType::output(Self, &Logger) -> Unit // from trait `Show`
+fn LabelType::to_string(Self) -> String // from trait `Show`
+fn LabelType::tryAsAbstractType(Self) -> &AbstractType? // from trait `Type`
+fn LabelType::tryAsAbstractTypeEnum(Self) -> AbstractTypeEnum? // from trait `Type`
+fn LabelType::tryAsAggregateType(Self) -> &AggregateType? // from trait `Type`
+fn LabelType::tryAsAggregateTypeEnum(Self) -> AggregateTypeEnum? // from trait `Type`
+fn LabelType::tryAsFPType(Self) -> &FPType? // from trait `Type`
+fn LabelType::tryAsFPTypeEnum(Self) -> FPTypeEnum? // from trait `Type`
+fn LabelType::tryAsIntType(Self) -> &IntegerType? // from trait `Type`
+fn LabelType::tryAsIntTypeEnum(Self) -> IntegerTypeEnum? // from trait `Type`
+fn LabelType::tryAsPrimitiveType(Self) -> &PrimitiveType? // from trait `Type`
+fn LabelType::tryAsPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum? // from trait `Type`
 impl AbstractType for LabelType
 impl Type for LabelType
 impl Eq for LabelType
@@ -1152,6 +2674,8 @@ pub(all) enum Linkage {
   ExternalWeak
   Common
 }
+fn Linkage::output(Self, &Logger) -> Unit // from trait `Show`
+fn Linkage::to_string(Self) -> String // from trait `Show`
 impl Show for Linkage
 
 pub(all) struct LoadInst {
@@ -1168,6 +2692,52 @@ pub(all) struct LoadInst {
   atomicOrdering : AtomicOrdering
   align : Align
 }
+fn LoadInst::addUser(Self, &User) -> Unit // from trait `Value`
+fn LoadInst::asInstEnum(Self) -> InstEnum // from trait `Instruction`
+fn LoadInst::asUnaryInstEnum(Self) -> UnaryInstEnum // from trait `UnaryInst`
+fn LoadInst::asUserEnum(Self) -> UserEnum // from trait `User`
+fn LoadInst::asValueEnum(Self) -> ValueEnum // from trait `Value`
+fn LoadInst::eraseFromParent(Self) -> Unit // from trait `Instruction`
+fn LoadInst::getBasicBlock(Self) -> BasicBlock? // from trait `Instruction`
+fn LoadInst::getContext(Self) -> Context // from trait `Value`
+fn LoadInst::getInstBase(Self) -> InstBase // from trait `Instruction`
+fn LoadInst::getInstName(Self) -> String? // from trait `Instruction`
+fn LoadInst::getModule(Self) -> Module // from trait `Instruction`
+fn LoadInst::getName(Self) -> String? // from trait `Value`
+fn LoadInst::getNameOrSlot(Self) -> @either.Either[String, UInt64]? // from trait `Value`
+fn LoadInst::getNameOrSlotStr(Self) -> String // from trait `Value`
+fn LoadInst::getNumOperands(Self) -> Int // from trait `User`
+fn LoadInst::getOperand(Self, Int) -> &Value? // from trait `User`
+fn LoadInst::getOperands(Self) -> Array[&Value] // from trait `User`
+fn LoadInst::getParent(Self) -> Function // from trait `Instruction`
+fn LoadInst::getType(Self) -> &Type // from trait `Value`
+fn LoadInst::getUserBase(Self) -> UserBase // from trait `User`
+fn LoadInst::getUsers(Self) -> Array[&User]? // from trait `Value`
+fn LoadInst::getValueBase(Self) -> ValueBase // from trait `Value`
+fn LoadInst::getValueRepr(Self) -> String // from trait `Value`
+fn LoadInst::insertAfter(Self, &Instruction) -> Unit raise LLVMValueError // from trait `Instruction`
+fn LoadInst::insertBefore(Self, &Instruction) -> Unit raise LLVMValueError // from trait `Instruction`
+fn LoadInst::isIndependent(Self) -> Bool // from trait `Instruction`
+fn LoadInst::isTerminator(Self) -> Bool // from trait `Instruction`
+fn LoadInst::moveAfter(Self, &Instruction) -> Unit // from trait `Instruction`
+fn LoadInst::moveBefore(Self, &Instruction) -> Unit // from trait `Instruction`
+fn LoadInst::next(Self) -> &Instruction? // from trait `Instruction`
+fn LoadInst::output(Self, &Logger) -> Unit // from trait `Show`
+fn LoadInst::prev(Self) -> &Instruction? // from trait `Instruction`
+fn LoadInst::removeFromParent(Self) -> Unit // from trait `Instruction`
+fn LoadInst::removeName(Self) -> Unit raise LLVMValueError // from trait `Value`
+fn LoadInst::replaceAllUsersWith(Self, &Value) -> Unit // from trait `Value`
+fn LoadInst::setName(Self, String) -> Unit raise LLVMValueError // from trait `Value`
+fn LoadInst::to_string(Self) -> String // from trait `Show`
+fn LoadInst::tryAsConstant(Self) -> &Constant? // from trait `Value`
+fn LoadInst::tryAsConstantEnum(Self) -> ConstantEnum? // from trait `Value`
+fn LoadInst::tryAsGlobalValue(Self) -> &GlobalValue? // from trait `Value`
+fn LoadInst::tryAsGlobalValueEnum(Self) -> GlobalValueEnum? // from trait `Value`
+fn LoadInst::tryAsInst(Self) -> &Instruction? // from trait `Value`
+fn LoadInst::tryAsInstEnum(Self) -> InstEnum? // from trait `Value`
+fn LoadInst::tryAsUser(Self) -> &User? // from trait `Value`
+fn LoadInst::tryAsUserEnum(Self) -> UserEnum? // from trait `Value`
+fn LoadInst::user_empty(Self) -> Bool // from trait `Value`
 impl Instruction for LoadInst
 impl UnaryInst for LoadInst
 impl User for LoadInst
@@ -1177,12 +2747,18 @@ impl Show for LoadInst
 pub struct MDNode {
   metadata : Array[&Metadata]
 }
+fn MDNode::asMetadataEnum(Self) -> MetadataEnum // from trait `Metadata`
+fn MDNode::output(Self, &Logger) -> Unit // from trait `Show`
+fn MDNode::to_string(Self) -> String // from trait `Show`
 impl Metadata for MDNode
 impl Show for MDNode
 
 pub struct MDString {
   str : String
 }
+fn MDString::asMetadataEnum(Self) -> MetadataEnum // from trait `Metadata`
+fn MDString::output(Self, &Logger) -> Unit // from trait `Show`
+fn MDString::to_string(Self) -> String // from trait `Show`
 impl Metadata for MDString
 impl Show for MDString
 
@@ -1194,6 +2770,45 @@ pub enum MetadataEnum {
 pub struct MetadataType {
   ctx : Context
 }
+fn MetadataType::asAbstractTypeEnum(Self) -> AbstractTypeEnum // from trait `AbstractType`
+fn MetadataType::asTypeEnum(Self) -> TypeEnum // from trait `Type`
+fn MetadataType::canLosslesslyBitCastTo(Self, &Type) -> Bool // from trait `Type`
+fn MetadataType::equal(Self, Self) -> Bool // from trait `Eq`
+fn MetadataType::getContext(Self) -> Context // from trait `Type`
+fn MetadataType::getPrimitiveSizeInBits(Self) -> TypeSize // from trait `Type`
+fn MetadataType::getScalarSizeInBits(Self) -> Int // from trait `Type`
+fn MetadataType::getScalarType(Self) -> &Type // from trait `Type`
+fn MetadataType::hash(Self) -> Int // from trait `Hash`
+fn MetadataType::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+fn MetadataType::is16bitFPTy(Self) -> Bool // from trait `Type`
+fn MetadataType::isAggregateType(Self) -> Bool // from trait `Type`
+fn MetadataType::isEmptyTy(Self) -> Bool // from trait `Type`
+fn MetadataType::isFPOrFPVectorTy(Self) -> Bool // from trait `Type`
+fn MetadataType::isFirstClassType(Self) -> Bool // from trait `Type`
+fn MetadataType::isFloatingPointTy(Self) -> Bool // from trait `Type`
+fn MetadataType::isIEEELikeFPTy(Self) -> Bool // from trait `Type`
+fn MetadataType::isIntOrIntVectorTy(Self) -> Bool // from trait `Type`
+fn MetadataType::isIntOrPtrTy(Self) -> Bool // from trait `Type`
+fn MetadataType::isPtrOrPtrVectorTy(Self) -> Bool // from trait `Type`
+fn MetadataType::isScalableTargetExtTy(Self) -> Bool // from trait `Type`
+fn MetadataType::isScalableTy(Self) -> Bool // from trait `Type`
+fn MetadataType::isSingleValueType(Self) -> Bool // from trait `Type`
+fn MetadataType::isSized(Self) -> Bool // from trait `Type`
+fn MetadataType::isValidGEPType(Self) -> Bool // from trait `Type`
+#deprecated
+fn MetadataType::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn MetadataType::output(Self, &Logger) -> Unit // from trait `Show`
+fn MetadataType::to_string(Self) -> String // from trait `Show`
+fn MetadataType::tryAsAbstractType(Self) -> &AbstractType? // from trait `Type`
+fn MetadataType::tryAsAbstractTypeEnum(Self) -> AbstractTypeEnum? // from trait `Type`
+fn MetadataType::tryAsAggregateType(Self) -> &AggregateType? // from trait `Type`
+fn MetadataType::tryAsAggregateTypeEnum(Self) -> AggregateTypeEnum? // from trait `Type`
+fn MetadataType::tryAsFPType(Self) -> &FPType? // from trait `Type`
+fn MetadataType::tryAsFPTypeEnum(Self) -> FPTypeEnum? // from trait `Type`
+fn MetadataType::tryAsIntType(Self) -> &IntegerType? // from trait `Type`
+fn MetadataType::tryAsIntTypeEnum(Self) -> IntegerTypeEnum? // from trait `Type`
+fn MetadataType::tryAsPrimitiveType(Self) -> &PrimitiveType? // from trait `Type`
+fn MetadataType::tryAsPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum? // from trait `Type`
 impl AbstractType for MetadataType
 impl Type for MetadataType
 impl Eq for MetadataType
@@ -1219,9 +2834,18 @@ fn Module::getContext(Self) -> Context
 fn Module::getDataLayout(Self) -> DataLayout
 fn Module::getFunction(Self, String) -> Function?
 fn Module::new(String, String, Context) -> Self
+fn Module::output(Self, &Logger) -> Unit // from trait `Show`
+fn Module::to_string(Self) -> String // from trait `Show`
 impl Show for Module
 
 type NumberArrayEnum
+fn NumberArrayEnum::equal(Self, Self) -> Bool // from trait `Eq`
+fn NumberArrayEnum::hash(Self) -> Int // from trait `Hash`
+fn NumberArrayEnum::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+#deprecated
+fn NumberArrayEnum::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn NumberArrayEnum::output(Self, &Logger) -> Unit // from trait `Show`
+fn NumberArrayEnum::to_string(Self) -> String // from trait `Show`
 impl Eq for NumberArrayEnum
 impl Hash for NumberArrayEnum
 impl Show for NumberArrayEnum
@@ -1238,13 +2862,58 @@ pub struct PHINode {
   next : Ref[&Instruction?]
 }
 fn PHINode::addIncoming(Self, &Value, BasicBlock) -> Unit raise LLVMValueError
+fn PHINode::addUser(Self, &User) -> Unit // from trait `Value`
+fn PHINode::asInstEnum(Self) -> InstEnum // from trait `Instruction`
+fn PHINode::asUserEnum(Self) -> UserEnum // from trait `User`
+fn PHINode::asValueEnum(Self) -> ValueEnum // from trait `Value`
+fn PHINode::eraseFromParent(Self) -> Unit // from trait `Instruction`
+fn PHINode::getBasicBlock(Self) -> BasicBlock? // from trait `Instruction`
+fn PHINode::getContext(Self) -> Context // from trait `Value`
 fn PHINode::getIncoming(Self, Int) -> (&Value, BasicBlock)?
 fn PHINode::getIncomingBlock(Self, Int) -> BasicBlock?
 fn PHINode::getIncomingBlocks(Self) -> Array[BasicBlock]
 fn PHINode::getIncomingValue(Self, Int) -> &Value?
 fn PHINode::getIncomingValues(Self) -> Array[&Value]
 fn PHINode::getIncomings(Self) -> Array[(&Value, BasicBlock)]
+fn PHINode::getInstBase(Self) -> InstBase // from trait `Instruction`
+fn PHINode::getInstName(Self) -> String? // from trait `Instruction`
+fn PHINode::getModule(Self) -> Module // from trait `Instruction`
+fn PHINode::getName(Self) -> String? // from trait `Value`
+fn PHINode::getNameOrSlot(Self) -> @either.Either[String, UInt64]? // from trait `Value`
+fn PHINode::getNameOrSlotStr(Self) -> String // from trait `Value`
 fn PHINode::getNumIncomingValues(Self) -> Int
+fn PHINode::getNumOperands(Self) -> Int // from trait `User`
+fn PHINode::getOperand(Self, Int) -> &Value? // from trait `User`
+fn PHINode::getOperands(Self) -> Array[&Value] // from trait `User`
+fn PHINode::getParent(Self) -> Function // from trait `Instruction`
+fn PHINode::getType(Self) -> &Type // from trait `Value`
+fn PHINode::getUserBase(Self) -> UserBase // from trait `User`
+fn PHINode::getUsers(Self) -> Array[&User]? // from trait `Value`
+fn PHINode::getValueBase(Self) -> ValueBase // from trait `Value`
+fn PHINode::getValueRepr(Self) -> String // from trait `Value`
+fn PHINode::insertAfter(Self, &Instruction) -> Unit raise LLVMValueError // from trait `Instruction`
+fn PHINode::insertBefore(Self, &Instruction) -> Unit raise LLVMValueError // from trait `Instruction`
+fn PHINode::isIndependent(Self) -> Bool // from trait `Instruction`
+fn PHINode::isTerminator(Self) -> Bool // from trait `Instruction`
+fn PHINode::moveAfter(Self, &Instruction) -> Unit // from trait `Instruction`
+fn PHINode::moveBefore(Self, &Instruction) -> Unit // from trait `Instruction`
+fn PHINode::next(Self) -> &Instruction? // from trait `Instruction`
+fn PHINode::output(Self, &Logger) -> Unit // from trait `Show`
+fn PHINode::prev(Self) -> &Instruction? // from trait `Instruction`
+fn PHINode::removeFromParent(Self) -> Unit // from trait `Instruction`
+fn PHINode::removeName(Self) -> Unit raise LLVMValueError // from trait `Value`
+fn PHINode::replaceAllUsersWith(Self, &Value) -> Unit // from trait `Value`
+fn PHINode::setName(Self, String) -> Unit raise LLVMValueError // from trait `Value`
+fn PHINode::to_string(Self) -> String // from trait `Show`
+fn PHINode::tryAsConstant(Self) -> &Constant? // from trait `Value`
+fn PHINode::tryAsConstantEnum(Self) -> ConstantEnum? // from trait `Value`
+fn PHINode::tryAsGlobalValue(Self) -> &GlobalValue? // from trait `Value`
+fn PHINode::tryAsGlobalValueEnum(Self) -> GlobalValueEnum? // from trait `Value`
+fn PHINode::tryAsInst(Self) -> &Instruction? // from trait `Value`
+fn PHINode::tryAsInstEnum(Self) -> InstEnum? // from trait `Value`
+fn PHINode::tryAsUser(Self) -> &User? // from trait `Value`
+fn PHINode::tryAsUserEnum(Self) -> UserEnum? // from trait `Value`
+fn PHINode::user_empty(Self) -> Bool // from trait `Value`
 impl Instruction for PHINode
 impl User for PHINode
 impl Value for PHINode
@@ -1287,6 +2956,13 @@ pub(all) enum ParamAttr {
   WriteOnly
   ZExt
 }
+fn ParamAttr::equal(Self, Self) -> Bool // from trait `Eq`
+fn ParamAttr::hash(Self) -> Int // from trait `Hash`
+fn ParamAttr::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+#deprecated
+fn ParamAttr::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn ParamAttr::output(Self, &Logger) -> Unit // from trait `Show`
+fn ParamAttr::to_string(Self) -> String // from trait `Show`
 impl Eq for ParamAttr
 impl Hash for ParamAttr
 impl Show for ParamAttr
@@ -1295,8 +2971,46 @@ pub struct PointerType {
   ctx : Context
   addressSpace : AddressSpace
 }
+fn PointerType::asTypeEnum(Self) -> TypeEnum // from trait `Type`
+fn PointerType::canLosslesslyBitCastTo(Self, &Type) -> Bool // from trait `Type`
+fn PointerType::equal(Self, Self) -> Bool // from trait `Eq`
 fn PointerType::getAddressSpace(Self) -> AddressSpace
+fn PointerType::getContext(Self) -> Context // from trait `Type`
+fn PointerType::getPrimitiveSizeInBits(Self) -> TypeSize // from trait `Type`
+fn PointerType::getScalarSizeInBits(Self) -> Int // from trait `Type`
+fn PointerType::getScalarType(Self) -> &Type // from trait `Type`
+fn PointerType::hash(Self) -> Int // from trait `Hash`
+fn PointerType::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+fn PointerType::is16bitFPTy(Self) -> Bool // from trait `Type`
+fn PointerType::isAggregateType(Self) -> Bool // from trait `Type`
+fn PointerType::isEmptyTy(Self) -> Bool // from trait `Type`
+fn PointerType::isFPOrFPVectorTy(Self) -> Bool // from trait `Type`
+fn PointerType::isFirstClassType(Self) -> Bool // from trait `Type`
+fn PointerType::isFloatingPointTy(Self) -> Bool // from trait `Type`
+fn PointerType::isIEEELikeFPTy(Self) -> Bool // from trait `Type`
+fn PointerType::isIntOrIntVectorTy(Self) -> Bool // from trait `Type`
+fn PointerType::isIntOrPtrTy(Self) -> Bool // from trait `Type`
 fn PointerType::isLoadableOrStorableType(&Type) -> Bool
+fn PointerType::isPtrOrPtrVectorTy(Self) -> Bool // from trait `Type`
+fn PointerType::isScalableTargetExtTy(Self) -> Bool // from trait `Type`
+fn PointerType::isScalableTy(Self) -> Bool // from trait `Type`
+fn PointerType::isSingleValueType(Self) -> Bool // from trait `Type`
+fn PointerType::isSized(Self) -> Bool // from trait `Type`
+fn PointerType::isValidGEPType(Self) -> Bool // from trait `Type`
+#deprecated
+fn PointerType::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn PointerType::output(Self, &Logger) -> Unit // from trait `Show`
+fn PointerType::to_string(Self) -> String // from trait `Show`
+fn PointerType::tryAsAbstractType(Self) -> &AbstractType? // from trait `Type`
+fn PointerType::tryAsAbstractTypeEnum(Self) -> AbstractTypeEnum? // from trait `Type`
+fn PointerType::tryAsAggregateType(Self) -> &AggregateType? // from trait `Type`
+fn PointerType::tryAsAggregateTypeEnum(Self) -> AggregateTypeEnum? // from trait `Type`
+fn PointerType::tryAsFPType(Self) -> &FPType? // from trait `Type`
+fn PointerType::tryAsFPTypeEnum(Self) -> FPTypeEnum? // from trait `Type`
+fn PointerType::tryAsIntType(Self) -> &IntegerType? // from trait `Type`
+fn PointerType::tryAsIntTypeEnum(Self) -> IntegerTypeEnum? // from trait `Type`
+fn PointerType::tryAsPrimitiveType(Self) -> &PrimitiveType? // from trait `Type`
+fn PointerType::tryAsPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum? // from trait `Type`
 impl Type for PointerType
 impl Eq for PointerType
 impl Hash for PointerType
@@ -1314,7 +3028,12 @@ pub enum PrimitiveTypeEnum {
   Int32Type(Int32Type)
   Int64Type(Int64Type)
 }
+fn PrimitiveTypeEnum::equal(Self, Self) -> Bool // from trait `Eq`
 fn PrimitiveTypeEnum::getBitWidth(Self) -> Int
+#deprecated
+fn PrimitiveTypeEnum::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn PrimitiveTypeEnum::output(Self, &Logger) -> Unit // from trait `Show`
+fn PrimitiveTypeEnum::to_string(Self) -> String // from trait `Show`
 impl Eq for PrimitiveTypeEnum
 impl Show for PrimitiveTypeEnum
 
@@ -1332,6 +3051,13 @@ pub(all) enum RetAttr {
   StackAlignment(Int)
   ZExt
 }
+fn RetAttr::equal(Self, Self) -> Bool // from trait `Eq`
+fn RetAttr::hash(Self) -> Int // from trait `Hash`
+fn RetAttr::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+#deprecated
+fn RetAttr::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn RetAttr::output(Self, &Logger) -> Unit // from trait `Show`
+fn RetAttr::to_string(Self) -> String // from trait `Show`
 impl Eq for RetAttr
 impl Hash for RetAttr
 impl Show for RetAttr
@@ -1345,6 +3071,51 @@ pub struct ReturnInst {
   prev : Ref[&Instruction?]
   next : Ref[&Instruction?]
 }
+fn ReturnInst::addUser(Self, &User) -> Unit // from trait `Value`
+fn ReturnInst::asInstEnum(Self) -> InstEnum // from trait `Instruction`
+fn ReturnInst::asUserEnum(Self) -> UserEnum // from trait `User`
+fn ReturnInst::asValueEnum(Self) -> ValueEnum // from trait `Value`
+fn ReturnInst::eraseFromParent(Self) -> Unit // from trait `Instruction`
+fn ReturnInst::getBasicBlock(Self) -> BasicBlock? // from trait `Instruction`
+fn ReturnInst::getContext(Self) -> Context // from trait `Value`
+fn ReturnInst::getInstBase(Self) -> InstBase // from trait `Instruction`
+fn ReturnInst::getInstName(Self) -> String? // from trait `Instruction`
+fn ReturnInst::getModule(Self) -> Module // from trait `Instruction`
+fn ReturnInst::getName(Self) -> String? // from trait `Value`
+fn ReturnInst::getNameOrSlot(Self) -> @either.Either[String, UInt64]? // from trait `Value`
+fn ReturnInst::getNameOrSlotStr(Self) -> String // from trait `Value`
+fn ReturnInst::getNumOperands(Self) -> Int // from trait `User`
+fn ReturnInst::getOperand(Self, Int) -> &Value? // from trait `User`
+fn ReturnInst::getOperands(Self) -> Array[&Value] // from trait `User`
+fn ReturnInst::getParent(Self) -> Function // from trait `Instruction`
+fn ReturnInst::getType(Self) -> &Type // from trait `Value`
+fn ReturnInst::getUserBase(Self) -> UserBase // from trait `User`
+fn ReturnInst::getUsers(Self) -> Array[&User]? // from trait `Value`
+fn ReturnInst::getValueBase(Self) -> ValueBase // from trait `Value`
+fn ReturnInst::getValueRepr(Self) -> String // from trait `Value`
+fn ReturnInst::insertAfter(Self, &Instruction) -> Unit raise LLVMValueError // from trait `Instruction`
+fn ReturnInst::insertBefore(Self, &Instruction) -> Unit raise LLVMValueError // from trait `Instruction`
+fn ReturnInst::isIndependent(Self) -> Bool // from trait `Instruction`
+fn ReturnInst::isTerminator(Self) -> Bool // from trait `Instruction`
+fn ReturnInst::moveAfter(Self, &Instruction) -> Unit // from trait `Instruction`
+fn ReturnInst::moveBefore(Self, &Instruction) -> Unit // from trait `Instruction`
+fn ReturnInst::next(Self) -> &Instruction? // from trait `Instruction`
+fn ReturnInst::output(Self, &Logger) -> Unit // from trait `Show`
+fn ReturnInst::prev(Self) -> &Instruction? // from trait `Instruction`
+fn ReturnInst::removeFromParent(Self) -> Unit // from trait `Instruction`
+fn ReturnInst::removeName(Self) -> Unit raise LLVMValueError // from trait `Value`
+fn ReturnInst::replaceAllUsersWith(Self, &Value) -> Unit // from trait `Value`
+fn ReturnInst::setName(Self, String) -> Unit raise LLVMValueError // from trait `Value`
+fn ReturnInst::to_string(Self) -> String // from trait `Show`
+fn ReturnInst::tryAsConstant(Self) -> &Constant? // from trait `Value`
+fn ReturnInst::tryAsConstantEnum(Self) -> ConstantEnum? // from trait `Value`
+fn ReturnInst::tryAsGlobalValue(Self) -> &GlobalValue? // from trait `Value`
+fn ReturnInst::tryAsGlobalValueEnum(Self) -> GlobalValueEnum? // from trait `Value`
+fn ReturnInst::tryAsInst(Self) -> &Instruction? // from trait `Value`
+fn ReturnInst::tryAsInstEnum(Self) -> InstEnum? // from trait `Value`
+fn ReturnInst::tryAsUser(Self) -> &User? // from trait `Value`
+fn ReturnInst::tryAsUserEnum(Self) -> UserEnum? // from trait `Value`
+fn ReturnInst::user_empty(Self) -> Bool // from trait `Value`
 impl Instruction for ReturnInst
 impl User for ReturnInst
 impl Value for ReturnInst
@@ -1355,8 +3126,48 @@ pub struct ScalableVectorType {
   elementType : &Type
   elementCount : Int
 }
+fn ScalableVectorType::asAggregateTypeEnum(Self) -> AggregateTypeEnum // from trait `AggregateType`
+fn ScalableVectorType::asTypeEnum(Self) -> TypeEnum // from trait `Type`
+fn ScalableVectorType::canLosslesslyBitCastTo(Self, &Type) -> Bool // from trait `Type`
+fn ScalableVectorType::equal(Self, Self) -> Bool // from trait `Eq`
+fn ScalableVectorType::getContext(Self) -> Context // from trait `Type`
 fn ScalableVectorType::getElementCount(Self) -> Int
 fn ScalableVectorType::getElementType(Self) -> &Type
+fn ScalableVectorType::getIndexedType(Self, ArrayView[Int]) -> &Type? // from trait `AggregateType`
+fn ScalableVectorType::getPrimitiveSizeInBits(Self) -> TypeSize // from trait `Type`
+fn ScalableVectorType::getScalarSizeInBits(Self) -> Int // from trait `Type`
+fn ScalableVectorType::getScalarType(Self) -> &Type // from trait `Type`
+fn ScalableVectorType::hash(Self) -> Int // from trait `Hash`
+fn ScalableVectorType::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+fn ScalableVectorType::is16bitFPTy(Self) -> Bool // from trait `Type`
+fn ScalableVectorType::isAggregateType(Self) -> Bool // from trait `Type`
+fn ScalableVectorType::isEmptyTy(Self) -> Bool // from trait `Type`
+fn ScalableVectorType::isFPOrFPVectorTy(Self) -> Bool // from trait `Type`
+fn ScalableVectorType::isFirstClassType(Self) -> Bool // from trait `Type`
+fn ScalableVectorType::isFloatingPointTy(Self) -> Bool // from trait `Type`
+fn ScalableVectorType::isIEEELikeFPTy(Self) -> Bool // from trait `Type`
+fn ScalableVectorType::isIntOrIntVectorTy(Self) -> Bool // from trait `Type`
+fn ScalableVectorType::isIntOrPtrTy(Self) -> Bool // from trait `Type`
+fn ScalableVectorType::isPtrOrPtrVectorTy(Self) -> Bool // from trait `Type`
+fn ScalableVectorType::isScalableTargetExtTy(Self) -> Bool // from trait `Type`
+fn ScalableVectorType::isScalableTy(Self) -> Bool // from trait `Type`
+fn ScalableVectorType::isSingleValueType(Self) -> Bool // from trait `Type`
+fn ScalableVectorType::isSized(Self) -> Bool // from trait `Type`
+fn ScalableVectorType::isValidGEPType(Self) -> Bool // from trait `Type`
+#deprecated
+fn ScalableVectorType::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn ScalableVectorType::output(Self, &Logger) -> Unit // from trait `Show`
+fn ScalableVectorType::to_string(Self) -> String // from trait `Show`
+fn ScalableVectorType::tryAsAbstractType(Self) -> &AbstractType? // from trait `Type`
+fn ScalableVectorType::tryAsAbstractTypeEnum(Self) -> AbstractTypeEnum? // from trait `Type`
+fn ScalableVectorType::tryAsAggregateType(Self) -> &AggregateType? // from trait `Type`
+fn ScalableVectorType::tryAsAggregateTypeEnum(Self) -> AggregateTypeEnum? // from trait `Type`
+fn ScalableVectorType::tryAsFPType(Self) -> &FPType? // from trait `Type`
+fn ScalableVectorType::tryAsFPTypeEnum(Self) -> FPTypeEnum? // from trait `Type`
+fn ScalableVectorType::tryAsIntType(Self) -> &IntegerType? // from trait `Type`
+fn ScalableVectorType::tryAsIntTypeEnum(Self) -> IntegerTypeEnum? // from trait `Type`
+fn ScalableVectorType::tryAsPrimitiveType(Self) -> &PrimitiveType? // from trait `Type`
+fn ScalableVectorType::tryAsPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum? // from trait `Type`
 impl AggregateType for ScalableVectorType
 impl Type for ScalableVectorType
 impl Eq for ScalableVectorType
@@ -1376,9 +3187,54 @@ pub struct SelectInst {
   prev : Ref[&Instruction?]
   next : Ref[&Instruction?]
 }
+fn SelectInst::addUser(Self, &User) -> Unit // from trait `Value`
+fn SelectInst::asInstEnum(Self) -> InstEnum // from trait `Instruction`
+fn SelectInst::asUserEnum(Self) -> UserEnum // from trait `User`
+fn SelectInst::asValueEnum(Self) -> ValueEnum // from trait `Value`
+fn SelectInst::eraseFromParent(Self) -> Unit // from trait `Instruction`
+fn SelectInst::getBasicBlock(Self) -> BasicBlock? // from trait `Instruction`
 fn SelectInst::getCondition(Self) -> &Value
+fn SelectInst::getContext(Self) -> Context // from trait `Value`
 fn SelectInst::getFalseValue(Self) -> &Value
+fn SelectInst::getInstBase(Self) -> InstBase // from trait `Instruction`
+fn SelectInst::getInstName(Self) -> String? // from trait `Instruction`
+fn SelectInst::getModule(Self) -> Module // from trait `Instruction`
+fn SelectInst::getName(Self) -> String? // from trait `Value`
+fn SelectInst::getNameOrSlot(Self) -> @either.Either[String, UInt64]? // from trait `Value`
+fn SelectInst::getNameOrSlotStr(Self) -> String // from trait `Value`
+fn SelectInst::getNumOperands(Self) -> Int // from trait `User`
+fn SelectInst::getOperand(Self, Int) -> &Value? // from trait `User`
+fn SelectInst::getOperands(Self) -> Array[&Value] // from trait `User`
+fn SelectInst::getParent(Self) -> Function // from trait `Instruction`
 fn SelectInst::getTrueValue(Self) -> &Value
+fn SelectInst::getType(Self) -> &Type // from trait `Value`
+fn SelectInst::getUserBase(Self) -> UserBase // from trait `User`
+fn SelectInst::getUsers(Self) -> Array[&User]? // from trait `Value`
+fn SelectInst::getValueBase(Self) -> ValueBase // from trait `Value`
+fn SelectInst::getValueRepr(Self) -> String // from trait `Value`
+fn SelectInst::insertAfter(Self, &Instruction) -> Unit raise LLVMValueError // from trait `Instruction`
+fn SelectInst::insertBefore(Self, &Instruction) -> Unit raise LLVMValueError // from trait `Instruction`
+fn SelectInst::isIndependent(Self) -> Bool // from trait `Instruction`
+fn SelectInst::isTerminator(Self) -> Bool // from trait `Instruction`
+fn SelectInst::moveAfter(Self, &Instruction) -> Unit // from trait `Instruction`
+fn SelectInst::moveBefore(Self, &Instruction) -> Unit // from trait `Instruction`
+fn SelectInst::next(Self) -> &Instruction? // from trait `Instruction`
+fn SelectInst::output(Self, &Logger) -> Unit // from trait `Show`
+fn SelectInst::prev(Self) -> &Instruction? // from trait `Instruction`
+fn SelectInst::removeFromParent(Self) -> Unit // from trait `Instruction`
+fn SelectInst::removeName(Self) -> Unit raise LLVMValueError // from trait `Value`
+fn SelectInst::replaceAllUsersWith(Self, &Value) -> Unit // from trait `Value`
+fn SelectInst::setName(Self, String) -> Unit raise LLVMValueError // from trait `Value`
+fn SelectInst::to_string(Self) -> String // from trait `Show`
+fn SelectInst::tryAsConstant(Self) -> &Constant? // from trait `Value`
+fn SelectInst::tryAsConstantEnum(Self) -> ConstantEnum? // from trait `Value`
+fn SelectInst::tryAsGlobalValue(Self) -> &GlobalValue? // from trait `Value`
+fn SelectInst::tryAsGlobalValueEnum(Self) -> GlobalValueEnum? // from trait `Value`
+fn SelectInst::tryAsInst(Self) -> &Instruction? // from trait `Value`
+fn SelectInst::tryAsInstEnum(Self) -> InstEnum? // from trait `Value`
+fn SelectInst::tryAsUser(Self) -> &User? // from trait `Value`
+fn SelectInst::tryAsUserEnum(Self) -> UserEnum? // from trait `Value`
+fn SelectInst::user_empty(Self) -> Bool // from trait `Value`
 impl Instruction for SelectInst
 impl User for SelectInst
 impl Value for SelectInst
@@ -1392,6 +3248,13 @@ pub enum SetSymbolResult {
 }
 
 type SignedEnum
+fn SignedEnum::equal(Self, Self) -> Bool // from trait `Eq`
+fn SignedEnum::hash(Self) -> Int // from trait `Hash`
+fn SignedEnum::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+#deprecated
+fn SignedEnum::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn SignedEnum::output(Self, &Logger) -> Unit // from trait `Show`
+fn SignedEnum::to_string(Self) -> String // from trait `Show`
 impl Eq for SignedEnum
 impl Hash for SignedEnum
 impl Show for SignedEnum
@@ -1411,8 +3274,53 @@ pub struct StoreInst {
   atomicOrdering : AtomicOrdering
   align : Align
 }
+fn StoreInst::addUser(Self, &User) -> Unit // from trait `Value`
+fn StoreInst::asInstEnum(Self) -> InstEnum // from trait `Instruction`
+fn StoreInst::asUserEnum(Self) -> UserEnum // from trait `User`
+fn StoreInst::asValueEnum(Self) -> ValueEnum // from trait `Value`
+fn StoreInst::eraseFromParent(Self) -> Unit // from trait `Instruction`
+fn StoreInst::getBasicBlock(Self) -> BasicBlock? // from trait `Instruction`
+fn StoreInst::getContext(Self) -> Context // from trait `Value`
+fn StoreInst::getInstBase(Self) -> InstBase // from trait `Instruction`
+fn StoreInst::getInstName(Self) -> String? // from trait `Instruction`
+fn StoreInst::getModule(Self) -> Module // from trait `Instruction`
+fn StoreInst::getName(Self) -> String? // from trait `Value`
+fn StoreInst::getNameOrSlot(Self) -> @either.Either[String, UInt64]? // from trait `Value`
+fn StoreInst::getNameOrSlotStr(Self) -> String // from trait `Value`
+fn StoreInst::getNumOperands(Self) -> Int // from trait `User`
+fn StoreInst::getOperand(Self, Int) -> &Value? // from trait `User`
+fn StoreInst::getOperands(Self) -> Array[&Value] // from trait `User`
+fn StoreInst::getParent(Self) -> Function // from trait `Instruction`
 fn StoreInst::getPointerOperand(Self) -> &Value
+fn StoreInst::getType(Self) -> &Type // from trait `Value`
+fn StoreInst::getUserBase(Self) -> UserBase // from trait `User`
+fn StoreInst::getUsers(Self) -> Array[&User]? // from trait `Value`
+fn StoreInst::getValueBase(Self) -> ValueBase // from trait `Value`
 fn StoreInst::getValueOperand(Self) -> &Value
+fn StoreInst::getValueRepr(Self) -> String // from trait `Value`
+fn StoreInst::insertAfter(Self, &Instruction) -> Unit raise LLVMValueError // from trait `Instruction`
+fn StoreInst::insertBefore(Self, &Instruction) -> Unit raise LLVMValueError // from trait `Instruction`
+fn StoreInst::isIndependent(Self) -> Bool // from trait `Instruction`
+fn StoreInst::isTerminator(Self) -> Bool // from trait `Instruction`
+fn StoreInst::moveAfter(Self, &Instruction) -> Unit // from trait `Instruction`
+fn StoreInst::moveBefore(Self, &Instruction) -> Unit // from trait `Instruction`
+fn StoreInst::next(Self) -> &Instruction? // from trait `Instruction`
+fn StoreInst::output(Self, &Logger) -> Unit // from trait `Show`
+fn StoreInst::prev(Self) -> &Instruction? // from trait `Instruction`
+fn StoreInst::removeFromParent(Self) -> Unit // from trait `Instruction`
+fn StoreInst::removeName(Self) -> Unit raise LLVMValueError // from trait `Value`
+fn StoreInst::replaceAllUsersWith(Self, &Value) -> Unit // from trait `Value`
+fn StoreInst::setName(Self, String) -> Unit raise LLVMValueError // from trait `Value`
+fn StoreInst::to_string(Self) -> String // from trait `Show`
+fn StoreInst::tryAsConstant(Self) -> &Constant? // from trait `Value`
+fn StoreInst::tryAsConstantEnum(Self) -> ConstantEnum? // from trait `Value`
+fn StoreInst::tryAsGlobalValue(Self) -> &GlobalValue? // from trait `Value`
+fn StoreInst::tryAsGlobalValueEnum(Self) -> GlobalValueEnum? // from trait `Value`
+fn StoreInst::tryAsInst(Self) -> &Instruction? // from trait `Value`
+fn StoreInst::tryAsInstEnum(Self) -> InstEnum? // from trait `Value`
+fn StoreInst::tryAsUser(Self) -> &User? // from trait `Value`
+fn StoreInst::tryAsUserEnum(Self) -> UserEnum? // from trait `Value`
+fn StoreInst::user_empty(Self) -> Bool // from trait `Value`
 impl Instruction for StoreInst
 impl User for StoreInst
 impl Value for StoreInst
@@ -1423,19 +3331,57 @@ pub struct StructType {
   elements : Array[&Type]
   // private fields
 }
+fn StructType::asAggregateTypeEnum(Self) -> AggregateTypeEnum // from trait `AggregateType`
+fn StructType::asTypeEnum(Self) -> TypeEnum // from trait `Type`
 fn StructType::body_str(Self) -> String
+fn StructType::canLosslesslyBitCastTo(Self, &Type) -> Bool // from trait `Type`
 fn StructType::element_iter(Self) -> Iter[&Type]
 fn StructType::elements(Self) -> Array[&Type]
+fn StructType::equal(Self, Self) -> Bool // from trait `Eq`
 fn StructType::full_info(Self) -> String
+fn StructType::getContext(Self) -> Context // from trait `Type`
 fn StructType::getIndexedType(Self, ArrayView[Int]) -> &Type?
 fn StructType::getName(Self) -> String?
+fn StructType::getPrimitiveSizeInBits(Self) -> TypeSize // from trait `Type`
+fn StructType::getScalarSizeInBits(Self) -> Int // from trait `Type`
+fn StructType::getScalarType(Self) -> &Type // from trait `Type`
+fn StructType::hash(Self) -> Int // from trait `Hash`
+fn StructType::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+fn StructType::is16bitFPTy(Self) -> Bool // from trait `Type`
+fn StructType::isAggregateType(Self) -> Bool // from trait `Type`
+fn StructType::isEmptyTy(Self) -> Bool // from trait `Type`
+fn StructType::isFPOrFPVectorTy(Self) -> Bool // from trait `Type`
+fn StructType::isFirstClassType(Self) -> Bool // from trait `Type`
+fn StructType::isFloatingPointTy(Self) -> Bool // from trait `Type`
+fn StructType::isIEEELikeFPTy(Self) -> Bool // from trait `Type`
+fn StructType::isIntOrIntVectorTy(Self) -> Bool // from trait `Type`
+fn StructType::isIntOrPtrTy(Self) -> Bool // from trait `Type`
 fn StructType::isLiteral(Self) -> Bool
 fn StructType::isOpaque(Self) -> Bool
 fn StructType::isPacked(Self) -> Bool
+fn StructType::isPtrOrPtrVectorTy(Self) -> Bool // from trait `Type`
+fn StructType::isScalableTargetExtTy(Self) -> Bool // from trait `Type`
+fn StructType::isScalableTy(Self) -> Bool // from trait `Type`
+fn StructType::isSingleValueType(Self) -> Bool // from trait `Type`
 fn StructType::isSized(Self) -> Bool
+fn StructType::isValidGEPType(Self) -> Bool // from trait `Type`
+#deprecated
+fn StructType::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn StructType::output(Self, &Logger) -> Unit // from trait `Show`
 fn StructType::removeName(Self) -> Unit
 fn StructType::setBody(Self, Array[&Type], isPacked? : Bool) -> Unit raise LLVMTypeError
 fn StructType::setName(Self, String) -> Unit raise LLVMTypeError
+fn StructType::to_string(Self) -> String // from trait `Show`
+fn StructType::tryAsAbstractType(Self) -> &AbstractType? // from trait `Type`
+fn StructType::tryAsAbstractTypeEnum(Self) -> AbstractTypeEnum? // from trait `Type`
+fn StructType::tryAsAggregateType(Self) -> &AggregateType? // from trait `Type`
+fn StructType::tryAsAggregateTypeEnum(Self) -> AggregateTypeEnum? // from trait `Type`
+fn StructType::tryAsFPType(Self) -> &FPType? // from trait `Type`
+fn StructType::tryAsFPTypeEnum(Self) -> FPTypeEnum? // from trait `Type`
+fn StructType::tryAsIntType(Self) -> &IntegerType? // from trait `Type`
+fn StructType::tryAsIntTypeEnum(Self) -> IntegerTypeEnum? // from trait `Type`
+fn StructType::tryAsPrimitiveType(Self) -> &PrimitiveType? // from trait `Type`
+fn StructType::tryAsPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum? // from trait `Type`
 impl AggregateType for StructType
 impl Type for StructType
 impl Eq for StructType
@@ -1454,10 +3400,55 @@ pub struct SwitchInst {
   next : Ref[&Instruction?]
 }
 fn SwitchInst::addCase(Self, ConstantInt, BasicBlock) -> Unit raise LLVMValueError
+fn SwitchInst::addUser(Self, &User) -> Unit // from trait `Value`
+fn SwitchInst::asInstEnum(Self) -> InstEnum // from trait `Instruction`
+fn SwitchInst::asUserEnum(Self) -> UserEnum // from trait `User`
+fn SwitchInst::asValueEnum(Self) -> ValueEnum // from trait `Value`
+fn SwitchInst::eraseFromParent(Self) -> Unit // from trait `Instruction`
+fn SwitchInst::getBasicBlock(Self) -> BasicBlock? // from trait `Instruction`
 fn SwitchInst::getCase(Self, Int) -> (ConstantInt, BasicBlock)?
 fn SwitchInst::getCondition(Self) -> &Value
+fn SwitchInst::getContext(Self) -> Context // from trait `Value`
 fn SwitchInst::getDefaultDest(Self) -> BasicBlock
+fn SwitchInst::getInstBase(Self) -> InstBase // from trait `Instruction`
+fn SwitchInst::getInstName(Self) -> String? // from trait `Instruction`
+fn SwitchInst::getModule(Self) -> Module // from trait `Instruction`
+fn SwitchInst::getName(Self) -> String? // from trait `Value`
+fn SwitchInst::getNameOrSlot(Self) -> @either.Either[String, UInt64]? // from trait `Value`
+fn SwitchInst::getNameOrSlotStr(Self) -> String // from trait `Value`
 fn SwitchInst::getNumCases(Self) -> Int
+fn SwitchInst::getNumOperands(Self) -> Int // from trait `User`
+fn SwitchInst::getOperand(Self, Int) -> &Value? // from trait `User`
+fn SwitchInst::getOperands(Self) -> Array[&Value] // from trait `User`
+fn SwitchInst::getParent(Self) -> Function // from trait `Instruction`
+fn SwitchInst::getType(Self) -> &Type // from trait `Value`
+fn SwitchInst::getUserBase(Self) -> UserBase // from trait `User`
+fn SwitchInst::getUsers(Self) -> Array[&User]? // from trait `Value`
+fn SwitchInst::getValueBase(Self) -> ValueBase // from trait `Value`
+fn SwitchInst::getValueRepr(Self) -> String // from trait `Value`
+fn SwitchInst::insertAfter(Self, &Instruction) -> Unit raise LLVMValueError // from trait `Instruction`
+fn SwitchInst::insertBefore(Self, &Instruction) -> Unit raise LLVMValueError // from trait `Instruction`
+fn SwitchInst::isIndependent(Self) -> Bool // from trait `Instruction`
+fn SwitchInst::isTerminator(Self) -> Bool // from trait `Instruction`
+fn SwitchInst::moveAfter(Self, &Instruction) -> Unit // from trait `Instruction`
+fn SwitchInst::moveBefore(Self, &Instruction) -> Unit // from trait `Instruction`
+fn SwitchInst::next(Self) -> &Instruction? // from trait `Instruction`
+fn SwitchInst::output(Self, &Logger) -> Unit // from trait `Show`
+fn SwitchInst::prev(Self) -> &Instruction? // from trait `Instruction`
+fn SwitchInst::removeFromParent(Self) -> Unit // from trait `Instruction`
+fn SwitchInst::removeName(Self) -> Unit raise LLVMValueError // from trait `Value`
+fn SwitchInst::replaceAllUsersWith(Self, &Value) -> Unit // from trait `Value`
+fn SwitchInst::setName(Self, String) -> Unit raise LLVMValueError // from trait `Value`
+fn SwitchInst::to_string(Self) -> String // from trait `Show`
+fn SwitchInst::tryAsConstant(Self) -> &Constant? // from trait `Value`
+fn SwitchInst::tryAsConstantEnum(Self) -> ConstantEnum? // from trait `Value`
+fn SwitchInst::tryAsGlobalValue(Self) -> &GlobalValue? // from trait `Value`
+fn SwitchInst::tryAsGlobalValueEnum(Self) -> GlobalValueEnum? // from trait `Value`
+fn SwitchInst::tryAsInst(Self) -> &Instruction? // from trait `Value`
+fn SwitchInst::tryAsInstEnum(Self) -> InstEnum? // from trait `Value`
+fn SwitchInst::tryAsUser(Self) -> &User? // from trait `Value`
+fn SwitchInst::tryAsUserEnum(Self) -> UserEnum? // from trait `Value`
+fn SwitchInst::user_empty(Self) -> Bool // from trait `Value`
 impl Instruction for SwitchInst
 impl User for SwitchInst
 impl Value for SwitchInst
@@ -1468,11 +3459,52 @@ pub(all) enum TailCallKind {
   Tail
   MustTail
 }
+fn TailCallKind::output(Self, &Logger) -> Unit // from trait `Show`
+fn TailCallKind::to_string(Self) -> String // from trait `Show`
 impl Show for TailCallKind
 
 pub struct TokenType {
   ctx : Context
 }
+fn TokenType::asAbstractTypeEnum(Self) -> AbstractTypeEnum // from trait `AbstractType`
+fn TokenType::asTypeEnum(Self) -> TypeEnum // from trait `Type`
+fn TokenType::canLosslesslyBitCastTo(Self, &Type) -> Bool // from trait `Type`
+fn TokenType::equal(Self, Self) -> Bool // from trait `Eq`
+fn TokenType::getContext(Self) -> Context // from trait `Type`
+fn TokenType::getPrimitiveSizeInBits(Self) -> TypeSize // from trait `Type`
+fn TokenType::getScalarSizeInBits(Self) -> Int // from trait `Type`
+fn TokenType::getScalarType(Self) -> &Type // from trait `Type`
+fn TokenType::hash(Self) -> Int // from trait `Hash`
+fn TokenType::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+fn TokenType::is16bitFPTy(Self) -> Bool // from trait `Type`
+fn TokenType::isAggregateType(Self) -> Bool // from trait `Type`
+fn TokenType::isEmptyTy(Self) -> Bool // from trait `Type`
+fn TokenType::isFPOrFPVectorTy(Self) -> Bool // from trait `Type`
+fn TokenType::isFirstClassType(Self) -> Bool // from trait `Type`
+fn TokenType::isFloatingPointTy(Self) -> Bool // from trait `Type`
+fn TokenType::isIEEELikeFPTy(Self) -> Bool // from trait `Type`
+fn TokenType::isIntOrIntVectorTy(Self) -> Bool // from trait `Type`
+fn TokenType::isIntOrPtrTy(Self) -> Bool // from trait `Type`
+fn TokenType::isPtrOrPtrVectorTy(Self) -> Bool // from trait `Type`
+fn TokenType::isScalableTargetExtTy(Self) -> Bool // from trait `Type`
+fn TokenType::isScalableTy(Self) -> Bool // from trait `Type`
+fn TokenType::isSingleValueType(Self) -> Bool // from trait `Type`
+fn TokenType::isSized(Self) -> Bool // from trait `Type`
+fn TokenType::isValidGEPType(Self) -> Bool // from trait `Type`
+#deprecated
+fn TokenType::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn TokenType::output(Self, &Logger) -> Unit // from trait `Show`
+fn TokenType::to_string(Self) -> String // from trait `Show`
+fn TokenType::tryAsAbstractType(Self) -> &AbstractType? // from trait `Type`
+fn TokenType::tryAsAbstractTypeEnum(Self) -> AbstractTypeEnum? // from trait `Type`
+fn TokenType::tryAsAggregateType(Self) -> &AggregateType? // from trait `Type`
+fn TokenType::tryAsAggregateTypeEnum(Self) -> AggregateTypeEnum? // from trait `Type`
+fn TokenType::tryAsFPType(Self) -> &FPType? // from trait `Type`
+fn TokenType::tryAsFPTypeEnum(Self) -> FPTypeEnum? // from trait `Type`
+fn TokenType::tryAsIntType(Self) -> &IntegerType? // from trait `Type`
+fn TokenType::tryAsIntTypeEnum(Self) -> IntegerTypeEnum? // from trait `Type`
+fn TokenType::tryAsPrimitiveType(Self) -> &PrimitiveType? // from trait `Type`
+fn TokenType::tryAsPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum? // from trait `Type`
 impl AbstractType for TokenType
 impl Type for TokenType
 impl Eq for TokenType
@@ -1502,6 +3534,13 @@ pub enum TypeEnum {
   PointerType(PointerType)
 }
 fn TypeEnum::asTypeClass(Self) -> &Type
+fn TypeEnum::equal(Self, Self) -> Bool // from trait `Eq`
+fn TypeEnum::hash(Self) -> Int // from trait `Hash`
+fn TypeEnum::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+#deprecated
+fn TypeEnum::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn TypeEnum::output(Self, &Logger) -> Unit // from trait `Show`
+fn TypeEnum::to_string(Self) -> String // from trait `Show`
 impl Eq for TypeEnum
 impl Hash for TypeEnum
 impl Show for TypeEnum
@@ -1509,6 +3548,7 @@ impl Show for TypeEnum
 pub struct TypeSize {
   // private fields
 }
+fn TypeSize::equal(Self, Self) -> Bool // from trait `Eq`
 fn TypeSize::getFixed(UInt64) -> Self
 fn TypeSize::getFixedValue(Self) -> UInt64?
 fn TypeSize::getKnownMinValue(Self) -> UInt64
@@ -1517,41 +3557,78 @@ fn TypeSize::isFixed(Self) -> Bool
 fn TypeSize::isNonZero(Self) -> Bool
 fn TypeSize::isScalable(Self) -> Bool
 fn TypeSize::isZero(Self) -> Bool
+#deprecated
+fn TypeSize::op_equal(Self, Self) -> Bool // from trait `Eq`
 impl Eq for TypeSize
 
 type UInt16Array
+fn UInt16Array::equal(Self, Self) -> Bool // from trait `Eq`
 fn UInt16Array::from(Array[UInt16]) -> Self
+fn UInt16Array::hash(Self) -> Int // from trait `Hash`
+fn UInt16Array::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
 fn UInt16Array::iter(Self) -> Iter[UInt16]
 fn UInt16Array::length(Self) -> Int
+#deprecated
+fn UInt16Array::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn UInt16Array::output(Self, &Logger) -> Unit // from trait `Show`
+fn UInt16Array::to_string(Self) -> String // from trait `Show`
 impl Eq for UInt16Array
 impl Hash for UInt16Array
 impl Show for UInt16Array
 
 type UInt32Array
+fn UInt32Array::equal(Self, Self) -> Bool // from trait `Eq`
 fn UInt32Array::from(Array[UInt]) -> Self
+fn UInt32Array::hash(Self) -> Int // from trait `Hash`
+fn UInt32Array::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
 fn UInt32Array::iter(Self) -> Iter[UInt]
 fn UInt32Array::length(Self) -> Int
+#deprecated
+fn UInt32Array::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn UInt32Array::output(Self, &Logger) -> Unit // from trait `Show`
+fn UInt32Array::to_string(Self) -> String // from trait `Show`
 impl Eq for UInt32Array
 impl Hash for UInt32Array
 impl Show for UInt32Array
 
 type UInt64Array
+fn UInt64Array::equal(Self, Self) -> Bool // from trait `Eq`
 fn UInt64Array::from(Array[UInt64]) -> Self
+fn UInt64Array::hash(Self) -> Int // from trait `Hash`
+fn UInt64Array::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
 fn UInt64Array::iter(Self) -> Iter[UInt64]
 fn UInt64Array::length(Self) -> Int
+#deprecated
+fn UInt64Array::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn UInt64Array::output(Self, &Logger) -> Unit // from trait `Show`
+fn UInt64Array::to_string(Self) -> String // from trait `Show`
 impl Eq for UInt64Array
 impl Hash for UInt64Array
 impl Show for UInt64Array
 
 type UInt8Array
+fn UInt8Array::equal(Self, Self) -> Bool // from trait `Eq`
 fn UInt8Array::from(Array[@uint8.UInt8]) -> Self
+fn UInt8Array::hash(Self) -> Int // from trait `Hash`
+fn UInt8Array::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
 fn UInt8Array::iter(Self) -> Iter[@uint8.UInt8]
 fn UInt8Array::length(Self) -> Int
+#deprecated
+fn UInt8Array::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn UInt8Array::output(Self, &Logger) -> Unit // from trait `Show`
+fn UInt8Array::to_string(Self) -> String // from trait `Show`
 impl Eq for UInt8Array
 impl Hash for UInt8Array
 impl Show for UInt8Array
 
 type UnSignedEnum
+fn UnSignedEnum::equal(Self, Self) -> Bool // from trait `Eq`
+fn UnSignedEnum::hash(Self) -> Int // from trait `Hash`
+fn UnSignedEnum::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+#deprecated
+fn UnSignedEnum::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn UnSignedEnum::output(Self, &Logger) -> Unit // from trait `Show`
+fn UnSignedEnum::to_string(Self) -> String // from trait `Show`
 impl Eq for UnSignedEnum
 impl Hash for UnSignedEnum
 impl Show for UnSignedEnum
@@ -1569,9 +3646,14 @@ pub(all) enum UnnamedAddr {
   Local
   Global
 }
+fn UnnamedAddr::output(Self, &Logger) -> Unit // from trait `Show`
+fn UnnamedAddr::to_string(Self) -> String // from trait `Show`
 impl Show for UnnamedAddr
 
 type UserBase
+fn UserBase::equal(Self, Self) -> Bool // from trait `Eq`
+#deprecated
+fn UserBase::op_equal(Self, Self) -> Bool // from trait `Eq`
 impl Eq for UserBase
 
 pub enum UserEnum {
@@ -1595,6 +3677,9 @@ pub enum UserEnum {
 fn UserEnum::asUserClass(Self) -> &User
 
 type ValueBase
+fn ValueBase::equal(Self, Self) -> Bool // from trait `Eq`
+#deprecated
+fn ValueBase::op_equal(Self, Self) -> Bool // from trait `Eq`
 impl Eq for ValueBase
 
 pub enum ValueEnum {
@@ -1638,8 +3723,48 @@ pub struct VectorType {
   elementType : &Type
   elementCount : Int
 }
+fn VectorType::asAggregateTypeEnum(Self) -> AggregateTypeEnum // from trait `AggregateType`
+fn VectorType::asTypeEnum(Self) -> TypeEnum // from trait `Type`
+fn VectorType::canLosslesslyBitCastTo(Self, &Type) -> Bool // from trait `Type`
+fn VectorType::equal(Self, Self) -> Bool // from trait `Eq`
+fn VectorType::getContext(Self) -> Context // from trait `Type`
 fn VectorType::getElementCount(Self) -> Int
 fn VectorType::getElementType(Self) -> &Type
+fn VectorType::getIndexedType(Self, ArrayView[Int]) -> &Type? // from trait `AggregateType`
+fn VectorType::getPrimitiveSizeInBits(Self) -> TypeSize // from trait `Type`
+fn VectorType::getScalarSizeInBits(Self) -> Int // from trait `Type`
+fn VectorType::getScalarType(Self) -> &Type // from trait `Type`
+fn VectorType::hash(Self) -> Int // from trait `Hash`
+fn VectorType::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+fn VectorType::is16bitFPTy(Self) -> Bool // from trait `Type`
+fn VectorType::isAggregateType(Self) -> Bool // from trait `Type`
+fn VectorType::isEmptyTy(Self) -> Bool // from trait `Type`
+fn VectorType::isFPOrFPVectorTy(Self) -> Bool // from trait `Type`
+fn VectorType::isFirstClassType(Self) -> Bool // from trait `Type`
+fn VectorType::isFloatingPointTy(Self) -> Bool // from trait `Type`
+fn VectorType::isIEEELikeFPTy(Self) -> Bool // from trait `Type`
+fn VectorType::isIntOrIntVectorTy(Self) -> Bool // from trait `Type`
+fn VectorType::isIntOrPtrTy(Self) -> Bool // from trait `Type`
+fn VectorType::isPtrOrPtrVectorTy(Self) -> Bool // from trait `Type`
+fn VectorType::isScalableTargetExtTy(Self) -> Bool // from trait `Type`
+fn VectorType::isScalableTy(Self) -> Bool // from trait `Type`
+fn VectorType::isSingleValueType(Self) -> Bool // from trait `Type`
+fn VectorType::isSized(Self) -> Bool // from trait `Type`
+fn VectorType::isValidGEPType(Self) -> Bool // from trait `Type`
+#deprecated
+fn VectorType::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn VectorType::output(Self, &Logger) -> Unit // from trait `Show`
+fn VectorType::to_string(Self) -> String // from trait `Show`
+fn VectorType::tryAsAbstractType(Self) -> &AbstractType? // from trait `Type`
+fn VectorType::tryAsAbstractTypeEnum(Self) -> AbstractTypeEnum? // from trait `Type`
+fn VectorType::tryAsAggregateType(Self) -> &AggregateType? // from trait `Type`
+fn VectorType::tryAsAggregateTypeEnum(Self) -> AggregateTypeEnum? // from trait `Type`
+fn VectorType::tryAsFPType(Self) -> &FPType? // from trait `Type`
+fn VectorType::tryAsFPTypeEnum(Self) -> FPTypeEnum? // from trait `Type`
+fn VectorType::tryAsIntType(Self) -> &IntegerType? // from trait `Type`
+fn VectorType::tryAsIntTypeEnum(Self) -> IntegerTypeEnum? // from trait `Type`
+fn VectorType::tryAsPrimitiveType(Self) -> &PrimitiveType? // from trait `Type`
+fn VectorType::tryAsPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum? // from trait `Type`
 impl AggregateType for VectorType
 impl Type for VectorType
 impl Eq for VectorType
@@ -1651,21 +3776,57 @@ pub(all) enum Visibility {
   Hidden
   Protected
 }
+fn Visibility::output(Self, &Logger) -> Unit // from trait `Show`
+fn Visibility::to_string(Self) -> String // from trait `Show`
 impl Show for Visibility
 
 pub struct VoidType {
   ctx : Context
 }
+fn VoidType::asAbstractTypeEnum(Self) -> AbstractTypeEnum // from trait `AbstractType`
+fn VoidType::asTypeEnum(Self) -> TypeEnum // from trait `Type`
+fn VoidType::canLosslesslyBitCastTo(Self, &Type) -> Bool // from trait `Type`
+fn VoidType::equal(Self, Self) -> Bool // from trait `Eq`
+fn VoidType::getContext(Self) -> Context // from trait `Type`
+fn VoidType::getPrimitiveSizeInBits(Self) -> TypeSize // from trait `Type`
+fn VoidType::getScalarSizeInBits(Self) -> Int // from trait `Type`
+fn VoidType::getScalarType(Self) -> &Type // from trait `Type`
+fn VoidType::hash(Self) -> Int // from trait `Hash`
+fn VoidType::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+fn VoidType::is16bitFPTy(Self) -> Bool // from trait `Type`
+fn VoidType::isAggregateType(Self) -> Bool // from trait `Type`
+fn VoidType::isEmptyTy(Self) -> Bool // from trait `Type`
+fn VoidType::isFPOrFPVectorTy(Self) -> Bool // from trait `Type`
+fn VoidType::isFirstClassType(Self) -> Bool // from trait `Type`
+fn VoidType::isFloatingPointTy(Self) -> Bool // from trait `Type`
+fn VoidType::isIEEELikeFPTy(Self) -> Bool // from trait `Type`
+fn VoidType::isIntOrIntVectorTy(Self) -> Bool // from trait `Type`
+fn VoidType::isIntOrPtrTy(Self) -> Bool // from trait `Type`
+fn VoidType::isPtrOrPtrVectorTy(Self) -> Bool // from trait `Type`
+fn VoidType::isScalableTargetExtTy(Self) -> Bool // from trait `Type`
+fn VoidType::isScalableTy(Self) -> Bool // from trait `Type`
+fn VoidType::isSingleValueType(Self) -> Bool // from trait `Type`
+fn VoidType::isSized(Self) -> Bool // from trait `Type`
+fn VoidType::isValidGEPType(Self) -> Bool // from trait `Type`
+#deprecated
+fn VoidType::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn VoidType::output(Self, &Logger) -> Unit // from trait `Show`
+fn VoidType::to_string(Self) -> String // from trait `Show`
+fn VoidType::tryAsAbstractType(Self) -> &AbstractType? // from trait `Type`
+fn VoidType::tryAsAbstractTypeEnum(Self) -> AbstractTypeEnum? // from trait `Type`
+fn VoidType::tryAsAggregateType(Self) -> &AggregateType? // from trait `Type`
+fn VoidType::tryAsAggregateTypeEnum(Self) -> AggregateTypeEnum? // from trait `Type`
+fn VoidType::tryAsFPType(Self) -> &FPType? // from trait `Type`
+fn VoidType::tryAsFPTypeEnum(Self) -> FPTypeEnum? // from trait `Type`
+fn VoidType::tryAsIntType(Self) -> &IntegerType? // from trait `Type`
+fn VoidType::tryAsIntTypeEnum(Self) -> IntegerTypeEnum? // from trait `Type`
+fn VoidType::tryAsPrimitiveType(Self) -> &PrimitiveType? // from trait `Type`
+fn VoidType::tryAsPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum? // from trait `Type`
 impl AbstractType for VoidType
 impl Type for VoidType
 impl Eq for VoidType
 impl Hash for VoidType
 impl Show for VoidType
-
-impl Eq for &User
-
-impl Eq for &Value
-impl Hash for &Value
 
 // Type aliases
 
@@ -1823,6 +3984,10 @@ pub trait User : Value {
   getOperand(Self, Int) -> &Value?
   getNumOperands(Self) -> Int
 }
+fn &User::equal(Self, Self) -> Bool // from trait `Eq`
+#deprecated
+fn &User::op_equal(Self, Self) -> Bool // from trait `Eq`
+impl Eq for &User
 
 pub trait Value : Show {
   getValueBase(Self) -> ValueBase
@@ -1848,4 +4013,11 @@ pub trait Value : Show {
   tryAsGlobalValue(Self) -> &GlobalValue?
   tryAsGlobalValueEnum(Self) -> GlobalValueEnum?
 }
+fn &Value::equal(Self, Self) -> Bool // from trait `Eq`
+fn &Value::hash(Self) -> Int // from trait `Hash`
+fn &Value::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+#deprecated
+fn &Value::op_equal(Self, Self) -> Bool // from trait `Eq`
+impl Eq for &Value
+impl Hash for &Value
 

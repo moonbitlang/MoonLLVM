@@ -174,6 +174,11 @@ pub fn BasicBlock::getSuccessors(self : BasicBlock) -> Array[BasicBlock] {
 }
 
 ///|
+pub fn BasicBlock::removeFromParent(self : BasicBlock) -> Unit {
+  self.parent.removeBasicBlock(self)
+}
+
+///|
 pub fn BasicBlock::getLabel(self : BasicBlock) -> String {
   match self.getNameOrSlot() {
     Some(Left(name)) => "\{name}"

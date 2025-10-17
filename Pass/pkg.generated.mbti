@@ -12,6 +12,9 @@ import(
 // Types and methods
 pub struct DCE {
 }
+fn DCE::description(Self) -> String // from trait `FunctionPass`
+fn DCE::name(Self) -> String // from trait `FunctionPass`
+fn DCE::run(Self, @IR.Function) -> Unit // from trait `FunctionPass`
 impl FunctionPass for DCE
 
 pub(all) enum OptLevel {
@@ -28,8 +31,6 @@ fn PassManager::createEmpty() -> Self
 fn PassManager::createO0() -> Self
 fn PassManager::run(Self, @IR.Function) -> Unit
 
-impl Eq for &FunctionPass
-
 // Type aliases
 
 // Traits
@@ -38,4 +39,8 @@ pub trait FunctionPass {
   description(Self) -> String
   run(Self, @IR.Function) -> Unit
 }
+fn &FunctionPass::equal(Self, Self) -> Bool // from trait `Eq`
+#deprecated
+fn &FunctionPass::op_equal(Self, Self) -> Bool // from trait `Eq`
+impl Eq for &FunctionPass
 

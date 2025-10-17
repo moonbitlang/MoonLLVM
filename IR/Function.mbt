@@ -347,6 +347,7 @@ pub fn Function::instIter(self : Function) -> Iter[&Instruction] {
     }
     IterContinue
   }
+
   Iter::new(f)
 }
 
@@ -544,7 +545,36 @@ pub impl GlobalValue for Function with asGlobalValueEnum(self) {
   Function(self)
 }
 
-// TODO: This only implemented empty body.
+// for all basic blocks, if it has no predecessors, remove it (except entry block)
+
+///|
+pub fn Function::removeUnreachableBlocks(self : Function) -> Unit {
+  let remove_list = Array::new()
+  for i, bb in self.basicBlocks {
+    if i == 0 {
+      continue
+    }
+    if bb.preds.is_empty() {
+      remove_list.push(i)
+    }
+  }
+  for i in remove_list.rev_iter() {
+    let _ = self.basicBlocks.remove(i)
+
+  }
+}
+
+///|
+pub fn Function::removeBasicBlock(self : Function, bb : BasicBlock) -> Unit {
+  let idx = self.basicBlocks.search(bb)
+  match idx {
+    Some(i) => {
+      let _ = self.basicBlocks.remove(i)
+
+    }
+    None => ()
+  }
+}
 
 ///|
 pub impl Show for Function with output(self, logger) {
