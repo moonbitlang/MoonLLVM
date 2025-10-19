@@ -33,6 +33,12 @@ pub fn Int8::to_int(self : Int8) -> Int {
 }
 
 ///|
+pub fn Int8::to_byte(self : Int8) -> Byte {
+  let Int8(v) = self
+  (v & 0xFF).to_byte()
+}
+
+///|
 pub fn Int8::to_uint(self : Int8) -> UInt {
   self.to_int().reinterpret_as_uint()
 }

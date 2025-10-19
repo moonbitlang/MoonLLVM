@@ -27,34 +27,34 @@ fn ValueUIDAssigner::assign(self : ValueUIDAssigner) -> UInt64 {
 // ====================================================
 
 ///|
-struct Int8Array(Array[Int8]) derive(Eq, Hash, Show)
+pub struct Int8Array(Array[Int8]) derive(Eq, Hash, Show)
 
 ///|
-struct Int16Array(Array[Int16]) derive(Eq, Hash, Show)
+pub struct Int16Array(Array[Int16]) derive(Eq, Hash, Show)
 
 ///|
-struct Int32Array(Array[Int]) derive(Eq, Hash, Show)
+pub struct Int32Array(Array[Int]) derive(Eq, Hash, Show)
 
 ///|
-struct Int64Array(Array[Int64]) derive(Eq, Hash, Show)
+pub struct Int64Array(Array[Int64]) derive(Eq, Hash, Show)
 
 ///|
-struct UInt8Array(Array[UInt8]) derive(Eq, Hash, Show)
+pub struct UInt8Array(Array[UInt8]) derive(Eq, Hash, Show)
 
 ///|
-struct UInt16Array(Array[UInt16]) derive(Eq, Hash, Show)
+pub struct UInt16Array(Array[UInt16]) derive(Eq, Hash, Show)
 
 ///|
-struct UInt32Array(Array[UInt]) derive(Eq, Hash, Show)
+pub struct UInt32Array(Array[UInt]) derive(Eq, Hash, Show)
 
 ///|
-struct UInt64Array(Array[UInt64]) derive(Eq, Hash, Show)
+pub struct UInt64Array(Array[UInt64]) derive(Eq, Hash, Show)
 
 ///|
-struct FloatArray(Array[Float]) derive(Eq, Hash, Show)
+pub struct FloatArray(Array[Float]) derive(Eq, Hash, Show)
 
 ///|
-struct DoubleArray(Array[Double]) derive(Eq, Hash, Show)
+pub struct DoubleArray(Array[Double]) derive(Eq, Hash, Show)
 
 ///|
 pub fn Int8Array::from(data : Array[Int8]) -> Int8Array {
@@ -227,7 +227,7 @@ pub fn DoubleArray::length(self : DoubleArray) -> Int {
 }
 
 ///|
-enum NumberArrayEnum {
+pub enum NumberArrayEnum {
   Int8Array(Int8Array)
   Int16Array(Int16Array)
   Int32Array(Int32Array)
