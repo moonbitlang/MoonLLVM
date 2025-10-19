@@ -67,7 +67,7 @@ pub fn Module::addFunction(
     let msg = "Misuse `Module::addFunction`: global symbol '\{name}' already exists in the module."
     raise LLVMValueError(msg)
   }
-  let index = self.functions.size()
+  let index = self.functions.length()
   let f = Function::new(
     fty,
     name,

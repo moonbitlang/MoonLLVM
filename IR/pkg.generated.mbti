@@ -1108,11 +1108,13 @@ fn DataLayout::getStructTypeOffset(Self, StructType, Int) -> Int
 fn DataLayout::getTypeAllocSize(Self, &Type) -> Int
 fn DataLayout::getTypeAllocSizeInBits(Self, &Type) -> Int
 
-type DoubleArray
+pub struct DoubleArray(Array[Double])
 fn DoubleArray::equal(Self, Self) -> Bool // from trait `Eq`
 fn DoubleArray::from(Array[Double]) -> Self
 fn DoubleArray::hash(Self) -> Int // from trait `Hash`
 fn DoubleArray::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+#deprecated
+fn DoubleArray::inner(Self) -> Array[Double]
 fn DoubleArray::iter(Self) -> Iter[Double]
 fn DoubleArray::length(Self) -> Int
 #deprecated
@@ -1465,11 +1467,13 @@ impl Eq for FastMathFlag
 impl Hash for FastMathFlag
 impl Show for FastMathFlag
 
-type FloatArray
+pub struct FloatArray(Array[Float])
 fn FloatArray::equal(Self, Self) -> Bool // from trait `Eq`
 fn FloatArray::from(Array[Float]) -> Self
 fn FloatArray::hash(Self) -> Int // from trait `Hash`
 fn FloatArray::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+#deprecated
+fn FloatArray::inner(Self) -> Array[Float]
 fn FloatArray::iter(Self) -> Iter[Float]
 fn FloatArray::length(Self) -> Int
 #deprecated
@@ -2244,11 +2248,13 @@ pub enum InstEnum {
   CallInst(CallInst)
 }
 
-type Int16Array
+pub struct Int16Array(Array[Int16])
 fn Int16Array::equal(Self, Self) -> Bool // from trait `Eq`
 fn Int16Array::from(Array[Int16]) -> Self
 fn Int16Array::hash(Self) -> Int // from trait `Hash`
 fn Int16Array::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+#deprecated
+fn Int16Array::inner(Self) -> Array[Int16]
 fn Int16Array::iter(Self) -> Iter[Int16]
 fn Int16Array::length(Self) -> Int
 #deprecated
@@ -2367,11 +2373,13 @@ impl Eq for Int1Type
 impl Hash for Int1Type
 impl Show for Int1Type
 
-type Int32Array
+pub struct Int32Array(Array[Int])
 fn Int32Array::equal(Self, Self) -> Bool // from trait `Eq`
 fn Int32Array::from(Array[Int]) -> Self
 fn Int32Array::hash(Self) -> Int // from trait `Hash`
 fn Int32Array::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+#deprecated
+fn Int32Array::inner(Self) -> Array[Int]
 fn Int32Array::iter(Self) -> Iter[Int]
 fn Int32Array::length(Self) -> Int
 #deprecated
@@ -2436,11 +2444,13 @@ impl Eq for Int32Type
 impl Hash for Int32Type
 impl Show for Int32Type
 
-type Int64Array
+pub struct Int64Array(Array[Int64])
 fn Int64Array::equal(Self, Self) -> Bool // from trait `Eq`
 fn Int64Array::from(Array[Int64]) -> Self
 fn Int64Array::hash(Self) -> Int // from trait `Hash`
 fn Int64Array::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+#deprecated
+fn Int64Array::inner(Self) -> Array[Int64]
 fn Int64Array::iter(Self) -> Iter[Int64]
 fn Int64Array::length(Self) -> Int
 #deprecated
@@ -2505,11 +2515,13 @@ impl Eq for Int64Type
 impl Hash for Int64Type
 impl Show for Int64Type
 
-type Int8Array
+pub struct Int8Array(Array[@int8.Int8])
 fn Int8Array::equal(Self, Self) -> Bool // from trait `Eq`
 fn Int8Array::from(Array[@int8.Int8]) -> Self
 fn Int8Array::hash(Self) -> Int // from trait `Hash`
 fn Int8Array::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+#deprecated
+fn Int8Array::inner(Self) -> Array[@int8.Int8]
 fn Int8Array::iter(Self) -> Iter[@int8.Int8]
 fn Int8Array::length(Self) -> Int
 #deprecated
@@ -2838,7 +2850,18 @@ fn Module::output(Self, &Logger) -> Unit // from trait `Show`
 fn Module::to_string(Self) -> String // from trait `Show`
 impl Show for Module
 
-type NumberArrayEnum
+pub enum NumberArrayEnum {
+  Int8Array(Int8Array)
+  Int16Array(Int16Array)
+  Int32Array(Int32Array)
+  Int64Array(Int64Array)
+  UInt8Array(UInt8Array)
+  UInt16Array(UInt16Array)
+  UInt32Array(UInt32Array)
+  UInt64Array(UInt64Array)
+  FloatArray(FloatArray)
+  DoubleArray(DoubleArray)
+}
 fn NumberArrayEnum::equal(Self, Self) -> Bool // from trait `Eq`
 fn NumberArrayEnum::hash(Self) -> Int // from trait `Hash`
 fn NumberArrayEnum::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
@@ -3561,11 +3584,13 @@ fn TypeSize::isZero(Self) -> Bool
 fn TypeSize::op_equal(Self, Self) -> Bool // from trait `Eq`
 impl Eq for TypeSize
 
-type UInt16Array
+pub struct UInt16Array(Array[UInt16])
 fn UInt16Array::equal(Self, Self) -> Bool // from trait `Eq`
 fn UInt16Array::from(Array[UInt16]) -> Self
 fn UInt16Array::hash(Self) -> Int // from trait `Hash`
 fn UInt16Array::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+#deprecated
+fn UInt16Array::inner(Self) -> Array[UInt16]
 fn UInt16Array::iter(Self) -> Iter[UInt16]
 fn UInt16Array::length(Self) -> Int
 #deprecated
@@ -3576,11 +3601,13 @@ impl Eq for UInt16Array
 impl Hash for UInt16Array
 impl Show for UInt16Array
 
-type UInt32Array
+pub struct UInt32Array(Array[UInt])
 fn UInt32Array::equal(Self, Self) -> Bool // from trait `Eq`
 fn UInt32Array::from(Array[UInt]) -> Self
 fn UInt32Array::hash(Self) -> Int // from trait `Hash`
 fn UInt32Array::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+#deprecated
+fn UInt32Array::inner(Self) -> Array[UInt]
 fn UInt32Array::iter(Self) -> Iter[UInt]
 fn UInt32Array::length(Self) -> Int
 #deprecated
@@ -3591,11 +3618,13 @@ impl Eq for UInt32Array
 impl Hash for UInt32Array
 impl Show for UInt32Array
 
-type UInt64Array
+pub struct UInt64Array(Array[UInt64])
 fn UInt64Array::equal(Self, Self) -> Bool // from trait `Eq`
 fn UInt64Array::from(Array[UInt64]) -> Self
 fn UInt64Array::hash(Self) -> Int // from trait `Hash`
 fn UInt64Array::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+#deprecated
+fn UInt64Array::inner(Self) -> Array[UInt64]
 fn UInt64Array::iter(Self) -> Iter[UInt64]
 fn UInt64Array::length(Self) -> Int
 #deprecated
@@ -3606,11 +3635,13 @@ impl Eq for UInt64Array
 impl Hash for UInt64Array
 impl Show for UInt64Array
 
-type UInt8Array
+pub struct UInt8Array(Array[@uint8.UInt8])
 fn UInt8Array::equal(Self, Self) -> Bool // from trait `Eq`
 fn UInt8Array::from(Array[@uint8.UInt8]) -> Self
 fn UInt8Array::hash(Self) -> Int // from trait `Hash`
 fn UInt8Array::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+#deprecated
+fn UInt8Array::inner(Self) -> Array[@uint8.UInt8]
 fn UInt8Array::iter(Self) -> Iter[@uint8.UInt8]
 fn UInt8Array::length(Self) -> Int
 #deprecated
