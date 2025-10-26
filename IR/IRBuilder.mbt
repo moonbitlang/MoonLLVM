@@ -3659,23 +3659,61 @@ pub fn IRBuilder::createCall(
       raise LLVMValueError(msg)
     }
   }
-  //let argTys = args.map(arg => arg.getType())
-  //let paramTys = callee.getParamTypes()
-  //let arg_param_type_match = argTys
-  //  .zip(paramTys)
-  //  .iter()
-  //  .all(arg_param => {
-  //    let (arg_ty, param_ty) = arg_param
-  //    param_ty.isCompatibleWith(arg_ty)
-  //  })
-  //guard arg_param_type_match else {
-  //  let msg = "Misuse `IRBuilder::createCall`, " +
-  //    "argument types do not match function parameter types, " +
-  //    "got \{argTys} but expected \{paramTys}"
-  //  raise LLVMValueError(msg)
-  //}
   let parent = self.getInsertFunction()
   let inst = CallInst::new(callee, args, parent, name=None)
+  match name {
+    "" => ()
+    _ => inst.setName(name)
+  }
+  self.insert(inst)
+  inst
+}
+
+pub fn IRBuilder::createCallPtr(
+  self : IRBuilder,
+  callee : &Value,
+  functionType : FunctionType,
+  args : Array[&Value],
+  name? : String = "",
+) -> CallInst raise Error {
+  let expected_params = functionType.getNumParams()
+  let num_args = args.length()
+  if functionType.isVarArg {
+    guard num_args >= expected_params else {
+      let msg = "Misuse `IRBuilder::createCallPtr`, " +
+        "expected at least \{expected_params} arguments for variadic function, " +
+        "got \{args.length()} arguments"
+      raise LLVMValueError(msg)
+    }
+  } else {
+    guard num_args == expected_params else {
+      let msg = "Misuse `IRBuilder::createCallPtr`, " +
+        "expected \{expected_params} arguments, " +
+        "got \{args.length()} arguments"
+      raise LLVMValueError(msg)
+    }
+  }
+  fn min(a, b) {
+    if a < b {
+      a
+    } else {
+      b
+    }
+  }
+
+  let min_param_cnt = min(num_args, expected_params)
+  for i in 0..<min_param_cnt {
+    let arg_ty = args[i].getType()
+    let param_ty = functionType.getParamType(i).unwrap()
+    guard param_ty == arg_ty else {
+      let msg = "Misuse `IRBuilder::createCallPtr`, " +
+        "argument type does not match function parameter type at index \{i}, " +
+        "got \{arg_ty} but expected \{param_ty}"
+      raise LLVMValueError(msg)
+    }
+  }
+  let parent = self.getInsertFunction()
+  let inst = CallInst::new_indirect(callee, functionType, args, parent, name=None)
   match name {
     "" => ()
     _ => inst.setName(name)

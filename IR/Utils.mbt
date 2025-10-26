@@ -23,6 +23,6 @@ fn isInValidName(name : String) -> Bool {
   }
   let contain_illegal_chars = !name
     .iter()
-    .all(c => c.is_ascii_alphabetic() || c.is_ascii_digit() || c == '_')
+    .all(c => c.is_ascii_alphabetic() || c.is_ascii_digit() || c == '_' || c == '$')
   contain_illegal_chars
 }

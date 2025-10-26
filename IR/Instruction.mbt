@@ -4634,7 +4634,8 @@ pub struct CallInst {
   vty : &Type
   users : Array[&User]
   mut name : String?
-  callee : Function
+  function_type: FunctionType
+  callee : Either[Function, &Value]
   args : Array[&Value]
   parent : Function
 
@@ -4667,7 +4668,8 @@ fn CallInst::new(
     vty,
     users: [],
     name,
-    callee,
+    function_type: fty,
+    callee: Left(callee),
     args,
     parent,
     bb,
@@ -4676,6 +4678,46 @@ fn CallInst::new(
     tailCallKind: NoTail,
   }
   callee.addUser(inst)
+  args.each(arg => arg.addUser(inst))
+  inst
+}
+
+fn CallInst::new_indirect(
+  callee_val : &Value,  // Must be a pointer
+  function_type: FunctionType,
+  args : Array[&Value],
+  parent : Function,
+  name~ : String?,
+) -> CallInst raise LLVMValueError {
+  guard callee_val.getType().asTypeEnum() is PointerType(_) else {
+    let msg = "CallInst indirect callee type mismatch: " +
+      "expected pointer type, got \{callee_val.getType()}"
+    raise LLVMValueError(msg)
+  }
+  let uid = valueUIDAssigner.assign()
+  let vty = function_type.getReturnType()
+  let bb : Ref[BasicBlock?] = Ref::new(None)
+  let prev : Ref[&Instruction?] = Ref::new(None)
+  let next : Ref[&Instruction?] = Ref::new(None)
+  let name = match vty.asTypeEnum() {
+    VoidType(_) => None
+    _ => name
+  }
+  let inst = CallInst::{
+    uid,
+    vty,
+    users: [],
+    name,
+    function_type: function_type,
+    callee: Right(callee_val),
+    args,
+    parent,
+    bb,
+    prev,
+    next,
+    tailCallKind: NoTail,
+  }
+  callee_val.addUser(inst)
   args.each(arg => arg.addUser(inst))
   inst
 }
@@ -4718,7 +4760,7 @@ pub fn CallInst::getArgOperand(self : Self, idx : Int) -> &Value? {
 
 ///|
 pub fn CallInst::getNumArgs(self : Self) -> Int {
-  self.callee.getFunctionType().getNumParams()
+  self.function_type.getNumParams()
 }
 
 ///|
@@ -4896,7 +4938,13 @@ pub impl User for CallInst with asUserEnum(self) {
 
 ///|
 pub impl User for CallInst with getUserBase(self) {
-  UserBase::{ operands: [self.callee] + self.args }
+  let operands : Array[&Value] = Array::new()
+  match self.callee {
+    Left(func) => operands.push(func)
+    Right(val) => operands.push(val)
+  }
+  self.args.each(arg => operands.push(arg))
+  UserBase::{ operands }
 }
 
 ///|
@@ -4917,13 +4965,17 @@ pub impl Instruction for CallInst with getParent(self) {
 ///|
 pub impl Show for CallInst with output(self, logger) {
   let callee = self.callee
-  let fty = callee.getFunctionType()
+  let fty = self.function_type
   let ret_ty = fty.getReturnType()
   let is_var_arg = fty.isVarArg
   let is_void_ret = ret_ty.asTypeEnum() is VoidType(_)
   let prefix = if is_void_ret { "" } else { self.getValueRepr() }
   let tail_str = self.tailCallKind.to_string()
-  let ret_attrs = callee.getReturnAttrs()
+  let ret_attrs = if callee is Left(callee) {
+    callee.getReturnAttrs()
+  } else {
+    Set::new()
+  }
   let ret_attrs_str = if ret_attrs.is_empty() {
     ""
   } else {
@@ -4933,7 +4985,11 @@ pub impl Show for CallInst with output(self, logger) {
   for idx, arg in self.args {
     let arg_ty = arg.getType()
     let arg_repr = arg.getValueRepr()
-    let arg_attrs = callee.getParamAttrs(idx.reinterpret_as_uint())
+    let arg_attrs = if callee is Left(callee) {
+      callee.getParamAttrs(idx.reinterpret_as_uint())
+    } else {
+      None
+    }
     let arg_attrs_str = if not(arg_attrs.is_empty()) {
       " " + arg_attrs.iter().map(fn(a) { "\{a}" }).join(" ")
     } else {
@@ -4955,13 +5011,27 @@ pub impl Show for CallInst with output(self, logger) {
   } else {
     ""
   }
+  if self.callee is Left(callee) {
+    if is_void_ret {
+      logger.write_string(
+        "  \{call_prefix}\{ret_attrs_str} \{ret_ty}\{var_arg_func_mark} @\{callee.name}(\{args_str})",
+      )
+    } else {
+      logger.write_string(
+        "  \{prefix} = \{call_prefix}\{ret_attrs_str} \{ret_ty}\{var_arg_func_mark} @\{callee.name}(\{args_str})",
+      )
+    }
+    return
+  }
+
+  guard self.callee is Right(callee)
   if is_void_ret {
     logger.write_string(
-      "  \{call_prefix}\{ret_attrs_str} \{ret_ty}\{var_arg_func_mark} @\{callee.name}(\{args_str})",
+      "  \{call_prefix}\{ret_attrs_str} \{ret_ty}\{var_arg_func_mark} \{callee.getValueRepr()}(\{args_str})",
     )
   } else {
     logger.write_string(
-      "  \{prefix} = \{call_prefix}\{ret_attrs_str} \{ret_ty}\{var_arg_func_mark} @\{callee.name}(\{args_str})",
+      "  \{prefix} = \{call_prefix}\{ret_attrs_str} \{ret_ty}\{var_arg_func_mark} \{callee.getValueRepr()}(\{args_str})",
     )
   }
 }
