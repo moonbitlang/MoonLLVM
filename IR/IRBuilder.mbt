@@ -116,9 +116,10 @@ pub fn IRBuilder::createRet(
   let vty = retVal.getType()
   let parent = self.getInsertFunction()
   guard vty == parent.getReturnType() else {
+    let fname = self.getInsertFunction().getName().unwrap()
     let msg = "Misuse `IRBuilder::createRet`, " +
       "the return value type must match the function's return type, " +
-      "got `\{vty}` but expected `\{parent.getReturnType()}`"
+      "function \{fname}'s return type expected `\{parent.getReturnType()}`, but got `\{vty}`"
     raise LLVMValueError(msg)
   }
   let parent = self.getInsertFunction()
@@ -3309,12 +3310,6 @@ pub fn IRBuilder::createStore(
     let msg = "Misuse `IRBuilder::createStore`: " +
       "store instruction must store to a pointer, " +
       "got \{ptr.getType()}"
-    raise LLVMValueError(msg)
-  }
-  guard value.getType().tryAsAbstractTypeEnum() is None else {
-    let msg = "Misuse `IRBuilder::createStore`: " +
-      "store instruction cannot store an abstract type, " +
-      "got \{value.getType()}"
     raise LLVMValueError(msg)
   }
   guard not(isVolatile && not(atomicOrdering is NotAtomic)) else {

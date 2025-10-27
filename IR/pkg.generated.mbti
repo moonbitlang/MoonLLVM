@@ -536,7 +536,8 @@ pub struct CallInst {
   vty : &Type
   users : Array[&User]
   mut name : String?
-  callee : Function
+  function_type : FunctionType
+  callee : @either.Either[Function, &Value]
   args : Array[&Value]
   parent : Function
   bb : Ref[BasicBlock?]
@@ -2079,6 +2080,7 @@ fn IRBuilder::createAnd(Self, &Value, &Value, name? : String) -> &Value raise
 fn IRBuilder::createBitCast(Self, &Value, &PrimitiveType, name? : String) -> &Value raise
 fn IRBuilder::createBr(Self, BasicBlock) -> &Instruction raise
 fn IRBuilder::createCall(Self, Function, Array[&Value], name? : String) -> CallInst raise
+fn IRBuilder::createCallPtr(Self, &Value, FunctionType, Array[&Value], name? : String) -> CallInst raise
 fn IRBuilder::createCondBr(Self, &Value, BasicBlock, BasicBlock) -> &Instruction raise
 fn IRBuilder::createExactSDiv(Self, &Value, &Value, name? : String) -> &Value raise
 fn IRBuilder::createExactUDiv(Self, &Value, &Value, name? : String) -> &Value raise

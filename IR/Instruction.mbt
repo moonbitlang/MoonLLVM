@@ -784,7 +784,11 @@ pub impl Show for StoreInst with output(self, logger) {
   let align = self.align
   let value = self.getValueOperand()
   let ptr = self.getPointerOperand()
-  let value_ty = value.getType()
+  let ptrty = self.getParent().getContext().getPtrTy()
+  let value_ty = match value.tryAsGlobalValue() {
+    Some(_) => (ptrty : &Type)
+    None => value.getType()
+  }
   let value_repr = value.getValueRepr()
   let ptr_repr = ptr.getValueRepr()
   let str = match (self.isVolatile, self.atomicOrdering) {
