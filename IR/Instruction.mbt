@@ -4638,7 +4638,7 @@ pub struct CallInst {
   vty : &Type
   users : Array[&User]
   mut name : String?
-  function_type: FunctionType
+  function_type : FunctionType
   callee : Either[Function, &Value]
   args : Array[&Value]
   parent : Function
@@ -4686,9 +4686,10 @@ fn CallInst::new(
   inst
 }
 
+///|
 fn CallInst::new_indirect(
-  callee_val : &Value,  // Must be a pointer
-  function_type: FunctionType,
+  callee_val : &Value, // Must be a pointer
+  function_type : FunctionType,
   args : Array[&Value],
   parent : Function,
   name~ : String?,
@@ -4712,7 +4713,7 @@ fn CallInst::new_indirect(
     vty,
     users: [],
     name,
-    function_type: function_type,
+    function_type,
     callee: Right(callee_val),
     args,
     parent,
@@ -4948,7 +4949,7 @@ pub impl User for CallInst with getUserBase(self) {
     Right(val) => operands.push(val)
   }
   self.args.each(arg => operands.push(arg))
-  UserBase::{ operands }
+  UserBase::{ operands, }
 }
 
 ///|
@@ -4999,7 +5000,13 @@ pub impl Show for CallInst with output(self, logger) {
     } else {
       ""
     }
-    arg_strs.push("\{arg_ty}\{arg_attrs_str} \{arg_repr}")
+    // When the argument is a Function, print it as "ptr @fn" instead of "fn_type @fn"
+    // This matches LLVM's behavior where functions decay to pointers when used as values
+    let arg_ty_str = match arg.asValueEnum() {
+      Function(_) => "ptr"
+      _ => arg_ty.to_string()
+    }
+    arg_strs.push("\{arg_ty_str}\{arg_attrs_str} \{arg_repr}")
   }
   let args_str = arg_strs.join(", ")
   let call_prefix = if tail_str.is_empty() {
@@ -5027,7 +5034,6 @@ pub impl Show for CallInst with output(self, logger) {
     }
     return
   }
-
   guard self.callee is Right(callee)
   if is_void_ret {
     logger.write_string(

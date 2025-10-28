@@ -2002,13 +2002,13 @@ pub fn IRBuilder::createICmp(
   guard lhsTy == rhsTy else {
     let msg = "Misuse `IRBuilder::createICmp`, " +
       "the type of both operands must be the same, " +
-      "got `{lhsTy} and {rhsTy}`"
+      "got `\{lhsTy} and \{rhsTy}`"
     raise LLVMValueError(msg)
   }
   guard lhsTy.tryAsIntTypeEnum() is Some(_) else {
     let msg = "Misuse `IRBuilder::createICmp`, " +
       "the type of both operands must be integer types, " +
-      "got `{lhsTy}`"
+      "got `\{lhsTy}`"
     raise LLVMValueError(msg)
   }
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
@@ -3645,9 +3645,15 @@ pub fn IRBuilder::createCall(
 
   let min_param_cnt = min(num_args, expected_params)
   for i in 0..<min_param_cnt {
-    let arg_ty = args[i].getType()
+    let arg = args[i]
+    let arg_ty = arg.getType()
     let param_ty = fty.getParamType(i).unwrap()
-    guard param_ty == arg_ty else {
+    // Allow Function values to be passed as ptr parameters (function-to-pointer decay)
+    let is_function_to_ptr = match (arg.asValueEnum(), param_ty.asTypeEnum()) {
+      (Function(_), PointerType(_)) => true
+      _ => false
+    }
+    guard param_ty == arg_ty || is_function_to_ptr else {
       let msg = "Misuse `IRBuilder::createCall`, " +
         "argument type does not match function parameter type at index \{i}, " +
         "got \{arg_ty} but expected \{param_ty}"
@@ -3664,6 +3670,7 @@ pub fn IRBuilder::createCall(
   inst
 }
 
+///|
 pub fn IRBuilder::createCallPtr(
   self : IRBuilder,
   callee : &Value,
@@ -3698,9 +3705,15 @@ pub fn IRBuilder::createCallPtr(
 
   let min_param_cnt = min(num_args, expected_params)
   for i in 0..<min_param_cnt {
-    let arg_ty = args[i].getType()
+    let arg = args[i]
+    let arg_ty = arg.getType()
     let param_ty = functionType.getParamType(i).unwrap()
-    guard param_ty == arg_ty else {
+    // Allow Function values to be passed as ptr parameters (function-to-pointer decay)
+    let is_function_to_ptr = match (arg.asValueEnum(), param_ty.asTypeEnum()) {
+      (Function(_), PointerType(_)) => true
+      _ => false
+    }
+    guard param_ty == arg_ty || is_function_to_ptr else {
       let msg = "Misuse `IRBuilder::createCallPtr`, " +
         "argument type does not match function parameter type at index \{i}, " +
         "got \{arg_ty} but expected \{param_ty}"
@@ -3708,7 +3721,13 @@ pub fn IRBuilder::createCallPtr(
     }
   }
   let parent = self.getInsertFunction()
-  let inst = CallInst::new_indirect(callee, functionType, args, parent, name=None)
+  let inst = CallInst::new_indirect(
+    callee,
+    functionType,
+    args,
+    parent,
+    name=None,
+  )
   match name {
     "" => ()
     _ => inst.setName(name)

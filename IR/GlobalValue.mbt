@@ -34,10 +34,7 @@ fn GlobalVariable::new(
     _ => vty
   }
   let initializerTy = vty
-  let vty = match vty.asTypeEnum() {
-    ArrayType(_) => (ctx.getPtrTy() : &Type)
-    _ => vty
-  }
+  let vty = ctx.getPtrTy()
   let users = []
   GlobalVariable::{
     uid,
@@ -191,10 +188,7 @@ fn GlobalConstant::new(
     ArrayType(a) => a.getElementType()
     _ => vty
   }
-  let vty = match vty.asTypeEnum() {
-    ArrayType(_) => (ctx.getPtrTy() : &Type)
-    _ => vty
-  }
+  let vty = ctx.getPtrTy()
   let users = []
   GlobalConstant::{
     uid,
