@@ -115,6 +115,7 @@ pub fn DataLayout::getTypeAllocSize(self : Self, ty : &Type) -> Int {
     Int32Type(_) => 4
     Int64Type(_) => 8
     PointerType(_) => 8
+    FunctionType(_) => 8
     StructType(s) => self.getStructTypeAllocSize(s)
     ArrayType(arr) => self.getArrayTypeAllocSize(arr)
     _ => 0

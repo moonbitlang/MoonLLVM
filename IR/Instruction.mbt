@@ -4747,8 +4747,7 @@ pub fn CallInst::setTailCallKind(
 
 ///|
 pub fn CallInst::getFunctionType(self : CallInst) -> FunctionType {
-  guard self.getOperand(0).unwrap().getType().asTypeEnum() is FunctionType(ft)
-  ft
+  self.function_type
 }
 
 ///|

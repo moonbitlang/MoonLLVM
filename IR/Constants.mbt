@@ -2096,7 +2096,7 @@ fn ConstantArray::newConstantArray(
     .fold(init=true, fn(acc, ty) { acc && ty == eleTy })
   guard consistency else {
     llvm_unreachable(
-      "ConstantArray::new: data type is not consistent with elementType",
+      "ConstantArray::new: data type is not consistent with elementType:",
     )
   }
   let uid = valueUIDAssigner.assign()
