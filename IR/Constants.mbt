@@ -1468,7 +1468,8 @@ pub fn ConstantFP::fptrunc(
     raise LLVMValueError(msg)
   }
   // For truncation, we simply use the current value (precision loss handled by Double)
-  ConstantFP::new(dst_ty, self.value)
+  let value = self.value.to_float().to_double()
+  ConstantFP::new(dst_ty, value)
 }
 
 ///|

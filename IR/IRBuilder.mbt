@@ -407,7 +407,7 @@ pub fn IRBuilder::createSub(
   guard lhsTy == rhsTy else {
     let msg = "Misuse `IRBuilder::createSub`, " +
       "the type of both operands must be the same, " +
-      "got `{lhsTy} and {rhsTy}`"
+      "got `\{lhsTy} and \{rhsTy}`"
     raise LLVMValueError(msg)
   }
   guard lhsTy.tryAsIntTypeEnum() is Some(_) else {
@@ -567,13 +567,13 @@ pub fn IRBuilder::createMul(
   guard lhsTy == rhsTy else {
     let msg = "Misuse `IRBuilder::createMul`, " +
       "the type of both operands must be the same, " +
-      "got `{lhsTy} and {rhsTy}`"
+      "got `\{lhsTy} and \{rhsTy}`"
     raise LLVMValueError(msg)
   }
   guard lhsTy.tryAsIntTypeEnum() is Some(_) else {
     let msg = "Misuse `IRBuilder::createMul`, " +
       "the type of both operands must be integer types, " +
-      "got `{lhsTy}`"
+      "got `\{lhsTy}`"
     raise LLVMValueError(msg)
   }
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
@@ -727,13 +727,13 @@ pub fn IRBuilder::createSDiv(
   guard lhsTy == rhsTy else {
     let msg = "Misuse `IRBuilder::createSDiv`, " +
       "the type of both operands must be the same, " +
-      "got `{lhsTy} and {rhsTy}`"
+      "got `\{lhsTy} and \{rhsTy}`"
     raise LLVMValueError(msg)
   }
   guard lhsTy.tryAsIntTypeEnum() is Some(_) else {
     let msg = "Misuse `IRBuilder::createSDiv`, " +
       "the type of both operands must be integer types, " +
-      "got `{lhsTy}`"
+      "got `\{lhsTy}`"
     raise LLVMValueError(msg)
   }
 
@@ -846,13 +846,13 @@ pub fn IRBuilder::createUDiv(
   guard lhsTy == rhsTy else {
     let msg = "Misuse `IRBuilder::createUDiv`, " +
       "the type of both operands must be the same, " +
-      "got `{lhsTy} and {rhsTy}`"
+      "got `\{lhsTy} and \{rhsTy}`"
     raise LLVMValueError(msg)
   }
   guard lhsTy.tryAsIntTypeEnum() is Some(_) else {
     let msg = "Misuse `IRBuilder::createUDiv`, " +
       "the type of both operands must be integer types, " +
-      "got `{lhsTy}`"
+      "got `\{lhsTy}`"
     raise LLVMValueError(msg)
   }
   // match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
@@ -963,13 +963,13 @@ pub fn IRBuilder::createSRem(
   guard lhsTy == rhsTy else {
     let msg = "Misuse `IRBuilder::createSRem`, " +
       "the type of both operands must be the same, " +
-      "got `{lhsTy} and {rhsTy}`"
+      "got `\{lhsTy} and \{rhsTy}`"
     raise LLVMValueError(msg)
   }
   guard lhsTy.tryAsIntTypeEnum() is Some(_) else {
     let msg = "Misuse `IRBuilder::createSRem`, " +
       "the type of both operands must be integer types, " +
-      "got `{lhsTy}`"
+      "got `\{lhsTy}`"
     raise LLVMValueError(msg)
   }
   // Constant folding for SRem is currently disabled due to assumed missing `ConstantInt::srem!`
@@ -1037,13 +1037,13 @@ pub fn IRBuilder::createURem(
   guard lhsTy == rhsTy else {
     let msg = "Misuse `IRBuilder::createURem`, " +
       "the type of both operands must be the same, " +
-      "got `{lhsTy} and {rhsTy}`"
+      "got `\{lhsTy} and \{rhsTy}`"
     raise LLVMValueError(msg)
   }
   guard lhsTy.tryAsIntTypeEnum() is Some(_) else {
     let msg = "Misuse `IRBuilder::createURem`, " +
       "the type of both operands must be integer types, " +
-      "got `{lhsTy}`"
+      "got `\{lhsTy}`"
     raise LLVMValueError(msg)
   }
   // Constant folding for URem is currently disabled due to assumed missing `ConstantUInt::urem!`
@@ -1135,13 +1135,13 @@ pub fn IRBuilder::createFAdd(
   guard lhsTy == rhsTy else {
     let msg = "Misuse `IRBuilder::createFAdd`, " +
       "the type of both operands must be the same, " +
-      "got `{lhsTy} and {rhsTy}`"
+      "got `\{lhsTy} and \{rhsTy}`"
     raise LLVMValueError(msg)
   }
   guard lhsTy.tryAsFPTypeEnum() is Some(_) else {
     let msg = "Misuse `IRBuilder::createFAdd`, " +
       "the type of both operands must be floating-point types, " +
-      "got `{lhsTy}`"
+      "got `\{lhsTy}`"
     raise LLVMValueError(msg)
   }
   let parent = self.getInsertFunction()
@@ -1204,13 +1204,13 @@ pub fn IRBuilder::createFSub(
   guard lhsTy == rhsTy else {
     let msg = "Misuse `IRBuilder::createFSub`, " +
       "the type of both operands must be the same, " +
-      "got `{lhsTy} and {rhsTy}`"
+      "got `\{lhsTy} and \{rhsTy}`"
     raise LLVMValueError(msg)
   }
   guard lhsTy.tryAsFPTypeEnum() is Some(_) else {
     let msg = "Misuse `IRBuilder::createFSub`, " +
       "the type of both operands must be floating-point types, " +
-      "got `{lhsTy}`"
+      "got `\{lhsTy}`"
     raise LLVMValueError(msg)
   }
   let parent = self.getInsertFunction()
@@ -1264,7 +1264,7 @@ pub fn IRBuilder::createFNeg(
   guard ty.tryAsFPTypeEnum() is Some(_) else {
     let msg = "Misuse `IRBuilder::createFNeg`, " +
       "the operand must be a floating-point type, " +
-      "got `{ty}`"
+      "got `\{ty}`"
     raise LLVMValueError(msg)
   }
   let parent = self.getInsertFunction()
@@ -1319,13 +1319,13 @@ pub fn IRBuilder::createFMul(
   guard lhsTy == rhsTy else {
     let msg = "Misuse `IRBuilder::createFMul`, " +
       "the type of both operands must be the same, " +
-      "got `{lhsTy} and {rhsTy}`"
+      "got `\{lhsTy} and \{rhsTy}`"
     raise LLVMValueError(msg)
   }
   guard lhsTy.tryAsFPTypeEnum() is Some(_) else {
     let msg = "Misuse `IRBuilder::createFMul`, " +
       "the type of both operands must be floating-point types, " +
-      "got `{lhsTy}`"
+      "got `\{lhsTy}`"
     raise LLVMValueError(msg)
   }
   let parent = self.getInsertFunction()
@@ -1387,13 +1387,13 @@ pub fn IRBuilder::createFDiv(
   guard lhsTy == rhsTy else {
     let msg = "Misuse `IRBuilder::createFDiv`, " +
       "the type of both operands must be the same, " +
-      "got `{lhsTy} and {rhsTy}`"
+      "got `\{lhsTy} and \{rhsTy}`"
     raise LLVMValueError(msg)
   }
   guard lhsTy.tryAsFPTypeEnum() is Some(_) else {
     let msg = "Misuse `IRBuilder::createFDiv`, " +
       "the type of both operands must be floating-point types, " +
-      "got `{lhsTy}`"
+      "got `\{lhsTy}`"
     raise LLVMValueError(msg)
   }
   let parent = self.getInsertFunction()
@@ -1455,13 +1455,13 @@ pub fn IRBuilder::createFRem(
   guard lhsTy == rhsTy else {
     let msg = "Misuse `IRBuilder::createFRem`, " +
       "the type of both operands must be the same, " +
-      "got `{lhsTy} and {rhsTy}`"
+      "got `\{lhsTy} and \{rhsTy}`"
     raise LLVMValueError(msg)
   }
   guard lhsTy.tryAsFPTypeEnum() is Some(_) else {
     let msg = "Misuse `IRBuilder::createFRem`, " +
       "the type of both operands must be floating-point types, " +
-      "got `{lhsTy}`"
+      "got `\{lhsTy}`"
     raise LLVMValueError(msg)
   }
   let parent = self.getInsertFunction()
@@ -1522,13 +1522,13 @@ pub fn IRBuilder::createAnd(
   guard lhsTy == rhsTy else {
     let msg = "Misuse `IRBuilder::createAnd`, " +
       "the type of both operands must be the same, " +
-      "got `{lhsTy} and {rhsTy}`"
+      "got `\{lhsTy} and \{rhsTy}`"
     raise LLVMValueError(msg)
   }
   guard lhsTy.tryAsIntTypeEnum() is Some(_) else {
     let msg = "Misuse `IRBuilder::createAnd`, " +
       "the type of both operands must be integer types, " +
-      "got `{lhsTy}`"
+      "got `\{lhsTy}`"
     raise LLVMValueError(msg)
   }
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
@@ -1594,13 +1594,13 @@ pub fn IRBuilder::createOr(
   guard lhsTy == rhsTy else {
     let msg = "Misuse `IRBuilder::createOr`, " +
       "the type of both operands must be the same, " +
-      "got `{lhsTy} and {rhsTy}`"
+      "got `\{lhsTy} and \{rhsTy}`"
     raise LLVMValueError(msg)
   }
   guard lhsTy.tryAsIntTypeEnum() is Some(_) else {
     let msg = "Misuse `IRBuilder::createOr`, " +
       "the type of both operands must be integer types, " +
-      "got `{lhsTy}`"
+      "got `\{lhsTy}`"
     raise LLVMValueError(msg)
   }
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
@@ -1666,13 +1666,13 @@ pub fn IRBuilder::createXor(
   guard lhsTy == rhsTy else {
     let msg = "Misuse `IRBuilder::createXor`, " +
       "the type of both operands must be the same, " +
-      "got `{lhsTy} and {rhsTy}`"
+      "got `\{lhsTy} and \{rhsTy}`"
     raise LLVMValueError(msg)
   }
   guard lhsTy.tryAsIntTypeEnum() is Some(_) else {
     let msg = "Misuse `IRBuilder::createXor`, " +
       "the type of both operands must be integer types, " +
-      "got `{lhsTy}`"
+      "got `\{lhsTy}`"
     raise LLVMValueError(msg)
   }
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
@@ -1740,13 +1740,13 @@ pub fn IRBuilder::createShl(
   guard lhsTy == rhsTy else {
     let msg = "Misuse `IRBuilder::createShl`, " +
       "the type of both operands must be the same, " +
-      "got `{lhsTy} and {rhsTy}`"
+      "got `\{lhsTy} and \{rhsTy}`"
     raise LLVMValueError(msg)
   }
   guard lhsTy.tryAsIntTypeEnum() is Some(_) else {
     let msg = "Misuse `IRBuilder::createShl`, " +
       "the type of both operands must be integer types, " +
-      "got `{lhsTy}`"
+      "got `\{lhsTy}`"
     raise LLVMValueError(msg)
   }
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
@@ -1820,13 +1820,13 @@ pub fn IRBuilder::createLShr(
   guard lhsTy == rhsTy else {
     let msg = "Misuse `IRBuilder::createLShr`, " +
       "the type of both operands must be the same, " +
-      "got `{lhsTy} and {rhsTy}`"
+      "got `\{lhsTy} and \{rhsTy}`"
     raise LLVMValueError(msg)
   }
   guard lhsTy.tryAsIntTypeEnum() is Some(_) else {
     let msg = "Misuse `IRBuilder::createLShr`, " +
       "the type of both operands must be integer types, " +
-      "got `{lhsTy}`"
+      "got `\{lhsTy}`"
     raise LLVMValueError(msg)
   }
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
@@ -1897,13 +1897,13 @@ pub fn IRBuilder::createAShr(
   guard lhsTy == rhsTy else {
     let msg = "Misuse `IRBuilder::createAShr`, " +
       "the type of both operands must be the same, " +
-      "got `{lhsTy} and {rhsTy}`"
+      "got `\{lhsTy} and \{rhsTy}`"
     raise LLVMValueError(msg)
   }
   guard lhsTy.tryAsIntTypeEnum() is Some(_) else {
     let msg = "Misuse `IRBuilder::createAShr`, " +
       "the type of both operands must be integer types, " +
-      "got `{lhsTy}`"
+      "got `\{lhsTy}`"
     raise LLVMValueError(msg)
   }
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
@@ -2235,13 +2235,13 @@ pub fn IRBuilder::createFCmp(
   guard lhsTy == rhsTy else {
     let msg = "Misuse `IRBuilder::createFCmp`, " +
       "the type of both operands must be the same, " +
-      "got `{lhsTy} and {rhsTy}`"
+      "got `\{lhsTy} and \{rhsTy}`"
     raise LLVMValueError(msg)
   }
   guard lhsTy.tryAsFPTypeEnum() is Some(_) else {
     let msg = "Misuse `IRBuilder::createFCmp`, " +
       "the type of both operands must be floating-point types, " +
-      "got `{lhsTy}`"
+      "got `\{lhsTy}`"
     raise LLVMValueError(msg)
   }
   match (lhs.tryAsConstantEnum(), rhs.tryAsConstantEnum()) {
