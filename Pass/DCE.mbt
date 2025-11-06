@@ -1,5 +1,5 @@
 ///|
-typealias @IR.Function
+using @IR {type Function}
 
 ///|
 pub struct DCE {}

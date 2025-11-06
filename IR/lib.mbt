@@ -1,11 +1,11 @@
 ///|
-typealias @either.Either
+using @either {type Either}
 
 ///|
-typealias @int8.Int8
+using @int8 {type Int8}
 
 ///|
-typealias @uint8.UInt8
+using @uint8 {type UInt8}
 
 ///|
 priv struct ValueUIDAssigner {

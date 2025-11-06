@@ -60,8 +60,7 @@ fn main_err() -> Unit raise Error {
 
 ///|
 fn main {
-  match (try? main_err()) {
-    Ok(_) => ()
-    Err(e) => println(e)
+  try main_err() catch {
+    e => println(e)
   }
 }

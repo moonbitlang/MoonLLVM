@@ -1,5 +1,5 @@
 ///|
-typealias @IR.Context
+using @IR {type Context}
 
 ///|
-traitalias @IR.Type
+using @IR {trait Type}
