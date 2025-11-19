@@ -2,14 +2,6 @@
 
 一个在 Moonbit 中生成 LLVM IR 的库。它的 API 设计与 LLVM 原始的 C++ 库相似。
 
-## MGPIC竞赛须知
-
-1. `MoonLLVM`与`llvm.mbt`的差别，`llvm.mbt`是真llvm的moonbit语言binding，需要链接到llvm库，并保证llvm版本在llvm-19以上，只能使用native后端，可以使用llvm的一些高级功能，但缺少一些直接操控内部数据结构的手段。`MoonLLVM`是moonbit语言的llvm简单复刻，不需要链接到llvm库，可以输出到所有moonbit支持的后端，可以直接操控一些数据结构，但缺少一些高级功能。
-
-2. `MoonLLVM`与`llvm.mbt`的接口类型，尽管有一定的差别，但开发者切换二者的成本很低。
-
-3. 竞赛期间MoonLLVM仍然保持更新，但从8月10日起到比赛结束，进入暂时的稳定状态，对breaking change将保持克制，使用deprecated warning来进行提示，并且其中的warning信息将可能与比赛相关。比赛结束后，MoonLLVM将会恢复到不稳定的状态。
-
 ## 特性
 
 - **纯 Moonbit 实现:** 完全由 Moonbit 编写。
