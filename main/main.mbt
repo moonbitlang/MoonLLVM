@@ -60,7 +60,7 @@ fn main_err() -> Unit raise Error {
 
 ///|
 fn main {
-  try main_err() catch {
+  main_err() catch {
     e => println(e)
   }
 }

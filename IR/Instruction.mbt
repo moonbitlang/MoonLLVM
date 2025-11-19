@@ -4994,7 +4994,7 @@ pub impl Show for CallInst with output(self, logger) {
     } else {
       None
     }
-    let arg_attrs_str = if not(arg_attrs.is_empty()) {
+    let arg_attrs_str = if not(arg_attrs is None) {
       " " + arg_attrs.iter().map(fn(a) { "\{a}" }).join(" ")
     } else {
       ""
