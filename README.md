@@ -173,8 +173,8 @@ A small example that creates a module with an `add` function:
 ```moonbit
 fn main {
   // 1. Set up the context and IR builder.
-  let ctx = @IR.LLVMContext::new()
-  let prog = ctx.addProgram("my_module")
+  let ctx = @IR.Context::new()
+  let mod = ctx.addModule("my_module")
   let builder = IRBuilder::new()
 
   // 2. Define the function type: i32 add(i32, i32).
@@ -182,7 +182,7 @@ fn main {
   let f_type = ctx.getFunctionType(i32_t, [i32_t, i32_t])
 
   // 3. Add the function to the module and create an entry block.
-  let f = prog.addFunction(f_type, "add")
+  let f = mod.addFunction(f_type, "add")
   let bb = f.addBasicBlock("entry")
   builder.setInsertPoint(bb)
 
@@ -197,7 +197,7 @@ fn main {
   builder.createRet(sum)
 
   // 6. Print the generated LLVM IR.
-  println(prog)
+  println(mod)
 }
 ```
 
@@ -416,8 +416,8 @@ moon add Kaida-Amethyst/MoonLLVM
 ```moonbit
 fn main {
   // 1. 创建上下文和 IR builder。
-  let ctx = @IR.LLVMContext::new()
-  let prog = ctx.addProgram("my_module")
+  let ctx = @IR.Context::new()
+  let mod = ctx.addModule("my_module")
   let builder = IRBuilder::new()
 
   // 2. 定义函数类型：i32 add(i32, i32)。
@@ -425,7 +425,7 @@ fn main {
   let f_type = ctx.getFunctionType(i32_t, [i32_t, i32_t])
 
   // 3. 向模块中添加函数并创建入口基本块。
-  let f = prog.addFunction(f_type, "add")
+  let f = mod.addFunction(f_type, "add")
   let bb = f.addBasicBlock("entry")
   builder.setInsertPoint(bb)
 
@@ -440,7 +440,7 @@ fn main {
   builder.createRet(sum)
 
   // 6. 打印生成的 LLVM IR。
-  println(prog)
+  println(mod)
 }
 ```
 
