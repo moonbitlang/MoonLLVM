@@ -526,9 +526,9 @@ pub fn IRBuilder::createNUWSub(
 
 ///|
 pub fn IRBuilder::createNeg(
-  self: IRBuilder,
-  val: &Value,
-  name? : String = ""
+  self : IRBuilder,
+  val : &Value,
+  name? : String = "",
 ) -> &Value raise Error {
   let ty = val.getType()
   let zero = self.getContext().getConstZero(ty)
@@ -1710,9 +1710,9 @@ pub fn IRBuilder::createXor(
 
 ///|
 pub fn IRBuilder::createNot(
-  self: IRBuilder,
-  val: &Value,
-  name? : String = ""
+  self : IRBuilder,
+  val : &Value,
+  name? : String = "",
 ) -> &Value raise Error {
   let ctx = self.getContext()
   let allones = match val.getType().asTypeEnum() {
@@ -1721,13 +1721,14 @@ pub fn IRBuilder::createNot(
     Int16Type(_) => ctx.getConstInt16(-1)
     Int32Type(_) => ctx.getConstInt32(-1)
     Int64Type(_) => ctx.getConstInt64(-1)
-    _ => raise LLVMValueError(
-      "Misuse `IRBuilder::createNot`, " +
-      "the operand must be an integer type, " +
-      "got `\{val.getType()}`"
-    )
+    _ =>
+      raise LLVMValueError(
+        "Misuse `IRBuilder::createNot`, " +
+        "the operand must be an integer type, " +
+        "got `\{val.getType()}`",
+      )
   }
-  self.createXor(val, allones, name=name)
+  self.createXor(val, allones, name~)
 }
 
 ///|

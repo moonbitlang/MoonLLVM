@@ -439,6 +439,7 @@ fn Context::getConstInt8Array(Self, Array[Int]) -> ConstantArray
 fn Context::getConstInt8Vector(Self, Array[Int]) -> ConstantVector
 fn Context::getConstNaNDouble(Self, isNegative? : Bool) -> ConstantFP
 fn Context::getConstNaNFloat(Self, isNegative? : Bool) -> ConstantFP
+fn Context::getConstOne(Self, &Type) -> &Constant raise LLVMValueError
 fn Context::getConstPointerNull(Self, &Type, addressSpace? : UInt) -> ConstantPointerNull
 fn Context::getConstQNaNDouble(Self, isNegative? : Bool) -> ConstantFP
 fn Context::getConstQNaNFloat(Self, isNegative? : Bool) -> ConstantFP
@@ -953,6 +954,8 @@ fn IRBuilder::createNSWSub(Self, &Value, &Value, name? : String) -> &Value raise
 fn IRBuilder::createNUWAdd(Self, &Value, &Value, name? : String) -> &Value raise
 fn IRBuilder::createNUWMul(Self, &Value, &Value, name? : String) -> &Value raise
 fn IRBuilder::createNUWSub(Self, &Value, &Value, name? : String) -> &Value raise
+fn IRBuilder::createNeg(Self, &Value, name? : String) -> &Value raise
+fn IRBuilder::createNot(Self, &Value, name? : String) -> &Value raise
 fn IRBuilder::createOr(Self, &Value, &Value, name? : String) -> &Value raise
 fn IRBuilder::createPHI(Self, &Type, name? : String) -> PHINode raise
 fn IRBuilder::createPtrToInt(Self, &Value, &IntegerType, name? : String) -> &Value raise
