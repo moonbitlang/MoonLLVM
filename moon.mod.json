@@ -1,6 +1,6 @@
 {
   "name": "Kaida-Amethyst/MoonLLVM",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "deps": {
     "moonbitlang/x": "0.4.31",
     "Kaida-Amethyst/either": "0.1.0"
@@ -12,5 +12,5 @@
     "Compiler",
     "llvm"
   ],
-  "description": "Moonbit version of LLVM, provide similar api with llvm.mbt, used for MGPIC Competition."
+  "description": "Moonbit version of LLVM, A Tiny, Friendly Companion to LLVM"
 }

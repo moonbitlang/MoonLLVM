@@ -28,34 +28,32 @@
 //   }
 //   return 42;
 // }
-fn main_err() -> Unit raise Error {
+fn main_err() -> Unit raise {
   let ctx = @IR.Context::new()
-  let prog = ctx.addModule("demo")
+  let mod = ctx.addModule("demo")
   let builder = ctx.createBuilder()
-  let i32ty = ctx.getInt32Ty()
-  let forty_two = ctx.getConstInt32(42)
-  let thirty_three = ctx.getConstInt32(33)
-  let fty = ctx.getFunctionType(i32ty, [i32ty])
-  let fval = prog.addFunction(fty, "foo")
-  let entryBB = fval.addBasicBlock(name="entry")
-  builder.setInsertPoint(entryBB)
-  let alloc = builder.createAlloca(i32ty)
-  let arg0 = fval.getArg(0).unwrap()
-  let cond = builder.createICmpSGT(arg0, ctx.getConstInt32(0))
-  let thenBB = fval.addBasicBlock()
-  let elseBB = fval.addBasicBlock()
-  let mergeBB = fval.addBasicBlock()
-  let _ = builder.createCondBr(cond, thenBB, elseBB)
-  builder.setInsertPoint(thenBB)
-  let _ = builder.createStore(thirty_three, alloc)
-  let _ = builder.createBr(mergeBB)
-  builder.setInsertPoint(elseBB)
-  let _ = builder.createStore(forty_two, alloc)
-  let _ = builder.createBr(mergeBB)
-  builder.setInsertPoint(mergeBB)
-  let loaded = builder.createLoad(i32ty, alloc)
-  let _ = builder.createRet(loaded)
-  println(fval)
+
+  // 2. 定义函数类型：i32 add(i32, i32)。
+  let i32_t = ctx.getInt32Ty()
+  let f_type = ctx.getFunctionType(i32_t, [i32_t, i32_t])
+
+  // 3. 向模块中添加函数并创建入口基本块。
+  let f = mod.addFunction(f_type, "add")
+  let bb = f.addBasicBlock(name="entry")
+  builder.setInsertPoint(bb)
+
+  // 4. 获取参数并命名。
+  let x = f.getArg(0).unwrap()
+  x.setName("x")
+  let y = f.getArg(1).unwrap()
+  y.setName("y")
+
+  // 5. 创建加法指令和返回指令。
+  let sum = builder.createAdd(x, y, name="sum")
+  let _ = builder.createRet(sum)
+
+  // 6. 打印生成的 LLVM IR。
+  println(mod)
 }
 
 ///|

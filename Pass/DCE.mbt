@@ -24,6 +24,7 @@ pub impl FunctionPass for DCE with run(_, func : Function) -> Unit {
           BranchInst(_) => ()
           SwitchInst(_) => ()
           StoreInst(_) => ()
+          CallInst(_) => ()
           //CallInst(_) => {
           //  // If the call is not to a function that has side effects, we can remove it
           //  if let Some(callee) = inst.getCalledFunction() {

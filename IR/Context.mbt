@@ -1369,6 +1369,30 @@ pub fn Context::getConstZero(
 }
 
 ///|
+pub fn Context::getConstOne(self: Context, ty: &Type) -> &Constant raise LLVMValueError {
+  match ty.asTypeEnum() {
+    // Integer Types
+    Int1Type(_) => self.getConstTrue() as &Constant
+    Int8Type(_) => self.getConstInt8(1)
+    Int16Type(_) => self.getConstInt16(1)
+    Int32Type(_) => self.getConstInt32(1)
+    Int64Type(_) => self.getConstInt64(1L)
+
+    // Floating Point Types
+    HalfType(t) => ConstantFP::new(t, 1.0)
+    BFloatType(t) => ConstantFP::new(t, 1.0)
+    FloatType(_) => self.getConstFloat(1.0)
+    DoubleType(_) => self.getConstDouble(1.0)
+    FP128Type(t) => ConstantFP::new(t, 1.0)
+
+    _ => {
+      let msg = "Misuse `Context::getConstOne`: Cannot create one value for type \{ty.to_string()}"
+      raise LLVMValueError(msg)
+    }
+  }
+}
+
+///|
 pub fn Context::getConstPointerNull(
   self : Context,
   ty : &Type,
@@ -1377,6 +1401,7 @@ pub fn Context::getConstPointerNull(
   ignore(ty) // TODO: remove this in the future.
   ConstantPointerNull::new(self, addressSpace~)
 }
+
 
 ///|
 pub fn Context::getMDString(self : Context, str : String) -> MDString {

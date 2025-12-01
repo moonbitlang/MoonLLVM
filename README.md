@@ -174,7 +174,7 @@ A small example that creates a module with an `add` function:
 fn main {
   // 1. Set up the context and IR builder.
   let ctx = @IR.Context::new()
-  let mod = ctx.addModule("my_module")
+  let mod = ctx.addModule("demo")
   let builder = IRBuilder::new()
 
   // 2. Define the function type: i32 add(i32, i32).
@@ -183,7 +183,7 @@ fn main {
 
   // 3. Add the function to the module and create an entry block.
   let f = mod.addFunction(f_type, "add")
-  let bb = f.addBasicBlock("entry")
+  let bb = f.addBasicBlock(name="entry")
   builder.setInsertPoint(bb)
 
   // 4. Get the function args and name them.
@@ -193,7 +193,7 @@ fn main {
   y.setName("y")
 
   // 5. Create the add instruction and return.
-  let sum = builder.createAdd(x, y, "sum")
+  let sum = builder.createAdd(x, y, name="sum")
   builder.createRet(sum)
 
   // 6. Print the generated LLVM IR.
@@ -417,8 +417,8 @@ moon add Kaida-Amethyst/MoonLLVM
 fn main {
   // 1. 创建上下文和 IR builder。
   let ctx = @IR.Context::new()
-  let mod = ctx.addModule("my_module")
-  let builder = IRBuilder::new()
+  let mod = ctx.addModule("demo")
+  let builder = ctx.createBuilder()
 
   // 2. 定义函数类型：i32 add(i32, i32)。
   let i32_t = ctx.getInt32Ty()
@@ -426,7 +426,7 @@ fn main {
 
   // 3. 向模块中添加函数并创建入口基本块。
   let f = mod.addFunction(f_type, "add")
-  let bb = f.addBasicBlock("entry")
+  let bb = f.addBasicBlock(name="entry")
   builder.setInsertPoint(bb)
 
   // 4. 获取参数并命名。
@@ -436,8 +436,8 @@ fn main {
   y.setName("y")
 
   // 5. 创建加法指令和返回指令。
-  let sum = builder.createAdd(x, y, "sum")
-  builder.createRet(sum)
+  let sum = builder.createAdd(x, y, name="sum")
+  let _ = builder.createRet(sum)
 
   // 6. 打印生成的 LLVM IR。
   println(mod)
