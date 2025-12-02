@@ -36,7 +36,7 @@ fn ConstantInt::new(vty : &IntegerType, value : Int64) -> ConstantInt {
   let value = match vty.asIntegerTypeEnum() {
     Int1Type(_) => if value == 0 { 0L } else { 1L }
     Int8Type(_) => Int8::from_int64(value).to_int64()
-    Int16Type(_) => value.to_int().to_int16().to_int().to_int64()
+    Int16Type(_) => Int16::from_int(value.to_int()).to_int().to_int64()
     Int32Type(_) => value.to_int().to_int64()
     Int64Type(_) => value
   }
@@ -121,7 +121,7 @@ pub fn ConstantInt::isMaxValue(self : ConstantInt) -> Bool {
   match ty {
     Int1Type(_) => self.value == 1
     Int8Type(_) => Int8::from_int64(self.value) == @int8.max_value
-    Int16Type(_) => self.value.to_int().to_int16() == @int16.max_value
+    Int16Type(_) => Int16::from_int(self.value.to_int()) == @int16.max_value
     Int32Type(_) => self.value.to_int() == @int.max_value
     Int64Type(_) => self.value == @int64.max_value
   }
@@ -133,7 +133,7 @@ pub fn ConstantInt::isMinValue(self : ConstantInt) -> Bool {
   match ty {
     Int1Type(_) => self.value == 0
     Int8Type(_) => Int8::from_int64(self.value) == @int8.min_value
-    Int16Type(_) => self.value.to_int().to_int16() == @int16.min_value
+    Int16Type(_) => Int16::from_int(self.value.to_int()) == @int16.min_value
     Int32Type(_) => self.value.to_int() == @int.min_value
     Int64Type(_) => self.value == @int64.min_value
   }
@@ -180,7 +180,7 @@ pub fn ConstantInt::add(
   let value = match vty.asIntegerTypeEnum() {
     Int1Type(_) => value & 1L
     Int8Type(_) => Int8::from_int64(value).to_int64()
-    Int16Type(_) => value.to_int().to_int16().to_int64()
+    Int16Type(_) => Int16::from_int(value.to_int()).to_int64()
     Int32Type(_) => value.to_int().to_int64()
     Int64Type(_) => value
   }
@@ -229,7 +229,7 @@ pub fn ConstantInt::sub(
   let value = match vty.asIntegerTypeEnum() {
     Int1Type(_) => value & 1L
     Int8Type(_) => Int8::from_int64(value).to_int64()
-    Int16Type(_) => value.to_int().to_int16().to_int64()
+    Int16Type(_) => Int16::from_int(value.to_int()).to_int64()
     Int32Type(_) => value.to_int().to_int64()
     Int64Type(_) => value
   }
@@ -275,7 +275,7 @@ pub fn ConstantInt::mul(
   let value = match vty.asIntegerTypeEnum() {
     Int1Type(_) => value & 1L
     Int8Type(_) => Int8::from_int64(value).to_int64()
-    Int16Type(_) => value.to_int().to_int16().to_int64()
+    Int16Type(_) => Int16::from_int(value.to_int()).to_int64()
     Int32Type(_) => value.to_int().to_int64()
     Int64Type(_) => value
   }
@@ -325,7 +325,7 @@ pub fn ConstantInt::sdiv(
   let value = match vty.asIntegerTypeEnum() {
     Int1Type(_) => value & 1L
     Int8Type(_) => Int8::from_int64(value).to_int64()
-    Int16Type(_) => value.to_int().to_int16().to_int64()
+    Int16Type(_) => Int16::from_int(value.to_int()).to_int64()
     Int32Type(_) => value.to_int().to_int64()
     Int64Type(_) => value
   }
@@ -406,7 +406,7 @@ pub fn ConstantInt::udiv(
       let v1_u16 = self.value.to_int().to_uint16()
       let v2_u16 = other.value.to_int().to_uint16()
       let res_u16 = v1_u16 / v2_u16
-      res_u16.to_int().to_int16().to_int().to_int64()
+      Int16::from_int(res_u16.to_int()).to_int().to_int64()
     }
     Int32Type(_) => {
       let v1_u32 = self.value.to_int().reinterpret_as_uint()
@@ -456,7 +456,7 @@ pub fn ConstantInt::compute_and(
   let final_value = match vty.asIntegerTypeEnum() {
     Int1Type(_) => result_i64 & 1L
     Int8Type(_) => Int8::from_int64(result_i64).to_int64()
-    Int16Type(_) => result_i64.to_int().to_int16().to_int64()
+    Int16Type(_) => Int16::from_int(result_i64.to_int()).to_int64()
     Int32Type(_) => result_i64.to_int().to_int64()
     Int64Type(_) => result_i64
   }
@@ -502,7 +502,7 @@ pub fn ConstantInt::or(
   let final_value = match vty.asIntegerTypeEnum() {
     Int1Type(_) => result_i64 & 1L
     Int8Type(_) => Int8::from_int64(result_i64).to_int64()
-    Int16Type(_) => result_i64.to_int().to_int16().to_int64()
+    Int16Type(_) => Int16::from_int(result_i64.to_int()).to_int64()
     Int32Type(_) => result_i64.to_int().to_int64()
     Int64Type(_) => result_i64
   }
@@ -548,7 +548,7 @@ pub fn ConstantInt::xor(
   let final_value = match vty.asIntegerTypeEnum() {
     Int1Type(_) => result_i64 & 1L
     Int8Type(_) => Int8::from_int64(result_i64).to_int64()
-    Int16Type(_) => result_i64.to_int().to_int16().to_int64()
+    Int16Type(_) => Int16::from_int(result_i64.to_int()).to_int64()
     Int32Type(_) => result_i64.to_int().to_int64()
     Int64Type(_) => result_i64
   }
@@ -594,7 +594,7 @@ pub fn ConstantInt::compute_shl(
   let final_value = match vty.asIntegerTypeEnum() {
     Int1Type(_) => result_i64 & 1L
     Int8Type(_) => Int8::from_int64(result_i64).to_int64()
-    Int16Type(_) => result_i64.to_int().to_int16().to_int64()
+    Int16Type(_) => Int16::from_int(result_i64.to_int()).to_int64()
     Int32Type(_) => result_i64.to_int().to_int64()
     Int64Type(_) => result_i64
   }
@@ -648,7 +648,7 @@ pub fn ConstantInt::lshr(
       let v_u16 = self.value.to_int().to_uint16()
       let shift_amount = other.value.to_int()
       let res_u16 = v_u16 >> shift_amount
-      res_u16.to_int().to_int16().to_int().to_int64()
+      Int16::from_int(res_u16.to_int()).to_int().to_int64()
     }
     Int32Type(_) => {
       let v_u32 = self.value.to_int().reinterpret_as_uint()
@@ -709,7 +709,7 @@ pub fn ConstantInt::ashr(
   let final_value = match vty.asIntegerTypeEnum() {
     Int1Type(_) => result_i64 & 1L
     Int8Type(_) => Int8::from_int64(result_i64).to_int64()
-    Int16Type(_) => result_i64.to_int().to_int16().to_int64()
+    Int16Type(_) => Int16::from_int(result_i64.to_int()).to_int64()
     Int32Type(_) => result_i64.to_int().to_int64()
     Int64Type(_) => result_i64
   }
@@ -1095,7 +1095,7 @@ pub fn ConstantInt::bitcast(
     FloatType(dst_ty) => {
       // For i32 to f32, we need to treat the 32-bit value as float bits
       let i32_bits = self.value.to_int().reinterpret_as_uint()
-      let f32_value = i32_bits.reinterpret_as_float().to_double()
+      let f32_value = Float::reinterpret_from_uint(i32_bits).to_double()
       ConstantFP::new(dst_ty, f32_value)
     }
     DoubleType(dst_ty) => {
@@ -1468,7 +1468,7 @@ pub fn ConstantFP::fptrunc(
     raise LLVMValueError(msg)
   }
   // For truncation, we simply use the current value (precision loss handled by Double)
-  let value = self.value.to_float().to_double()
+  let value = Float::from_double(self.value).to_double()
   ConstantFP::new(dst_ty, value)
 }
 
@@ -1640,7 +1640,7 @@ pub fn ConstantFP::bitcast(
     // Floating point to integer
     Int32Type(dst_ty) => {
       // For f32 to i32, reinterpret the 32-bit float as 32-bit int
-      let f32_bits = self.value.to_float().reinterpret_as_uint()
+      let f32_bits = Float::from_double(self.value).reinterpret_as_uint()
       let i32_value = f32_bits.reinterpret_as_int().to_int64()
       ConstantInt::new(dst_ty, i32_value) as &Constant
     }
