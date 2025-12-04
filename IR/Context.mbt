@@ -254,7 +254,7 @@ pub fn Context::getInt64Ty(self : Context) -> Int64Type {
 /// let ctx = Context::new()
 ///
 /// inspect(ctx.getPtrTy(), content="ptr")
-/// 
+///
 /// let addressSpace = AddressSpace::new(1)
 /// inspect(ctx.getPtrTy(addressSpace~), content="ptr")
 /// ```

@@ -2,32 +2,32 @@
 package "Kaida-Amethyst/MoonLLVM/int8"
 
 // Values
-let max_value : Int8
+pub let max_value : Int8
 
-let min_value : Int8
+pub let min_value : Int8
 
 // Errors
 
 // Types and methods
 pub struct Int8(Int)
-fn Int8::from(Int) -> Self
-fn Int8::from_int64(Int64) -> Self
-fn Int8::from_uint64(UInt64) -> Self
+pub fn Int8::from(Int) -> Self
+pub fn Int8::from_int64(Int64) -> Self
+pub fn Int8::from_uint64(UInt64) -> Self
 #deprecated
-fn Int8::inner(Self) -> Int
-fn Int8::to_byte(Self) -> Byte
-fn Int8::to_int(Self) -> Int
-fn Int8::to_int64(Self) -> Int64
-fn Int8::to_uint(Self) -> UInt
-fn Int8::to_uint64(Self) -> UInt64
-impl Add for Int8
-impl Compare for Int8
-impl Div for Int8
-impl Eq for Int8
-impl Hash for Int8
-impl Mul for Int8
-impl Show for Int8
-impl Sub for Int8
+pub fn Int8::inner(Self) -> Int
+pub fn Int8::to_byte(Self) -> Byte
+pub fn Int8::to_int(Self) -> Int
+pub fn Int8::to_int64(Self) -> Int64
+pub fn Int8::to_uint(Self) -> UInt
+pub fn Int8::to_uint64(Self) -> UInt64
+pub impl Add for Int8
+pub impl Compare for Int8
+pub impl Div for Int8
+pub impl Eq for Int8
+pub impl Hash for Int8
+pub impl Mul for Int8
+pub impl Show for Int8
+pub impl Sub for Int8
 
 // Type aliases
 

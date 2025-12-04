@@ -181,7 +181,7 @@ pub fn IRBuilder::createRetVoid(self : IRBuilder) -> &Instruction raise Error {
 /// builder.setInsertPoint(bb)
 ///
 /// let inst = builder.createAlloca(i32_ty, name="var1")
-/// 
+///
 /// inspect(inst, content = "  %var1 = alloca i32, align 4")
 /// ```
 pub fn IRBuilder::createAlloca(
@@ -1259,7 +1259,7 @@ pub fn IRBuilder::createFSub(
 /// let fval = mod.addFunction(fty, "fneg_demo")
 /// let bb = fval.addBasicBlock(name="entry")
 /// let arg = fval.getArg(0).unwrap()
-/// 
+///
 /// builder.setInsertPoint(bb)
 /// let fneg = builder.createFNeg(arg, name="neg_value")
 /// inspect(fneg, content = "  %neg_value = fneg float %0")

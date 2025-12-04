@@ -2538,7 +2538,7 @@ pub impl Show for ConstantVector with output(self, logger) {
 /// let i32ty = ctx.getInt32Ty()
 /// let f32ty = ctx.getFloatTy()
 /// let sty = ctx.getStructType([i32ty, f32ty])
-/// 
+///
 /// let i32_val = ctx.getConstInt32(42)
 /// let f32_val = ctx.getConstFloat(3.14)
 /// let struct_val = ConstantStruct::new(sty, [i32_val, f32_val])
@@ -2607,7 +2607,7 @@ pub fn ConstantStruct::getElement(
 /// let i32ty = ctx.getInt32Ty()
 /// let f32ty = ctx.getFloatTy()
 /// let sty = ctx.getStructType([i32ty, f32ty])
-/// 
+///
 /// let i32_val = ctx.getConstInt32(42)
 /// let f32_val = ctx.getConstFloat(3.14)
 /// let struct_val = ConstantStruct::new(sty, [i32_val, f32_val])
@@ -2649,15 +2649,15 @@ pub fn ConstantStruct::extractValue(
 /// let i32ty = ctx.getInt32Ty()
 /// let f32ty = ctx.getFloatTy()
 /// let sty = ctx.getStructType([i32ty, f32ty])
-/// 
+///
 /// let i32_val = ctx.getConstInt32(42)
 /// let f32_val = ctx.getConstFloat(3.14)
 /// let struct_val = ConstantStruct::new(sty, [i32_val, f32_val])
-/// 
+///
 /// // Insert new value at index 0
 /// let new_i32_val = ctx.getConstInt32(100)
 /// guard struct_val.insertValue([0], new_i32_val) is Some(new_struct)
-/// 
+///
 /// // Verify the new value was inserted
 /// assert_true(new_struct.extractValue([0]) is Some(_))
 /// ```

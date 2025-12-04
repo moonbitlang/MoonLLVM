@@ -23,7 +23,7 @@
 /// builder.setInsertPoint(bb)
 ///
 /// let inst = builder.createAlloca(i32_ty, name="var1")
-/// 
+///
 /// inspect(inst, content = "  %var1 = alloca i32, align 4")
 /// ```
 pub struct AllocaInst {
@@ -575,23 +575,23 @@ pub impl Show for LoadInst with output(self, logger) {
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
-/// 
+///
 /// let ptr_ty = ctx.getPtrTy()
 /// let i32_ty = ctx.getInt32Ty()
 /// let void_ty = ctx.getVoidTy()
-/// 
+///
 /// let fty = ctx.getFunctionType(void_ty, [ptr_ty, i32_ty])
 /// let fval = mod.addFunction(fty, "store_an_integer")
-/// 
+///
 /// let bb = fval.addBasicBlock(name="entry")
 /// builder.setInsertPoint(bb)
-/// 
+///
 /// let ptr = fval.getArg(0).unwrap()
 /// ptr.setName("arg0")
-/// 
+///
 /// let value = fval.getArg(1).unwrap()
 /// value.setName("value")
-/// 
+///
 /// let s = builder.createStore(value, ptr)
 ///
 /// inspect(s, content = "  store i32 %value, ptr %arg0, align 4")
@@ -661,24 +661,24 @@ fn StoreInst::new(
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
-/// 
+///
 /// let ptr_ty = ctx.getPtrTy()
 /// let i32_ty = ctx.getInt32Ty()
 /// let void_ty = ctx.getVoidTy()
-/// 
+///
 /// let fty = ctx.getFunctionType(void_ty, [ptr_ty, i32_ty])
 /// let fval = mod.addFunction(fty, "store_an_integer")
-/// 
+///
 /// let bb = fval.addBasicBlock(name="entry")
 /// builder.setInsertPoint(bb)
-/// 
+///
 /// let ptr = fval.getArg(0).unwrap()
 /// ptr.setName("arg0")
-/// 
+///
 /// let val1 = fval.getArg(1).unwrap()
 /// let const_42 = ctx.getConstInt32(42)
 /// let val2 = builder.createNSWAdd(val1, const_42, name="value")
-/// 
+///
 /// let s = builder.createStore(val2, ptr)
 ///
 /// inspect(s.getValueOperand(), content = "  %value = add nsw i32 %0, 42")
@@ -694,12 +694,12 @@ pub fn StoreInst::getValueOperand(self : StoreInst) -> &Value {
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
-/// 
+///
 /// let void_ty = ctx.getVoidTy()
-/// 
+///
 /// let fty = ctx.getFunctionType(void_ty, [])
 /// let fval = mod.addFunction(fty, "store_an_integer")
-/// 
+///
 /// let bb = fval.addBasicBlock(name="entry")
 /// builder.setInsertPoint(bb)
 ///
