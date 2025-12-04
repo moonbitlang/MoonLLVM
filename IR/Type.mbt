@@ -474,18 +474,14 @@ impl Type with tryAsAbstractTypeEnum(self) -> AbstractTypeEnum? {
 ///|
 /// Collection of Int1Type, Int8Type, Int16Type, Int32Type, Int64Type
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
-///
-/// let i8ty :&IntegerType = ctx.getInt8Ty()
+/// let i8ty : &IntegerType = ctx.getInt8Ty()
 /// assert_eq(i8ty.getBitWidth(), 8)
 /// inspect(i8ty.getExtendedType().unwrap(), content="i16")
 /// assert_eq(i8ty.getBitMask(), 0xFF)
 /// assert_eq(i8ty.getExtendedType().unwrap().getSignBit(), 0x8000)
-///
-/// let i32ty = i8ty.getExtendedType().unwrap()
-///                 .getExtendedType().unwrap()
-///
+/// let i32ty = i8ty.getExtendedType().unwrap().getExtendedType().unwrap()
 /// inspect(i32ty, content="i32")
 /// guard i32ty.asIntegerTypeEnum() is Int32Type(i32ty)
 /// inspect(i32ty, content="i32")
@@ -985,9 +981,8 @@ pub impl PrimitiveType for FP128Type with asPrimitiveTypeEnum(self) -> Primitive
 ///
 /// - See LLVM: `Type::getInt1Ty`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
-///
 /// inspect(ctx.getInt1Ty(), content="i1")
 /// ```
 pub struct Int1Type {
@@ -1033,9 +1028,8 @@ pub impl PrimitiveType for Int1Type with asPrimitiveTypeEnum(self) -> PrimitiveT
 ///
 /// - See LLVM: `Type::getInt8Ty`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
-///
 /// inspect(ctx.getInt8Ty(), content="i8")
 /// ```
 pub struct Int8Type {
@@ -1086,9 +1080,8 @@ pub impl PrimitiveType for Int8Type with asPrimitiveTypeEnum(self) -> PrimitiveT
 ///
 /// - See LLVM: `Type::getInt16Ty`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
-///
 /// inspect(ctx.getInt16Ty(), content="i16")
 /// ```
 pub struct Int16Type {
@@ -1139,9 +1132,8 @@ pub impl PrimitiveType for Int16Type with asPrimitiveTypeEnum(self) -> Primitive
 ///
 /// - See LLVM: `Type::getInt32Ty`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
-///
 /// inspect(ctx.getInt32Ty(), content="i32")
 /// ```
 pub struct Int32Type {
@@ -1192,9 +1184,8 @@ pub impl PrimitiveType for Int32Type with asPrimitiveTypeEnum(self) -> Primitive
 ///
 /// - See LLVM: `Type::getInt64Ty`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
-///
 /// inspect(ctx.getInt64Ty(), content="i64")
 /// ```
 pub struct Int64Type {
@@ -1246,7 +1237,7 @@ pub struct VoidType {
 ///
 /// - See LLVM: `Type::getVoidTy`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let voidty = ctx.getVoidTy()
 /// inspect(voidty, content="void")
@@ -1290,7 +1281,7 @@ pub struct LabelType {
 ///
 /// - See LLVM: `Type::getLabelTy`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let labelty = ctx.getLabelTy()
 /// inspect(labelty, content="label")
@@ -1333,7 +1324,7 @@ pub struct MetadataType {
 ///
 /// - See LLVM: `Type::getMetadataTy`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let metadataty = ctx.getMetadataTy()
 /// inspect(metadataty, content="metadata")
@@ -1377,7 +1368,7 @@ pub struct TokenType {
 ///
 /// - See LLVM: `Type::getTokenTy`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let tokenty = ctx.getTokenTy()
 /// inspect(tokenty, content="token")
@@ -1415,7 +1406,7 @@ pub impl AbstractType for TokenType with asAbstractTypeEnum(self) -> AbstractTyp
 ///
 /// See LLVM: `FunctionType::FunctionType`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let int32ty = ctx.getInt32Ty()
 /// let voidty = ctx.getVoidTy()
@@ -1544,17 +1535,14 @@ pub impl AbstractType for FunctionType with asAbstractTypeEnum(self) -> Abstract
 ///
 /// - See LLVM: `StructType::get`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
-///
 /// let i8ty = ctx.getInt8Ty()
 /// let i16ty = ctx.getInt16Ty()
 /// let i32ty = ctx.getInt32Ty()
 /// let f32ty = ctx.getFloatTy()
-///
 /// let sty = ctx.getStructType([i32ty, f32ty], name="foo")
 /// inspect(sty.full_info(), content="%foo = type { i32, float }")
-///
 /// let sty = ctx.getStructType([i8ty, i16ty], name="bar", isPacked=true)
 /// inspect(sty.full_info(), content="%bar = type <{ i8, i16 }>")
 /// ```
@@ -1609,14 +1597,12 @@ fn StructType::new(
 ///
 /// - See LLVM: `StructType::isLiteral`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let i32ty = ctx.getInt32Ty()
 /// let f32ty = ctx.getFloatTy()
-///
 /// let foo = ctx.getStructType([i32ty, f32ty])
 /// let bar = ctx.getStructType([i32ty, f32ty], name="bar")
-///
 /// assert_true(foo.isLiteral())
 /// assert_false(bar.isLiteral())
 /// ```
@@ -1631,11 +1617,10 @@ pub fn StructType::isLiteral(self : StructType) -> Bool {
 ///
 /// - See LLVM: `StructType::isOpaque`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let i32ty = ctx.getInt32Ty()
 /// let f32ty = ctx.getFloatTy()
-///
 /// let foo = ctx.getStructType([], name="foo")
 /// let bar = ctx.getStructType([i32ty, f32ty], name="bar")
 /// assert_true(foo.isOpaque())
@@ -1840,14 +1825,11 @@ pub impl AggregateType for StructType with asAggregateTypeEnum(self) -> Aggregat
 ///
 /// - See LLVM: `ArrayType::get`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
-///
 /// let i32ty = ctx.getInt32Ty()
-///
 /// let arrty = ctx.getArrayType(i32ty, 16)
 /// inspect(arrty, content="[16 x i32]")
-///
 /// assert_eq(arrty.getElementCount(), 16)
 /// inspect(arrty.getElementType(), content="i32")
 /// ```
@@ -1917,12 +1899,10 @@ pub impl AggregateType for ArrayType with asAggregateTypeEnum(self) -> Aggregate
 ///
 /// - See LLVM: `VectorType::get`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
-///
 /// let i32ty = ctx.getInt32Ty()
 /// let vecty = ctx.getFixedVectorType(i32ty, 16)
-///
 /// inspect(vecty, content="<16 x i32>")
 /// assert_eq(vecty.getElementCount(), 16)
 /// inspect(vecty.getElementType(), content="i32")
@@ -1998,12 +1978,10 @@ pub impl AggregateType for VectorType with asAggregateTypeEnum(self) -> Aggregat
 ///
 /// - See LLVM: `ScalableVectorType::get`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
-///
 /// let f32ty = ctx.getFloatTy()
 /// let vecty = ctx.getScalableVectorType(f32ty, 16)
-///
 /// inspect(vecty, content="<vscale x 16 x float>")
 /// assert_eq(vecty.getElementCount(), 16)
 /// inspect(vecty.getElementType(), content="float")
@@ -2093,18 +2071,14 @@ pub fn AddressSpace::new(v : UInt) -> AddressSpace {
 /// In Moonbit Aether framework, we follow the design of LLVM20, so all pointer is
 /// also opaque pointer, and will not mark type for pointer.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
-///
 /// inspect(ctx.getPtrTy(), content="ptr")
-///
 /// let addressSpace = AddressSpace::new(0)
 /// let ptr = ctx.getPtrTy(addressSpace~)
 /// inspect(ptr, content="ptr")
-///
 /// let i32ty = ctx.getInt32Ty()
 /// assert_true(PointerType::isLoadableOrStorableType(i32ty))
-///
 /// let voidty = ctx.getVoidTy()
 /// assert_false(PointerType::isLoadableOrStorableType(voidty))
 /// ```

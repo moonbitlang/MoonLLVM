@@ -29,7 +29,7 @@ int main() {
 
 In Aether, to create a constant integer:
 
-```Moonbit
+```mbt check
 test "Get a constant" {
   let ctx = LLVMContext::new()
 
@@ -48,7 +48,7 @@ to create a constant floating point:
 Notice that for floating point, we have special values, like negative zero,
 negative infinity, nan, we provide some special apis.
 
-```Moonbit
+```mbt check
 test "Get Floating Point Constants" 
   let ctx = LLVMContext::new()
 

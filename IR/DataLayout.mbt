@@ -85,7 +85,7 @@ pub fn DataLayout::getEndian(self : DataLayout) -> Endian {
 ///
 /// **Examples:**
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let datalayout = mod.getDataLayout()
@@ -234,11 +234,10 @@ fn DataLayout::getAlignment(self : DataLayout, ty : &Type) -> Align {
 ///
 /// **Examples:**
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let datalayout = mod.getDataLayout()
-///
 /// let i8ty = ctx.getInt8Ty()
 /// let i32ty = ctx.getInt32Ty()
 /// let i64ty = ctx.getInt64Ty()
