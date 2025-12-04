@@ -10,15 +10,11 @@
 /// ```mbt test
 /// let ctx = Context::new()
 /// let prog = ctx.addModule("demo")
-///
 /// let i32ty = ctx.getInt32Ty()
 /// let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
-///
 /// let f = prog.addFunction(fty, "add")
-///
 /// let arg0 = f.getArg(0).unwrap()
 /// let arg1 = f.getArg(1).unwrap()
-///
 /// inspect(arg0, content="i32 %0")
 /// inspect(arg1.getType(), content="i32")
 /// assert_true(f.getArg(2) is None)
@@ -121,25 +117,19 @@ pub impl Value for Argument with getName(self : Argument) -> String? {
 /// ```mbt test
 /// let ctx = Context::new()
 /// let prog = ctx.addModule("demo")
-///
 /// let i32ty = ctx.getInt32Ty()
 /// let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
-///
 /// let f = prog.addFunction(fty, "add")
-///
 /// let arg0 = f.getArg(0).unwrap()
 /// let arg1 = f.getArg(1).unwrap()
-///
 /// assert_true(f.getArg(2) is None)
 /// inspect(arg0, content="i32 %0")
 /// inspect(arg1.getType(), content="i32")
-///
 /// arg0.setName("lhs")
 /// arg1.setName("rhs")
 /// inspect(arg0, content="i32 %lhs")
 /// inspect(arg1, content="i32 %rhs")
-///
-/// assert_true({try? arg1.setName("lhs")} is Err(_))
+/// assert_true((try? arg1.setName("lhs")) is Err(_))
 /// ```
 pub impl Value for Argument with setName(self : Argument, name : String) -> Unit raise LLVMValueError {
   if name.is_empty() {

@@ -238,7 +238,6 @@ fn DataLayout::getAlignment(self : DataLayout, ty : &Type) -> Align {
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let datalayout = mod.getDataLayout()
-///
 /// let i8ty = ctx.getInt8Ty()
 /// let i32ty = ctx.getInt32Ty()
 /// let i64ty = ctx.getInt64Ty()

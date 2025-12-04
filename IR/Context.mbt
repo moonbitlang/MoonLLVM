@@ -252,9 +252,7 @@ pub fn Context::getInt64Ty(self : Context) -> Int64Type {
 ///
 /// ```mbt test
 /// let ctx = Context::new()
-///
 /// inspect(ctx.getPtrTy(), content="ptr")
-///
 /// let addressSpace = AddressSpace::new(1)
 /// inspect(ctx.getPtrTy(addressSpace~), content="ptr")
 /// ```
@@ -287,7 +285,6 @@ pub fn Context::getPtrTy(
 /// let voidty = ctx.getVoidTy()
 /// let i32ty = ctx.getInt32Ty()
 /// let f64ty = ctx.getDoubleTy()
-///
 /// let fty = ctx.getFunctionType(voidty, [i32ty, f64ty])
 /// inspect(fty, content="void (i32, double)")
 /// ```
@@ -316,8 +313,7 @@ pub fn Context::getFunctionType(
 /// let i32ty = ctx.getInt32Ty()
 /// let f32ty = ctx.getFloatTy()
 /// let f64ty = ctx.getDoubleTy()
-///
-/// let sty = ctx.getStructType([i32ty, f32ty, f64ty], name = "foo")
+/// let sty = ctx.getStructType([i32ty, f32ty, f64ty], name="foo")
 /// inspect(sty.full_info(), content="%foo = type { i32, float, double }")
 ///
 /// // Cannot create a ananymous struct type with empty elements.
@@ -346,11 +342,8 @@ pub fn Context::getStructType(
 /// let ctx = Context::new()
 /// let i32ty = ctx.getInt32Ty()
 /// let f32ty = ctx.getFloatTy()
-///
 /// let _ = ctx.getStructType([i32ty, f32ty], name="foo")
-///
 /// let sty = ctx.getStructTypeByName("foo").unwrap()
-///
 /// inspect(sty.full_info(), content="%foo = type { i32, float }")
 /// ```
 pub fn Context::getStructTypeByName(self : Self, name : String) -> StructType? {
@@ -370,11 +363,9 @@ pub fn Context::getStructTypeByName(self : Self, name : String) -> StructType? {
 /// ```mbt test
 /// let ctx = Context::new()
 /// let i32ty = ctx.getInt32Ty()
-///
 /// let arrty = ctx.getArrayType(i32ty, 16)
 /// inspect(arrty, content="[16 x i32]")
 /// inspect(arrty.getElementType(), content="i32")
-///
 /// assert_eq(arrty.getElementCount(), 16)
 /// ```
 pub fn Context::getArrayType(
@@ -396,7 +387,6 @@ pub fn Context::getArrayType(
 /// ```mbt test
 /// let ctx = Context::new()
 /// let i32ty = ctx.getInt32Ty()
-///
 /// let fixedVecTy = ctx.getFixedVectorType(i32ty, 32)
 /// inspect(fixedVecTy, content="<32 x i32>")
 /// ```
@@ -419,7 +409,6 @@ pub fn Context::getFixedVectorType(
 /// ```mbt test
 /// let ctx = Context::new()
 /// let i32ty = ctx.getInt32Ty()
-///
 /// let scalableVecTy = ctx.getScalableVectorType(i32ty, 16)
 /// inspect(scalableVecTy, content="<vscale x 16 x i32>")
 /// ```
@@ -525,7 +514,6 @@ pub fn Context::getConstFalse(self : Context) -> ConstantInt {
 ///
 /// ```mbt test
 /// let ctx = Context::new()
-///
 /// inspect(ctx.getConstBool(true), content="i1 true")
 /// inspect(ctx.getConstBool(false), content="i1 false")
 /// ```
@@ -540,7 +528,6 @@ pub fn Context::getConstBool(self : Context, b : Bool) -> ConstantInt {
 ///
 /// ```mbt test
 /// let ctx = Context::new()
-///
 /// let one = ctx.getConstFloat(1.0)
 /// let two = ctx.getConstFloat(2.0)
 /// inspect(one, content="float 0x3FF0000000000000")
@@ -557,10 +544,8 @@ pub fn Context::getConstFloat(self : Context, value : Float) -> ConstantFP {
 ///
 /// ```mbt test
 /// let ctx = Context::new()
-///
 /// let one = ctx.getConstDouble(1.0)
 /// let two = ctx.getConstDouble(2.0)
-///
 /// inspect(one, content="double 0x3FF0000000000000")
 /// inspect(two, content="double 0x4000000000000000")
 /// ```
@@ -579,10 +564,8 @@ pub fn Context::getConstDouble(self : Context, value : Double) -> ConstantFP {
 ///
 /// ```mbt test
 /// let ctx = Context::new()
-///
 /// let zero = ctx.getConstZeroFloat()
 /// let neg_zero = ctx.getConstZeroFloat(isNegative=true)
-///
 /// inspect(zero, content="float 0x0")
 /// inspect(neg_zero, content="float 0x8000000000000000")
 /// ```
@@ -608,10 +591,8 @@ pub fn Context::getConstZeroFloat(
 ///
 /// ```mbt test
 /// let ctx = Context::new()
-///
 /// let zero = ctx.getConstZeroDouble()
 /// let neg_zero = ctx.getConstZeroDouble(isNegative=true)
-///
 /// inspect(zero, content="double 0x0")
 /// inspect(neg_zero, content="double 0x8000000000000000")
 /// ```
@@ -637,10 +618,8 @@ pub fn Context::getConstZeroDouble(
 ///
 /// ```mbt test
 /// let ctx = Context::new()
-///
 /// let nan = ctx.getConstNaNDouble()
 /// let neg_nan = ctx.getConstNaNDouble(isNegative=true)
-///
 /// inspect(nan, content="double 0x7FF8000000000000")
 /// inspect(neg_nan, content="double 0xFFF8000000000000")
 /// ```
@@ -666,10 +645,8 @@ pub fn Context::getConstNaNFloat(
 ///
 /// ```mbt test
 /// let ctx = Context::new()
-///
 /// let nan = ctx.getConstQNaNFloat()
 /// let neg_nan = ctx.getConstQNaNFloat(isNegative=true)
-///
 /// inspect(nan, content="float 0x7FF8000000000000")
 /// inspect(neg_nan, content="float 0xFFF8000000000000")
 /// ```
@@ -695,10 +672,8 @@ pub fn Context::getConstQNaNFloat(
 ///
 /// ```mbt test
 /// let ctx = Context::new()
-///
 /// let nan = ctx.getConstSNaNFloat()
 /// let neg_nan = ctx.getConstSNaNFloat(isNegative=true)
-///
 /// inspect(nan, content="float 0x7FF4000000000000")
 /// inspect(neg_nan, content="float 0xFFF4000000000000")
 /// ```
@@ -724,10 +699,8 @@ pub fn Context::getConstSNaNFloat(
 ///
 /// ```mbt test
 /// let ctx = Context::new()
-///
 /// let inf = ctx.getConstInfFloat()
 /// let neg_inf = ctx.getConstInfFloat(isNegative=true)
-///
 /// inspect(inf, content="float 0x7FF0000000000000")
 /// inspect(neg_inf, content="float 0xFFF0000000000000")
 /// ```
@@ -753,10 +726,8 @@ pub fn Context::getConstInfFloat(
 ///
 /// ```mbt test
 /// let ctx = Context::new()
-///
 /// let nan = ctx.getConstNaNDouble()
 /// let neg_nan = ctx.getConstNaNDouble(isNegative=true)
-///
 /// inspect(nan, content="double 0x7FF8000000000000")
 /// inspect(neg_nan, content="double 0xFFF8000000000000")
 /// ```
@@ -782,10 +753,8 @@ pub fn Context::getConstNaNDouble(
 ///
 /// ```mbt test
 /// let ctx = Context::new()
-///
 /// let nan = ctx.getConstQNaNDouble()
 /// let neg_nan = ctx.getConstQNaNDouble(isNegative=true)
-///
 /// inspect(nan, content="double 0x7FF8000000000000")
 /// inspect(neg_nan, content="double 0xFFF8000000000000")
 /// ```
@@ -811,10 +780,8 @@ pub fn Context::getConstQNaNDouble(
 ///
 /// ```mbt test
 /// let ctx = Context::new()
-///
 /// let nan = ctx.getConstSNaNDouble()
 /// let neg_nan = ctx.getConstSNaNDouble(isNegative=true)
-///
 /// inspect(nan, content="double 0x7FF4000000000000")
 /// inspect(neg_nan, content="double 0xFFF4000000000000")
 /// ```
@@ -840,10 +807,8 @@ pub fn Context::getConstSNaNDouble(
 ///
 /// ```mbt test
 /// let ctx = Context::new()
-///
 /// let inf = ctx.getConstInfDouble()
 /// let neg_inf = ctx.getConstInfDouble(isNegative=true)
-///
 /// inspect(inf, content="double 0x7FF0000000000000")
 /// inspect(neg_inf, content="double 0xFFF0000000000000")
 /// ```
@@ -870,7 +835,6 @@ pub fn Context::getConstInfDouble(
 ///
 /// ```mbt test
 /// let ctx = Context::new()
-///
 /// let data : Array[Int] = [42, 63, 77, 89]
 /// let arr = ctx.getConstInt8Array(data)
 /// inspect(arr, content="[4 x i8] [i8 42, i8 63, i8 77, i8 89]")
@@ -890,7 +854,6 @@ pub fn Context::getConstInt8Array(
 ///
 /// ```mbt test
 /// let ctx = Context::new()
-///
 /// let data : Array[Int16] = [42, 63, 77, 89]
 /// let arr = ctx.getConstInt16Array(data)
 /// inspect(arr, content="[4 x i16] [i16 42, i16 63, i16 77, i16 89]")
@@ -910,7 +873,6 @@ pub fn Context::getConstInt16Array(
 ///
 /// ```mbt test
 /// let ctx = Context::new()
-///
 /// let data : Array[Int] = [42, 63, 77, 89]
 /// let arr = ctx.getConstInt32Array(data)
 /// inspect(arr, content="[4 x i32] [i32 42, i32 63, i32 77, i32 89]")
@@ -930,7 +892,6 @@ pub fn Context::getConstInt32Array(
 ///
 /// ```mbt test
 /// let ctx = Context::new()
-///
 /// let data : Array[Int64] = [42, 63, 77, 89]
 /// let arr = ctx.getConstInt64Array(data)
 /// inspect(arr, content="[4 x i64] [i64 42, i64 63, i64 77, i64 89]")
@@ -950,7 +911,6 @@ pub fn Context::getConstInt64Array(
 ///
 /// ```mbt test
 /// let ctx = Context::new()
-///
 /// let data : Array[Byte] = [42, 63, 77, 89]
 /// let arr = ctx.getConstUInt8Array(data)
 /// inspect(arr, content="[4 x i8] [i8 42, i8 63, i8 77, i8 89]")
@@ -971,7 +931,6 @@ pub fn Context::getConstUInt8Array(
 ///
 /// ```mbt test
 /// let ctx = Context::new()
-///
 /// let data : Array[UInt16] = [42, 63, 77, 89]
 /// let arr = ctx.getConstUInt16Array(data)
 /// inspect(arr, content="[4 x i16] [i16 42, i16 63, i16 77, i16 89]")
@@ -992,7 +951,6 @@ pub fn Context::getConstUInt16Array(
 ///
 /// ```mbt test
 /// let ctx = Context::new()
-///
 /// let data : Array[UInt] = [42, 63, 77, 89]
 /// let arr = ctx.getConstUInt32Array(data)
 /// inspect(arr, content="[4 x i32] [i32 42, i32 63, i32 77, i32 89]")
@@ -1013,7 +971,6 @@ pub fn Context::getConstUInt32Array(
 ///
 /// ```mbt test
 /// let ctx = Context::new()
-///
 /// let data : Array[UInt64] = [42, 63, 77, 89]
 /// let arr = ctx.getConstUInt64Array(data)
 /// inspect(arr, content="[4 x i64] [i64 42, i64 63, i64 77, i64 89]")
@@ -1034,12 +991,11 @@ pub fn Context::getConstUInt64Array(
 ///
 /// ```mbt test
 /// let ctx = Context::new()
-///
 /// let data : Array[Float] = [1.0, 2.0]
 /// let arr = ctx.getConstFloatArray(data)
 /// inspect(
 ///   arr,
-///   content="[2 x float] [float 0x3FF0000000000000, float 0x4000000000000000]"
+///   content="[2 x float] [float 0x3FF0000000000000, float 0x4000000000000000]",
 /// )
 /// ```
 pub fn Context::getConstFloatArray(
@@ -1058,13 +1014,11 @@ pub fn Context::getConstFloatArray(
 ///
 /// ```mbt test
 /// let ctx = Context::new()
-///
 /// let data : Array[Double] = [1.0, 2.0]
 /// let arr = ctx.getConstDoubleArray(data)
-///
 /// inspect(
 ///   arr,
-///   content="[2 x double] [double 0x3FF0000000000000, double 0x4000000000000000]"
+///   content="[2 x double] [double 0x3FF0000000000000, double 0x4000000000000000]",
 /// )
 /// ```
 pub fn Context::getConstDoubleArray(
@@ -1101,7 +1055,6 @@ pub fn Context::getConstArray(
 ///
 /// ```mbt test
 /// let ctx = Context::new()
-///
 /// let data : Array[Int] = [42, 63, 77, 89]
 /// let arr = ctx.getConstInt8Vector(data)
 /// inspect(arr, content="<4 x i8> <i8 42, i8 63, i8 77, i8 89>")
@@ -1122,7 +1075,6 @@ pub fn Context::getConstInt8Vector(
 ///
 /// ```mbt test
 /// let ctx = Context::new()
-///
 /// let data : Array[Int16] = [42, 63, 77, 89]
 /// let arr = ctx.getConstInt16Vector(data)
 /// inspect(arr, content="<4 x i16> <i16 42, i16 63, i16 77, i16 89>")
@@ -1143,7 +1095,6 @@ pub fn Context::getConstInt16Vector(
 ///
 /// ```mbt test
 /// let ctx = Context::new()
-///
 /// let data : Array[Int] = [42, 63, 77, 89]
 /// let arr = ctx.getConstInt32Vector(data)
 /// inspect(arr, content="<4 x i32> <i32 42, i32 63, i32 77, i32 89>")
@@ -1164,7 +1115,6 @@ pub fn Context::getConstInt32Vector(
 ///
 /// ```mbt test
 /// let ctx = Context::new()
-///
 /// let data : Array[Int64] = [42, 63, 77, 89]
 /// let arr = ctx.getConstInt64Vector(data)
 /// inspect(arr, content="<4 x i64> <i64 42, i64 63, i64 77, i64 89>")
@@ -1185,7 +1135,6 @@ pub fn Context::getConstInt64Vector(
 ///
 /// ```mbt test
 /// let ctx = Context::new()
-///
 /// let data : Array[Byte] = [42, 63, 77, 89]
 /// let arr = ctx.getConstUInt8Vector(data)
 /// inspect(arr, content="<4 x i8> <i8 42, i8 63, i8 77, i8 89>")
@@ -1205,7 +1154,6 @@ pub fn Context::getConstUInt8Vector(
 ///
 /// ```mbt test
 /// let ctx = Context::new()
-///
 /// let data : Array[UInt16] = [42, 63, 77, 89]
 /// let arr = ctx.getConstUInt16Vector(data)
 /// inspect(arr, content="<4 x i16> <i16 42, i16 63, i16 77, i16 89>")
@@ -1225,7 +1173,6 @@ pub fn Context::getConstUInt16Vector(
 ///
 /// ```mbt test
 /// let ctx = Context::new()
-///
 /// let data : Array[UInt] = [42, 63, 77, 89]
 /// let arr = ctx.getConstUInt32Vector(data)
 /// inspect(arr, content="<4 x i32> <i32 42, i32 63, i32 77, i32 89>")
@@ -1245,7 +1192,6 @@ pub fn Context::getConstUInt32Vector(
 ///
 /// ```mbt test
 /// let ctx = Context::new()
-///
 /// let data : Array[UInt64] = [42, 63, 77, 89]
 /// let arr = ctx.getConstUInt64Vector(data)
 /// inspect(arr, content="<4 x i64> <i64 42, i64 63, i64 77, i64 89>")
@@ -1265,12 +1211,11 @@ pub fn Context::getConstUInt64Vector(
 ///
 /// ```mbt test
 /// let ctx = Context::new()
-///
 /// let data : Array[Float] = [1.0, 2.0]
 /// let arr = ctx.getConstFloatVector(data)
 /// inspect(
 ///   arr,
-///   content="<2 x float> <float 0x3FF0000000000000, float 0x4000000000000000>"
+///   content="<2 x float> <float 0x3FF0000000000000, float 0x4000000000000000>",
 /// )
 /// ```
 pub fn Context::getConstFloatVector(
@@ -1288,13 +1233,11 @@ pub fn Context::getConstFloatVector(
 ///
 /// ```mbt test
 /// let ctx = Context::new()
-///
 /// let data : Array[Double] = [1.0, 2.0]
 /// let arr = ctx.getConstDoubleVector(data)
-///
 /// inspect(
 ///   arr,
-///   content="<2 x double> <double 0x3FF0000000000000, double 0x4000000000000000>"
+///   content="<2 x double> <double 0x3FF0000000000000, double 0x4000000000000000>",
 /// )
 /// ```
 pub fn Context::getConstDoubleVector(
