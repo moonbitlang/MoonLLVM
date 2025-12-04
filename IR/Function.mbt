@@ -251,10 +251,10 @@ fn Function::new(
 ) -> Function {
   let uid = valueUIDAssigner.assign()
   let users = []
-  let arguments = Array::new()
+  let arguments = []
   let symbols = Map::new()
   let attrSet = AttributeSet::new()
-  let basicBlocks = Array::new()
+  let basicBlocks = []
   let f = Function::{
     uid,
     fty,
@@ -549,7 +549,7 @@ pub impl GlobalValue for Function with asGlobalValueEnum(self) {
 
 ///|
 pub fn Function::removeUnreachableBlocks(self : Function) -> Unit {
-  let remove_list = Array::new()
+  let remove_list = []
   for i, bb in self.basicBlocks {
     if i == 0 {
       continue

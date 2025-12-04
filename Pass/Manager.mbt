@@ -19,7 +19,7 @@ pub fn PassManager::create(level : OptLevel) -> PassManager {
 
 ///|
 pub fn PassManager::createEmpty() -> PassManager {
-  PassManager::{ function_passes: Array::new() }
+  PassManager::{ function_passes: [] }
 }
 
 ///|

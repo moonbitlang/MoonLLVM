@@ -46,7 +46,7 @@ pub fn Context::new() -> Context {
   pointerTypes.set(addr0, PointerType::new(ctx, addressSpace=addr0))
   // Initialize the LLVMContextImpl.
   let pimpl = LLVMContextImpl::{
-    ownedPrograms: Array::new(),
+    ownedPrograms: [],
     half_ty: HalfType::new(ctx),
     bfloat_ty: BFloatType::new(ctx),
     float_ty: FloatType::new(ctx),

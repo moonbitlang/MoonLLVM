@@ -2991,7 +2991,7 @@ pub impl Instruction for GetElementPtrInst with getParent(self) {
 pub impl Show for GetElementPtrInst with output(self, logger) {
   let repr = self.getValueRepr()
   let ptr_repr = self.ptr.getValueRepr()
-  let indices_reprs = Array::new()
+  let indices_reprs = []
   self.indices.each(index => indices_reprs.push(
     "\{index.getType()} \{index.getValueRepr()}",
   ))
@@ -4565,7 +4565,7 @@ pub impl Show for PHINode with output(self, logger) {
   let ty = self.getType()
   let str = "  \{repr} = phi \{ty}"
   let num_incoming = self.getNumIncomingValues()
-  let incoming_strs = Array::new()
+  let incoming_strs = []
   for i = 0; i < num_incoming; i = i + 1 {
     if self.getIncoming(i) is Some((value, block)) {
       let value_repr = value.getValueRepr()
@@ -4942,7 +4942,7 @@ pub impl User for CallInst with asUserEnum(self) {
 
 ///|
 pub impl User for CallInst with getUserBase(self) {
-  let operands : Array[&Value] = Array::new()
+  let operands : Array[&Value] = []
   match self.callee {
     Left(func) => operands.push(func)
     Right(val) => operands.push(val)
@@ -4985,7 +4985,7 @@ pub impl Show for CallInst with output(self, logger) {
   } else {
     " " + ret_attrs.iter().map(fn(a) { "\{a}" }).join(" ")
   }
-  let arg_strs = Array::new()
+  let arg_strs = []
   for idx, arg in self.args {
     let arg_ty = arg.getType()
     let arg_repr = arg.getValueRepr()

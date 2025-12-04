@@ -68,7 +68,7 @@ priv struct MDAttachments {
 /// FIXME: eliminate this function.
 /// This is only for eliminate warning.
 pub fn warning_elimination() -> Unit {
-  MDNode::{ metadata: Array::new() } |> ignore()
-  let mda = MDAttachments::{ attachments: Array::new() }
+  MDNode::{ metadata: [] } |> ignore()
+  let mda = MDAttachments::{ attachments: [] }
   mda.attachments.length() |> ignore()
 }

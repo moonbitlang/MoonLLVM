@@ -5,28 +5,25 @@
 ///
 /// Use `Function::addBasicBlock` to create a new `BasicBlock`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
-///
 /// let i32_ty = ctx.getInt32Ty()
-///
 /// let fty = ctx.getFunctionType(i32_ty, [])
 /// let fval = mod.addFunction(fty, "ret_42")
-///
 /// let bb = fval.addBasicBlock(name="entry")
 /// builder.setInsertPoint(bb)
-///
 /// let forty_two = ctx.getConstInt32(42)
 /// let _ = builder.createRet(forty_two)
-///
-/// let expect =
-///   #|entry:
-///   #|  ret i32 42
-///   #|
-///
-/// inspect(bb, content=expect)
+/// inspect(
+///   bb,
+///   content=(
+///     #|entry:
+///     #|  ret i32 42
+///     #|
+///   ),
+/// )
 /// ```
 pub struct BasicBlock {
   uid : UInt64
