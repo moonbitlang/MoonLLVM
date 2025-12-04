@@ -8,7 +8,7 @@
 
 ///|
 test "ConstantFP truncation (fptrunc)" {
-  let ctx = @IR.Context::new()
+  let ctx = Context::new()
 
   // Test double to float truncation
   let f64_pi = ctx.getConstDouble(3.14159265359)
@@ -29,7 +29,7 @@ test "ConstantFP truncation (fptrunc)" {
 
 ///|
 test "ConstantFP extension (fpext)" {
-  let ctx = @IR.Context::new()
+  let ctx = Context::new()
 
   // Test float to double extension
   let f32_1_5 = ctx.getConstFloat(1.5)
@@ -47,19 +47,19 @@ test "ConstantFP extension (fpext)" {
 
 ///|
 test "PointerType with different address spaces" {
-  let ctx = @IR.Context::new()
+  let ctx = Context::new()
 
   // Default address space (0)
   let ptr_ty_0 = ctx.getPtrTy()
   inspect(ptr_ty_0, content="ptr")
 
   // Address space 1
-  let addr_space_1 = @IR.AddressSpace::new(1)
+  let addr_space_1 = AddressSpace::new(1)
   let ptr_ty_1 = ctx.getPtrTy(addressSpace=addr_space_1)
   inspect(ptr_ty_1, content="ptr")
 
   // Address space 2
-  let addr_space_2 = @IR.AddressSpace::new(2)
+  let addr_space_2 = AddressSpace::new(2)
   let ptr_ty_2 = ctx.getPtrTy(addressSpace=addr_space_2)
   inspect(ptr_ty_2, content="ptr")
 
@@ -74,7 +74,7 @@ test "PointerType with different address spaces" {
 
 ///|
 test "Module getFunction" {
-  let ctx = @IR.Context::new()
+  let ctx = Context::new()
   let prog = ctx.addModule("test_module")
   let i32ty = ctx.getInt32Ty()
   let fty = ctx.getFunctionType(i32ty, [i32ty])
@@ -94,7 +94,7 @@ test "Module getFunction" {
 
 ///|
 test "Module addGlobalVariable with initializer" {
-  let ctx = @IR.Context::new()
+  let ctx = Context::new()
   let prog = ctx.addModule("test_module")
   let i32ty = ctx.getInt32Ty()
 
@@ -110,7 +110,7 @@ test "Module addGlobalVariable with initializer" {
 
 ///|
 test "Module addGlobalConstant" {
-  let ctx = @IR.Context::new()
+  let ctx = Context::new()
   let prog = ctx.addModule("test_module")
   let i32ty = ctx.getInt32Ty()
 
@@ -122,7 +122,7 @@ test "Module addGlobalConstant" {
 
 ///|
 test "Module addGlobalString" {
-  let ctx = @IR.Context::new()
+  let ctx = Context::new()
   let prog = ctx.addModule("test_module")
 
   // Add global string
@@ -146,7 +146,7 @@ test "Module addGlobalString" {
 
 ///|
 test "Context getLabelTy and getMetadataTy" {
-  let ctx = @IR.Context::new()
+  let ctx = Context::new()
 
   // Get label type
   let label_ty = ctx.getLabelTy()
@@ -159,7 +159,7 @@ test "Context getLabelTy and getMetadataTy" {
 
 ///|
 test "Context getFP128Ty and getTokenTy" {
-  let ctx = @IR.Context::new()
+  let ctx = Context::new()
 
   // Get FP128 type
   let fp128_ty = ctx.getFP128Ty()
@@ -176,7 +176,7 @@ test "Context getFP128Ty and getTokenTy" {
 
 ///|
 test "IRBuilder createSRem instruction" {
-  let ctx = @IR.Context::new()
+  let ctx = Context::new()
   let prog = ctx.addModule("test_srem")
   let builder = ctx.createBuilder()
   let i32ty = ctx.getInt32Ty()
@@ -200,7 +200,7 @@ test "IRBuilder createSRem instruction" {
 
 ///|
 test "IRBuilder createURem instruction" {
-  let ctx = @IR.Context::new()
+  let ctx = Context::new()
   let prog = ctx.addModule("test_urem")
   let builder = ctx.createBuilder()
   let i32ty = ctx.getInt32Ty()
@@ -224,7 +224,7 @@ test "IRBuilder createURem instruction" {
 
 ///|
 test "IRBuilder createUDiv instruction" {
-  let ctx = @IR.Context::new()
+  let ctx = Context::new()
   let prog = ctx.addModule("test_udiv")
   let builder = ctx.createBuilder()
   let i32ty = ctx.getInt32Ty()
@@ -248,7 +248,7 @@ test "IRBuilder createUDiv instruction" {
 
 ///|
 test "IRBuilder createExactUDiv instruction" {
-  let ctx = @IR.Context::new()
+  let ctx = Context::new()
   let prog = ctx.addModule("test_exact_udiv")
   let builder = ctx.createBuilder()
   let i32ty = ctx.getInt32Ty()
@@ -272,7 +272,7 @@ test "IRBuilder createExactUDiv instruction" {
 
 ///|
 test "IRBuilder createExactSDiv instruction" {
-  let ctx = @IR.Context::new()
+  let ctx = Context::new()
   let prog = ctx.addModule("test_exact_sdiv")
   let builder = ctx.createBuilder()
   let i32ty = ctx.getInt32Ty()
@@ -300,7 +300,7 @@ test "IRBuilder createExactSDiv instruction" {
 
 ///|
 test "IRBuilder createNeg instruction" {
-  let ctx = @IR.Context::new()
+  let ctx = Context::new()
   let prog = ctx.addModule("test_neg")
   let builder = ctx.createBuilder()
   let i32ty = ctx.getInt32Ty()
@@ -327,7 +327,7 @@ test "IRBuilder createNeg instruction" {
 
 ///|
 test "ConstantInt isMaxValue and isMinValue" {
-  let ctx = @IR.Context::new()
+  let ctx = Context::new()
 
   // Test i8 max value (127)
   let i8_max = ctx.getConstInt8(127)
@@ -368,25 +368,25 @@ test "ConstantInt isMaxValue and isMinValue" {
 
 ///|
 test "ConstantInt comparison predicates" {
-  let ctx = @IR.Context::new()
+  let ctx = Context::new()
   let i32_5 = ctx.getConstInt32(5)
   let i32_10 = ctx.getConstInt32(10)
   let i32_m5 = ctx.getConstInt32(-5)
 
   // Test EQ and NE
   let i32_5_dup = ctx.getConstInt32(5)
-  inspect(i32_5.compare(@IR.EQ, i32_5_dup), content="i1 true")
-  inspect(i32_5.compare(@IR.NE, i32_10), content="i1 true")
-  inspect(i32_5.compare(@IR.EQ, i32_10), content="i1 false")
+  inspect(i32_5.compare(EQ, i32_5_dup), content="i1 true")
+  inspect(i32_5.compare(NE, i32_10), content="i1 true")
+  inspect(i32_5.compare(EQ, i32_10), content="i1 false")
 
   // Test SGE and SLE
-  inspect(i32_10.compare(@IR.SGE, i32_5), content="i1 true")
-  inspect(i32_5.compare(@IR.SGE, i32_5_dup), content="i1 true")
-  inspect(i32_5.compare(@IR.SLE, i32_10), content="i1 true")
+  inspect(i32_10.compare(SGE, i32_5), content="i1 true")
+  inspect(i32_5.compare(SGE, i32_5_dup), content="i1 true")
+  inspect(i32_5.compare(SLE, i32_10), content="i1 true")
 
   // Test signed vs unsigned comparisons with negative numbers
-  inspect(i32_m5.compare(@IR.SLT, i32_5), content="i1 true") // -5 < 5 (signed)
-  inspect(i32_m5.compare(@IR.UGT, i32_5), content="i1 true") // -5 as unsigned is very large
+  inspect(i32_m5.compare(SLT, i32_5), content="i1 true") // -5 < 5 (signed)
+  inspect(i32_m5.compare(UGT, i32_5), content="i1 true") // -5 as unsigned is very large
 }
 
 // ====================================================================
@@ -395,27 +395,27 @@ test "ConstantInt comparison predicates" {
 
 ///|
 test "ConstantFP comparison with NaN" {
-  let ctx = @IR.Context::new()
+  let ctx = Context::new()
   let f32_1 = ctx.getConstFloat(1.0)
   let f32_2 = ctx.getConstFloat(2.0)
   let f32_nan = ctx.getConstNaNFloat()
 
   // Ordered comparisons (return false if either is NaN)
-  inspect(f32_1.compare(@IR.OLT, f32_2), content="i1 true")
-  inspect(f32_nan.compare(@IR.OLT, f32_2), content="i1 false")
-  inspect(f32_1.compare(@IR.OLT, f32_nan), content="i1 false")
+  inspect(f32_1.compare(OLT, f32_2), content="i1 true")
+  inspect(f32_nan.compare(OLT, f32_2), content="i1 false")
+  inspect(f32_1.compare(OLT, f32_nan), content="i1 false")
 
   // Unordered comparisons (return true if either is NaN)
-  inspect(f32_nan.compare(@IR.ULT, f32_2), content="i1 true")
-  inspect(f32_1.compare(@IR.ULT, f32_nan), content="i1 true")
+  inspect(f32_nan.compare(ULT, f32_2), content="i1 true")
+  inspect(f32_1.compare(ULT, f32_nan), content="i1 true")
 
   // ORD (true if neither is NaN)
-  inspect(f32_1.compare(@IR.ORD, f32_2), content="i1 true")
-  inspect(f32_nan.compare(@IR.ORD, f32_2), content="i1 false")
+  inspect(f32_1.compare(ORD, f32_2), content="i1 true")
+  inspect(f32_nan.compare(ORD, f32_2), content="i1 false")
 
   // UNO (true if either is NaN)
-  inspect(f32_nan.compare(@IR.UNO, f32_2), content="i1 true")
-  inspect(f32_1.compare(@IR.UNO, f32_2), content="i1 false")
+  inspect(f32_nan.compare(UNO, f32_2), content="i1 true")
+  inspect(f32_1.compare(UNO, f32_2), content="i1 false")
 }
 
 // ====================================================================
@@ -424,7 +424,7 @@ test "ConstantFP comparison with NaN" {
 
 ///|
 test "BasicBlock predecessor tracking" {
-  let ctx = @IR.Context::new()
+  let ctx = Context::new()
   let prog = ctx.addModule("test_preds")
   let builder = ctx.createBuilder()
   let void_ty = ctx.getVoidTy()
@@ -480,7 +480,7 @@ test "BasicBlock predecessor tracking" {
 
 ///|
 test "IRBuilder createFRem instruction" {
-  let ctx = @IR.Context::new()
+  let ctx = Context::new()
   let prog = ctx.addModule("test_frem")
   let builder = ctx.createBuilder()
   let f32ty = ctx.getFloatTy()
@@ -508,13 +508,13 @@ test "IRBuilder createFRem instruction" {
 
 ///|
 test "ConstantStruct creation and access" {
-  let ctx = @IR.Context::new()
+  let ctx = Context::new()
   let i32ty = ctx.getInt32Ty()
   let f32ty = ctx.getFloatTy()
   let sty = ctx.getStructType([i32ty, f32ty])
   let i32_val = ctx.getConstInt32(42)
   let f32_val = ctx.getConstFloat(3.14)
-  let struct_val = @IR.ConstantStruct::new(sty, [i32_val, f32_val])
+  let struct_val = ConstantStruct::new(sty, [i32_val, f32_val])
 
   // Test output
   inspect(
@@ -544,7 +544,7 @@ test "ConstantStruct creation and access" {
 
 ///|
 test "IRBuilder ICmp predicates" {
-  let ctx = @IR.Context::new()
+  let ctx = Context::new()
   let prog = ctx.addModule("test_icmp")
   let builder = ctx.createBuilder()
   let i32ty = ctx.getInt32Ty()
@@ -603,7 +603,7 @@ test "IRBuilder ICmp predicates" {
 
 ///|
 test "IRBuilder FCmp predicates" {
-  let ctx = @IR.Context::new()
+  let ctx = Context::new()
   let prog = ctx.addModule("test_fcmp")
   let builder = ctx.createBuilder()
   let f32ty = ctx.getFloatTy()
@@ -641,7 +641,7 @@ test "IRBuilder FCmp predicates" {
 
 ///|
 test "ConstantArray of i8 with special values" {
-  let ctx = @IR.Context::new()
+  let ctx = Context::new()
   let data : Array[Int] = [0, 127, -128, -1]
   let arr = ctx.getConstInt8Array(data)
   inspect(arr, content="[4 x i8] [i8 0, i8 127, i8 -128, i8 -1]")
@@ -649,7 +649,7 @@ test "ConstantArray of i8 with special values" {
 
 ///|
 test "ConstantVector of i8" {
-  let ctx = @IR.Context::new()
+  let ctx = Context::new()
   let data : Array[Int] = [1, 2, 3, 4]
   let vec = ctx.getConstInt8Vector(data)
   inspect(vec, content="<4 x i8> <i8 1, i8 2, i8 3, i8 4>")
@@ -661,7 +661,7 @@ test "ConstantVector of i8" {
 
 ///|
 test "IRBuilder getInsertBlock and getInsertFunction" {
-  let ctx = @IR.Context::new()
+  let ctx = Context::new()
   let prog = ctx.addModule("test_builder")
   let builder = ctx.createBuilder()
   let void_ty = ctx.getVoidTy()
@@ -693,7 +693,7 @@ test "IRBuilder getInsertBlock and getInsertFunction" {
 
 ///|
 test "Function with void return" {
-  let ctx = @IR.Context::new()
+  let ctx = Context::new()
   let prog = ctx.addModule("test_void")
   let builder = ctx.createBuilder()
   let void_ty = ctx.getVoidTy()
@@ -723,12 +723,12 @@ test "Function with void return" {
 
 ///|
 test "ConstantPointerNull" {
-  let ctx = @IR.Context::new()
+  let ctx = Context::new()
   let null_ptr = ctx.getConstPointerNull(ctx.getPtrTy())
   inspect(null_ptr, content="ptr null")
 
-  // Test with different address space
-  let null_ptr_as1 = ctx.getConstPointerNull(ctx.getPtrTy(), addressSpace=1)
+  // Test with different address space using raw UInt
+  let null_ptr_as1 = ctx.getConstPointerNull(ctx.getPtrTy(), addressSpace=1U)
   inspect(null_ptr_as1, content="ptr null")
 }
 
@@ -738,50 +738,50 @@ test "ConstantPointerNull" {
 
 ///|
 test "Context getConstZero" {
-  let ctx = @IR.Context::new()
+  let ctx = Context::new()
 
   // Integer types
   let zero_i8 = ctx.getConstZero(ctx.getInt8Ty())
-  guard zero_i8.asConstantEnum() is @IR.ConstantInt(ci)
+  guard zero_i8.asConstantEnum() is ConstantInt(ci)
   assert_eq(ci.getValueAsInt64(), 0)
 
   let zero_i32 = ctx.getConstZero(ctx.getInt32Ty())
-  guard zero_i32.asConstantEnum() is @IR.ConstantInt(ci32)
+  guard zero_i32.asConstantEnum() is ConstantInt(ci32)
   assert_eq(ci32.getValueAsInt64(), 0)
 
   // Floating point types
   let zero_f32 = ctx.getConstZero(ctx.getFloatTy())
-  guard zero_f32.asConstantEnum() is @IR.ConstantFP(cf32)
+  guard zero_f32.asConstantEnum() is ConstantFP(cf32)
   assert_eq(cf32.getValue(), 0.0)
 
   let zero_f64 = ctx.getConstZero(ctx.getDoubleTy())
-  guard zero_f64.asConstantEnum() is @IR.ConstantFP(cf64)
+  guard zero_f64.asConstantEnum() is ConstantFP(cf64)
   assert_eq(cf64.getValue(), 0.0)
 
   // Pointer type
   let zero_ptr = ctx.getConstZero(ctx.getPtrTy())
-  assert_true(zero_ptr.asConstantEnum() is @IR.ConstantPointerNull(_))
+  assert_true(zero_ptr.asConstantEnum() is ConstantPointerNull(_))
 }
 
 ///|
 test "Context getConstOne" {
-  let ctx = @IR.Context::new()
+  let ctx = Context::new()
 
   // Integer types
   let one_i8 = ctx.getConstOne(ctx.getInt8Ty())
-  guard one_i8.asConstantEnum() is @IR.ConstantInt(ci)
+  guard one_i8.asConstantEnum() is ConstantInt(ci)
   assert_eq(ci.getValueAsInt64(), 1)
 
   let one_i32 = ctx.getConstOne(ctx.getInt32Ty())
-  guard one_i32.asConstantEnum() is @IR.ConstantInt(ci32)
+  guard one_i32.asConstantEnum() is ConstantInt(ci32)
   assert_eq(ci32.getValueAsInt64(), 1)
 
   // Floating point types
   let one_f32 = ctx.getConstOne(ctx.getFloatTy())
-  guard one_f32.asConstantEnum() is @IR.ConstantFP(cf32)
+  guard one_f32.asConstantEnum() is ConstantFP(cf32)
   assert_eq(cf32.getValue(), 1.0)
 
   let one_f64 = ctx.getConstOne(ctx.getDoubleTy())
-  guard one_f64.asConstantEnum() is @IR.ConstantFP(cf64)
+  guard one_f64.asConstantEnum() is ConstantFP(cf64)
   assert_eq(cf64.getValue(), 1.0)
 }
