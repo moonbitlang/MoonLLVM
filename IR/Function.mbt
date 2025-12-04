@@ -7,7 +7,7 @@
 ///
 /// - See `llvm::Argument`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let prog = ctx.addModule("demo")
 ///
@@ -54,7 +54,7 @@ fn Argument::new(vty : &Type, argNo : UInt, parent : Function) -> Argument {
 ///
 /// - See `llvm::Argument::addAttribute`.
 ///
-/// ```moonbit`
+/// ```mbt test`
 /// let ctx = Context::new()
 /// let prog = ctx.addModule("demo")
 ///
@@ -118,7 +118,7 @@ pub impl Value for Argument with getName(self : Argument) -> String? {
 ///
 /// - See `llvm::Argument::setName`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let prog = ctx.addModule("demo")
 ///

@@ -9,7 +9,7 @@
 /// 
 /// Use `IRBuilder::createAlloca` to create an `AllocaInst`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -76,7 +76,7 @@ pub impl Value for AllocaInst with getValueBase(self) {
 ///|
 /// Get simple representation of the value.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -115,7 +115,7 @@ pub impl Value for AllocaInst with asValueEnum(self) {
 ///
 /// If the instruction has no name, return `None`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -146,7 +146,7 @@ pub impl Value for AllocaInst with getName(self) {
 /// If the name has already been used in the parent function,
 /// it will raise Error.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -275,7 +275,7 @@ pub impl Show for AtomicOrdering with output(self, logger) {
 ///
 /// Use `IRBuilder::createLoad` to create a `LoadInst`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -374,7 +374,7 @@ pub impl Value for LoadInst with getValueBase(self) {
 ///|
 /// Get simple representation of the value.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -410,7 +410,7 @@ pub impl Value for LoadInst with getValueRepr(self) {
 ///
 /// If the instruction has no name, return `None`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -443,7 +443,7 @@ pub impl Value for LoadInst with getName(self) {
 /// If the name has already been used in the parent function,
 /// it will raise Error.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -571,7 +571,7 @@ pub impl Show for LoadInst with output(self, logger) {
 ///
 /// Use `IRBuilder::createStore` to create a `StoreInst`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -657,7 +657,7 @@ fn StoreInst::new(
 ///|
 /// Get the value operand of the store instruction.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -690,7 +690,7 @@ pub fn StoreInst::getValueOperand(self : StoreInst) -> &Value {
 ///|
 /// Get the pointer operand of the store instruction.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -1088,7 +1088,7 @@ pub impl Show for FastMathFlag with output(self, logger) {
 ///
 /// Use `IRBuilder::createAdd`, `IRBuilder::createSub`, `IRBuilder::createMul`, etc. to create binary instructions.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -1263,7 +1263,7 @@ pub impl Value for BinaryInst with asValueEnum(self) {
 ///|
 /// Get simple representation of the value.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -1300,7 +1300,7 @@ pub impl Value for BinaryInst with getValueRepr(self) {
 ///
 /// If the instruction has no name, return `None`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -1334,7 +1334,7 @@ pub impl Value for BinaryInst with getName(self) {
 /// If the name has already been used in the parent function,
 /// it will raise Error.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -1504,7 +1504,7 @@ pub impl Show for IntPredicate with output(self, logger) {
 ///
 /// Use `IRBuilder::createICmp` to create an `ICmpInst`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -1599,7 +1599,7 @@ pub impl Value for ICmpInst with asValueEnum(self) {
 ///|
 /// Get simple representation of the value.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -1635,7 +1635,7 @@ pub impl Value for ICmpInst with getValueRepr(self) {
 ///
 /// If the instruction has no name, return `None`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -1668,7 +1668,7 @@ pub impl Value for ICmpInst with getName(self) {
 /// If the name has already been used in the parent function,
 /// it will raise Error.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -1843,7 +1843,7 @@ pub impl Show for FloatPredicate with output(self, logger) {
 ///
 /// Use `IRBuilder::createFCmp` to create an `FCmpInst`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -1929,7 +1929,7 @@ pub impl Value for FCmpInst with getValueBase(self) {
 ///|
 /// Get simple representation of the value.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -1970,7 +1970,7 @@ pub impl Value for FCmpInst with asValueEnum(self) {
 ///
 /// If the instruction has no name, return `None`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -2003,7 +2003,7 @@ pub impl Value for FCmpInst with getName(self) {
 /// If the name has already been used in the parent function,
 /// it will raise Error.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -2156,7 +2156,7 @@ pub impl Show for CastOps with output(self, logger) {
 ///
 /// Use `IRBuilder::createTrunc`, `IRBuilder::createZExt`, `IRBuilder::createSExt`, etc. to create cast instructions.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -2535,7 +2535,7 @@ pub impl Value for CastInst with getValueBase(self) {
 ///|
 /// Get simple representation of the value.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -2576,7 +2576,7 @@ pub impl Value for CastInst with asValueEnum(self) {
 ///
 /// If the instruction has no name, return `None`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -2609,7 +2609,7 @@ pub impl Value for CastInst with getName(self) {
 /// If the name has already been used in the parent function,
 /// it will raise Error.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -2730,7 +2730,7 @@ pub impl Show for CastInst with output(self, logger) {
 ///
 /// Use `IRBuilder::createGEP` to create a `GetElementPtrInst`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -2810,7 +2810,7 @@ pub impl Value for GetElementPtrInst with getValueBase(self) {
 ///|
 /// Get simple representation of the value.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -2854,7 +2854,7 @@ pub impl Value for GetElementPtrInst with asValueEnum(self) {
 ///
 /// If the instruction has no name, return `None`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -2890,7 +2890,7 @@ pub impl Value for GetElementPtrInst with getName(self) {
 /// If the name has already been used in the parent function,
 /// it will raise Error.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -3017,7 +3017,7 @@ pub impl Show for GetElementPtrInst with output(self, logger) {
 ///
 /// Use `IRBuilder::createSelect` to create a `SelectInst`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -3109,7 +3109,7 @@ pub impl Value for SelectInst with getValueBase(self) {
 ///|
 /// Get simple representation of the value.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -3152,7 +3152,7 @@ pub impl Value for SelectInst with asValueEnum(self) {
 ///
 /// If the instruction has no name, return `None`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -3187,7 +3187,7 @@ pub impl Value for SelectInst with getName(self) {
 /// If the name has already been used in the parent function,
 /// it will raise Error.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -3310,7 +3310,7 @@ pub impl Show for SelectInst with output(self, logger) {
 ///
 /// Use `IRBuilder::createRet` or `IRBuilder::createRetVoid` to create a `ReturnInst`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -3453,7 +3453,7 @@ pub impl Show for ReturnInst with output(self, logger) {
 ///
 /// Use `IRBuilder::createBr` for unconditional branches or `IRBuilder::createCondBr` for conditional branches.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -3688,7 +3688,7 @@ pub impl Show for BranchInst with output(self, logger) {
 ///
 /// Use `IRBuilder::createSwitch` to create a `SwitchInst`, then use `SwitchInst::addCase` to add individual cases.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -3783,7 +3783,7 @@ pub fn SwitchInst::getNumCases(self : Self) -> Int {
 ///
 /// Returns `None` if the index is out of bounds. Use `SwitchInst::getNumCases` to get the total number of cases.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -3828,7 +3828,7 @@ pub fn SwitchInst::getCase(
 /// The case condition must be a constant integer with the same type as the switch condition.
 /// Will raise `LLVMValueError` if there is a type mismatch between the case condition and switch condition.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -4003,7 +4003,7 @@ pub impl Show for SwitchInst with output(self, logger) {
 ///
 /// Use `IRBuilder::createPHI` to create a `PHINode`, then use `PHINode::addIncoming` to add incoming values.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -4056,7 +4056,7 @@ fn PHINode::new(vty : &Type, parent : Function, name~ : String?) -> PHINode {
 ///
 /// Returns the total count of incoming value-block pairs added to this PHI node.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -4096,7 +4096,7 @@ pub fn PHINode::getNumIncomingValues(self : PHINode) -> Int {
 ///
 /// Returns `None` if the index is out of bounds. Use `PHINode::getNumIncomingValues` to get the valid range.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -4134,7 +4134,7 @@ pub fn PHINode::getIncomingValue(self : PHINode, idx : Int) -> &Value? {
 ///
 /// Returns `None` if the index is out of bounds. Use `PHINode::getNumIncomingValues` to get the valid range.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -4172,7 +4172,7 @@ pub fn PHINode::getIncomingBlock(self : PHINode, idx : Int) -> BasicBlock? {
 ///
 /// Returns `None` if the index is out of bounds. This is a convenience method that returns both the value and block together.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -4213,7 +4213,7 @@ pub fn PHINode::getIncoming(self : PHINode, idx : Int) -> (&Value, BasicBlock)? 
 ///
 /// Returns a copy of the internal array containing all value-block pairs in the order they were added.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -4254,7 +4254,7 @@ pub fn PHINode::getIncomings(self : PHINode) -> Array[(&Value, BasicBlock)] {
 ///
 /// Returns an array containing only the values from all incoming value-block pairs, in the order they were added.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -4294,7 +4294,7 @@ pub fn PHINode::getIncomingValues(self : PHINode) -> Array[&Value] {
 ///
 /// Returns an array containing only the basic blocks from all incoming value-block pairs, in the order they were added.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -4335,7 +4335,7 @@ pub fn PHINode::getIncomingBlocks(self : PHINode) -> Array[BasicBlock] {
 /// The value's type must match the PHI node's type. Will raise `LLVMValueError` if there is a type mismatch.
 /// The basic block represents the predecessor block from which this value flows into the PHI node.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -4392,7 +4392,7 @@ pub impl Value for PHINode with getValueBase(self) {
 ///|
 /// Get simple representation of the value.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -4426,7 +4426,7 @@ pub impl Value for PHINode with getValueRepr(self) {
 ///
 /// If the instruction has no name, return `None`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -4457,7 +4457,7 @@ pub impl Value for PHINode with getName(self) {
 /// If the name has already been used in the parent function,
 /// it will raise Error.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -4606,7 +4606,7 @@ pub impl Show for TailCallKind with output(self, logger) {
 ///
 /// Use `IRBuilder::createCall` to create a `CallInst`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -4780,7 +4780,7 @@ pub impl Value for CallInst with asValueEnum(self) {
 ///|
 /// Get simple representation of the value.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -4821,7 +4821,7 @@ pub impl Value for CallInst with getValueRepr(self) {
 ///
 /// If the instruction has no name, return `None`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -4871,7 +4871,7 @@ pub impl Value for CallInst with getNameOrSlot(self) {
 /// If the name has already been used in the parent function,
 /// it will raise Error. Cannot set name for CallInst with void return type.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -5056,7 +5056,7 @@ pub impl Show for CallInst with output(self, logger) {
 ///
 /// Use `IRBuilder::createExtractValue` to create an `ExtractValueInst`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -5139,7 +5139,7 @@ pub impl Value for ExtractValueInst with getValueBase(self) {
 ///|
 /// Get simple representation of the value.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -5180,7 +5180,7 @@ pub impl Value for ExtractValueInst with asValueEnum(self) {
 ///
 /// If the instruction has no name, return `None`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -5213,7 +5213,7 @@ pub impl Value for ExtractValueInst with getName(self) {
 /// If the name has already been used in the parent function,
 /// it will raise Error.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -5335,7 +5335,7 @@ pub impl Show for ExtractValueInst with output(self, logger) {
 ///
 /// Use `IRBuilder::createInsertValue` to create an `InsertValueInst`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -5435,7 +5435,7 @@ pub impl Value for InsertValueInst with asValueEnum(self) {
 ///|
 /// Get simple representation of the value.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -5472,7 +5472,7 @@ pub impl Value for InsertValueInst with getValueRepr(self) {
 ///
 /// If the instruction has no name, return `None`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -5506,7 +5506,7 @@ pub impl Value for InsertValueInst with getName(self) {
 /// If the name has already been used in the parent function,
 /// it will raise Error.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()

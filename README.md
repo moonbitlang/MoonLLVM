@@ -170,7 +170,7 @@ moon add Kaida-Amethyst/MoonLLVM
 
 A small example that creates a module with an `add` function:
 
-```moonbit
+```mbt check
 fn main {
   // 1. Set up the context and IR builder.
   let ctx = @IR.Context::new()
@@ -413,7 +413,7 @@ moon add Kaida-Amethyst/MoonLLVM
 
 下面是一个最小示例，创建一个 `add` 函数模块：
 
-```moonbit
+```mbt check
 fn main {
   // 1. 创建上下文和 IR builder。
   let ctx = @IR.Context::new()

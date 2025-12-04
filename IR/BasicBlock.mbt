@@ -52,7 +52,7 @@ fn BasicBlock::new(parent : Function, name~ : String?) -> BasicBlock {
 ///|
 /// Get the first instruction in the basic block.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
@@ -83,7 +83,7 @@ pub fn BasicBlock::firstInst(self : BasicBlock) -> &Instruction? {
 ///|
 /// Get the last instruction in the basic block.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()

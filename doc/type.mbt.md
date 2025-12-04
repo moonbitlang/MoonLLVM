@@ -2,7 +2,7 @@
 
 Initial a new type.
 
-```moonbit
+```mbt check
 ///|
 test "Init Type" {
   let ctx = @IR.Context::new()

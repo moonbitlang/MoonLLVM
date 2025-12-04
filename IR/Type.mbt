@@ -474,7 +474,7 @@ impl Type with tryAsAbstractTypeEnum(self) -> AbstractTypeEnum? {
 ///|
 /// Collection of Int1Type, Int8Type, Int16Type, Int32Type, Int64Type
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let i8ty :&IntegerType = ctx.getInt8Ty()
@@ -985,7 +985,7 @@ pub impl PrimitiveType for FP128Type with asPrimitiveTypeEnum(self) -> Primitive
 ///
 /// - See LLVM: `Type::getInt1Ty`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// inspect(ctx.getInt1Ty(), content="i1")
@@ -1033,7 +1033,7 @@ pub impl PrimitiveType for Int1Type with asPrimitiveTypeEnum(self) -> PrimitiveT
 ///
 /// - See LLVM: `Type::getInt8Ty`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// inspect(ctx.getInt8Ty(), content="i8")
@@ -1086,7 +1086,7 @@ pub impl PrimitiveType for Int8Type with asPrimitiveTypeEnum(self) -> PrimitiveT
 ///
 /// - See LLVM: `Type::getInt16Ty`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// inspect(ctx.getInt16Ty(), content="i16")
@@ -1139,7 +1139,7 @@ pub impl PrimitiveType for Int16Type with asPrimitiveTypeEnum(self) -> Primitive
 ///
 /// - See LLVM: `Type::getInt32Ty`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// inspect(ctx.getInt32Ty(), content="i32")
@@ -1192,7 +1192,7 @@ pub impl PrimitiveType for Int32Type with asPrimitiveTypeEnum(self) -> Primitive
 ///
 /// - See LLVM: `Type::getInt64Ty`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// inspect(ctx.getInt64Ty(), content="i64")
@@ -1246,7 +1246,7 @@ pub struct VoidType {
 ///
 /// - See LLVM: `Type::getVoidTy`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let voidty = ctx.getVoidTy()
 /// inspect(voidty, content="void")
@@ -1290,7 +1290,7 @@ pub struct LabelType {
 ///
 /// - See LLVM: `Type::getLabelTy`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let labelty = ctx.getLabelTy()
 /// inspect(labelty, content="label")
@@ -1333,7 +1333,7 @@ pub struct MetadataType {
 ///
 /// - See LLVM: `Type::getMetadataTy`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let metadataty = ctx.getMetadataTy()
 /// inspect(metadataty, content="metadata")
@@ -1377,7 +1377,7 @@ pub struct TokenType {
 ///
 /// - See LLVM: `Type::getTokenTy`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let tokenty = ctx.getTokenTy()
 /// inspect(tokenty, content="token")
@@ -1415,7 +1415,7 @@ pub impl AbstractType for TokenType with asAbstractTypeEnum(self) -> AbstractTyp
 ///
 /// See LLVM: `FunctionType::FunctionType`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let int32ty = ctx.getInt32Ty()
 /// let voidty = ctx.getVoidTy()
@@ -1544,7 +1544,7 @@ pub impl AbstractType for FunctionType with asAbstractTypeEnum(self) -> Abstract
 ///
 /// - See LLVM: `StructType::get`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let i8ty = ctx.getInt8Ty()
@@ -1609,7 +1609,7 @@ fn StructType::new(
 ///
 /// - See LLVM: `StructType::isLiteral`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let i32ty = ctx.getInt32Ty()
 /// let f32ty = ctx.getFloatTy()
@@ -1631,7 +1631,7 @@ pub fn StructType::isLiteral(self : StructType) -> Bool {
 ///
 /// - See LLVM: `StructType::isOpaque`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let i32ty = ctx.getInt32Ty()
 /// let f32ty = ctx.getFloatTy()
@@ -1840,7 +1840,7 @@ pub impl AggregateType for StructType with asAggregateTypeEnum(self) -> Aggregat
 ///
 /// - See LLVM: `ArrayType::get`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let i32ty = ctx.getInt32Ty()
@@ -1917,7 +1917,7 @@ pub impl AggregateType for ArrayType with asAggregateTypeEnum(self) -> Aggregate
 ///
 /// - See LLVM: `VectorType::get`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let i32ty = ctx.getInt32Ty()
@@ -1998,7 +1998,7 @@ pub impl AggregateType for VectorType with asAggregateTypeEnum(self) -> Aggregat
 ///
 /// - See LLVM: `ScalableVectorType::get`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let f32ty = ctx.getFloatTy()
@@ -2093,7 +2093,7 @@ pub fn AddressSpace::new(v : UInt) -> AddressSpace {
 /// In Moonbit Aether framework, we follow the design of LLVM20, so all pointer is
 /// also opaque pointer, and will not mark type for pointer.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// inspect(ctx.getPtrTy(), content="ptr")

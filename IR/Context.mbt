@@ -105,7 +105,7 @@ pub fn Context::createBuilder(self : Context) -> IRBuilder {
 ///
 /// - See LLVM: `Type::getHalfTy`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let half_ty = ctx.getHalfTy()
 /// inspect(half_ty, content="half")
@@ -119,7 +119,7 @@ pub fn Context::getHalfTy(self : Context) -> HalfType {
 ///
 /// - See LLVM: `Type::getBFloatTy`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let bfloat_ty = ctx.getBFloatTy()
 /// inspect(bfloat_ty, content="bfloat")
@@ -133,7 +133,7 @@ pub fn Context::getBFloatTy(self : Context) -> BFloatType {
 ///
 /// - See LLVM: `Type::getFloatTy`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let f32ty = ctx.getFloatTy()
 /// inspect(f32ty, content="float")
@@ -147,7 +147,7 @@ pub fn Context::getFloatTy(self : Context) -> FloatType {
 ///
 /// - See LLVM: `Type::getDoubleTy`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let doubletype = ctx.getDoubleTy()
 /// inspect(doubletype, content="double")
@@ -161,7 +161,7 @@ pub fn Context::getDoubleTy(self : Context) -> DoubleType {
 ///
 /// - See LLVM: `Type::getFP128Ty`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let fp128ty = ctx.getFP128Ty()
 /// inspect(fp128ty, content="fp128")
@@ -175,7 +175,7 @@ pub fn Context::getFP128Ty(self : Context) -> FP128Type {
 ///
 /// - See LLVM: `Type::getVoidTy`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let voidty = ctx.getVoidTy()
 /// inspect(voidty, content="void")
@@ -201,7 +201,7 @@ pub fn Context::getMetadataTy(self : Context) -> MetadataType {
 ///
 /// - See LLVM: `Type::getTokenTy`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let tokenty = ctx.getTokenTy()
 /// inspect(tokenty, content="token")
@@ -250,7 +250,7 @@ pub fn Context::getInt64Ty(self : Context) -> Int64Type {
 ///   After LLVM17, typed pointer has been deprecated. Therefore in 
 ///   Moonbit Aether framework, all pointer type is opaque.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// inspect(ctx.getPtrTy(), content="ptr")
@@ -282,7 +282,7 @@ pub fn Context::getPtrTy(
 ///
 /// - See LLVM: `FunctionType::get`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let voidty = ctx.getVoidTy()
 /// let i32ty = ctx.getInt32Ty()
@@ -311,7 +311,7 @@ pub fn Context::getFunctionType(
 ///
 /// - See LLVM: `StructType::create`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let i32ty = ctx.getInt32Ty()
 /// let f32ty = ctx.getFloatTy()
@@ -342,7 +342,7 @@ pub fn Context::getStructType(
 ///
 /// LLVM Cpp version has no this method, since llvm-cpp allow duplicated struct type names.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let i32ty = ctx.getInt32Ty()
 /// let f32ty = ctx.getFloatTy()
@@ -367,7 +367,7 @@ pub fn Context::getStructTypeByName(self : Self, name : String) -> StructType? {
 ///
 /// - See LLVM: `ArrayType::get`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let i32ty = ctx.getInt32Ty()
 ///
@@ -393,7 +393,7 @@ pub fn Context::getArrayType(
 ///
 /// - See LLVM: `VectorType::get`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let i32ty = ctx.getInt32Ty()
 ///
@@ -416,7 +416,7 @@ pub fn Context::getFixedVectorType(
 ///
 /// - See LLVM: `ScalableVectorType::get`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let i32ty = ctx.getInt32Ty()
 ///
@@ -436,7 +436,7 @@ pub fn Context::getScalableVectorType(
 ///
 /// - See LLVM: `ConstantInt::get`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// inspect(ctx.getConstInt8(0), content="i8 0")
 /// inspect(ctx.getConstInt8(1), content="i8 1")
@@ -452,7 +452,7 @@ pub fn Context::getConstInt8(self : Context, value : Int) -> ConstantInt {
 ///
 /// - See LLVM: `ConstantInt::get`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// inspect(ctx.getConstInt16(0), content="i16 0")
 /// inspect(ctx.getConstInt16(1), content="i16 1")
@@ -467,7 +467,7 @@ pub fn Context::getConstInt16(self : Context, value : Int16) -> ConstantInt {
 ///
 /// - See LLVM: `ConstantInt::get`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// inspect(ctx.getConstInt32(0), content="i32 0")
 /// inspect(ctx.getConstInt32(1), content="i32 1")
@@ -482,7 +482,7 @@ pub fn Context::getConstInt32(self : Context, value : Int) -> ConstantInt {
 ///
 /// - See LLVM: `ConstantInt::get`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// inspect(ctx.getConstInt64(0), content="i64 0")
 /// inspect(ctx.getConstInt64(1), content="i64 1")
@@ -497,7 +497,7 @@ pub fn Context::getConstInt64(self : Context, value : Int64) -> ConstantInt {
 ///
 /// - See LLVM: `ConstantInt::getTrue`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// inspect(ctx.getConstTrue(), content="i1 true")
 /// ```
@@ -510,7 +510,7 @@ pub fn Context::getConstTrue(self : Context) -> ConstantInt {
 ///
 /// - See LLVM: `ConstantInt::getFalse`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// inspect(ctx.getConstFalse(), content="i1 false")
 /// ```
@@ -523,7 +523,7 @@ pub fn Context::getConstFalse(self : Context) -> ConstantInt {
 ///
 /// - See LLVM: `ConstantInt::get`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// inspect(ctx.getConstBool(true), content="i1 true")
@@ -538,7 +538,7 @@ pub fn Context::getConstBool(self : Context, b : Bool) -> ConstantInt {
 ///
 /// - See LLVM: `ConstantFP::get`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let one = ctx.getConstFloat(1.0)
@@ -555,7 +555,7 @@ pub fn Context::getConstFloat(self : Context, value : Float) -> ConstantFP {
 ///
 /// - See LLVM: `ConstantFP::get`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let one = ctx.getConstDouble(1.0)
@@ -577,7 +577,7 @@ pub fn Context::getConstDouble(self : Context, value : Double) -> ConstantFP {
 ///
 ///  - `isNegative`: If true, create a negative zero constant.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let zero = ctx.getConstZeroFloat()
@@ -606,7 +606,7 @@ pub fn Context::getConstZeroFloat(
 ///
 /// - `isNegative`: If true, create a negative zero constant.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let zero = ctx.getConstZeroDouble()
@@ -635,7 +635,7 @@ pub fn Context::getConstZeroDouble(
 ///
 /// - `isNegative`: If true, create a negative zero constant.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let nan = ctx.getConstNaNDouble()
@@ -664,7 +664,7 @@ pub fn Context::getConstNaNFloat(
 ///
 /// - `isNegative`: If true, create a negative NaN constant.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let nan = ctx.getConstQNaNFloat()
@@ -693,7 +693,7 @@ pub fn Context::getConstQNaNFloat(
 ///
 /// - `isNegative`: If true, create a negative NaN constant.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let nan = ctx.getConstSNaNFloat()
@@ -722,7 +722,7 @@ pub fn Context::getConstSNaNFloat(
 ///
 /// - `isNegative`: If true, create a negative Infinity constant.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let inf = ctx.getConstInfFloat()
@@ -751,7 +751,7 @@ pub fn Context::getConstInfFloat(
 ///
 /// - `isNegative`: If true, create a negative NaN constant.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let nan = ctx.getConstNaNDouble()
@@ -780,7 +780,7 @@ pub fn Context::getConstNaNDouble(
 ///
 /// - `isNegative`: If true, create a negative NaN constant.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let nan = ctx.getConstQNaNDouble()
@@ -809,7 +809,7 @@ pub fn Context::getConstQNaNDouble(
 ///
 /// - `isNegative`: If true, create a negative NaN constant.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let nan = ctx.getConstSNaNDouble()
@@ -838,7 +838,7 @@ pub fn Context::getConstSNaNDouble(
 ///
 /// - `isNegative`: If true, create a negative Infinity constant.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let inf = ctx.getConstInfDouble()
@@ -868,7 +868,7 @@ pub fn Context::getConstInfDouble(
 /// - Core does not support `int8` currently, hence the type
 /// of parameter `data` is `Array[Int]`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let data : Array[Int] = [42, 63, 77, 89]
@@ -888,7 +888,7 @@ pub fn Context::getConstInt8Array(
 ///
 /// -  See LLVM: `ConstantDataArray::get`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let data : Array[Int16] = [42, 63, 77, 89]
@@ -908,7 +908,7 @@ pub fn Context::getConstInt16Array(
 ///
 /// -  See LLVM: `ConstantDataArray::get`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let data : Array[Int] = [42, 63, 77, 89]
@@ -928,7 +928,7 @@ pub fn Context::getConstInt32Array(
 ///
 /// -  See LLVM: `ConstantDataArray::get`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let data : Array[Int64] = [42, 63, 77, 89]
@@ -948,7 +948,7 @@ pub fn Context::getConstInt64Array(
 ///
 /// -  See LLVM: `ConstantDataArray::get`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let data : Array[Byte] = [42, 63, 77, 89]
@@ -969,7 +969,7 @@ pub fn Context::getConstUInt8Array(
 ///
 /// -  See LLVM: `ConstantDataArray::get`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let data : Array[UInt16] = [42, 63, 77, 89]
@@ -990,7 +990,7 @@ pub fn Context::getConstUInt16Array(
 ///
 /// -  See LLVM: `ConstantDataArray::get`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let data : Array[UInt] = [42, 63, 77, 89]
@@ -1011,7 +1011,7 @@ pub fn Context::getConstUInt32Array(
 ///
 /// -  See LLVM: `ConstantDataArray::get`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let data : Array[UInt64] = [42, 63, 77, 89]
@@ -1032,7 +1032,7 @@ pub fn Context::getConstUInt64Array(
 ///
 /// -  See LLVM: `ConstantDataArray::get`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let data : Array[Float] = [1.0, 2.0]
@@ -1056,7 +1056,7 @@ pub fn Context::getConstFloatArray(
 ///
 /// -  See LLVM: `ConstantDataArray::get`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let data : Array[Double] = [1.0, 2.0]
@@ -1099,7 +1099,7 @@ pub fn Context::getConstArray(
 /// - Core does not support `int8` currently, hence the type
 /// of parameter `data` is `Array[Int]`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let data : Array[Int] = [42, 63, 77, 89]
@@ -1120,7 +1120,7 @@ pub fn Context::getConstInt8Vector(
 ///
 /// -  See LLVM: `ConstantDataVector::get`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let data : Array[Int16] = [42, 63, 77, 89]
@@ -1141,7 +1141,7 @@ pub fn Context::getConstInt16Vector(
 ///
 /// -  See LLVM: `ConstantDataVector::get`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let data : Array[Int] = [42, 63, 77, 89]
@@ -1162,7 +1162,7 @@ pub fn Context::getConstInt32Vector(
 ///
 /// -  See LLVM: `ConstantDataVector::get`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let data : Array[Int64] = [42, 63, 77, 89]
@@ -1183,7 +1183,7 @@ pub fn Context::getConstInt64Vector(
 ///
 /// -  See LLVM: `ConstantDataVector::get`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let data : Array[Byte] = [42, 63, 77, 89]
@@ -1203,7 +1203,7 @@ pub fn Context::getConstUInt8Vector(
 ///
 /// -  See LLVM: `ConstantDataVector::get`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let data : Array[UInt16] = [42, 63, 77, 89]
@@ -1223,7 +1223,7 @@ pub fn Context::getConstUInt16Vector(
 ///
 /// -  See LLVM: `ConstantDataVector::get`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let data : Array[UInt] = [42, 63, 77, 89]
@@ -1243,7 +1243,7 @@ pub fn Context::getConstUInt32Vector(
 ///
 /// -  See LLVM: `ConstantDataVector::get`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let data : Array[UInt64] = [42, 63, 77, 89]
@@ -1263,7 +1263,7 @@ pub fn Context::getConstUInt64Vector(
 ///
 /// -  See LLVM: `ConstantDataVector::get`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let data : Array[Float] = [1.0, 2.0]
@@ -1286,7 +1286,7 @@ pub fn Context::getConstFloatVector(
 ///
 /// -  See LLVM: `ConstantDataVector::get`.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let data : Array[Double] = [1.0, 2.0]
@@ -1310,7 +1310,7 @@ pub fn Context::getConstDoubleVector(
 ///
 /// TODO: wait compiler bug fixed.
 ///
-/// ```moonbit-no-run
+/// ```mbt test-no-run
 /// let ctx = Context::new()
 /// let i32ty = ctx.getInt32Ty()
 /// let zero_i32 = ctx.getConstZero(i32ty)

@@ -8,7 +8,7 @@
 /// Use `Context::getConstInt8, getConstInt16, getConstInt32, getConstInt64`
 /// To create a new ConstantInt.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let i8 = ctx.getConstInt8(0)
 /// let i16 = ctx.getConstInt16(1)
@@ -52,7 +52,7 @@ fn ConstantInt::getValue(self : ConstantInt) -> Int64 {
 ///|
 /// Get the value of this constant as a signed 64-bits integer.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let i8_zero = ctx.getConstInt8(0)
@@ -74,7 +74,7 @@ pub fn ConstantInt::getValueAsInt64(self : ConstantInt) -> Int64 {
 ///|
 /// Get the type of constant int value.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let i8_zero = ctx.getConstInt8(0)
@@ -94,7 +94,7 @@ pub fn ConstantInt::getIntegerType(self : ConstantInt) -> &IntegerType {
 ///|
 /// Compare the value of this constant int with a signed integer.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// assert_true(ctx.getConstInt8(0).equals(0))
@@ -145,7 +145,7 @@ pub fn ConstantInt::isMinValue(self : ConstantInt) -> Bool {
 /// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
 /// ConstantInt are not the same.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let i8_0 = ctx.getConstInt8(0)
@@ -193,7 +193,7 @@ pub fn ConstantInt::add(
 /// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
 /// ConstantInt are not the same.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let i8_0 = ctx.getConstInt8(0)
@@ -242,7 +242,7 @@ pub fn ConstantInt::sub(
 /// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
 /// ConstantInt are not the same.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let i8_0 = ctx.getConstInt8(0)
@@ -288,7 +288,7 @@ pub fn ConstantInt::mul(
 /// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
 /// ConstantInt are not the same.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let i8_1 = ctx.getConstInt8(1)
@@ -338,7 +338,7 @@ pub fn ConstantInt::sdiv(
 /// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
 /// ConstantInt are not the same. It will raise `DivisionByZeroError` if `other` is zero.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// // Test case 1: i8 unsigned division
@@ -423,7 +423,7 @@ pub fn ConstantInt::udiv(
 ///|
 /// Bitwise AND two ConstantInt, useful in constant folding.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let i8_6 = ctx.getConstInt8(6)     // 00000110
@@ -469,7 +469,7 @@ pub fn ConstantInt::compute_and(
 /// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
 /// ConstantInt are not the same.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let i8_6 = ctx.getConstInt8(6)     // 00000110
@@ -515,7 +515,7 @@ pub fn ConstantInt::or(
 /// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
 /// ConstantInt are not the same.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let i8_6 = ctx.getConstInt8(6)     // 00000110
@@ -561,7 +561,7 @@ pub fn ConstantInt::xor(
 /// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
 /// ConstantInt are not the same.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let i8_1 = ctx.getConstInt8(1)     // 00000001
@@ -607,7 +607,7 @@ pub fn ConstantInt::compute_shl(
 /// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
 /// ConstantInt are not the same.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let i8_200 = ctx.getConstInt8(200)  // 11001000 (as unsigned)
@@ -671,7 +671,7 @@ pub fn ConstantInt::lshr(
 /// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
 /// ConstantInt are not the same.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let i8_m1 = ctx.getConstInt8(-1)   // 11111111
@@ -722,7 +722,7 @@ pub fn ConstantInt::ashr(
 /// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
 /// ConstantInt are not the same. Only ICMP_xxx predicates are supported.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let i8_5 = ctx.getConstInt8(5)
@@ -843,7 +843,7 @@ pub fn ConstantInt::compare(
 /// **Note**: It will raise `TruncCastInstTypeMismatch` if the source type bit width
 /// is not greater than the destination type bit width.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let i32_255 = ctx.getConstInt32(255)
@@ -880,7 +880,7 @@ pub fn ConstantInt::trunc(
 /// **Note**: It will raise `ZExtCastInstTypeMismatch` if the source type bit width
 /// is not less than the destination type bit width.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let i8_255 = ctx.getConstInt8(255) // -1 as signed, 255 as unsigned
@@ -925,7 +925,7 @@ pub fn ConstantInt::zext(
 /// **Note**: It will raise `SExtCastInstTypeMismatch` if the source type bit width
 /// is not less than the destination type bit width.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let i8_m1 = ctx.getConstInt8(-1)
@@ -966,7 +966,7 @@ pub fn ConstantInt::sext(
 ///
 /// **Note**: It will raise `UIToFPInstTypeMismatch` if the source is not an integer type.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let i32_255 = ctx.getConstInt32(255)
@@ -1000,7 +1000,7 @@ pub fn ConstantInt::uitofp(self : ConstantInt, dst_ty : &FPType) -> ConstantFP {
 ///
 /// **Note**: It will raise `SIToFPInstTypeMismatch` if the source is not an integer type.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let i32_m42 = ctx.getConstInt32(-42)
@@ -1028,7 +1028,7 @@ pub fn ConstantInt::sitofp(self : ConstantInt, dst_ty : &FPType) -> ConstantFP {
 /// For constant folding, this always returns a null pointer since we cannot create
 /// meaningful pointer constants from integer values at compile time.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let i64_0 = ctx.getConstInt64(0)
@@ -1051,7 +1051,7 @@ pub fn ConstantInt::inttoptr(self : ConstantInt) -> ConstantPointerNull {
 /// or if the cast is invalid. It will raise `BitCastOnlyAcceptPrimitiveTypes` if the source
 /// is not a primitive type.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// // Test i32 to f32 bitcast
@@ -1217,7 +1217,7 @@ pub fn[T : Floating] ConstantFP::exactlyEquals(
 /// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
 /// ConstantFP are not the same.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let f32_0 = ctx.getConstFloat(0.0)
@@ -1250,7 +1250,7 @@ pub fn ConstantFP::add(
 /// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
 /// ConstantFP are not the same.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let f32_0 = ctx.getConstFloat(0.0)
@@ -1283,7 +1283,7 @@ pub fn ConstantFP::sub(
 /// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
 /// ConstantFP are not the same.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let f32_0 = ctx.getConstFloat(0.0)
@@ -1316,7 +1316,7 @@ pub fn ConstantFP::mul(
 /// **Note**: It will raise `TypeMismatchForBinaryOp` if the types of two
 /// ConstantFP are not the same.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let f32_0 = ctx.getConstFloat(0.0)
@@ -1349,7 +1349,7 @@ pub fn ConstantFP::div(
 /// **Note**: It will raise `TypeMismatchForCmpInst` if the types of two
 /// ConstantFP are not the same. Only FCMP_xxx predicates are supported.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// let f32_1_5 = ctx.getConstFloat(1.5)
@@ -1440,7 +1440,7 @@ pub fn ConstantFP::compare(
 /// **Note**: It will raise `FPTruncCastInstTypeMismatch` if the source type bit width
 /// is not greater than the destination type bit width.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// // Test f64 to f32 truncation
@@ -1478,7 +1478,7 @@ pub fn ConstantFP::fptrunc(
 /// **Note**: It will raise `FPExtCastInstTypeMismatch` if the source type bit width
 /// is not less than the destination type bit width.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// // Test f32 to f64 extension
@@ -1514,7 +1514,7 @@ pub fn ConstantFP::fpext(
 /// **Note**: It will raise `FPToUIInstTypeMismatch` if the source is not a floating-point type.
 /// The conversion truncates towards zero (similar to C cast).
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// // Test positive float to unsigned integer
@@ -1557,7 +1557,7 @@ pub fn ConstantFP::fptoui(
 /// **Note**: It will raise `FPToSIInstTypeMismatch` if the source is not a floating-point type.
 /// The conversion truncates towards zero (similar to C cast).
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// // Test positive float to signed integer
@@ -1596,7 +1596,7 @@ pub fn ConstantFP::fptosi(
 /// or if the cast is invalid. It will raise `BitCastOnlyAcceptPrimitiveTypes` if the source
 /// is not a primitive type.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 ///
 /// // Test f32 to i32 bitcast
@@ -2533,7 +2533,7 @@ pub impl Show for ConstantVector with output(self, logger) {
 ///
 /// Represents a constant struct value in LLVM IR.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let i32ty = ctx.getInt32Ty()
 /// let f32ty = ctx.getFloatTy()
@@ -2602,7 +2602,7 @@ pub fn ConstantStruct::getElement(
 /// This is equivalent to LLVM's `extractvalue` instruction for constant structs.
 /// The indices specify a path through nested aggregate types.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let i32ty = ctx.getInt32Ty()
 /// let f32ty = ctx.getFloatTy()
@@ -2644,7 +2644,7 @@ pub fn ConstantStruct::extractValue(
 /// This is equivalent to LLVM's `insertvalue` instruction for constant structs.
 /// Returns a new ConstantStruct with the value inserted at the specified path.
 ///
-/// ```moonbit
+/// ```mbt test
 /// let ctx = Context::new()
 /// let i32ty = ctx.getInt32Ty()
 /// let f32ty = ctx.getFloatTy()
