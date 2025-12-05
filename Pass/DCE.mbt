@@ -20,8 +20,8 @@ pub impl FunctionPass for DCE with run(self, func : Function) -> Unit {
   for inst in func.instIter() {
     if inst.user_empty() {
       match inst.asInstEnum() {
-        AllocaInst(_)
-        | LoadInst(_)
+        AllocaInst
+        | LoadInst
         | StoreInst(_)
         | FNegInst(_)
         | CastInst(_)

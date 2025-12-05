@@ -1,5 +1,4 @@
 {
-  "import" : [
-    "Kaida-Amethyst/MoonLLVM/IR"
-  ]
+  "import": ["Kaida-Amethyst/MoonLLVM/IR"],
+  "warn-list": "-missing_pattern_payload"
 }
