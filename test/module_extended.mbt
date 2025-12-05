@@ -133,7 +133,7 @@ test "Function - multiple attributes" {
   // Add multiple attributes
   fval.addAttr(AlwaysInline)
   fval.addAttr(NoUnwind)
-  fval.addAttr(NoInline)  // Changed from ReadNone to NoInline
+  fval.addAttr(NoInline)
 
   let fn_str = fval.to_string()
   assert_true(fn_str.contains("alwaysinline"))
@@ -309,9 +309,8 @@ test "Type - pointer types" {
   let ptrty = ctx.getPtrTy()
   inspect(ptrty, content="ptr")
 
-  // Pointer with address space - note: currently shows as "ptr" due to opaque pointer
+  // Pointer with address space - in opaque pointer mode, address space is stored internally
   let ptr_addrspace = ctx.getPtrTy(addressSpace=@IR.AddressSpace::new(1))
-  // The address space is stored internally but not shown in simple output
   inspect(ptr_addrspace, content="ptr")
 }
 

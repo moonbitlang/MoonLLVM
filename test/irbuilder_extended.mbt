@@ -429,15 +429,13 @@ test "global string creation" {
   let ctx = @IR.Context::new()
   let mod = ctx.addModule("test_global_string")
 
-  // Create a global string directly in module
+  // Create global strings and verify they appear in the module output
   let _gstr = mod.addGlobalString("Hello, World!")
   
-  // Verify the global string was created
   let mod_str = mod.to_string()
   assert_true(mod_str.contains("Hello, World!"))
   assert_true(mod_str.contains("constant"))
 
-  // Test another global string
   let _gstr2 = mod.addGlobalString("Test string\n")
   let mod_str2 = mod.to_string()
   assert_true(mod_str2.contains("Test string"))
