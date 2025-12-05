@@ -723,8 +723,8 @@ test "GlobalString - Operations" {
   assert_eq(gstr1.getName() is Some(_), true)
 
   // Different string should create new global with different name
-  let gstr3 = mod.addGlobalString("Different string")
-  assert_eq(gstr1.getName() == gstr3.getName(), false)
+  let gstr2 = mod.addGlobalString("Different string")
+  assert_eq(gstr1.getName() == gstr2.getName(), false)
 }
 
 ///|
