@@ -6,6 +6,7 @@ import(
 )
 
 // Values
+pub fn dce(@IR.Function) -> Unit
 
 // Errors
 

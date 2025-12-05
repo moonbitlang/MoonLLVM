@@ -15,31 +15,61 @@ pub impl FunctionPass for DCE with description(_) {
 }
 
 ///|
-pub impl FunctionPass for DCE with run(_, func : Function) -> Unit {
-  for bb in func.basicBlocks {
-    for inst in bb.instIter() {
-      if inst.user_empty() {
-        match inst.asInstEnum() {
-          ReturnInst(_) => ()
-          BranchInst(_) => ()
-          SwitchInst(_) => ()
-          StoreInst(_) => ()
-          CallInst(_) => ()
-          //CallInst(_) => {
-          //  // If the call is not to a function that has side effects, we can remove it
-          //  if let Some(callee) = inst.getCalledFunction() {
-          //    if callee.hasSideEffects() {
-          //      continue;
-          //    }
-          //  }
-          //  // Otherwise, we can remove the call instruction
-          //  inst.eraseFromParent()
-          //}
-          _ =>
-            // Remove the instruction if it has no users
-            inst.eraseFromParent()
+pub impl FunctionPass for DCE with run(self, func : Function) -> Unit {
+  let mut changed = false
+  for inst in func.instIter() {
+    if inst.user_empty() {
+      match inst.asInstEnum() {
+        AllocaInst(_)
+        | LoadInst(_)
+        | StoreInst(_)
+        | FNegInst(_)
+        | CastInst(_)
+        | BinaryInst(_)
+        | ICmpInst(_)
+        | FCmpInst(_)
+        | GetElementPtrInst(_)
+        | SelectInst(_)
+        | InsertValueInst(_)
+        | PHINode(_) => {
+          inst.eraseFromParent()
+          changed = true
         }
+        _ => ()
       }
     }
+  }
+  if changed {
+    self.run(func)
+  }
+}
+
+///|
+pub fn dce(func : Function) -> Unit {
+  let mut changed = false
+  for inst in func.instIter() {
+    if inst.user_empty() {
+      match inst.asInstEnum() {
+        AllocaInst(_)
+        | LoadInst(_)
+        | StoreInst(_)
+        | FNegInst(_)
+        | CastInst(_)
+        | BinaryInst(_)
+        | ICmpInst(_)
+        | FCmpInst(_)
+        | GetElementPtrInst(_)
+        | SelectInst(_)
+        | InsertValueInst(_)
+        | PHINode(_) => {
+          inst.eraseFromParent()
+          changed = true
+        }
+        _ => ()
+      }
+    }
+  }
+  if changed {
+    dce(func)
   }
 }
