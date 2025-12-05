@@ -12,5 +12,6 @@
     "Compiler",
     "llvm"
   ],
+  "warn-list": "-missing_pattern_payload",
   "description": "Moonbit version of LLVM, A Tiny, Friendly Companion to LLVM"
 }

@@ -13,6 +13,7 @@ test "BasicBlock - Creation and Basic Operations" {
 
   // Test parent relationship
   assert_eq(entry.getParent(), fval)
+  @test.same_object(entry.getParent(), fval)
   assert_eq(loop_bb.getParent(), fval)
 
   // Test module relationship
@@ -37,8 +38,8 @@ test "BasicBlock - Instruction Iteration" {
   let _ = builder.createRet(result)
 
   // Test firstInst and lastInst
-  inspect(entry.firstInst().unwrap(), content="  %sum1 = add i32 %0, %1")
-  inspect(entry.lastInst().unwrap(), content="  ret i32 %result")
+  inspect(entry.firstInst(), content="Some(  %sum1 = add i32 %0, %1)")
+  inspect(entry.lastInst(), content="Some(  ret i32 %result)")
 
   // Test iteration
   let inst_count = entry.instIter().fold(init=0, fn(acc, _) { acc + 1 })
