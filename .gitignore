@@ -2,3 +2,4 @@ target/
 .mooncakes/
 .DS_Store
 .moonagent/
+trace.json
