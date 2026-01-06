@@ -9,18 +9,20 @@
 /// 
 /// Use `IRBuilder::createAlloca` to create an `AllocaInst`.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let void_ty = ctx.getVoidTy()
-/// let i32_ty = ctx.getInt32Ty()
-/// let fty = ctx.getFunctionType(void_ty, [])
-/// let fval = mod.addFunction(fty, "foo")
-/// let bb = fval.addBasicBlock(name="entry")
-/// builder.setInsertPoint(bb)
-/// let inst = builder.createAlloca(i32_ty, name="var1")
-/// inspect(inst, content="  %var1 = alloca i32, align 4")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let void_ty = ctx.getVoidTy()
+///   let i32_ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType(void_ty, [])
+///   let fval = mod.addFunction(fty, "foo")
+///   let bb = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(bb)
+///   let inst = builder.createAlloca(i32_ty, name="var1")
+///   inspect(inst, content="  %var1 = alloca i32, align 4")
+/// }
 /// ```
 pub struct AllocaInst {
   uid : UInt64
@@ -72,20 +74,22 @@ pub impl Value for AllocaInst with getValueBase(self) {
 ///|
 /// Get simple representation of the value.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let void_ty = ctx.getVoidTy()
-/// let i32_ty = ctx.getInt32Ty()
-/// let fty = ctx.getFunctionType(void_ty, [])
-/// let fval = mod.addFunction(fty, "foo")
-/// let bb = fval.addBasicBlock(name="entry")
-/// builder.setInsertPoint(bb)
-/// let inst = builder.createAlloca(i32_ty)
-/// inspect(inst.getValueRepr(), content="%0")
-/// inst.setName("var1")
-/// inspect(inst.getValueRepr(), content="%var1")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let void_ty = ctx.getVoidTy()
+///   let i32_ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType(void_ty, [])
+///   let fval = mod.addFunction(fty, "foo")
+///   let bb = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(bb)
+///   let inst = builder.createAlloca(i32_ty)
+///   inspect(inst.getValueRepr(), content="%0")
+///   inst.setName("var1")
+///   inspect(inst.getValueRepr(), content="%var1")
+/// }
 /// ```
 pub impl Value for AllocaInst with getValueRepr(self) {
   match self.getNameOrSlot() {
@@ -107,20 +111,22 @@ pub impl Value for AllocaInst with asValueEnum(self) {
 ///
 /// If the instruction has no name, return `None`.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let void_ty = ctx.getVoidTy()
-/// let i32_ty = ctx.getInt32Ty()
-/// let fty = ctx.getFunctionType(void_ty, [])
-/// let fval = mod.addFunction(fty, "foo")
-/// let bb = fval.addBasicBlock(name="entry")
-/// builder.setInsertPoint(bb)
-/// let inst = builder.createAlloca(i32_ty)
-/// inspect(inst.getName(), content="None")
-/// inst.setName("var1")
-/// inspect(inst.getName(), content="Some(\"var1\")")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let void_ty = ctx.getVoidTy()
+///   let i32_ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType(void_ty, [])
+///   let fval = mod.addFunction(fty, "foo")
+///   let bb = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(bb)
+///   let inst = builder.createAlloca(i32_ty)
+///   inspect(inst.getName(), content="None")
+///   inst.setName("var1")
+///   inspect(inst.getName(), content="Some(\"var1\")")
+/// }
 /// ```
 pub impl Value for AllocaInst with getName(self) {
   self.name
@@ -134,20 +140,22 @@ pub impl Value for AllocaInst with getName(self) {
 /// If the name has already been used in the parent function,
 /// it will raise Error.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let void_ty = ctx.getVoidTy()
-/// let i32_ty = ctx.getInt32Ty()
-/// let fty = ctx.getFunctionType(void_ty, [])
-/// let fval = mod.addFunction(fty, "foo")
-/// let bb = fval.addBasicBlock(name="entry")
-/// builder.setInsertPoint(bb)
-/// let inst = builder.createAlloca(i32_ty)
-/// inspect(inst.getName(), content="None")
-/// inst.setName("var1")
-/// inspect(inst.getName(), content="Some(\"var1\")")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let void_ty = ctx.getVoidTy()
+///   let i32_ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType(void_ty, [])
+///   let fval = mod.addFunction(fty, "foo")
+///   let bb = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(bb)
+///   let inst = builder.createAlloca(i32_ty)
+///   inspect(inst.getName(), content="None")
+///   inst.setName("var1")
+///   inspect(inst.getName(), content="Some(\"var1\")")
+/// }
 /// ```
 pub impl Value for AllocaInst with setName(self, name) {
   match self.getParent().setSymbol(name, self) {
@@ -259,21 +267,23 @@ pub impl Show for AtomicOrdering with output(self, logger) {
 ///
 /// Use `IRBuilder::createLoad` to create a `LoadInst`.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let ptr_ty = ctx.getPtrTy()
-/// let i32_ty = ctx.getInt32Ty()
-/// let fty = ctx.getFunctionType(i32_ty, [ptr_ty])
-/// let fval = mod.addFunction(fty, "load_an_integer")
-/// let bb = fval.addBasicBlock(name="entry")
-/// builder.setInsertPoint(bb)
-/// let ptr = fval.getArg(0).unwrap()
-/// ptr.setName("arg0")
-/// let val = builder.createLoad(i32_ty, ptr, name="val")
-/// let _ = builder.createRet(val)
-/// inspect(val, content="  %val = load i32, ptr %arg0, align 4")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let ptr_ty = ctx.getPtrTy()
+///   let i32_ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType(i32_ty, [ptr_ty])
+///   let fval = mod.addFunction(fty, "load_an_integer")
+///   let bb = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(bb)
+///   let ptr = fval.getArg(0).unwrap()
+///   ptr.setName("arg0")
+///   let val = builder.createLoad(i32_ty, ptr, name="val")
+///   let _ = builder.createRet(val)
+///   inspect(val, content="  %val = load i32, ptr %arg0, align 4")
+/// }
 /// ```
 pub(all) struct LoadInst {
   // --- ValueBase ---
@@ -353,21 +363,23 @@ pub impl Value for LoadInst with getValueBase(self) {
 ///|
 /// Get simple representation of the value.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let ptr_ty = ctx.getPtrTy()
-/// let i32_ty = ctx.getInt32Ty()
-/// let fty = ctx.getFunctionType(i32_ty, [ptr_ty])
-/// let fval = mod.addFunction(fty, "load_an_integer")
-/// let bb = fval.addBasicBlock(name="entry")
-/// builder.setInsertPoint(bb)
-/// let ptr = fval.getArg(0).unwrap()
-/// let val = builder.createLoad(i32_ty, ptr)
-/// inspect(val.getValueRepr(), content="%1")
-/// val.setName("val")
-/// inspect(val.getValueRepr(), content="%val")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let ptr_ty = ctx.getPtrTy()
+///   let i32_ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType(i32_ty, [ptr_ty])
+///   let fval = mod.addFunction(fty, "load_an_integer")
+///   let bb = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(bb)
+///   let ptr = fval.getArg(0).unwrap()
+///   let val = builder.createLoad(i32_ty, ptr)
+///   inspect(val.getValueRepr(), content="%1")
+///   val.setName("val")
+///   inspect(val.getValueRepr(), content="%val")
+/// }
 /// ```
 pub impl Value for LoadInst with getValueRepr(self) {
   match self.getNameOrSlot() {
@@ -384,21 +396,23 @@ pub impl Value for LoadInst with getValueRepr(self) {
 ///
 /// If the instruction has no name, return `None`.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let ptr_ty = ctx.getPtrTy()
-/// let i32_ty = ctx.getInt32Ty()
-/// let fty = ctx.getFunctionType(i32_ty, [ptr_ty])
-/// let fval = mod.addFunction(fty, "load_an_integer")
-/// let bb = fval.addBasicBlock(name="entry")
-/// builder.setInsertPoint(bb)
-/// let ptr = fval.getArg(0).unwrap()
-/// let val = builder.createLoad(i32_ty, ptr)
-/// inspect(val.getName(), content="None")
-/// val.setName("val")
-/// inspect(val.getName(), content="Some(\"val\")")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let ptr_ty = ctx.getPtrTy()
+///   let i32_ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType(i32_ty, [ptr_ty])
+///   let fval = mod.addFunction(fty, "load_an_integer")
+///   let bb = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(bb)
+///   let ptr = fval.getArg(0).unwrap()
+///   let val = builder.createLoad(i32_ty, ptr)
+///   inspect(val.getName(), content="None")
+///   val.setName("val")
+///   inspect(val.getName(), content="Some(\"val\")")
+/// }
 /// ```
 pub impl Value for LoadInst with getName(self) {
   self.name
@@ -412,21 +426,23 @@ pub impl Value for LoadInst with getName(self) {
 /// If the name has already been used in the parent function,
 /// it will raise Error.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let ptr_ty = ctx.getPtrTy()
-/// let i32_ty = ctx.getInt32Ty()
-/// let fty = ctx.getFunctionType(i32_ty, [ptr_ty])
-/// let fval = mod.addFunction(fty, "load_an_integer")
-/// let bb = fval.addBasicBlock(name="entry")
-/// builder.setInsertPoint(bb)
-/// let ptr = fval.getArg(0).unwrap()
-/// let val = builder.createLoad(i32_ty, ptr)
-/// inspect(val.getName(), content="None")
-/// val.setName("val")
-/// inspect(val.getName(), content="Some(\"val\")")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let ptr_ty = ctx.getPtrTy()
+///   let i32_ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType(i32_ty, [ptr_ty])
+///   let fval = mod.addFunction(fty, "load_an_integer")
+///   let bb = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(bb)
+///   let ptr = fval.getArg(0).unwrap()
+///   let val = builder.createLoad(i32_ty, ptr)
+///   inspect(val.getName(), content="None")
+///   val.setName("val")
+///   inspect(val.getName(), content="Some(\"val\")")
+/// }
 /// ```
 pub impl Value for LoadInst with setName(self, name) {
   match self.getParent().setSymbol(name, self) {
@@ -535,23 +551,25 @@ pub impl Show for LoadInst with output(self, logger) {
 ///
 /// Use `IRBuilder::createStore` to create a `StoreInst`.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let ptr_ty = ctx.getPtrTy()
-/// let i32_ty = ctx.getInt32Ty()
-/// let void_ty = ctx.getVoidTy()
-/// let fty = ctx.getFunctionType(void_ty, [ptr_ty, i32_ty])
-/// let fval = mod.addFunction(fty, "store_an_integer")
-/// let bb = fval.addBasicBlock(name="entry")
-/// builder.setInsertPoint(bb)
-/// let ptr = fval.getArg(0).unwrap()
-/// ptr.setName("arg0")
-/// let value = fval.getArg(1).unwrap()
-/// value.setName("value")
-/// let s = builder.createStore(value, ptr)
-/// inspect(s, content="  store i32 %value, ptr %arg0, align 4")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let ptr_ty = ctx.getPtrTy()
+///   let i32_ty = ctx.getInt32Ty()
+///   let void_ty = ctx.getVoidTy()
+///   let fty = ctx.getFunctionType(void_ty, [ptr_ty, i32_ty])
+///   let fval = mod.addFunction(fty, "store_an_integer")
+///   let bb = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(bb)
+///   let ptr = fval.getArg(0).unwrap()
+///   ptr.setName("arg0")
+///   let value = fval.getArg(1).unwrap()
+///   value.setName("value")
+///   let s = builder.createStore(value, ptr)
+///   inspect(s, content="  store i32 %value, ptr %arg0, align 4")
+/// }
 /// ```
 pub struct StoreInst {
   // --- ValueBase ---
@@ -614,24 +632,26 @@ fn StoreInst::new(
 ///|
 /// Get the value operand of the store instruction.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let ptr_ty = ctx.getPtrTy()
-/// let i32_ty = ctx.getInt32Ty()
-/// let void_ty = ctx.getVoidTy()
-/// let fty = ctx.getFunctionType(void_ty, [ptr_ty, i32_ty])
-/// let fval = mod.addFunction(fty, "store_an_integer")
-/// let bb = fval.addBasicBlock(name="entry")
-/// builder.setInsertPoint(bb)
-/// let ptr = fval.getArg(0).unwrap()
-/// ptr.setName("arg0")
-/// let val1 = fval.getArg(1).unwrap()
-/// let const_42 = ctx.getConstInt32(42)
-/// let val2 = builder.createNSWAdd(val1, const_42, name="value")
-/// let s = builder.createStore(val2, ptr)
-/// inspect(s.getValueOperand(), content="  %value = add nsw i32 %0, 42")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let ptr_ty = ctx.getPtrTy()
+///   let i32_ty = ctx.getInt32Ty()
+///   let void_ty = ctx.getVoidTy()
+///   let fty = ctx.getFunctionType(void_ty, [ptr_ty, i32_ty])
+///   let fval = mod.addFunction(fty, "store_an_integer")
+///   let bb = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(bb)
+///   let ptr = fval.getArg(0).unwrap()
+///   ptr.setName("arg0")
+///   let val1 = fval.getArg(1).unwrap()
+///   let const_42 = ctx.getConstInt32(42)
+///   let val2 = builder.createNSWAdd(val1, const_42, name="value")
+///   let s = builder.createStore(val2, ptr)
+///   inspect(s.getValueOperand(), content="  %value = add nsw i32 %0, 42")
+/// }
 /// ```
 pub fn StoreInst::getValueOperand(self : StoreInst) -> &Value {
   self.value
@@ -640,19 +660,21 @@ pub fn StoreInst::getValueOperand(self : StoreInst) -> &Value {
 ///|
 /// Get the pointer operand of the store instruction.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let void_ty = ctx.getVoidTy()
-/// let fty = ctx.getFunctionType(void_ty, [])
-/// let fval = mod.addFunction(fty, "store_an_integer")
-/// let bb = fval.addBasicBlock(name="entry")
-/// builder.setInsertPoint(bb)
-/// let alloca = builder.createAlloca(ctx.getInt32Ty(), name="ptr")
-/// let const42 = ctx.getConstInt32(42)
-/// let s = builder.createStore(const42, alloca)
-/// inspect(s.getPointerOperand(), content="  %ptr = alloca i32, align 4")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let void_ty = ctx.getVoidTy()
+///   let fty = ctx.getFunctionType(void_ty, [])
+///   let fval = mod.addFunction(fty, "store_an_integer")
+///   let bb = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(bb)
+///   let alloca = builder.createAlloca(ctx.getInt32Ty(), name="ptr")
+///   let const42 = ctx.getConstInt32(42)
+///   let s = builder.createStore(const42, alloca)
+///   inspect(s.getPointerOperand(), content="  %ptr = alloca i32, align 4")
+/// }
 /// ```
 pub fn StoreInst::getPointerOperand(self : StoreInst) -> &Value {
   self.ptr
@@ -1032,30 +1054,32 @@ pub impl Show for FastMathFlag with output(self, logger) {
 ///
 /// Use `IRBuilder::createAdd`, `IRBuilder::createSub`, `IRBuilder::createMul`, etc. to create binary instructions.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let fty = ctx.getFunctionType(i32_ty, [i32_ty, i32_ty])
-/// let fval = mod.addFunction(fty, "binary_ops_demo")
-/// let bb = fval.addBasicBlock(name="entry")
-/// let arg1 = fval.getArg(0).unwrap()
-/// let arg2 = fval.getArg(1).unwrap()
-/// builder.setInsertPoint(bb)
-/// let add = builder.createAdd(arg1, arg2, name="sum")
-/// inspect(add, content="  %sum = add i32 %0, %1")
-/// assert_true(add.asValueEnum() is BinaryInst(_))
-/// let sub = builder.createSub(arg1, arg2, name="diff")
-/// inspect(sub, content="  %diff = sub i32 %0, %1")
-/// let mul = builder.createMul(arg1, arg2, name="product")
-/// inspect(mul, content="  %product = mul i32 %0, %1")
-/// let and_result = builder.createAnd(arg1, arg2, name="and_result")
-/// inspect(and_result, content="  %and_result = and i32 %0, %1")
-/// let or_result = builder.createOr(arg1, arg2, name="or_result")
-/// inspect(or_result, content="  %or_result = or i32 %0, %1")
-/// let xor_result = builder.createXor(arg1, arg2, name="xor_result")
-/// inspect(xor_result, content="  %xor_result = xor i32 %0, %1")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType(i32_ty, [i32_ty, i32_ty])
+///   let fval = mod.addFunction(fty, "binary_ops_demo")
+///   let bb = fval.addBasicBlock(name="entry")
+///   let arg1 = fval.getArg(0).unwrap()
+///   let arg2 = fval.getArg(1).unwrap()
+///   builder.setInsertPoint(bb)
+///   let add = builder.createAdd(arg1, arg2, name="sum")
+///   inspect(add, content="  %sum = add i32 %0, %1")
+///   assert_true(add.asValueEnum() is BinaryInst(_))
+///   let sub = builder.createSub(arg1, arg2, name="diff")
+///   inspect(sub, content="  %diff = sub i32 %0, %1")
+///   let mul = builder.createMul(arg1, arg2, name="product")
+///   inspect(mul, content="  %product = mul i32 %0, %1")
+///   let and_result = builder.createAnd(arg1, arg2, name="and_result")
+///   inspect(and_result, content="  %and_result = and i32 %0, %1")
+///   let or_result = builder.createOr(arg1, arg2, name="or_result")
+///   inspect(or_result, content="  %or_result = or i32 %0, %1")
+///   let xor_result = builder.createXor(arg1, arg2, name="xor_result")
+///   inspect(xor_result, content="  %xor_result = xor i32 %0, %1")
+/// }
 /// ```
 pub struct BinaryInst {
   // --- ValueBase ---
@@ -1198,21 +1222,23 @@ pub impl Value for BinaryInst with asValueEnum(self) {
 ///|
 /// Get simple representation of the value.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let fty = ctx.getFunctionType(i32_ty, [i32_ty, i32_ty])
-/// let fval = mod.addFunction(fty, "binary_ops_demo")
-/// let bb = fval.addBasicBlock(name="entry")
-/// let arg1 = fval.getArg(0).unwrap()
-/// let arg2 = fval.getArg(1).unwrap()
-/// builder.setInsertPoint(bb)
-/// let add = builder.createAdd(arg1, arg2)
-/// inspect(add.getValueRepr(), content="%2")
-/// add.setName("sum")
-/// inspect(add.getValueRepr(), content="%sum")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType(i32_ty, [i32_ty, i32_ty])
+///   let fval = mod.addFunction(fty, "binary_ops_demo")
+///   let bb = fval.addBasicBlock(name="entry")
+///   let arg1 = fval.getArg(0).unwrap()
+///   let arg2 = fval.getArg(1).unwrap()
+///   builder.setInsertPoint(bb)
+///   let add = builder.createAdd(arg1, arg2)
+///   inspect(add.getValueRepr(), content="%2")
+///   add.setName("sum")
+///   inspect(add.getValueRepr(), content="%sum")
+/// }
 /// ```
 pub impl Value for BinaryInst with getValueRepr(self) {
   match self.getNameOrSlot() {
@@ -1229,21 +1255,23 @@ pub impl Value for BinaryInst with getValueRepr(self) {
 ///
 /// If the instruction has no name, return `None`.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let fty = ctx.getFunctionType(i32_ty, [i32_ty, i32_ty])
-/// let fval = mod.addFunction(fty, "binary_ops_demo")
-/// let bb = fval.addBasicBlock(name="entry")
-/// let arg1 = fval.getArg(0).unwrap()
-/// let arg2 = fval.getArg(1).unwrap()
-/// builder.setInsertPoint(bb)
-/// let add = builder.createAdd(arg1, arg2)
-/// inspect(add.getName(), content="None")
-/// add.setName("sum")
-/// inspect(add.getName(), content="Some(\"sum\")")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType(i32_ty, [i32_ty, i32_ty])
+///   let fval = mod.addFunction(fty, "binary_ops_demo")
+///   let bb = fval.addBasicBlock(name="entry")
+///   let arg1 = fval.getArg(0).unwrap()
+///   let arg2 = fval.getArg(1).unwrap()
+///   builder.setInsertPoint(bb)
+///   let add = builder.createAdd(arg1, arg2)
+///   inspect(add.getName(), content="None")
+///   add.setName("sum")
+///   inspect(add.getName(), content="Some(\"sum\")")
+/// }
 /// ```
 pub impl Value for BinaryInst with getName(self) {
   self.name
@@ -1257,21 +1285,23 @@ pub impl Value for BinaryInst with getName(self) {
 /// If the name has already been used in the parent function,
 /// it will raise Error.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let fty = ctx.getFunctionType(i32_ty, [i32_ty, i32_ty])
-/// let fval = mod.addFunction(fty, "binary_ops_demo")
-/// let bb = fval.addBasicBlock(name="entry")
-/// let arg1 = fval.getArg(0).unwrap()
-/// let arg2 = fval.getArg(1).unwrap()
-/// builder.setInsertPoint(bb)
-/// let add = builder.createAdd(arg1, arg2)
-/// inspect(add.getName(), content="None")
-/// add.setName("sum")
-/// inspect(add.getName(), content="Some(\"sum\")")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType(i32_ty, [i32_ty, i32_ty])
+///   let fval = mod.addFunction(fty, "binary_ops_demo")
+///   let bb = fval.addBasicBlock(name="entry")
+///   let arg1 = fval.getArg(0).unwrap()
+///   let arg2 = fval.getArg(1).unwrap()
+///   builder.setInsertPoint(bb)
+///   let add = builder.createAdd(arg1, arg2)
+///   inspect(add.getName(), content="None")
+///   add.setName("sum")
+///   inspect(add.getName(), content="Some(\"sum\")")
+/// }
 /// ```
 pub impl Value for BinaryInst with setName(self, name) {
   match self.getParent().setSymbol(name, self) {
@@ -1421,26 +1451,28 @@ pub impl Show for IntPredicate with output(self, logger) {
 ///
 /// Use `IRBuilder::createICmp` to create an `ICmpInst`.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let fty = ctx.getFunctionType(i32_ty, [i32_ty, i32_ty])
-/// let fval = mod.addFunction(fty, "icmp_demo")
-/// let bb = fval.addBasicBlock(name="entry")
-/// let arg1 = fval.getArg(0).unwrap()
-/// let arg2 = fval.getArg(1).unwrap()
-/// builder.setInsertPoint(bb)
-/// let eq_cmp = builder.createICmp(EQ, arg1, arg2, name="eq_cmp")
-/// inspect(eq_cmp, content="  %eq_cmp = icmp eq i32 %0, %1")
-/// assert_true(eq_cmp.asValueEnum() is ICmpInst(_))
-/// let ne_cmp = builder.createICmp(NE, arg1, arg2, name="ne_cmp")
-/// inspect(ne_cmp, content="  %ne_cmp = icmp ne i32 %0, %1")
-/// let sgt_cmp = builder.createICmp(SGT, arg1, arg2, name="sgt_cmp")
-/// inspect(sgt_cmp, content="  %sgt_cmp = icmp sgt i32 %0, %1")
-/// let ugt_cmp = builder.createICmp(UGT, arg1, arg2, name="ugt_cmp")
-/// inspect(ugt_cmp, content="  %ugt_cmp = icmp ugt i32 %0, %1")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType(i32_ty, [i32_ty, i32_ty])
+///   let fval = mod.addFunction(fty, "icmp_demo")
+///   let bb = fval.addBasicBlock(name="entry")
+///   let arg1 = fval.getArg(0).unwrap()
+///   let arg2 = fval.getArg(1).unwrap()
+///   builder.setInsertPoint(bb)
+///   let eq_cmp = builder.createICmp(EQ, arg1, arg2, name="eq_cmp")
+///   inspect(eq_cmp, content="  %eq_cmp = icmp eq i32 %0, %1")
+///   assert_true(eq_cmp.asValueEnum() is ICmpInst(_))
+///   let ne_cmp = builder.createICmp(NE, arg1, arg2, name="ne_cmp")
+///   inspect(ne_cmp, content="  %ne_cmp = icmp ne i32 %0, %1")
+///   let sgt_cmp = builder.createICmp(SGT, arg1, arg2, name="sgt_cmp")
+///   inspect(sgt_cmp, content="  %sgt_cmp = icmp sgt i32 %0, %1")
+///   let ugt_cmp = builder.createICmp(UGT, arg1, arg2, name="ugt_cmp")
+///   inspect(ugt_cmp, content="  %ugt_cmp = icmp ugt i32 %0, %1")
+/// }
 /// ```
 pub struct ICmpInst {
   uid : UInt64
@@ -1509,21 +1541,23 @@ pub impl Value for ICmpInst with asValueEnum(self) {
 ///|
 /// Get simple representation of the value.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let fty = ctx.getFunctionType(i32_ty, [i32_ty, i32_ty])
-/// let fval = mod.addFunction(fty, "icmp_demo")
-/// let bb = fval.addBasicBlock(name="entry")
-/// let arg1 = fval.getArg(0).unwrap()
-/// let arg2 = fval.getArg(1).unwrap()
-/// builder.setInsertPoint(bb)
-/// let eq_cmp = builder.createICmp(EQ, arg1, arg2)
-/// inspect(eq_cmp.getValueRepr(), content="%2")
-/// eq_cmp.setName("eq_cmp")
-/// inspect(eq_cmp.getValueRepr(), content="%eq_cmp")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType(i32_ty, [i32_ty, i32_ty])
+///   let fval = mod.addFunction(fty, "icmp_demo")
+///   let bb = fval.addBasicBlock(name="entry")
+///   let arg1 = fval.getArg(0).unwrap()
+///   let arg2 = fval.getArg(1).unwrap()
+///   builder.setInsertPoint(bb)
+///   let eq_cmp = builder.createICmp(EQ, arg1, arg2)
+///   inspect(eq_cmp.getValueRepr(), content="%2")
+///   eq_cmp.setName("eq_cmp")
+///   inspect(eq_cmp.getValueRepr(), content="%eq_cmp")
+/// }
 /// ```
 pub impl Value for ICmpInst with getValueRepr(self) {
   match self.getNameOrSlot() {
@@ -1540,21 +1574,23 @@ pub impl Value for ICmpInst with getValueRepr(self) {
 ///
 /// If the instruction has no name, return `None`.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let fty = ctx.getFunctionType(i32_ty, [i32_ty, i32_ty])
-/// let fval = mod.addFunction(fty, "icmp_demo")
-/// let bb = fval.addBasicBlock(name="entry")
-/// let arg1 = fval.getArg(0).unwrap()
-/// let arg2 = fval.getArg(1).unwrap()
-/// builder.setInsertPoint(bb)
-/// let eq_cmp = builder.createICmp(EQ, arg1, arg2)
-/// inspect(eq_cmp.getName(), content="None")
-/// eq_cmp.setName("eq_cmp")
-/// inspect(eq_cmp.getName(), content="Some(\"eq_cmp\")")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType(i32_ty, [i32_ty, i32_ty])
+///   let fval = mod.addFunction(fty, "icmp_demo")
+///   let bb = fval.addBasicBlock(name="entry")
+///   let arg1 = fval.getArg(0).unwrap()
+///   let arg2 = fval.getArg(1).unwrap()
+///   builder.setInsertPoint(bb)
+///   let eq_cmp = builder.createICmp(EQ, arg1, arg2)
+///   inspect(eq_cmp.getName(), content="None")
+///   eq_cmp.setName("eq_cmp")
+///   inspect(eq_cmp.getName(), content="Some(\"eq_cmp\")")
+/// }
 /// ```
 pub impl Value for ICmpInst with getName(self) {
   self.name
@@ -1568,21 +1604,23 @@ pub impl Value for ICmpInst with getName(self) {
 /// If the name has already been used in the parent function,
 /// it will raise Error.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let fty = ctx.getFunctionType(i32_ty, [i32_ty, i32_ty])
-/// let fval = mod.addFunction(fty, "icmp_demo")
-/// let bb = fval.addBasicBlock(name="entry")
-/// let arg1 = fval.getArg(0).unwrap()
-/// let arg2 = fval.getArg(1).unwrap()
-/// builder.setInsertPoint(bb)
-/// let eq_cmp = builder.createICmp(EQ, arg1, arg2)
-/// inspect(eq_cmp.getName(), content="None")
-/// eq_cmp.setName("eq_cmp")
-/// inspect(eq_cmp.getName(), content="Some(\"eq_cmp\")")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType(i32_ty, [i32_ty, i32_ty])
+///   let fval = mod.addFunction(fty, "icmp_demo")
+///   let bb = fval.addBasicBlock(name="entry")
+///   let arg1 = fval.getArg(0).unwrap()
+///   let arg2 = fval.getArg(1).unwrap()
+///   builder.setInsertPoint(bb)
+///   let eq_cmp = builder.createICmp(EQ, arg1, arg2)
+///   inspect(eq_cmp.getName(), content="None")
+///   eq_cmp.setName("eq_cmp")
+///   inspect(eq_cmp.getName(), content="Some(\"eq_cmp\")")
+/// }
 /// ```
 pub impl Value for ICmpInst with setName(self, name) {
   match self.getParent().setSymbol(name, self) {
@@ -1738,26 +1776,28 @@ pub impl Show for FloatPredicate with output(self, logger) {
 ///
 /// Use `IRBuilder::createFCmp` to create an `FCmpInst`.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let f32_ty = ctx.getFloatTy()
-/// let fty = ctx.getFunctionType(f32_ty, [f32_ty, f32_ty])
-/// let fval = mod.addFunction(fty, "fcmp_demo")
-/// let bb = fval.addBasicBlock(name="entry")
-/// let arg1 = fval.getArg(0).unwrap()
-/// let arg2 = fval.getArg(1).unwrap()
-/// builder.setInsertPoint(bb)
-/// let oeq_cmp = builder.createFCmp(OEQ, arg1, arg2, name="oeq_cmp")
-/// inspect(oeq_cmp, content="  %oeq_cmp = fcmp oeq float %0, %1")
-/// assert_true(oeq_cmp.asValueEnum() is FCmpInst(_))
-/// let ogt_cmp = builder.createFCmp(OGT, arg1, arg2, name="ogt_cmp")
-/// inspect(ogt_cmp, content="  %ogt_cmp = fcmp ogt float %0, %1")
-/// let olt_cmp = builder.createFCmp(OLT, arg1, arg2, name="olt_cmp")
-/// inspect(olt_cmp, content="  %olt_cmp = fcmp olt float %0, %1")
-/// let uno_cmp = builder.createFCmp(UNO, arg1, arg2, name="uno_cmp")
-/// inspect(uno_cmp, content="  %uno_cmp = fcmp uno float %0, %1")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let f32_ty = ctx.getFloatTy()
+///   let fty = ctx.getFunctionType(f32_ty, [f32_ty, f32_ty])
+///   let fval = mod.addFunction(fty, "fcmp_demo")
+///   let bb = fval.addBasicBlock(name="entry")
+///   let arg1 = fval.getArg(0).unwrap()
+///   let arg2 = fval.getArg(1).unwrap()
+///   builder.setInsertPoint(bb)
+///   let oeq_cmp = builder.createFCmp(OEQ, arg1, arg2, name="oeq_cmp")
+///   inspect(oeq_cmp, content="  %oeq_cmp = fcmp oeq float %0, %1")
+///   assert_true(oeq_cmp.asValueEnum() is FCmpInst(_))
+///   let ogt_cmp = builder.createFCmp(OGT, arg1, arg2, name="ogt_cmp")
+///   inspect(ogt_cmp, content="  %ogt_cmp = fcmp ogt float %0, %1")
+///   let olt_cmp = builder.createFCmp(OLT, arg1, arg2, name="olt_cmp")
+///   inspect(olt_cmp, content="  %olt_cmp = fcmp olt float %0, %1")
+///   let uno_cmp = builder.createFCmp(UNO, arg1, arg2, name="uno_cmp")
+///   inspect(uno_cmp, content="  %uno_cmp = fcmp uno float %0, %1")
+/// }
 /// ```
 pub struct FCmpInst {
   uid : UInt64
@@ -1817,21 +1857,23 @@ pub impl Value for FCmpInst with getValueBase(self) {
 ///|
 /// Get simple representation of the value.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let f32_ty = ctx.getFloatTy()
-/// let fty = ctx.getFunctionType(f32_ty, [f32_ty, f32_ty])
-/// let fval = mod.addFunction(fty, "fcmp_demo")
-/// let bb = fval.addBasicBlock(name="entry")
-/// let arg1 = fval.getArg(0).unwrap()
-/// let arg2 = fval.getArg(1).unwrap()
-/// builder.setInsertPoint(bb)
-/// let oeq_cmp = builder.createFCmp(OEQ, arg1, arg2)
-/// inspect(oeq_cmp.getValueRepr(), content="%2")
-/// oeq_cmp.setName("oeq_cmp")
-/// inspect(oeq_cmp.getValueRepr(), content="%oeq_cmp")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let f32_ty = ctx.getFloatTy()
+///   let fty = ctx.getFunctionType(f32_ty, [f32_ty, f32_ty])
+///   let fval = mod.addFunction(fty, "fcmp_demo")
+///   let bb = fval.addBasicBlock(name="entry")
+///   let arg1 = fval.getArg(0).unwrap()
+///   let arg2 = fval.getArg(1).unwrap()
+///   builder.setInsertPoint(bb)
+///   let oeq_cmp = builder.createFCmp(OEQ, arg1, arg2)
+///   inspect(oeq_cmp.getValueRepr(), content="%2")
+///   oeq_cmp.setName("oeq_cmp")
+///   inspect(oeq_cmp.getValueRepr(), content="%oeq_cmp")
+/// }
 /// ```
 pub impl Value for FCmpInst with getValueRepr(self) {
   match self.getNameOrSlot() {
@@ -1853,21 +1895,23 @@ pub impl Value for FCmpInst with asValueEnum(self) {
 ///
 /// If the instruction has no name, return `None`.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let f32_ty = ctx.getFloatTy()
-/// let fty = ctx.getFunctionType(f32_ty, [f32_ty, f32_ty])
-/// let fval = mod.addFunction(fty, "fcmp_demo")
-/// let bb = fval.addBasicBlock(name="entry")
-/// let arg1 = fval.getArg(0).unwrap()
-/// let arg2 = fval.getArg(1).unwrap()
-/// builder.setInsertPoint(bb)
-/// let oeq_cmp = builder.createFCmp(OEQ, arg1, arg2)
-/// inspect(oeq_cmp.getName(), content="None")
-/// oeq_cmp.setName("oeq_cmp")
-/// inspect(oeq_cmp.getName(), content="Some(\"oeq_cmp\")")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let f32_ty = ctx.getFloatTy()
+///   let fty = ctx.getFunctionType(f32_ty, [f32_ty, f32_ty])
+///   let fval = mod.addFunction(fty, "fcmp_demo")
+///   let bb = fval.addBasicBlock(name="entry")
+///   let arg1 = fval.getArg(0).unwrap()
+///   let arg2 = fval.getArg(1).unwrap()
+///   builder.setInsertPoint(bb)
+///   let oeq_cmp = builder.createFCmp(OEQ, arg1, arg2)
+///   inspect(oeq_cmp.getName(), content="None")
+///   oeq_cmp.setName("oeq_cmp")
+///   inspect(oeq_cmp.getName(), content="Some(\"oeq_cmp\")")
+/// }
 /// ```
 pub impl Value for FCmpInst with getName(self) {
   self.name
@@ -1881,21 +1925,23 @@ pub impl Value for FCmpInst with getName(self) {
 /// If the name has already been used in the parent function,
 /// it will raise Error.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let f32_ty = ctx.getFloatTy()
-/// let fty = ctx.getFunctionType(f32_ty, [f32_ty, f32_ty])
-/// let fval = mod.addFunction(fty, "fcmp_demo")
-/// let bb = fval.addBasicBlock(name="entry")
-/// let arg1 = fval.getArg(0).unwrap()
-/// let arg2 = fval.getArg(1).unwrap()
-/// builder.setInsertPoint(bb)
-/// let oeq_cmp = builder.createFCmp(OEQ, arg1, arg2)
-/// inspect(oeq_cmp.getName(), content="None")
-/// oeq_cmp.setName("oeq_cmp")
-/// inspect(oeq_cmp.getName(), content="Some(\"oeq_cmp\")")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let f32_ty = ctx.getFloatTy()
+///   let fty = ctx.getFunctionType(f32_ty, [f32_ty, f32_ty])
+///   let fval = mod.addFunction(fty, "fcmp_demo")
+///   let bb = fval.addBasicBlock(name="entry")
+///   let arg1 = fval.getArg(0).unwrap()
+///   let arg2 = fval.getArg(1).unwrap()
+///   builder.setInsertPoint(bb)
+///   let oeq_cmp = builder.createFCmp(OEQ, arg1, arg2)
+///   inspect(oeq_cmp.getName(), content="None")
+///   oeq_cmp.setName("oeq_cmp")
+///   inspect(oeq_cmp.getName(), content="Some(\"oeq_cmp\")")
+/// }
 /// ```
 pub impl Value for FCmpInst with setName(self, name) {
   match self.getParent().setSymbol(name, self) {
@@ -2029,25 +2075,27 @@ pub impl Show for CastOps with output(self, logger) {
 ///
 /// Use `IRBuilder::createTrunc`, `IRBuilder::createZExt`, `IRBuilder::createSExt`, etc. to create cast instructions.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let i64_ty = ctx.getInt64Ty()
-/// let f32_ty = ctx.getFloatTy()
-/// let fty = ctx.getFunctionType(i32_ty, [i64_ty])
-/// let fval = mod.addFunction(fty, "cast_demo")
-/// let bb = fval.addBasicBlock(name="entry")
-/// let arg = fval.getArg(0).unwrap()
-/// builder.setInsertPoint(bb)
-/// let trunc = builder.createTrunc(arg, i32_ty, name="truncated")
-/// inspect(trunc, content="  %truncated = trunc i64 %0 to i32")
-/// assert_true(trunc.asValueEnum() is CastInst(_))
-/// let zext = builder.createZExt(trunc, i64_ty, name="extended")
-/// inspect(zext, content="  %extended = zext i32 %truncated to i64")
-/// let bitcast = builder.createBitCast(trunc, f32_ty, name="bits")
-/// inspect(bitcast, content="  %bits = bitcast i32 %truncated to float")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let i64_ty = ctx.getInt64Ty()
+///   let f32_ty = ctx.getFloatTy()
+///   let fty = ctx.getFunctionType(i32_ty, [i64_ty])
+///   let fval = mod.addFunction(fty, "cast_demo")
+///   let bb = fval.addBasicBlock(name="entry")
+///   let arg = fval.getArg(0).unwrap()
+///   builder.setInsertPoint(bb)
+///   let trunc = builder.createTrunc(arg, i32_ty, name="truncated")
+///   inspect(trunc, content="  %truncated = trunc i64 %0 to i32")
+///   assert_true(trunc.asValueEnum() is CastInst(_))
+///   let zext = builder.createZExt(trunc, i64_ty, name="extended")
+///   inspect(zext, content="  %extended = zext i32 %truncated to i64")
+///   let bitcast = builder.createBitCast(trunc, f32_ty, name="bits")
+///   inspect(bitcast, content="  %bits = bitcast i32 %truncated to float")
+/// }
 /// ```
 pub struct CastInst {
   uid : UInt64
@@ -2402,21 +2450,23 @@ pub impl Value for CastInst with getValueBase(self) {
 ///|
 /// Get simple representation of the value.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let i64_ty = ctx.getInt64Ty()
-/// let fty = ctx.getFunctionType(i32_ty, [i64_ty])
-/// let fval = mod.addFunction(fty, "cast_demo")
-/// let bb = fval.addBasicBlock(name="entry")
-/// let arg = fval.getArg(0).unwrap()
-/// builder.setInsertPoint(bb)
-/// let trunc = builder.createTrunc(arg, i32_ty)
-/// inspect(trunc.getValueRepr(), content="%1")
-/// trunc.setName("truncated")
-/// inspect(trunc.getValueRepr(), content="%truncated")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let i64_ty = ctx.getInt64Ty()
+///   let fty = ctx.getFunctionType(i32_ty, [i64_ty])
+///   let fval = mod.addFunction(fty, "cast_demo")
+///   let bb = fval.addBasicBlock(name="entry")
+///   let arg = fval.getArg(0).unwrap()
+///   builder.setInsertPoint(bb)
+///   let trunc = builder.createTrunc(arg, i32_ty)
+///   inspect(trunc.getValueRepr(), content="%1")
+///   trunc.setName("truncated")
+///   inspect(trunc.getValueRepr(), content="%truncated")
+/// }
 /// ```
 pub impl Value for CastInst with getValueRepr(self) {
   match self.getNameOrSlot() {
@@ -2438,21 +2488,23 @@ pub impl Value for CastInst with asValueEnum(self) {
 ///
 /// If the instruction has no name, return `None`.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let i64_ty = ctx.getInt64Ty()
-/// let fty = ctx.getFunctionType(i32_ty, [i64_ty])
-/// let fval = mod.addFunction(fty, "cast_demo")
-/// let bb = fval.addBasicBlock(name="entry")
-/// let arg = fval.getArg(0).unwrap()
-/// builder.setInsertPoint(bb)
-/// let trunc = builder.createTrunc(arg, i32_ty)
-/// inspect(trunc.getName(), content="None")
-/// trunc.setName("truncated")
-/// inspect(trunc.getName(), content="Some(\"truncated\")")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let i64_ty = ctx.getInt64Ty()
+///   let fty = ctx.getFunctionType(i32_ty, [i64_ty])
+///   let fval = mod.addFunction(fty, "cast_demo")
+///   let bb = fval.addBasicBlock(name="entry")
+///   let arg = fval.getArg(0).unwrap()
+///   builder.setInsertPoint(bb)
+///   let trunc = builder.createTrunc(arg, i32_ty)
+///   inspect(trunc.getName(), content="None")
+///   trunc.setName("truncated")
+///   inspect(trunc.getName(), content="Some(\"truncated\")")
+/// }
 /// ```
 pub impl Value for CastInst with getName(self) {
   self.name
@@ -2466,21 +2518,23 @@ pub impl Value for CastInst with getName(self) {
 /// If the name has already been used in the parent function,
 /// it will raise Error.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let i64_ty = ctx.getInt64Ty()
-/// let fty = ctx.getFunctionType(i32_ty, [i64_ty])
-/// let fval = mod.addFunction(fty, "cast_demo")
-/// let bb = fval.addBasicBlock(name="entry")
-/// let arg = fval.getArg(0).unwrap()
-/// builder.setInsertPoint(bb)
-/// let trunc = builder.createTrunc(arg, i32_ty)
-/// inspect(trunc.getName(), content="None")
-/// trunc.setName("truncated")
-/// inspect(trunc.getName(), content="Some(\"truncated\")")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let i64_ty = ctx.getInt64Ty()
+///   let fty = ctx.getFunctionType(i32_ty, [i64_ty])
+///   let fval = mod.addFunction(fty, "cast_demo")
+///   let bb = fval.addBasicBlock(name="entry")
+///   let arg = fval.getArg(0).unwrap()
+///   builder.setInsertPoint(bb)
+///   let trunc = builder.createTrunc(arg, i32_ty)
+///   inspect(trunc.getName(), content="None")
+///   trunc.setName("truncated")
+///   inspect(trunc.getName(), content="Some(\"truncated\")")
+/// }
 /// ```
 pub impl Value for CastInst with setName(self, name) {
   match self.getParent().setSymbol(name, self) {
@@ -2582,32 +2636,34 @@ pub impl Show for CastInst with output(self, logger) {
 ///
 /// Use `IRBuilder::createGEP` to create a `GetElementPtrInst`.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let array_ty = ctx.getArrayType(i32_ty, 10)
-/// let ptr_ty = ctx.getPtrTy()
-/// let fty = ctx.getFunctionType(ptr_ty, [ptr_ty])
-/// let fval = mod.addFunction(fty, "gep_demo")
-/// let bb = fval.addBasicBlock(name="entry")
-/// let arg = fval.getArg(0).unwrap()
-/// let zero = ctx.getConstInt32(0)
-/// let two = ctx.getConstInt32(2)
-/// builder.setInsertPoint(bb)
-/// let gep = builder.createGEP(
-///   arg,
-///   array_ty,
-///   [zero, two],
-///   name="elem_ptr",
-///   inbounds=true,
-/// )
-/// inspect(
-///   gep,
-///   content="  %elem_ptr = getelementptr inbounds [10 x i32], ptr %0, i32 0, i32 2",
-/// )
-/// assert_true(gep.asValueEnum() is GetElementPtrInst(_))
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let array_ty = ctx.getArrayType(i32_ty, 10)
+///   let ptr_ty = ctx.getPtrTy()
+///   let fty = ctx.getFunctionType(ptr_ty, [ptr_ty])
+///   let fval = mod.addFunction(fty, "gep_demo")
+///   let bb = fval.addBasicBlock(name="entry")
+///   let arg = fval.getArg(0).unwrap()
+///   let zero = ctx.getConstInt32(0)
+///   let two = ctx.getConstInt32(2)
+///   builder.setInsertPoint(bb)
+///   let gep = builder.createGEP(
+///     arg,
+///     array_ty,
+///     [zero, two],
+///     name="elem_ptr",
+///     inbounds=true,
+///   )
+///   inspect(
+///     gep,
+///     content="  %elem_ptr = getelementptr inbounds [10 x i32], ptr %0, i32 0, i32 2",
+///   )
+///   assert_true(gep.asValueEnum() is GetElementPtrInst(_))
+/// }
 /// ```
 pub struct GetElementPtrInst {
   uid : UInt64
@@ -2667,24 +2723,26 @@ pub impl Value for GetElementPtrInst with getValueBase(self) {
 ///|
 /// Get simple representation of the value.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let array_ty = ctx.getArrayType(i32_ty, 10)
-/// let ptr_ty = ctx.getPtrTy()
-/// let fty = ctx.getFunctionType(ptr_ty, [ptr_ty])
-/// let fval = mod.addFunction(fty, "gep_demo")
-/// let bb = fval.addBasicBlock(name="entry")
-/// let arg = fval.getArg(0).unwrap()
-/// let zero = ctx.getConstInt32(0)
-/// let two = ctx.getConstInt32(2)
-/// builder.setInsertPoint(bb)
-/// let gep = builder.createGEP(arg, array_ty, [zero, two])
-/// inspect(gep.getValueRepr(), content="%1")
-/// gep.setName("elem_ptr")
-/// inspect(gep.getValueRepr(), content="%elem_ptr")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let array_ty = ctx.getArrayType(i32_ty, 10)
+///   let ptr_ty = ctx.getPtrTy()
+///   let fty = ctx.getFunctionType(ptr_ty, [ptr_ty])
+///   let fval = mod.addFunction(fty, "gep_demo")
+///   let bb = fval.addBasicBlock(name="entry")
+///   let arg = fval.getArg(0).unwrap()
+///   let zero = ctx.getConstInt32(0)
+///   let two = ctx.getConstInt32(2)
+///   builder.setInsertPoint(bb)
+///   let gep = builder.createGEP(arg, array_ty, [zero, two])
+///   inspect(gep.getValueRepr(), content="%1")
+///   gep.setName("elem_ptr")
+///   inspect(gep.getValueRepr(), content="%elem_ptr")
+/// }
 /// ```
 pub impl Value for GetElementPtrInst with getValueRepr(self) {
   match self.getNameOrSlot() {
@@ -2706,24 +2764,26 @@ pub impl Value for GetElementPtrInst with asValueEnum(self) {
 ///
 /// If the instruction has no name, return `None`.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let array_ty = ctx.getArrayType(i32_ty, 10)
-/// let ptr_ty = ctx.getPtrTy()
-/// let fty = ctx.getFunctionType(ptr_ty, [ptr_ty])
-/// let fval = mod.addFunction(fty, "gep_demo")
-/// let bb = fval.addBasicBlock(name="entry")
-/// let arg = fval.getArg(0).unwrap()
-/// let zero = ctx.getConstInt32(0)
-/// let two = ctx.getConstInt32(2)
-/// builder.setInsertPoint(bb)
-/// let gep = builder.createGEP(arg, array_ty, [zero, two])
-/// inspect(gep.getName(), content="None")
-/// gep.setName("elem_ptr")
-/// inspect(gep.getName(), content="Some(\"elem_ptr\")")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let array_ty = ctx.getArrayType(i32_ty, 10)
+///   let ptr_ty = ctx.getPtrTy()
+///   let fty = ctx.getFunctionType(ptr_ty, [ptr_ty])
+///   let fval = mod.addFunction(fty, "gep_demo")
+///   let bb = fval.addBasicBlock(name="entry")
+///   let arg = fval.getArg(0).unwrap()
+///   let zero = ctx.getConstInt32(0)
+///   let two = ctx.getConstInt32(2)
+///   builder.setInsertPoint(bb)
+///   let gep = builder.createGEP(arg, array_ty, [zero, two])
+///   inspect(gep.getName(), content="None")
+///   gep.setName("elem_ptr")
+///   inspect(gep.getName(), content="Some(\"elem_ptr\")")
+/// }
 /// ```
 pub impl Value for GetElementPtrInst with getName(self) {
   self.name
@@ -2737,24 +2797,26 @@ pub impl Value for GetElementPtrInst with getName(self) {
 /// If the name has already been used in the parent function,
 /// it will raise Error.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let array_ty = ctx.getArrayType(i32_ty, 10)
-/// let ptr_ty = ctx.getPtrTy()
-/// let fty = ctx.getFunctionType(ptr_ty, [ptr_ty])
-/// let fval = mod.addFunction(fty, "gep_demo")
-/// let bb = fval.addBasicBlock(name="entry")
-/// let arg = fval.getArg(0).unwrap()
-/// let zero = ctx.getConstInt32(0)
-/// let two = ctx.getConstInt32(2)
-/// builder.setInsertPoint(bb)
-/// let gep = builder.createGEP(arg, array_ty, [zero, two])
-/// inspect(gep.getName(), content="None")
-/// gep.setName("elem_ptr")
-/// inspect(gep.getName(), content="Some(\"elem_ptr\")")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let array_ty = ctx.getArrayType(i32_ty, 10)
+///   let ptr_ty = ctx.getPtrTy()
+///   let fty = ctx.getFunctionType(ptr_ty, [ptr_ty])
+///   let fval = mod.addFunction(fty, "gep_demo")
+///   let bb = fval.addBasicBlock(name="entry")
+///   let arg = fval.getArg(0).unwrap()
+///   let zero = ctx.getConstInt32(0)
+///   let two = ctx.getConstInt32(2)
+///   builder.setInsertPoint(bb)
+///   let gep = builder.createGEP(arg, array_ty, [zero, two])
+///   inspect(gep.getName(), content="None")
+///   gep.setName("elem_ptr")
+///   inspect(gep.getName(), content="Some(\"elem_ptr\")")
+/// }
 /// ```
 pub impl Value for GetElementPtrInst with setName(self, name) {
   match self.getParent().setSymbol(name, self) {
@@ -2859,22 +2921,24 @@ pub impl Show for GetElementPtrInst with output(self, logger) {
 ///
 /// Use `IRBuilder::createSelect` to create a `SelectInst`.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i1_ty = ctx.getInt1Ty()
-/// let i32_ty = ctx.getInt32Ty()
-/// let fty = ctx.getFunctionType(i32_ty, [i1_ty, i32_ty, i32_ty])
-/// let fval = mod.addFunction(fty, "select_demo")
-/// let bb = fval.addBasicBlock(name="entry")
-/// let cond = fval.getArg(0).unwrap()
-/// let true_val = fval.getArg(1).unwrap()
-/// let false_val = fval.getArg(2).unwrap()
-/// builder.setInsertPoint(bb)
-/// let select = builder.createSelect(cond, true_val, false_val, name="result")
-/// inspect(select, content="  %result = select i1 %0, i32 %1, i32 %2")
-/// assert_true(select.asValueEnum() is SelectInst(_))
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i1_ty = ctx.getInt1Ty()
+///   let i32_ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType(i32_ty, [i1_ty, i32_ty, i32_ty])
+///   let fval = mod.addFunction(fty, "select_demo")
+///   let bb = fval.addBasicBlock(name="entry")
+///   let cond = fval.getArg(0).unwrap()
+///   let true_val = fval.getArg(1).unwrap()
+///   let false_val = fval.getArg(2).unwrap()
+///   builder.setInsertPoint(bb)
+///   let select = builder.createSelect(cond, true_val, false_val, name="result")
+///   inspect(select, content="  %result = select i1 %0, i32 %1, i32 %2")
+///   assert_true(select.asValueEnum() is SelectInst(_))
+/// }
 /// ```
 pub struct SelectInst {
   uid : UInt64
@@ -2947,23 +3011,25 @@ pub impl Value for SelectInst with getValueBase(self) {
 ///|
 /// Get simple representation of the value.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i1_ty = ctx.getInt1Ty()
-/// let i32_ty = ctx.getInt32Ty()
-/// let fty = ctx.getFunctionType(i32_ty, [i1_ty, i32_ty, i32_ty])
-/// let fval = mod.addFunction(fty, "select_demo")
-/// let bb = fval.addBasicBlock(name="entry")
-/// let cond = fval.getArg(0).unwrap()
-/// let true_val = fval.getArg(1).unwrap()
-/// let false_val = fval.getArg(2).unwrap()
-/// builder.setInsertPoint(bb)
-/// let select = builder.createSelect(cond, true_val, false_val)
-/// inspect(select.getValueRepr(), content="%3")
-/// select.setName("result")
-/// inspect(select.getValueRepr(), content="%result")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i1_ty = ctx.getInt1Ty()
+///   let i32_ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType(i32_ty, [i1_ty, i32_ty, i32_ty])
+///   let fval = mod.addFunction(fty, "select_demo")
+///   let bb = fval.addBasicBlock(name="entry")
+///   let cond = fval.getArg(0).unwrap()
+///   let true_val = fval.getArg(1).unwrap()
+///   let false_val = fval.getArg(2).unwrap()
+///   builder.setInsertPoint(bb)
+///   let select = builder.createSelect(cond, true_val, false_val)
+///   inspect(select.getValueRepr(), content="%3")
+///   select.setName("result")
+///   inspect(select.getValueRepr(), content="%result")
+/// }
 /// ```
 pub impl Value for SelectInst with getValueRepr(self) {
   match self.getNameOrSlot() {
@@ -2985,23 +3051,25 @@ pub impl Value for SelectInst with asValueEnum(self) {
 ///
 /// If the instruction has no name, return `None`.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i1_ty = ctx.getInt1Ty()
-/// let i32_ty = ctx.getInt32Ty()
-/// let fty = ctx.getFunctionType(i32_ty, [i1_ty, i32_ty, i32_ty])
-/// let fval = mod.addFunction(fty, "select_demo")
-/// let bb = fval.addBasicBlock(name="entry")
-/// let cond = fval.getArg(0).unwrap()
-/// let true_val = fval.getArg(1).unwrap()
-/// let false_val = fval.getArg(2).unwrap()
-/// builder.setInsertPoint(bb)
-/// let select = builder.createSelect(cond, true_val, false_val)
-/// inspect(select.getName(), content="None")
-/// select.setName("result")
-/// inspect(select.getName(), content="Some(\"result\")")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i1_ty = ctx.getInt1Ty()
+///   let i32_ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType(i32_ty, [i1_ty, i32_ty, i32_ty])
+///   let fval = mod.addFunction(fty, "select_demo")
+///   let bb = fval.addBasicBlock(name="entry")
+///   let cond = fval.getArg(0).unwrap()
+///   let true_val = fval.getArg(1).unwrap()
+///   let false_val = fval.getArg(2).unwrap()
+///   builder.setInsertPoint(bb)
+///   let select = builder.createSelect(cond, true_val, false_val)
+///   inspect(select.getName(), content="None")
+///   select.setName("result")
+///   inspect(select.getName(), content="Some(\"result\")")
+/// }
 /// ```
 pub impl Value for SelectInst with getName(self) {
   self.name
@@ -3015,23 +3083,25 @@ pub impl Value for SelectInst with getName(self) {
 /// If the name has already been used in the parent function,
 /// it will raise Error.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i1_ty = ctx.getInt1Ty()
-/// let i32_ty = ctx.getInt32Ty()
-/// let fty = ctx.getFunctionType(i32_ty, [i1_ty, i32_ty, i32_ty])
-/// let fval = mod.addFunction(fty, "select_demo")
-/// let bb = fval.addBasicBlock(name="entry")
-/// let cond = fval.getArg(0).unwrap()
-/// let true_val = fval.getArg(1).unwrap()
-/// let false_val = fval.getArg(2).unwrap()
-/// builder.setInsertPoint(bb)
-/// let select = builder.createSelect(cond, true_val, false_val)
-/// inspect(select.getName(), content="None")
-/// select.setName("result")
-/// inspect(select.getName(), content="Some(\"result\")")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i1_ty = ctx.getInt1Ty()
+///   let i32_ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType(i32_ty, [i1_ty, i32_ty, i32_ty])
+///   let fval = mod.addFunction(fty, "select_demo")
+///   let bb = fval.addBasicBlock(name="entry")
+///   let cond = fval.getArg(0).unwrap()
+///   let true_val = fval.getArg(1).unwrap()
+///   let false_val = fval.getArg(2).unwrap()
+///   builder.setInsertPoint(bb)
+///   let select = builder.createSelect(cond, true_val, false_val)
+///   inspect(select.getName(), content="None")
+///   select.setName("result")
+///   inspect(select.getName(), content="Some(\"result\")")
+/// }
 /// ```
 pub impl Value for SelectInst with setName(self, name) {
   match self.getParent().setSymbol(name, self) {
@@ -3133,26 +3203,28 @@ pub impl Show for SelectInst with output(self, logger) {
 ///
 /// Use `IRBuilder::createRet` or `IRBuilder::createRetVoid` to create a `ReturnInst`.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let void_ty = ctx.getVoidTy()
-/// let fty = ctx.getFunctionType(i32_ty, [i32_ty])
-/// let fval = mod.addFunction(fty, "return_demo")
-/// let bb = fval.addBasicBlock(name="entry")
-/// let arg = fval.getArg(0).unwrap()
-/// builder.setInsertPoint(bb)
-/// let ret = builder.createRet(arg)
-/// inspect(ret, content="  ret i32 %0")
-/// assert_true(ret.asValueEnum() is ReturnInst(_))
-/// let void_fty = ctx.getFunctionType(void_ty, [])
-/// let void_fval = mod.addFunction(void_fty, "void_return_demo")
-/// let void_bb = void_fval.addBasicBlock(name="entry")
-/// builder.setInsertPoint(void_bb)
-/// let void_ret = builder.createRetVoid()
-/// inspect(void_ret, content="  ret void")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let void_ty = ctx.getVoidTy()
+///   let fty = ctx.getFunctionType(i32_ty, [i32_ty])
+///   let fval = mod.addFunction(fty, "return_demo")
+///   let bb = fval.addBasicBlock(name="entry")
+///   let arg = fval.getArg(0).unwrap()
+///   builder.setInsertPoint(bb)
+///   let ret = builder.createRet(arg)
+///   inspect(ret, content="  ret i32 %0")
+///   assert_true(ret.asValueEnum() is ReturnInst(_))
+///   let void_fty = ctx.getFunctionType(void_ty, [])
+///   let void_fval = mod.addFunction(void_fty, "void_return_demo")
+///   let void_bb = void_fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(void_bb)
+///   let void_ret = builder.createRetVoid()
+///   inspect(void_ret, content="  ret void")
+/// }
 /// ```
 pub struct ReturnInst {
   uid : UInt64
@@ -3270,25 +3342,30 @@ pub impl Show for ReturnInst with output(self, logger) {
 ///
 /// Use `IRBuilder::createBr` for unconditional branches or `IRBuilder::createCondBr` for conditional branches.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i1_ty = ctx.getInt1Ty()
-/// let void_ty = ctx.getVoidTy()
-/// let fty = ctx.getFunctionType(void_ty, [i1_ty])
-/// let fval = mod.addFunction(fty, "branch_demo")
-/// let entry_bb = fval.addBasicBlock(name="entry")
-/// let true_bb = fval.addBasicBlock(name="true_branch")
-/// let false_bb = fval.addBasicBlock(name="false_branch")
-/// let cond = fval.getArg(0).unwrap()
-/// builder.setInsertPoint(entry_bb)
-/// let cond_br = builder.createCondBr(cond, true_bb, false_bb)
-/// inspect(cond_br, content="  br i1 %0, label %true_branch, label %false_branch")
-/// assert_true(cond_br.asValueEnum() is BranchInst(_))
-/// builder.setInsertPoint(true_bb)
-/// let uncond_br = builder.createBr(false_bb)
-/// inspect(uncond_br, content="  br label %false_branch")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i1_ty = ctx.getInt1Ty()
+///   let void_ty = ctx.getVoidTy()
+///   let fty = ctx.getFunctionType(void_ty, [i1_ty])
+///   let fval = mod.addFunction(fty, "branch_demo")
+///   let entry_bb = fval.addBasicBlock(name="entry")
+///   let true_bb = fval.addBasicBlock(name="true_branch")
+///   let false_bb = fval.addBasicBlock(name="false_branch")
+///   let cond = fval.getArg(0).unwrap()
+///   builder.setInsertPoint(entry_bb)
+///   let cond_br = builder.createCondBr(cond, true_bb, false_bb)
+///   inspect(
+///     cond_br,
+///     content="  br i1 %0, label %true_branch, label %false_branch",
+///   )
+///   assert_true(cond_br.asValueEnum() is BranchInst(_))
+///   builder.setInsertPoint(true_bb)
+///   let uncond_br = builder.createBr(false_bb)
+///   inspect(uncond_br, content="  br label %false_branch")
+/// }
 /// ```
 pub struct BranchInst {
   // --- ValueBase ---
@@ -3499,32 +3576,34 @@ pub impl Show for BranchInst with output(self, logger) {
 ///
 /// Use `IRBuilder::createSwitch` to create a `SwitchInst`, then use `SwitchInst::addCase` to add individual cases.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let void_ty = ctx.getVoidTy()
-/// let fty = ctx.getFunctionType(void_ty, [i32_ty])
-/// let fval = mod.addFunction(fty, "switch_demo")
-/// let entry_bb = fval.addBasicBlock(name="entry")
-/// let case1_bb = fval.addBasicBlock(name="case1")
-/// let case2_bb = fval.addBasicBlock(name="case2")
-/// let default_bb = fval.addBasicBlock(name="default")
-/// let value = fval.getArg(0).unwrap()
-/// builder.setInsertPoint(entry_bb)
-/// let switch = builder.createSwitch(value, default_bb)
-/// let case_val1 = ctx.getConstInt32(1)
-/// let case_val2 = ctx.getConstInt32(2)
-/// switch.addCase(case_val1, case1_bb)
-/// switch.addCase(case_val2, case2_bb)
-/// let expect =
-///   #|  switch i32 %0, label %default [
-///   #|    i32 1, label %case1
-///   #|    i32 2, label %case2
-///   #|  ]
-/// inspect(switch, content=expect)
-/// assert_true(switch.asValueEnum() is SwitchInst(_))
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let void_ty = ctx.getVoidTy()
+///   let fty = ctx.getFunctionType(void_ty, [i32_ty])
+///   let fval = mod.addFunction(fty, "switch_demo")
+///   let entry_bb = fval.addBasicBlock(name="entry")
+///   let case1_bb = fval.addBasicBlock(name="case1")
+///   let case2_bb = fval.addBasicBlock(name="case2")
+///   let default_bb = fval.addBasicBlock(name="default")
+///   let value = fval.getArg(0).unwrap()
+///   builder.setInsertPoint(entry_bb)
+///   let switch = builder.createSwitch(value, default_bb)
+///   let case_val1 = ctx.getConstInt32(1)
+///   let case_val2 = ctx.getConstInt32(2)
+///   switch.addCase(case_val1, case1_bb)
+///   switch.addCase(case_val2, case2_bb)
+///   let expect =
+///     #|  switch i32 %0, label %default [
+///     #|    i32 1, label %case1
+///     #|    i32 2, label %case2
+///     #|  ]
+///   inspect(switch, content=expect)
+///   assert_true(switch.asValueEnum() is SwitchInst(_))
+/// }
 /// ```
 pub struct SwitchInst {
   uid : UInt64
@@ -3589,31 +3668,33 @@ pub fn SwitchInst::getNumCases(self : Self) -> Int {
 ///
 /// Returns `None` if the index is out of bounds. Use `SwitchInst::getNumCases` to get the total number of cases.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let void_ty = ctx.getVoidTy()
-/// let fty = ctx.getFunctionType(void_ty, [i32_ty])
-/// let fval = mod.addFunction(fty, "switch_case_demo")
-/// let entry_bb = fval.addBasicBlock(name="entry")
-/// let case1_bb = fval.addBasicBlock(name="case1")
-/// let case2_bb = fval.addBasicBlock(name="case2")
-/// let default_bb = fval.addBasicBlock(name="default")
-/// let value = fval.getArg(0).unwrap()
-/// builder.setInsertPoint(entry_bb)
-/// let switch = builder.createSwitch(value, default_bb)
-/// let case_val1 = ctx.getConstInt32(1)
-/// let case_val2 = ctx.getConstInt32(2)
-/// switch.addCase(case_val1, case1_bb)
-/// switch.addCase(case_val2, case2_bb)
-/// inspect(switch.getNumCases(), content="2")
-/// inspect(switch.getCase(0).unwrap().0.getValueRepr(), content="1")
-/// inspect(switch.getCase(0).unwrap().1.getValueRepr(), content="%case1")
-/// inspect(switch.getCase(1).unwrap().0.getValueRepr(), content="2")
-/// inspect(switch.getCase(1).unwrap().1.getValueRepr(), content="%case2")
-/// inspect(switch.getCase(2), content="None")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let void_ty = ctx.getVoidTy()
+///   let fty = ctx.getFunctionType(void_ty, [i32_ty])
+///   let fval = mod.addFunction(fty, "switch_case_demo")
+///   let entry_bb = fval.addBasicBlock(name="entry")
+///   let case1_bb = fval.addBasicBlock(name="case1")
+///   let case2_bb = fval.addBasicBlock(name="case2")
+///   let default_bb = fval.addBasicBlock(name="default")
+///   let value = fval.getArg(0).unwrap()
+///   builder.setInsertPoint(entry_bb)
+///   let switch = builder.createSwitch(value, default_bb)
+///   let case_val1 = ctx.getConstInt32(1)
+///   let case_val2 = ctx.getConstInt32(2)
+///   switch.addCase(case_val1, case1_bb)
+///   switch.addCase(case_val2, case2_bb)
+///   inspect(switch.getNumCases(), content="2")
+///   inspect(switch.getCase(0).unwrap().0.getValueRepr(), content="1")
+///   inspect(switch.getCase(0).unwrap().1.getValueRepr(), content="%case1")
+///   inspect(switch.getCase(1).unwrap().0.getValueRepr(), content="2")
+///   inspect(switch.getCase(1).unwrap().1.getValueRepr(), content="%case2")
+///   inspect(switch.getCase(2), content="None")
+/// }
 /// ```
 pub fn SwitchInst::getCase(
   self : Self,
@@ -3630,34 +3711,36 @@ pub fn SwitchInst::getCase(
 /// The case condition must be a constant integer with the same type as the switch condition.
 /// Will raise `LLVMValueError` if there is a type mismatch between the case condition and switch condition.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let void_ty = ctx.getVoidTy()
-/// let fty = ctx.getFunctionType(void_ty, [i32_ty])
-/// let fval = mod.addFunction(fty, "switch_addcase_demo")
-/// let entry_bb = fval.addBasicBlock(name="entry")
-/// let case1_bb = fval.addBasicBlock(name="case1")
-/// let case2_bb = fval.addBasicBlock(name="case2")
-/// let case3_bb = fval.addBasicBlock(name="case3")
-/// let default_bb = fval.addBasicBlock(name="default")
-/// let value = fval.getArg(0).unwrap()
-/// builder.setInsertPoint(entry_bb)
-/// let switch = builder.createSwitch(value, default_bb)
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let void_ty = ctx.getVoidTy()
+///   let fty = ctx.getFunctionType(void_ty, [i32_ty])
+///   let fval = mod.addFunction(fty, "switch_addcase_demo")
+///   let entry_bb = fval.addBasicBlock(name="entry")
+///   let case1_bb = fval.addBasicBlock(name="case1")
+///   let case2_bb = fval.addBasicBlock(name="case2")
+///   let case3_bb = fval.addBasicBlock(name="case3")
+///   let default_bb = fval.addBasicBlock(name="default")
+///   let value = fval.getArg(0).unwrap()
+///   builder.setInsertPoint(entry_bb)
+///   let switch = builder.createSwitch(value, default_bb)
 ///
-/// // Add multiple cases
-/// let case_val1 = ctx.getConstInt32(1)
-/// let case_val2 = ctx.getConstInt32(2)
-/// let case_val3 = ctx.getConstInt32(3)
-/// switch.addCase(case_val1, case1_bb)
-/// switch.addCase(case_val2, case2_bb)
-/// switch.addCase(case_val3, case3_bb)
-/// inspect(switch.getNumCases(), content="3")
-/// assert_true(switch.getCase(0).unwrap().0.getValueRepr() == "1")
-/// assert_true(switch.getCase(1).unwrap().0.getValueRepr() == "2")
-/// assert_true(switch.getCase(2).unwrap().0.getValueRepr() == "3")
+///   // Add multiple cases
+///   let case_val1 = ctx.getConstInt32(1)
+///   let case_val2 = ctx.getConstInt32(2)
+///   let case_val3 = ctx.getConstInt32(3)
+///   switch.addCase(case_val1, case1_bb)
+///   switch.addCase(case_val2, case2_bb)
+///   switch.addCase(case_val3, case3_bb)
+///   inspect(switch.getNumCases(), content="3")
+///   assert_true(switch.getCase(0).unwrap().0.getValueRepr() == "1")
+///   assert_true(switch.getCase(1).unwrap().0.getValueRepr() == "2")
+///   assert_true(switch.getCase(2).unwrap().0.getValueRepr() == "3")
+/// }
 /// ```
 pub fn SwitchInst::addCase(
   self : Self,
@@ -3801,24 +3884,26 @@ pub impl Show for SwitchInst with output(self, logger) {
 ///
 /// Use `IRBuilder::createPHI` to create a `PHINode`, then use `PHINode::addIncoming` to add incoming values.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let fty = ctx.getFunctionType(i32_ty, [])
-/// let fval = mod.addFunction(fty, "phi_demo")
-/// let entry_bb = fval.addBasicBlock(name="entry")
-/// let block_bb = fval.addBasicBlock(name="block")
-/// let merge_bb = fval.addBasicBlock(name="merge")
-/// let val1 = ctx.getConstInt32(10)
-/// let val2 = ctx.getConstInt32(20)
-/// builder.setInsertPoint(merge_bb)
-/// let phi = builder.createPHI(i32_ty, name="result")
-/// phi.addIncoming(val1, entry_bb)
-/// phi.addIncoming(val2, block_bb)
-/// inspect(phi, content="  %result = phi i32 [ 10, %entry ], [ 20, %block ]")
-/// assert_true(phi.asValueEnum() is PHINode(_))
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType(i32_ty, [])
+///   let fval = mod.addFunction(fty, "phi_demo")
+///   let entry_bb = fval.addBasicBlock(name="entry")
+///   let block_bb = fval.addBasicBlock(name="block")
+///   let merge_bb = fval.addBasicBlock(name="merge")
+///   let val1 = ctx.getConstInt32(10)
+///   let val2 = ctx.getConstInt32(20)
+///   builder.setInsertPoint(merge_bb)
+///   let phi = builder.createPHI(i32_ty, name="result")
+///   phi.addIncoming(val1, entry_bb)
+///   phi.addIncoming(val2, block_bb)
+///   inspect(phi, content="  %result = phi i32 [ 10, %entry ], [ 20, %block ]")
+///   assert_true(phi.asValueEnum() is PHINode(_))
+/// }
 /// ```
 pub struct PHINode {
   uid : UInt64
@@ -3850,28 +3935,30 @@ fn PHINode::new(vty : &Type, parent : Function, name~ : String?) -> PHINode {
 ///
 /// Returns the total count of incoming value-block pairs added to this PHI node.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let fty = ctx.getFunctionType(i32_ty, [])
-/// let fval = mod.addFunction(fty, "phi_num_demo")
-/// let entry_bb = fval.addBasicBlock(name="entry")
-/// let block1_bb = fval.addBasicBlock(name="block1")
-/// let block2_bb = fval.addBasicBlock(name="block2")
-/// let merge_bb = fval.addBasicBlock(name="merge")
-/// let val1 = ctx.getConstInt32(10)
-/// let val2 = ctx.getConstInt32(20)
-/// let val3 = ctx.getConstInt32(30)
-/// builder.setInsertPoint(merge_bb)
-/// let phi = builder.createPHI(i32_ty, name="result")
-/// inspect(phi.getNumIncomingValues(), content="0")
-/// phi.addIncoming(val1, entry_bb)
-/// inspect(phi.getNumIncomingValues(), content="1")
-/// phi.addIncoming(val2, block1_bb)
-/// phi.addIncoming(val3, block2_bb)
-/// inspect(phi.getNumIncomingValues(), content="3")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType(i32_ty, [])
+///   let fval = mod.addFunction(fty, "phi_num_demo")
+///   let entry_bb = fval.addBasicBlock(name="entry")
+///   let block1_bb = fval.addBasicBlock(name="block1")
+///   let block2_bb = fval.addBasicBlock(name="block2")
+///   let merge_bb = fval.addBasicBlock(name="merge")
+///   let val1 = ctx.getConstInt32(10)
+///   let val2 = ctx.getConstInt32(20)
+///   let val3 = ctx.getConstInt32(30)
+///   builder.setInsertPoint(merge_bb)
+///   let phi = builder.createPHI(i32_ty, name="result")
+///   inspect(phi.getNumIncomingValues(), content="0")
+///   phi.addIncoming(val1, entry_bb)
+///   inspect(phi.getNumIncomingValues(), content="1")
+///   phi.addIncoming(val2, block1_bb)
+///   phi.addIncoming(val3, block2_bb)
+///   inspect(phi.getNumIncomingValues(), content="3")
+/// }
 /// ```
 pub fn PHINode::getNumIncomingValues(self : PHINode) -> Int {
   self.incomings.length()
@@ -3884,25 +3971,27 @@ pub fn PHINode::getNumIncomingValues(self : PHINode) -> Int {
 ///
 /// Returns `None` if the index is out of bounds. Use `PHINode::getNumIncomingValues` to get the valid range.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let fty = ctx.getFunctionType(i32_ty, [])
-/// let fval = mod.addFunction(fty, "phi_value_demo")
-/// let entry_bb = fval.addBasicBlock(name="entry")
-/// let block_bb = fval.addBasicBlock(name="block")
-/// let merge_bb = fval.addBasicBlock(name="merge")
-/// let val1 = ctx.getConstInt32(10)
-/// let val2 = ctx.getConstInt32(20)
-/// builder.setInsertPoint(merge_bb)
-/// let phi = builder.createPHI(i32_ty, name="result")
-/// phi.addIncoming(val1, entry_bb)
-/// phi.addIncoming(val2, block_bb)
-/// inspect(phi.getIncomingValue(0).unwrap().getValueRepr(), content="10")
-/// inspect(phi.getIncomingValue(1).unwrap().getValueRepr(), content="20")
-/// inspect(phi.getIncomingValue(2), content="None")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType(i32_ty, [])
+///   let fval = mod.addFunction(fty, "phi_value_demo")
+///   let entry_bb = fval.addBasicBlock(name="entry")
+///   let block_bb = fval.addBasicBlock(name="block")
+///   let merge_bb = fval.addBasicBlock(name="merge")
+///   let val1 = ctx.getConstInt32(10)
+///   let val2 = ctx.getConstInt32(20)
+///   builder.setInsertPoint(merge_bb)
+///   let phi = builder.createPHI(i32_ty, name="result")
+///   phi.addIncoming(val1, entry_bb)
+///   phi.addIncoming(val2, block_bb)
+///   inspect(phi.getIncomingValue(0).unwrap().getValueRepr(), content="10")
+///   inspect(phi.getIncomingValue(1).unwrap().getValueRepr(), content="20")
+///   inspect(phi.getIncomingValue(2), content="None")
+/// }
 /// ```
 pub fn PHINode::getIncomingValue(self : PHINode, idx : Int) -> &Value? {
   match self.incomings.get(idx) {
@@ -3918,25 +4007,27 @@ pub fn PHINode::getIncomingValue(self : PHINode, idx : Int) -> &Value? {
 ///
 /// Returns `None` if the index is out of bounds. Use `PHINode::getNumIncomingValues` to get the valid range.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let fty = ctx.getFunctionType(i32_ty, [])
-/// let fval = mod.addFunction(fty, "phi_block_demo")
-/// let entry_bb = fval.addBasicBlock(name="entry")
-/// let block_bb = fval.addBasicBlock(name="block")
-/// let merge_bb = fval.addBasicBlock(name="merge")
-/// let val1 = ctx.getConstInt32(10)
-/// let val2 = ctx.getConstInt32(20)
-/// builder.setInsertPoint(merge_bb)
-/// let phi = builder.createPHI(i32_ty, name="result")
-/// phi.addIncoming(val1, entry_bb)
-/// phi.addIncoming(val2, block_bb)
-/// inspect(phi.getIncomingBlock(0).unwrap().getValueRepr(), content="%entry")
-/// inspect(phi.getIncomingBlock(1).unwrap().getValueRepr(), content="%block")
-/// inspect(phi.getIncomingBlock(2), content="None")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType(i32_ty, [])
+///   let fval = mod.addFunction(fty, "phi_block_demo")
+///   let entry_bb = fval.addBasicBlock(name="entry")
+///   let block_bb = fval.addBasicBlock(name="block")
+///   let merge_bb = fval.addBasicBlock(name="merge")
+///   let val1 = ctx.getConstInt32(10)
+///   let val2 = ctx.getConstInt32(20)
+///   builder.setInsertPoint(merge_bb)
+///   let phi = builder.createPHI(i32_ty, name="result")
+///   phi.addIncoming(val1, entry_bb)
+///   phi.addIncoming(val2, block_bb)
+///   inspect(phi.getIncomingBlock(0).unwrap().getValueRepr(), content="%entry")
+///   inspect(phi.getIncomingBlock(1).unwrap().getValueRepr(), content="%block")
+///   inspect(phi.getIncomingBlock(2), content="None")
+/// }
 /// ```
 pub fn PHINode::getIncomingBlock(self : PHINode, idx : Int) -> BasicBlock? {
   match self.incomings.get(idx) {
@@ -3952,29 +4043,31 @@ pub fn PHINode::getIncomingBlock(self : PHINode, idx : Int) -> BasicBlock? {
 ///
 /// Returns `None` if the index is out of bounds. This is a convenience method that returns both the value and block together.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let fty = ctx.getFunctionType(i32_ty, [])
-/// let fval = mod.addFunction(fty, "phi_incoming_demo")
-/// let entry_bb = fval.addBasicBlock(name="entry")
-/// let block_bb = fval.addBasicBlock(name="block")
-/// let merge_bb = fval.addBasicBlock(name="merge")
-/// let val1 = ctx.getConstInt32(10)
-/// let val2 = ctx.getConstInt32(20)
-/// builder.setInsertPoint(merge_bb)
-/// let phi = builder.createPHI(i32_ty, name="result")
-/// phi.addIncoming(val1, entry_bb)
-/// phi.addIncoming(val2, block_bb)
-/// let (value0, block0) = phi.getIncoming(0).unwrap()
-/// inspect(value0.getValueRepr(), content="10")
-/// inspect(block0.getValueRepr(), content="%entry")
-/// let (value1, block1) = phi.getIncoming(1).unwrap()
-/// inspect(value1.getValueRepr(), content="20")
-/// inspect(block1.getValueRepr(), content="%block")
-/// inspect(phi.getIncoming(2), content="None")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType(i32_ty, [])
+///   let fval = mod.addFunction(fty, "phi_incoming_demo")
+///   let entry_bb = fval.addBasicBlock(name="entry")
+///   let block_bb = fval.addBasicBlock(name="block")
+///   let merge_bb = fval.addBasicBlock(name="merge")
+///   let val1 = ctx.getConstInt32(10)
+///   let val2 = ctx.getConstInt32(20)
+///   builder.setInsertPoint(merge_bb)
+///   let phi = builder.createPHI(i32_ty, name="result")
+///   phi.addIncoming(val1, entry_bb)
+///   phi.addIncoming(val2, block_bb)
+///   let (value0, block0) = phi.getIncoming(0).unwrap()
+///   inspect(value0.getValueRepr(), content="10")
+///   inspect(block0.getValueRepr(), content="%entry")
+///   let (value1, block1) = phi.getIncoming(1).unwrap()
+///   inspect(value1.getValueRepr(), content="20")
+///   inspect(block1.getValueRepr(), content="%block")
+///   inspect(phi.getIncoming(2), content="None")
+/// }
 /// ```
 pub fn PHINode::getIncoming(self : PHINode, idx : Int) -> (&Value, BasicBlock)? {
   self.incomings.get(idx)
@@ -3987,31 +4080,33 @@ pub fn PHINode::getIncoming(self : PHINode, idx : Int) -> (&Value, BasicBlock)? 
 ///
 /// Returns a copy of the internal array containing all value-block pairs in the order they were added.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let fty = ctx.getFunctionType(i32_ty, [])
-/// let fval = mod.addFunction(fty, "phi_incomings_demo")
-/// let entry_bb = fval.addBasicBlock(name="entry")
-/// let block1_bb = fval.addBasicBlock(name="block1")
-/// let block2_bb = fval.addBasicBlock(name="block2")
-/// let merge_bb = fval.addBasicBlock(name="merge")
-/// let val1 = ctx.getConstInt32(10)
-/// let val2 = ctx.getConstInt32(20)
-/// let val3 = ctx.getConstInt32(30)
-/// builder.setInsertPoint(merge_bb)
-/// let phi = builder.createPHI(i32_ty, name="result")
-/// phi.addIncoming(val1, entry_bb)
-/// phi.addIncoming(val2, block1_bb)
-/// phi.addIncoming(val3, block2_bb)
-/// let incomings = phi.getIncomings()
-/// inspect(incomings.length(), content="3")
-/// inspect(incomings[0].0.getValueRepr(), content="10")
-/// inspect(incomings[0].1.getValueRepr(), content="%entry")
-/// inspect(incomings[1].0.getValueRepr(), content="20")
-/// inspect(incomings[2].0.getValueRepr(), content="30")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType(i32_ty, [])
+///   let fval = mod.addFunction(fty, "phi_incomings_demo")
+///   let entry_bb = fval.addBasicBlock(name="entry")
+///   let block1_bb = fval.addBasicBlock(name="block1")
+///   let block2_bb = fval.addBasicBlock(name="block2")
+///   let merge_bb = fval.addBasicBlock(name="merge")
+///   let val1 = ctx.getConstInt32(10)
+///   let val2 = ctx.getConstInt32(20)
+///   let val3 = ctx.getConstInt32(30)
+///   builder.setInsertPoint(merge_bb)
+///   let phi = builder.createPHI(i32_ty, name="result")
+///   phi.addIncoming(val1, entry_bb)
+///   phi.addIncoming(val2, block1_bb)
+///   phi.addIncoming(val3, block2_bb)
+///   let incomings = phi.getIncomings()
+///   inspect(incomings.length(), content="3")
+///   inspect(incomings[0].0.getValueRepr(), content="10")
+///   inspect(incomings[0].1.getValueRepr(), content="%entry")
+///   inspect(incomings[1].0.getValueRepr(), content="20")
+///   inspect(incomings[2].0.getValueRepr(), content="30")
+/// }
 /// ```
 pub fn PHINode::getIncomings(self : PHINode) -> Array[(&Value, BasicBlock)] {
   self.incomings
@@ -4024,30 +4119,32 @@ pub fn PHINode::getIncomings(self : PHINode) -> Array[(&Value, BasicBlock)] {
 ///
 /// Returns an array containing only the values from all incoming value-block pairs, in the order they were added.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let fty = ctx.getFunctionType(i32_ty, [])
-/// let fval = mod.addFunction(fty, "phi_values_demo")
-/// let entry_bb = fval.addBasicBlock(name="entry")
-/// let block1_bb = fval.addBasicBlock(name="block1")
-/// let block2_bb = fval.addBasicBlock(name="block2")
-/// let merge_bb = fval.addBasicBlock(name="merge")
-/// let val1 = ctx.getConstInt32(10)
-/// let val2 = ctx.getConstInt32(20)
-/// let val3 = ctx.getConstInt32(30)
-/// builder.setInsertPoint(merge_bb)
-/// let phi = builder.createPHI(i32_ty, name="result")
-/// phi.addIncoming(val1, entry_bb)
-/// phi.addIncoming(val2, block1_bb)
-/// phi.addIncoming(val3, block2_bb)
-/// let values = phi.getIncomingValues()
-/// inspect(values.length(), content="3")
-/// inspect(values[0].getValueRepr(), content="10")
-/// inspect(values[1].getValueRepr(), content="20")
-/// inspect(values[2].getValueRepr(), content="30")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType(i32_ty, [])
+///   let fval = mod.addFunction(fty, "phi_values_demo")
+///   let entry_bb = fval.addBasicBlock(name="entry")
+///   let block1_bb = fval.addBasicBlock(name="block1")
+///   let block2_bb = fval.addBasicBlock(name="block2")
+///   let merge_bb = fval.addBasicBlock(name="merge")
+///   let val1 = ctx.getConstInt32(10)
+///   let val2 = ctx.getConstInt32(20)
+///   let val3 = ctx.getConstInt32(30)
+///   builder.setInsertPoint(merge_bb)
+///   let phi = builder.createPHI(i32_ty, name="result")
+///   phi.addIncoming(val1, entry_bb)
+///   phi.addIncoming(val2, block1_bb)
+///   phi.addIncoming(val3, block2_bb)
+///   let values = phi.getIncomingValues()
+///   inspect(values.length(), content="3")
+///   inspect(values[0].getValueRepr(), content="10")
+///   inspect(values[1].getValueRepr(), content="20")
+///   inspect(values[2].getValueRepr(), content="30")
+/// }
 /// ```
 pub fn PHINode::getIncomingValues(self : PHINode) -> Array[&Value] {
   self.incomings.map(incoming => incoming.0)
@@ -4060,30 +4157,32 @@ pub fn PHINode::getIncomingValues(self : PHINode) -> Array[&Value] {
 ///
 /// Returns an array containing only the basic blocks from all incoming value-block pairs, in the order they were added.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let fty = ctx.getFunctionType(i32_ty, [])
-/// let fval = mod.addFunction(fty, "phi_blocks_demo")
-/// let entry_bb = fval.addBasicBlock(name="entry")
-/// let block1_bb = fval.addBasicBlock(name="block1")
-/// let block2_bb = fval.addBasicBlock(name="block2")
-/// let merge_bb = fval.addBasicBlock(name="merge")
-/// let val1 = ctx.getConstInt32(10)
-/// let val2 = ctx.getConstInt32(20)
-/// let val3 = ctx.getConstInt32(30)
-/// builder.setInsertPoint(merge_bb)
-/// let phi = builder.createPHI(i32_ty, name="result")
-/// phi.addIncoming(val1, entry_bb)
-/// phi.addIncoming(val2, block1_bb)
-/// phi.addIncoming(val3, block2_bb)
-/// let blocks = phi.getIncomingBlocks()
-/// inspect(blocks.length(), content="3")
-/// inspect(blocks[0].getValueRepr(), content="%entry")
-/// inspect(blocks[1].getValueRepr(), content="%block1")
-/// inspect(blocks[2].getValueRepr(), content="%block2")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType(i32_ty, [])
+///   let fval = mod.addFunction(fty, "phi_blocks_demo")
+///   let entry_bb = fval.addBasicBlock(name="entry")
+///   let block1_bb = fval.addBasicBlock(name="block1")
+///   let block2_bb = fval.addBasicBlock(name="block2")
+///   let merge_bb = fval.addBasicBlock(name="merge")
+///   let val1 = ctx.getConstInt32(10)
+///   let val2 = ctx.getConstInt32(20)
+///   let val3 = ctx.getConstInt32(30)
+///   builder.setInsertPoint(merge_bb)
+///   let phi = builder.createPHI(i32_ty, name="result")
+///   phi.addIncoming(val1, entry_bb)
+///   phi.addIncoming(val2, block1_bb)
+///   phi.addIncoming(val3, block2_bb)
+///   let blocks = phi.getIncomingBlocks()
+///   inspect(blocks.length(), content="3")
+///   inspect(blocks[0].getValueRepr(), content="%entry")
+///   inspect(blocks[1].getValueRepr(), content="%block1")
+///   inspect(blocks[2].getValueRepr(), content="%block2")
+/// }
 /// ```
 pub fn PHINode::getIncomingBlocks(self : PHINode) -> Array[BasicBlock] {
   self.incomings.map(incoming => incoming.1)
@@ -4097,32 +4196,34 @@ pub fn PHINode::getIncomingBlocks(self : PHINode) -> Array[BasicBlock] {
 /// The value's type must match the PHI node's type. Will raise `LLVMValueError` if there is a type mismatch.
 /// The basic block represents the predecessor block from which this value flows into the PHI node.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let fty = ctx.getFunctionType(i32_ty, [])
-/// let fval = mod.addFunction(fty, "phi_add_demo")
-/// let entry_bb = fval.addBasicBlock(name="entry")
-/// let block1_bb = fval.addBasicBlock(name="block1")
-/// let block2_bb = fval.addBasicBlock(name="block2")
-/// let merge_bb = fval.addBasicBlock(name="merge")
-/// let val1 = ctx.getConstInt32(10)
-/// let val2 = ctx.getConstInt32(20)
-/// let val3 = ctx.getConstInt32(30)
-/// builder.setInsertPoint(merge_bb)
-/// let phi = builder.createPHI(i32_ty, name="result")
-/// inspect(phi.getNumIncomingValues(), content="0")
-/// phi.addIncoming(val1, entry_bb)
-/// inspect(phi.getNumIncomingValues(), content="1")
-/// inspect(phi.getIncomingValue(0).unwrap().getValueRepr(), content="10")
-/// inspect(phi.getIncomingBlock(0).unwrap().getValueRepr(), content="%entry")
-/// phi.addIncoming(val2, block1_bb)
-/// phi.addIncoming(val3, block2_bb)
-/// inspect(phi.getNumIncomingValues(), content="3")
-/// let expected = "  %result = phi i32 [ 10, %entry ], [ 20, %block1 ], [ 30, %block2 ]"
-/// inspect(phi, content=expected)
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType(i32_ty, [])
+///   let fval = mod.addFunction(fty, "phi_add_demo")
+///   let entry_bb = fval.addBasicBlock(name="entry")
+///   let block1_bb = fval.addBasicBlock(name="block1")
+///   let block2_bb = fval.addBasicBlock(name="block2")
+///   let merge_bb = fval.addBasicBlock(name="merge")
+///   let val1 = ctx.getConstInt32(10)
+///   let val2 = ctx.getConstInt32(20)
+///   let val3 = ctx.getConstInt32(30)
+///   builder.setInsertPoint(merge_bb)
+///   let phi = builder.createPHI(i32_ty, name="result")
+///   inspect(phi.getNumIncomingValues(), content="0")
+///   phi.addIncoming(val1, entry_bb)
+///   inspect(phi.getNumIncomingValues(), content="1")
+///   inspect(phi.getIncomingValue(0).unwrap().getValueRepr(), content="10")
+///   inspect(phi.getIncomingBlock(0).unwrap().getValueRepr(), content="%entry")
+///   phi.addIncoming(val2, block1_bb)
+///   phi.addIncoming(val3, block2_bb)
+///   inspect(phi.getNumIncomingValues(), content="3")
+///   let expected = "  %result = phi i32 [ 10, %entry ], [ 20, %block1 ], [ 30, %block2 ]"
+///   inspect(phi, content=expected)
+/// }
 /// ```
 pub fn PHINode::addIncoming(
   self : PHINode,
@@ -4147,19 +4248,21 @@ pub impl Value for PHINode with getValueBase(self) {
 ///|
 /// Get simple representation of the value.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let fty = ctx.getFunctionType(i32_ty, [])
-/// let fval = mod.addFunction(fty, "phi_demo")
-/// let entry_bb = fval.addBasicBlock(name="entry")
-/// builder.setInsertPoint(entry_bb)
-/// let phi = builder.createPHI(i32_ty)
-/// inspect(phi.getValueRepr(), content="%0")
-/// phi.setName("result")
-/// inspect(phi.getValueRepr(), content="%result")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType(i32_ty, [])
+///   let fval = mod.addFunction(fty, "phi_demo")
+///   let entry_bb = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entry_bb)
+///   let phi = builder.createPHI(i32_ty)
+///   inspect(phi.getValueRepr(), content="%0")
+///   phi.setName("result")
+///   inspect(phi.getValueRepr(), content="%result")
+/// }
 /// ```
 pub impl Value for PHINode with getValueRepr(self) {
   match self.getNameOrSlot() {
@@ -4176,19 +4279,21 @@ pub impl Value for PHINode with getValueRepr(self) {
 ///
 /// If the instruction has no name, return `None`.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let fty = ctx.getFunctionType(i32_ty, [])
-/// let fval = mod.addFunction(fty, "phi_demo")
-/// let entry_bb = fval.addBasicBlock(name="entry")
-/// builder.setInsertPoint(entry_bb)
-/// let phi = builder.createPHI(i32_ty)
-/// inspect(phi.getName(), content="None")
-/// phi.setName("result")
-/// inspect(phi.getName(), content="Some(\"result\")")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType(i32_ty, [])
+///   let fval = mod.addFunction(fty, "phi_demo")
+///   let entry_bb = fval.addBasicBlock(name="entry")
+///   builder.setInsertPoint(entry_bb)
+///   let phi = builder.createPHI(i32_ty)
+///   inspect(phi.getName(), content="None")
+///   phi.setName("result")
+///   inspect(phi.getName(), content="Some(\"result\")")
+/// }
 /// ```
 pub impl Value for PHINode with getName(self) {
   self.name
@@ -4202,19 +4307,21 @@ pub impl Value for PHINode with getName(self) {
 /// If the name has already been used in the parent function,
 /// it will raise Error.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let fty = ctx.getFunctionType(i32_ty, [])
-/// let fval = mod.addFunction(fty, "phi_demo")
-/// let merge_bb = fval.addBasicBlock(name="merge")
-/// builder.setInsertPoint(merge_bb)
-/// let phi = builder.createPHI(i32_ty)
-/// inspect(phi.getName(), content="None")
-/// phi.setName("result")
-/// inspect(phi.getName(), content="Some(\"result\")")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType(i32_ty, [])
+///   let fval = mod.addFunction(fty, "phi_demo")
+///   let merge_bb = fval.addBasicBlock(name="merge")
+///   builder.setInsertPoint(merge_bb)
+///   let phi = builder.createPHI(i32_ty)
+///   inspect(phi.getName(), content="None")
+///   phi.setName("result")
+///   inspect(phi.getName(), content="Some(\"result\")")
+/// }
 /// ```
 pub impl Value for PHINode with setName(self, name) {
   match self.getParent().setSymbol(name, self) {
@@ -4346,26 +4453,28 @@ pub impl Show for TailCallKind with output(self, logger) {
 ///
 /// Use `IRBuilder::createCall` to create a `CallInst`.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let add_fty = ctx.getFunctionType(i32_ty, [i32_ty, i32_ty])
-/// let main_fty = ctx.getFunctionType(i32_ty, [])
-/// let add_func = mod.addFunction(add_fty, "add")
-/// let main_func = mod.addFunction(main_fty, "main")
-/// let bb = main_func.addBasicBlock(name="entry")
-/// let arg1 = ctx.getConstInt32(10)
-/// let arg2 = ctx.getConstInt32(20)
-/// builder.setInsertPoint(bb)
-/// let call = builder.createCall(add_func, [arg1, arg2], name="sum")
-/// inspect(call, content="  %sum = call i32 @add(i32 10, i32 20)")
-/// assert_true(call.asValueEnum() is CallInst(_))
-/// let void_fty = ctx.getFunctionType(ctx.getVoidTy(), [])
-/// let void_func = mod.addFunction(void_fty, "void_func")
-/// let void_call = builder.createCall(void_func, [])
-/// inspect(void_call, content="  call void @void_func()")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let add_fty = ctx.getFunctionType(i32_ty, [i32_ty, i32_ty])
+///   let main_fty = ctx.getFunctionType(i32_ty, [])
+///   let add_func = mod.addFunction(add_fty, "add")
+///   let main_func = mod.addFunction(main_fty, "main")
+///   let bb = main_func.addBasicBlock(name="entry")
+///   let arg1 = ctx.getConstInt32(10)
+///   let arg2 = ctx.getConstInt32(20)
+///   builder.setInsertPoint(bb)
+///   let call = builder.createCall(add_func, [arg1, arg2], name="sum")
+///   inspect(call, content="  %sum = call i32 @add(i32 10, i32 20)")
+///   assert_true(call.asValueEnum() is CallInst(_))
+///   let void_fty = ctx.getFunctionType(ctx.getVoidTy(), [])
+///   let void_func = mod.addFunction(void_fty, "void_func")
+///   let void_call = builder.createCall(void_func, [])
+///   inspect(void_call, content="  call void @void_func()")
+/// }
 /// ```
 pub struct CallInst {
   uid : UInt64
@@ -4514,23 +4623,25 @@ pub impl Value for CallInst with asValueEnum(self) {
 ///|
 /// Get simple representation of the value.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let add_fty = ctx.getFunctionType(i32_ty, [i32_ty, i32_ty])
-/// let main_fty = ctx.getFunctionType(i32_ty, [])
-/// let add_func = mod.addFunction(add_fty, "add")
-/// let main_func = mod.addFunction(main_fty, "main")
-/// let bb = main_func.addBasicBlock(name="entry")
-/// let arg1 = ctx.getConstInt32(10)
-/// let arg2 = ctx.getConstInt32(20)
-/// builder.setInsertPoint(bb)
-/// let call = builder.createCall(add_func, [arg1, arg2])
-/// inspect(call.getValueRepr(), content="%0")
-/// call.setName("sum")
-/// inspect(call.getValueRepr(), content="%sum")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let add_fty = ctx.getFunctionType(i32_ty, [i32_ty, i32_ty])
+///   let main_fty = ctx.getFunctionType(i32_ty, [])
+///   let add_func = mod.addFunction(add_fty, "add")
+///   let main_func = mod.addFunction(main_fty, "main")
+///   let bb = main_func.addBasicBlock(name="entry")
+///   let arg1 = ctx.getConstInt32(10)
+///   let arg2 = ctx.getConstInt32(20)
+///   builder.setInsertPoint(bb)
+///   let call = builder.createCall(add_func, [arg1, arg2])
+///   inspect(call.getValueRepr(), content="%0")
+///   call.setName("sum")
+///   inspect(call.getValueRepr(), content="%sum")
+/// }
 /// ```
 pub impl Value for CallInst with getValueRepr(self) {
   if self.vty.asTypeEnum() is VoidType(_) {
@@ -4550,23 +4661,25 @@ pub impl Value for CallInst with getValueRepr(self) {
 ///
 /// If the instruction has no name, return `None`.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let add_fty = ctx.getFunctionType(i32_ty, [i32_ty, i32_ty])
-/// let main_fty = ctx.getFunctionType(i32_ty, [])
-/// let add_func = mod.addFunction(add_fty, "add")
-/// let main_func = mod.addFunction(main_fty, "main")
-/// let bb = main_func.addBasicBlock(name="entry")
-/// let arg1 = ctx.getConstInt32(10)
-/// let arg2 = ctx.getConstInt32(20)
-/// builder.setInsertPoint(bb)
-/// let call = builder.createCall(add_func, [arg1, arg2])
-/// inspect(call.getName(), content="None")
-/// call.setName("sum")
-/// inspect(call.getName(), content="Some(\"sum\")")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let add_fty = ctx.getFunctionType(i32_ty, [i32_ty, i32_ty])
+///   let main_fty = ctx.getFunctionType(i32_ty, [])
+///   let add_func = mod.addFunction(add_fty, "add")
+///   let main_func = mod.addFunction(main_fty, "main")
+///   let bb = main_func.addBasicBlock(name="entry")
+///   let arg1 = ctx.getConstInt32(10)
+///   let arg2 = ctx.getConstInt32(20)
+///   builder.setInsertPoint(bb)
+///   let call = builder.createCall(add_func, [arg1, arg2])
+///   inspect(call.getName(), content="None")
+///   call.setName("sum")
+///   inspect(call.getName(), content="Some(\"sum\")")
+/// }
 /// ```
 pub impl Value for CallInst with getName(self) {
   self.name
@@ -4595,23 +4708,25 @@ pub impl Value for CallInst with getNameOrSlot(self) {
 /// If the name has already been used in the parent function,
 /// it will raise Error. Cannot set name for CallInst with void return type.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let add_fty = ctx.getFunctionType(i32_ty, [i32_ty, i32_ty])
-/// let main_fty = ctx.getFunctionType(i32_ty, [])
-/// let add_func = mod.addFunction(add_fty, "add")
-/// let main_func = mod.addFunction(main_fty, "main")
-/// let bb = main_func.addBasicBlock(name="entry")
-/// let arg1 = ctx.getConstInt32(10)
-/// let arg2 = ctx.getConstInt32(20)
-/// builder.setInsertPoint(bb)
-/// let call = builder.createCall(add_func, [arg1, arg2])
-/// inspect(call.getName(), content="None")
-/// call.setName("sum")
-/// inspect(call.getName(), content="Some(\"sum\")")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let add_fty = ctx.getFunctionType(i32_ty, [i32_ty, i32_ty])
+///   let main_fty = ctx.getFunctionType(i32_ty, [])
+///   let add_func = mod.addFunction(add_fty, "add")
+///   let main_func = mod.addFunction(main_fty, "main")
+///   let bb = main_func.addBasicBlock(name="entry")
+///   let arg1 = ctx.getConstInt32(10)
+///   let arg2 = ctx.getConstInt32(20)
+///   builder.setInsertPoint(bb)
+///   let call = builder.createCall(add_func, [arg1, arg2])
+///   inspect(call.getName(), content="None")
+///   call.setName("sum")
+///   inspect(call.getName(), content="Some(\"sum\")")
+/// }
 /// ```
 pub impl Value for CallInst with setName(self, name) {
   if self.vty.asTypeEnum() is VoidType(_) {
@@ -4775,20 +4890,22 @@ pub impl Show for CallInst with output(self, logger) {
 ///
 /// Use `IRBuilder::createExtractValue` to create an `ExtractValueInst`.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let struct_ty = ctx.getStructType([i32_ty, i32_ty])
-/// let fty = ctx.getFunctionType(i32_ty, [struct_ty])
-/// let fval = mod.addFunction(fty, "extractvalue_demo")
-/// let bb = fval.addBasicBlock(name="entry")
-/// let aggregate = fval.getArg(0).unwrap()
-/// builder.setInsertPoint(bb)
-/// let extract = builder.createExtractValue(aggregate, [0], name="field")
-/// inspect(extract, content="  %field = extractvalue { i32, i32 } %0, 0")
-/// assert_true(extract.asValueEnum() is ExtractValueInst(_))
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let struct_ty = ctx.getStructType([i32_ty, i32_ty])
+///   let fty = ctx.getFunctionType(i32_ty, [struct_ty])
+///   let fval = mod.addFunction(fty, "extractvalue_demo")
+///   let bb = fval.addBasicBlock(name="entry")
+///   let aggregate = fval.getArg(0).unwrap()
+///   builder.setInsertPoint(bb)
+///   let extract = builder.createExtractValue(aggregate, [0], name="field")
+///   inspect(extract, content="  %field = extractvalue { i32, i32 } %0, 0")
+///   assert_true(extract.asValueEnum() is ExtractValueInst(_))
+/// }
 /// ```
 pub struct ExtractValueInst {
   uid : UInt64
@@ -4854,21 +4971,23 @@ pub impl Value for ExtractValueInst with getValueBase(self) {
 ///|
 /// Get simple representation of the value.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let struct_ty = ctx.getStructType([i32_ty, i32_ty])
-/// let fty = ctx.getFunctionType(i32_ty, [struct_ty])
-/// let fval = mod.addFunction(fty, "extractvalue_demo")
-/// let bb = fval.addBasicBlock(name="entry")
-/// let aggregate = fval.getArg(0).unwrap()
-/// builder.setInsertPoint(bb)
-/// let extract = builder.createExtractValue(aggregate, [0])
-/// inspect(extract.getValueRepr(), content="%1")
-/// extract.setName("field")
-/// inspect(extract.getValueRepr(), content="%field")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let struct_ty = ctx.getStructType([i32_ty, i32_ty])
+///   let fty = ctx.getFunctionType(i32_ty, [struct_ty])
+///   let fval = mod.addFunction(fty, "extractvalue_demo")
+///   let bb = fval.addBasicBlock(name="entry")
+///   let aggregate = fval.getArg(0).unwrap()
+///   builder.setInsertPoint(bb)
+///   let extract = builder.createExtractValue(aggregate, [0])
+///   inspect(extract.getValueRepr(), content="%1")
+///   extract.setName("field")
+///   inspect(extract.getValueRepr(), content="%field")
+/// }
 /// ```
 pub impl Value for ExtractValueInst with getValueRepr(self) {
   match self.getNameOrSlot() {
@@ -4890,21 +5009,23 @@ pub impl Value for ExtractValueInst with asValueEnum(self) {
 ///
 /// If the instruction has no name, return `None`.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let struct_ty = ctx.getStructType([i32_ty, i32_ty])
-/// let fty = ctx.getFunctionType(i32_ty, [struct_ty])
-/// let fval = mod.addFunction(fty, "extractvalue_demo")
-/// let bb = fval.addBasicBlock(name="entry")
-/// let aggregate = fval.getArg(0).unwrap()
-/// builder.setInsertPoint(bb)
-/// let extract = builder.createExtractValue(aggregate, [0])
-/// inspect(extract.getName(), content="None")
-/// extract.setName("field")
-/// inspect(extract.getName(), content="Some(\"field\")")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let struct_ty = ctx.getStructType([i32_ty, i32_ty])
+///   let fty = ctx.getFunctionType(i32_ty, [struct_ty])
+///   let fval = mod.addFunction(fty, "extractvalue_demo")
+///   let bb = fval.addBasicBlock(name="entry")
+///   let aggregate = fval.getArg(0).unwrap()
+///   builder.setInsertPoint(bb)
+///   let extract = builder.createExtractValue(aggregate, [0])
+///   inspect(extract.getName(), content="None")
+///   extract.setName("field")
+///   inspect(extract.getName(), content="Some(\"field\")")
+/// }
 /// ```
 pub impl Value for ExtractValueInst with getName(self) {
   self.name
@@ -4918,21 +5039,23 @@ pub impl Value for ExtractValueInst with getName(self) {
 /// If the name has already been used in the parent function,
 /// it will raise Error.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let struct_ty = ctx.getStructType([i32_ty, i32_ty])
-/// let fty = ctx.getFunctionType(i32_ty, [struct_ty])
-/// let fval = mod.addFunction(fty, "extractvalue_demo")
-/// let bb = fval.addBasicBlock(name="entry")
-/// let aggregate = fval.getArg(0).unwrap()
-/// builder.setInsertPoint(bb)
-/// let extract = builder.createExtractValue(aggregate, [0])
-/// inspect(extract.getName(), content="None")
-/// extract.setName("field")
-/// inspect(extract.getName(), content="Some(\"field\")")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let struct_ty = ctx.getStructType([i32_ty, i32_ty])
+///   let fty = ctx.getFunctionType(i32_ty, [struct_ty])
+///   let fval = mod.addFunction(fty, "extractvalue_demo")
+///   let bb = fval.addBasicBlock(name="entry")
+///   let aggregate = fval.getArg(0).unwrap()
+///   builder.setInsertPoint(bb)
+///   let extract = builder.createExtractValue(aggregate, [0])
+///   inspect(extract.getName(), content="None")
+///   extract.setName("field")
+///   inspect(extract.getName(), content="Some(\"field\")")
+/// }
 /// ```
 pub impl Value for ExtractValueInst with setName(self, name) {
   match self.getParent().setSymbol(name, self) {
@@ -5035,26 +5158,28 @@ pub impl Show for ExtractValueInst with output(self, logger) {
 ///
 /// Use `IRBuilder::createInsertValue` to create an `InsertValueInst`.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let struct_ty = ctx.getStructType([i32_ty, i32_ty])
-/// let fty = ctx.getFunctionType(struct_ty, [struct_ty, i32_ty])
-/// let fval = mod.addFunction(fty, "insertvalue_demo")
-/// let bb = fval.addBasicBlock(name="entry")
-/// let aggregate = fval.getArg(0).unwrap()
-/// let new_value = fval.getArg(1).unwrap()
-/// builder.setInsertPoint(bb)
-/// let insert = builder.createInsertValue(
-///   aggregate,
-///   new_value,
-///   [1],
-///   name="updated",
-/// )
-/// inspect(insert, content="  %updated = insertvalue { i32, i32 } %0, i32 %1, 1")
-/// assert_true(insert.asValueEnum() is InsertValueInst(_))
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let struct_ty = ctx.getStructType([i32_ty, i32_ty])
+///   let fty = ctx.getFunctionType(struct_ty, [struct_ty, i32_ty])
+///   let fval = mod.addFunction(fty, "insertvalue_demo")
+///   let bb = fval.addBasicBlock(name="entry")
+///   let aggregate = fval.getArg(0).unwrap()
+///   let new_value = fval.getArg(1).unwrap()
+///   builder.setInsertPoint(bb)
+///   let insert = builder.createInsertValue(
+///     aggregate,
+///     new_value,
+///     [1],
+///     name="updated",
+///   )
+///   inspect(insert, content="  %updated = insertvalue { i32, i32 } %0, i32 %1, 1")
+///   assert_true(insert.asValueEnum() is InsertValueInst(_))
+/// }
 /// ```
 pub struct InsertValueInst {
   uid : UInt64
@@ -5136,22 +5261,24 @@ pub impl Value for InsertValueInst with asValueEnum(self) {
 ///|
 /// Get simple representation of the value.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let struct_ty = ctx.getStructType([i32_ty, i32_ty])
-/// let fty = ctx.getFunctionType(struct_ty, [struct_ty, i32_ty])
-/// let fval = mod.addFunction(fty, "insertvalue_demo")
-/// let bb = fval.addBasicBlock(name="entry")
-/// let aggregate = fval.getArg(0).unwrap()
-/// let new_value = fval.getArg(1).unwrap()
-/// builder.setInsertPoint(bb)
-/// let insert = builder.createInsertValue(aggregate, new_value, [1])
-/// inspect(insert.getValueRepr(), content="%2")
-/// insert.setName("updated")
-/// inspect(insert.getValueRepr(), content="%updated")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let struct_ty = ctx.getStructType([i32_ty, i32_ty])
+///   let fty = ctx.getFunctionType(struct_ty, [struct_ty, i32_ty])
+///   let fval = mod.addFunction(fty, "insertvalue_demo")
+///   let bb = fval.addBasicBlock(name="entry")
+///   let aggregate = fval.getArg(0).unwrap()
+///   let new_value = fval.getArg(1).unwrap()
+///   builder.setInsertPoint(bb)
+///   let insert = builder.createInsertValue(aggregate, new_value, [1])
+///   inspect(insert.getValueRepr(), content="%2")
+///   insert.setName("updated")
+///   inspect(insert.getValueRepr(), content="%updated")
+/// }
 /// ```
 pub impl Value for InsertValueInst with getValueRepr(self) {
   match self.getNameOrSlot() {
@@ -5168,22 +5295,24 @@ pub impl Value for InsertValueInst with getValueRepr(self) {
 ///
 /// If the instruction has no name, return `None`.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let struct_ty = ctx.getStructType([i32_ty, i32_ty])
-/// let fty = ctx.getFunctionType(struct_ty, [struct_ty, i32_ty])
-/// let fval = mod.addFunction(fty, "insertvalue_demo")
-/// let bb = fval.addBasicBlock(name="entry")
-/// let aggregate = fval.getArg(0).unwrap()
-/// let new_value = fval.getArg(1).unwrap()
-/// builder.setInsertPoint(bb)
-/// let insert = builder.createInsertValue(aggregate, new_value, [1])
-/// inspect(insert.getName(), content="None")
-/// insert.setName("updated")
-/// inspect(insert.getName(), content="Some(\"updated\")")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let struct_ty = ctx.getStructType([i32_ty, i32_ty])
+///   let fty = ctx.getFunctionType(struct_ty, [struct_ty, i32_ty])
+///   let fval = mod.addFunction(fty, "insertvalue_demo")
+///   let bb = fval.addBasicBlock(name="entry")
+///   let aggregate = fval.getArg(0).unwrap()
+///   let new_value = fval.getArg(1).unwrap()
+///   builder.setInsertPoint(bb)
+///   let insert = builder.createInsertValue(aggregate, new_value, [1])
+///   inspect(insert.getName(), content="None")
+///   insert.setName("updated")
+///   inspect(insert.getName(), content="Some(\"updated\")")
+/// }
 /// ```
 pub impl Value for InsertValueInst with getName(self) {
   self.name
@@ -5197,22 +5326,24 @@ pub impl Value for InsertValueInst with getName(self) {
 /// If the name has already been used in the parent function,
 /// it will raise Error.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let builder = ctx.createBuilder()
-/// let i32_ty = ctx.getInt32Ty()
-/// let struct_ty = ctx.getStructType([i32_ty, i32_ty])
-/// let fty = ctx.getFunctionType(struct_ty, [struct_ty, i32_ty])
-/// let fval = mod.addFunction(fty, "insertvalue_demo")
-/// let bb = fval.addBasicBlock(name="entry")
-/// let aggregate = fval.getArg(0).unwrap()
-/// let new_value = fval.getArg(1).unwrap()
-/// builder.setInsertPoint(bb)
-/// let insert = builder.createInsertValue(aggregate, new_value, [1])
-/// inspect(insert.getName(), content="None")
-/// insert.setName("updated")
-/// inspect(insert.getName(), content="Some(\"updated\")")
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let builder = ctx.createBuilder()
+///   let i32_ty = ctx.getInt32Ty()
+///   let struct_ty = ctx.getStructType([i32_ty, i32_ty])
+///   let fty = ctx.getFunctionType(struct_ty, [struct_ty, i32_ty])
+///   let fval = mod.addFunction(fty, "insertvalue_demo")
+///   let bb = fval.addBasicBlock(name="entry")
+///   let aggregate = fval.getArg(0).unwrap()
+///   let new_value = fval.getArg(1).unwrap()
+///   builder.setInsertPoint(bb)
+///   let insert = builder.createInsertValue(aggregate, new_value, [1])
+///   inspect(insert.getName(), content="None")
+///   insert.setName("updated")
+///   inspect(insert.getName(), content="Some(\"updated\")")
+/// }
 /// ```
 pub impl Value for InsertValueInst with setName(self, name) {
   match self.getParent().setSymbol(name, self) {

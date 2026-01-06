@@ -62,9 +62,9 @@ pub fn Int8Array::from(data : Array[Int8]) -> Int8Array {
 }
 
 ///|
-pub fn Int8Array::iter(self : Int8Array) -> Iter[Int8] {
+pub fn Int8Array::iter(self : Int8Array) -> Iterator[Int8] {
   let Int8Array(data) = self
-  data.iter()
+  data.iterator()
 }
 
 ///|
@@ -79,9 +79,9 @@ pub fn Int16Array::from(data : Array[Int16]) -> Int16Array {
 }
 
 ///|
-pub fn Int16Array::iter(self : Int16Array) -> Iter[Int16] {
+pub fn Int16Array::iter(self : Int16Array) -> Iterator[Int16] {
   let Int16Array(data) = self
-  data.iter()
+  data.iterator()
 }
 
 ///|
@@ -96,9 +96,9 @@ pub fn Int32Array::from(data : Array[Int]) -> Int32Array {
 }
 
 ///|
-pub fn Int32Array::iter(self : Int32Array) -> Iter[Int] {
+pub fn Int32Array::iter(self : Int32Array) -> Iterator[Int] {
   let Int32Array(data) = self
-  data.iter()
+  data.iterator()
 }
 
 ///|
@@ -113,9 +113,9 @@ pub fn Int64Array::from(data : Array[Int64]) -> Int64Array {
 }
 
 ///|
-pub fn Int64Array::iter(self : Int64Array) -> Iter[Int64] {
+pub fn Int64Array::iter(self : Int64Array) -> Iterator[Int64] {
   let Int64Array(data) = self
-  data.iter()
+  data.iterator()
 }
 
 ///|
@@ -130,9 +130,9 @@ pub fn UInt8Array::from(data : Array[UInt8]) -> UInt8Array {
 }
 
 ///|
-pub fn UInt8Array::iter(self : UInt8Array) -> Iter[UInt8] {
+pub fn UInt8Array::iter(self : UInt8Array) -> Iterator[UInt8] {
   let UInt8Array(data) = self
-  data.iter()
+  data.iterator()
 }
 
 ///|
@@ -147,9 +147,9 @@ pub fn UInt16Array::from(data : Array[UInt16]) -> UInt16Array {
 }
 
 ///|
-pub fn UInt16Array::iter(self : UInt16Array) -> Iter[UInt16] {
+pub fn UInt16Array::iter(self : UInt16Array) -> Iterator[UInt16] {
   let UInt16Array(data) = self
-  data.iter()
+  data.iterator()
 }
 
 ///|
@@ -164,9 +164,9 @@ pub fn UInt32Array::from(data : Array[UInt]) -> UInt32Array {
 }
 
 ///|
-pub fn UInt32Array::iter(self : UInt32Array) -> Iter[UInt] {
+pub fn UInt32Array::iter(self : UInt32Array) -> Iterator[UInt] {
   let UInt32Array(data) = self
-  data.iter()
+  data.iterator()
 }
 
 ///|
@@ -181,9 +181,9 @@ pub fn UInt64Array::from(data : Array[UInt64]) -> UInt64Array {
 }
 
 ///|
-pub fn UInt64Array::iter(self : UInt64Array) -> Iter[UInt64] {
+pub fn UInt64Array::iter(self : UInt64Array) -> Iterator[UInt64] {
   let UInt64Array(data) = self
-  data.iter()
+  data.iterator()
 }
 
 ///|
@@ -198,9 +198,9 @@ pub fn FloatArray::from(data : Array[Float]) -> FloatArray {
 }
 
 ///|
-pub fn FloatArray::iter(self : FloatArray) -> Iter[Float] {
+pub fn FloatArray::iter(self : FloatArray) -> Iterator[Float] {
   let FloatArray(data) = self
-  data.iter()
+  data.iterator()
 }
 
 ///|
@@ -215,9 +215,9 @@ pub fn DoubleArray::from(data : Array[Double]) -> DoubleArray {
 }
 
 ///|
-pub fn DoubleArray::iter(self : DoubleArray) -> Iter[Double] {
+pub fn DoubleArray::iter(self : DoubleArray) -> Iterator[Double] {
   let DoubleArray(data) = self
-  data.iter()
+  data.iterator()
 }
 
 ///|

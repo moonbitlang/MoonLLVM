@@ -85,22 +85,24 @@ pub fn DataLayout::getEndian(self : DataLayout) -> Endian {
 ///
 /// **Examples:**
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let datalayout = mod.getDataLayout()
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let datalayout = mod.getDataLayout()
 ///
-/// // Basic types
-/// let i32ty = ctx.getInt32Ty()
-/// assert_eq(datalayout.getTypeAllocSize(i32ty), 4)
+///   // Basic types
+///   let i32ty = ctx.getInt32Ty()
+///   assert_eq(datalayout.getTypeAllocSize(i32ty), 4)
 ///
-/// // Array types
-/// let arrty = ctx.getArrayType(i32ty, 10)
-/// assert_eq(datalayout.getTypeAllocSize(arrty), 40) // 4 * 10
+///   // Array types
+///   let arrty = ctx.getArrayType(i32ty, 10)
+///   assert_eq(datalayout.getTypeAllocSize(arrty), 40) // 4 * 10
 ///
-/// // Struct types with alignment
-/// let struct_ty = ctx.getStructType([ctx.getInt8Ty(), i32ty])
-/// assert_eq(datalayout.getTypeAllocSize(struct_ty), 8) // 1 + 3 padding + 4
+///   // Struct types with alignment
+///   let struct_ty = ctx.getStructType([ctx.getInt8Ty(), i32ty])
+///   assert_eq(datalayout.getTypeAllocSize(struct_ty), 8) // 1 + 3 padding + 4
+/// }
 /// ```
 ///
 pub fn DataLayout::getTypeAllocSize(self : Self, ty : &Type) -> Int {
@@ -234,29 +236,31 @@ fn DataLayout::getAlignment(self : DataLayout, ty : &Type) -> Align {
 ///
 /// **Examples:**
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let mod = ctx.addModule("demo")
-/// let datalayout = mod.getDataLayout()
-/// let i8ty = ctx.getInt8Ty()
-/// let i32ty = ctx.getInt32Ty()
-/// let i64ty = ctx.getInt64Ty()
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let mod = ctx.addModule("demo")
+///   let datalayout = mod.getDataLayout()
+///   let i8ty = ctx.getInt8Ty()
+///   let i32ty = ctx.getInt32Ty()
+///   let i64ty = ctx.getInt64Ty()
 ///
-/// // Non-packed struct: { i8, i32, i64 }
-/// let normal_struct = ctx.getStructType([i8ty, i32ty, i64ty])
-/// assert_eq(datalayout.getStructTypeOffset(normal_struct, 0), 0) // i8
-/// assert_eq(datalayout.getStructTypeOffset(normal_struct, 1), 4) // i32, aligned
-/// assert_eq(datalayout.getStructTypeOffset(normal_struct, 2), 8) // i64, aligned
+///   // Non-packed struct: { i8, i32, i64 }
+///   let normal_struct = ctx.getStructType([i8ty, i32ty, i64ty])
+///   assert_eq(datalayout.getStructTypeOffset(normal_struct, 0), 0) // i8
+///   assert_eq(datalayout.getStructTypeOffset(normal_struct, 1), 4) // i32, aligned
+///   assert_eq(datalayout.getStructTypeOffset(normal_struct, 2), 8) // i64, aligned
 ///
-/// // Packed struct: packed { i8, i32, i64 }
-/// let packed_struct = ctx.getStructType([i8ty, i32ty, i64ty], isPacked=true)
-/// assert_eq(datalayout.getStructTypeOffset(packed_struct, 0), 0) // i8
-/// assert_eq(datalayout.getStructTypeOffset(packed_struct, 1), 1) // i32, no padding
-/// assert_eq(datalayout.getStructTypeOffset(packed_struct, 2), 5) // i64, no padding
+///   // Packed struct: packed { i8, i32, i64 }
+///   let packed_struct = ctx.getStructType([i8ty, i32ty, i64ty], isPacked=true)
+///   assert_eq(datalayout.getStructTypeOffset(packed_struct, 0), 0) // i8
+///   assert_eq(datalayout.getStructTypeOffset(packed_struct, 1), 1) // i32, no padding
+///   assert_eq(datalayout.getStructTypeOffset(packed_struct, 2), 5) // i64, no padding
 ///
-/// // Invalid indices return 0
-/// assert_eq(datalayout.getStructTypeOffset(normal_struct, -1), 0)
-/// assert_eq(datalayout.getStructTypeOffset(normal_struct, 10), 0)
+///   // Invalid indices return 0
+///   assert_eq(datalayout.getStructTypeOffset(normal_struct, -1), 0)
+///   assert_eq(datalayout.getStructTypeOffset(normal_struct, 10), 0)
+/// }
 /// ```
 ///
 pub fn DataLayout::getStructTypeOffset(
