@@ -1474,8 +1474,8 @@ pub fn FunctionType::getReturnType(self : FunctionType) -> &Type {
 /// Get the iterator of the function parameters.
 ///
 /// - See LLVM: `FunctionType::param_begin` and `FunctionType::param_end`.
-pub fn FunctionType::param_iter(self : FunctionType) -> Iterator[&Type] {
-  self.paramTypes.iterator()
+pub fn FunctionType::param_iter(self : FunctionType) -> Iter[&Type] {
+  self.paramTypes.iter()
 }
 
 ///|
@@ -1694,8 +1694,8 @@ pub fn StructType::elements(self : StructType) -> Array[&Type] {
 ///|
 ///
 /// - See LLVM: `StructType::element_begin` and `StructType::element_end`.
-pub fn StructType::element_iter(self : StructType) -> Iterator[&Type] {
-  self.elements.iterator()
+pub fn StructType::element_iter(self : StructType) -> Iter[&Type] {
+  self.elements.iter()
 }
 
 ///|

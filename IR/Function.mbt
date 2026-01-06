@@ -329,7 +329,7 @@ pub fn Function::isDeclaration(self : Function) -> Bool {
 }
 
 ///|
-pub fn Function::instIter(self : Function) -> Iterator[&Instruction] {
+pub fn Function::instIter(self : Function) -> Iter[&Instruction] {
   let mut bb_index = 0
   let mut next_inst : &Instruction? = None
   Iterator::new(fn() {
@@ -349,7 +349,7 @@ pub fn Function::instIter(self : Function) -> Iterator[&Instruction] {
         continue start_inst
       }
     }
-  })
+  }).iter()
 }
 
 ///|

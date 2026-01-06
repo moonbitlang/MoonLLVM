@@ -138,7 +138,7 @@ pub fn BasicBlock::getModule(Self) -> Module
 pub fn BasicBlock::getParent(Self) -> Function
 pub fn BasicBlock::getSuccessors(Self) -> Array[Self]
 pub fn BasicBlock::getTerminator(Self) -> &Instruction?
-pub fn BasicBlock::instIter(Self) -> Iterator[&Instruction]
+pub fn BasicBlock::instIter(Self) -> Iter[&Instruction]
 pub fn BasicBlock::lastInst(Self) -> &Instruction?
 pub fn BasicBlock::removeFromParent(Self) -> Unit
 pub impl InsertPoint for BasicBlock
@@ -501,7 +501,7 @@ pub struct DoubleArray(Array[Double])
 pub fn DoubleArray::from(Array[Double]) -> Self
 #deprecated
 pub fn DoubleArray::inner(Self) -> Array[Double]
-pub fn DoubleArray::iter(Self) -> Iterator[Double]
+pub fn DoubleArray::iter(Self) -> Iter[Double]
 pub fn DoubleArray::length(Self) -> Int
 pub impl Eq for DoubleArray
 pub impl Hash for DoubleArray
@@ -620,7 +620,7 @@ pub struct FloatArray(Array[Float])
 pub fn FloatArray::from(Array[Float]) -> Self
 #deprecated
 pub fn FloatArray::inner(Self) -> Array[Float]
-pub fn FloatArray::iter(Self) -> Iterator[Float]
+pub fn FloatArray::iter(Self) -> Iter[Float]
 pub fn FloatArray::length(Self) -> Int
 pub impl Eq for FloatArray
 pub impl Hash for FloatArray
@@ -769,7 +769,7 @@ pub fn Function::getReturnAttrs(Self) -> @set.Set[RetAttr]
 pub fn Function::getReturnType(Self) -> &Type
 pub fn[V : Value] Function::getSlot(Self, V) -> UInt64?
 pub fn Function::hasBody(Self) -> Bool
-pub fn Function::instIter(Self) -> Iterator[&Instruction]
+pub fn Function::instIter(Self) -> Iter[&Instruction]
 pub fn Function::isDeclaration(Self) -> Bool
 pub fn Function::processSlot(Self) -> Unit
 pub fn Function::removeBasicBlock(Self, BasicBlock) -> Unit
@@ -789,7 +789,7 @@ pub fn FunctionType::getNumParams(Self) -> Int
 pub fn FunctionType::getParamType(Self, Int) -> &Type?
 pub fn FunctionType::getParamTypes(Self) -> Array[&Type]
 pub fn FunctionType::getReturnType(Self) -> &Type
-pub fn FunctionType::param_iter(Self) -> Iterator[&Type]
+pub fn FunctionType::param_iter(Self) -> Iter[&Type]
 pub fn FunctionType::params(Self) -> Array[&Type]
 pub impl AbstractType for FunctionType
 pub impl Type for FunctionType
@@ -1031,7 +1031,7 @@ pub struct Int16Array(Array[Int16])
 pub fn Int16Array::from(Array[Int16]) -> Self
 #deprecated
 pub fn Int16Array::inner(Self) -> Array[Int16]
-pub fn Int16Array::iter(Self) -> Iterator[Int16]
+pub fn Int16Array::iter(Self) -> Iter[Int16]
 pub fn Int16Array::length(Self) -> Int
 pub impl Eq for Int16Array
 pub impl Hash for Int16Array
@@ -1062,7 +1062,7 @@ pub struct Int32Array(Array[Int])
 pub fn Int32Array::from(Array[Int]) -> Self
 #deprecated
 pub fn Int32Array::inner(Self) -> Array[Int]
-pub fn Int32Array::iter(Self) -> Iterator[Int]
+pub fn Int32Array::iter(Self) -> Iter[Int]
 pub fn Int32Array::length(Self) -> Int
 pub impl Eq for Int32Array
 pub impl Hash for Int32Array
@@ -1083,7 +1083,7 @@ pub struct Int64Array(Array[Int64])
 pub fn Int64Array::from(Array[Int64]) -> Self
 #deprecated
 pub fn Int64Array::inner(Self) -> Array[Int64]
-pub fn Int64Array::iter(Self) -> Iterator[Int64]
+pub fn Int64Array::iter(Self) -> Iter[Int64]
 pub fn Int64Array::length(Self) -> Int
 pub impl Eq for Int64Array
 pub impl Hash for Int64Array
@@ -1103,7 +1103,7 @@ pub struct Int8Array(Array[@int8.Int8])
 pub fn Int8Array::from(Array[@int8.Int8]) -> Self
 #deprecated
 pub fn Int8Array::inner(Self) -> Array[@int8.Int8]
-pub fn Int8Array::iter(Self) -> Iterator[@int8.Int8]
+pub fn Int8Array::iter(Self) -> Iter[@int8.Int8]
 pub fn Int8Array::length(Self) -> Int
 pub impl Eq for Int8Array
 pub impl Hash for Int8Array
@@ -1455,7 +1455,7 @@ pub struct StructType {
   // private fields
 }
 pub fn StructType::body_str(Self) -> String
-pub fn StructType::element_iter(Self) -> Iterator[&Type]
+pub fn StructType::element_iter(Self) -> Iter[&Type]
 pub fn StructType::elements(Self) -> Array[&Type]
 pub fn StructType::full_info(Self) -> String
 pub fn StructType::getIndexedType(Self, ArrayView[Int]) -> &Type?
@@ -1554,7 +1554,7 @@ pub struct UInt16Array(Array[UInt16])
 pub fn UInt16Array::from(Array[UInt16]) -> Self
 #deprecated
 pub fn UInt16Array::inner(Self) -> Array[UInt16]
-pub fn UInt16Array::iter(Self) -> Iterator[UInt16]
+pub fn UInt16Array::iter(Self) -> Iter[UInt16]
 pub fn UInt16Array::length(Self) -> Int
 pub impl Eq for UInt16Array
 pub impl Hash for UInt16Array
@@ -1564,7 +1564,7 @@ pub struct UInt32Array(Array[UInt])
 pub fn UInt32Array::from(Array[UInt]) -> Self
 #deprecated
 pub fn UInt32Array::inner(Self) -> Array[UInt]
-pub fn UInt32Array::iter(Self) -> Iterator[UInt]
+pub fn UInt32Array::iter(Self) -> Iter[UInt]
 pub fn UInt32Array::length(Self) -> Int
 pub impl Eq for UInt32Array
 pub impl Hash for UInt32Array
@@ -1574,7 +1574,7 @@ pub struct UInt64Array(Array[UInt64])
 pub fn UInt64Array::from(Array[UInt64]) -> Self
 #deprecated
 pub fn UInt64Array::inner(Self) -> Array[UInt64]
-pub fn UInt64Array::iter(Self) -> Iterator[UInt64]
+pub fn UInt64Array::iter(Self) -> Iter[UInt64]
 pub fn UInt64Array::length(Self) -> Int
 pub impl Eq for UInt64Array
 pub impl Hash for UInt64Array
@@ -1584,7 +1584,7 @@ pub struct UInt8Array(Array[@uint8.UInt8])
 pub fn UInt8Array::from(Array[@uint8.UInt8]) -> Self
 #deprecated
 pub fn UInt8Array::inner(Self) -> Array[@uint8.UInt8]
-pub fn UInt8Array::iter(Self) -> Iterator[@uint8.UInt8]
+pub fn UInt8Array::iter(Self) -> Iter[@uint8.UInt8]
 pub fn UInt8Array::length(Self) -> Int
 pub impl Eq for UInt8Array
 pub impl Hash for UInt8Array
