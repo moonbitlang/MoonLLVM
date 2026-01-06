@@ -333,20 +333,20 @@ pub fn Function::instIter(self : Function) -> Iterator[&Instruction] {
   let mut bb_index = 0
   let mut next_inst : &Instruction? = None
   Iterator::new(fn() {
-    loop {
-      match next_inst {
-        Some(inst) => {
-          next_inst = inst.next()
-          return Some(inst)
+    loop next_inst {
+      Some(inst) => {
+        next_inst = inst.next()
+        break Some(inst)
+      }
+      None => {
+        if bb_index >= self.basicBlocks.length() {
+          break None
         }
-        None => {
-          if bb_index >= self.basicBlocks.length() {
-            return None
-          }
-          let bb = self.basicBlocks[bb_index]
-          bb_index += 1
-          next_inst = bb.firstInst()
-        }
+        let bb = self.basicBlocks[bb_index]
+        bb_index += 1
+        let start_inst = bb.firstInst()
+        next_inst = start_inst
+        continue start_inst
       }
     }
   })
