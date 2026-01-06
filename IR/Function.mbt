@@ -7,17 +7,19 @@
 ///
 /// - See `llvm::Argument`.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let prog = ctx.addModule("demo")
-/// let i32ty = ctx.getInt32Ty()
-/// let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
-/// let f = prog.addFunction(fty, "add")
-/// let arg0 = f.getArg(0).unwrap()
-/// let arg1 = f.getArg(1).unwrap()
-/// inspect(arg0, content="i32 %0")
-/// inspect(arg1.getType(), content="i32")
-/// assert_true(f.getArg(2) is None)
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let prog = ctx.addModule("demo")
+///   let i32ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+///   let f = prog.addFunction(fty, "add")
+///   let arg0 = f.getArg(0).unwrap()
+///   let arg1 = f.getArg(1).unwrap()
+///   inspect(arg0, content="i32 %0")
+///   inspect(arg1.getType(), content="i32")
+///   assert_true(f.getArg(2) is None)
+/// }
 /// ```
 pub struct Argument {
   // Unique identifier for the argument.
@@ -114,22 +116,24 @@ pub impl Value for Argument with getName(self : Argument) -> String? {
 ///
 /// - See `llvm::Argument::setName`.
 ///
-/// ```mbt test
-/// let ctx = Context::new()
-/// let prog = ctx.addModule("demo")
-/// let i32ty = ctx.getInt32Ty()
-/// let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
-/// let f = prog.addFunction(fty, "add")
-/// let arg0 = f.getArg(0).unwrap()
-/// let arg1 = f.getArg(1).unwrap()
-/// assert_true(f.getArg(2) is None)
-/// inspect(arg0, content="i32 %0")
-/// inspect(arg1.getType(), content="i32")
-/// arg0.setName("lhs")
-/// arg1.setName("rhs")
-/// inspect(arg0, content="i32 %lhs")
-/// inspect(arg1, content="i32 %rhs")
-/// assert_true((try? arg1.setName("lhs")) is Err(_))
+/// ```mbt check
+/// test {
+///   let ctx = Context::new()
+///   let prog = ctx.addModule("demo")
+///   let i32ty = ctx.getInt32Ty()
+///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
+///   let f = prog.addFunction(fty, "add")
+///   let arg0 = f.getArg(0).unwrap()
+///   let arg1 = f.getArg(1).unwrap()
+///   assert_true(f.getArg(2) is None)
+///   inspect(arg0, content="i32 %0")
+///   inspect(arg1.getType(), content="i32")
+///   arg0.setName("lhs")
+///   arg1.setName("rhs")
+///   inspect(arg0, content="i32 %lhs")
+///   inspect(arg1, content="i32 %rhs")
+///   assert_true((try? arg1.setName("lhs")) is Err(_))
+/// }
 /// ```
 pub impl Value for Argument with setName(self : Argument, name : String) -> Unit raise LLVMValueError {
   if name.is_empty() {
@@ -263,14 +267,11 @@ fn Function::new(
     slotTracker: None,
   }
   f.symbols.set(name, f)
-  fty
-  .params()
-  .iter2()
-  .each(fn(i, ty) {
+  for i, ty in fty.params().iterator2() {
     let ui = i.reinterpret_as_uint()
     let arg = Argument::new(ty, ui, f)
     f.arguments.push(arg)
-  })
+  }
   f.slotTracker = SlotTracker::new(f) |> Some
   f
 }
@@ -329,16 +330,26 @@ pub fn Function::isDeclaration(self : Function) -> Bool {
 
 ///|
 pub fn Function::instIter(self : Function) -> Iter[&Instruction] {
-  letrec f = yield_ => {
-    for bb in self.basicBlocks {
-      for i in bb.instIter() {
-        guard yield_(i) is IterContinue else { return IterEnd }
+  let mut bb_index = 0
+  let mut next_inst : &Instruction? = None
+  Iterator::new(fn() {
+    loop next_inst {
+      Some(inst) => {
+        next_inst = inst.next()
+        break Some(inst)
+      }
+      None => {
+        if bb_index >= self.basicBlocks.length() {
+          break None
+        }
+        let bb = self.basicBlocks[bb_index]
+        bb_index += 1
+        let start_inst = bb.firstInst()
+        next_inst = start_inst
+        continue start_inst
       }
     }
-    IterContinue
-  }
-
-  Iter::new(f)
+  }).iter()
 }
 
 ///|
