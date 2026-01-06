@@ -2,3 +2,5 @@ target/
 .mooncakes/
 .DS_Store
 .moonagent/
+_build/
+target
