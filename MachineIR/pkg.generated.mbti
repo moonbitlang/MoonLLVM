@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "Kaida-Amethyst/MoonMIR"
+package "Kaida-Amethyst/MoonLLVM/MachineIR"
 
 import(
   "Kaida-Amethyst/MoonLLVM/IR"

@@ -1,26 +1,28 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "Kaida-Amethyst/MoonMIR/aarch64"
+package "Kaida-Amethyst/MoonLLVM/aarch64"
 
 import(
   "Kaida-Amethyst/MoonLLVM/IR"
-  "Kaida-Amethyst/MoonMIR"
+  "Kaida-Amethyst/MoonLLVM/MachineIR"
 )
 
 // Values
 pub fn compile(@IR.Module) -> AArch64Module raise
 
-pub fn mir_block_to_aarch64(@MoonMIR.BasicBlock, Int) -> Array[AArch64Asm] raise MIRToAArch64Error
+pub fn mir_block_to_aarch64(@MachineIR.BasicBlock, Int) -> Array[AArch64Asm] raise MIRToAArch64Error
 
-pub fn mir_function_to_aarch64(@MoonMIR.Function) -> Array[AArch64Asm] raise MIRToAArch64Error
+pub fn mir_function_to_aarch64(@MachineIR.Function) -> Array[AArch64Asm] raise MIRToAArch64Error
 
-pub fn mir_global_to_aarch64(@MoonMIR.GlobalValue) -> Array[AArch64Asm]
+pub fn mir_global_to_aarch64(@MachineIR.GlobalValue) -> Array[AArch64Asm]
 
-pub fn mir_inst_to_aarch64(@MoonMIR.Instruction) -> Array[AArch64Asm] raise MIRToAArch64Error
+pub fn mir_inst_to_aarch64(@MachineIR.Instruction) -> Array[AArch64Asm] raise MIRToAArch64Error
 
-pub fn mir_module_to_aarch64(@MoonMIR.Module) -> Array[AArch64Asm] raise MIRToAArch64Error
+pub fn mir_module_to_aarch64(@MachineIR.Module) -> Array[AArch64Asm] raise MIRToAArch64Error
 
 // Errors
-pub suberror MIRToAArch64Error String
+pub suberror MIRToAArch64Error {
+  MIRToAArch64Error(String)
+}
 pub impl Show for MIRToAArch64Error
 
 // Types and methods
