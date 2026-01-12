@@ -304,5 +304,3 @@ pub impl Show for ICmpInst with output(self, logger) {
     "  \{repr} = \{self.predicate} \{lhs_ty} \{lhs_repr}, \{rhs_repr}",
   )
 }
-
-

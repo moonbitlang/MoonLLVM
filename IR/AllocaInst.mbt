@@ -230,5 +230,3 @@ pub impl Show for AllocaInst with output(self, logger) {
   let repr = self.getValueRepr()
   logger.write_string("  \{repr} = alloca \{self.data_ty}, \{self.align}")
 }
-
-

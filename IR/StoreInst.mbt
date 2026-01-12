@@ -225,5 +225,3 @@ pub impl Show for StoreInst with output(self, logger) {
   }
   logger.write_string(str)
 }
-
-

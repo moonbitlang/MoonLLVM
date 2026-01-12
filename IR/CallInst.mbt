@@ -451,5 +451,3 @@ pub impl Show for CallInst with output(self, logger) {
     )
   }
 }
-
-

@@ -136,4 +136,3 @@ pub impl Show for ReturnInst with output(self, logger) {
   }
   logger.write_string("  ret \{retStr}")
 }
-

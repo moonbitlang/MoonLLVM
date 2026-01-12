@@ -282,5 +282,3 @@ pub impl Show for GetElementPtrInst with output(self, logger) {
     "  \{repr} = getelementptr\{inbounds_str} \{self.pointeeType}, ptr \{ptr_repr}\{indices_repr}",
   )
 }
-
-

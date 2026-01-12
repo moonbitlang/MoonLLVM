@@ -279,5 +279,3 @@ pub impl Show for SelectInst with output(self, logger) {
     "  \{repr} = select \{condition_ty} \{condition_repr}, \{value_ty} \{trueValue_repr}, \{value_ty} \{falseValue_repr}",
   )
 }
-
-

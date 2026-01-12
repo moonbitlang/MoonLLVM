@@ -231,5 +231,3 @@ pub impl Show for BranchInst with output(self, logger) {
     logger.write_string("  br label \{target_block_repr}")
   }
 }
-
-

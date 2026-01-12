@@ -15,7 +15,9 @@ pub fn warning_elimination() -> Unit
 type LLVMTypeError
 pub impl Show for LLVMTypeError
 
-pub suberror LLVMValueError String
+pub suberror LLVMValueError {
+  LLVMValueError(String)
+}
 pub impl Show for LLVMValueError
 
 // Types and methods

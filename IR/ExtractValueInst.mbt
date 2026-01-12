@@ -265,4 +265,3 @@ pub impl Show for ExtractValueInst with output(self, logger) {
     "  \{repr} = extractvalue \{agg_ty} \{agg_repr}, \{indices_str}",
   )
 }
-

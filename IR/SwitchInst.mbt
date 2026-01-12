@@ -305,5 +305,3 @@ pub impl Show for SwitchInst with output(self, logger) {
   // Close the switch statement
   logger.write_string("\n  ]")
 }
-
-

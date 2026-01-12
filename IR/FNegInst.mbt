@@ -170,5 +170,3 @@ pub impl Show for FNegInst with output(self, logger) {
   let operand_repr = self.operand.getValueRepr()
   logger.write_string("  \{repr} = fneg \{self.vty} \{operand_repr}")
 }
-
-

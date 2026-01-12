@@ -318,5 +318,3 @@ pub impl Show for FCmpInst with output(self, logger) {
     "  \{repr} = \{self.predicate} \{lhs_ty} \{lhs_repr}, \{rhs_repr}",
   )
 }
-
-

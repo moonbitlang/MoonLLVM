@@ -455,5 +455,3 @@ pub impl Show for BinaryInst with output(self, logger) {
     "  \{repr} = \{self.opcode}\{flags_str} \{ty} \{lhs_repr}, \{rhs_repr}",
   )
 }
-
-

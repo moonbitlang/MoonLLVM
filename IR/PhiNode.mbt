@@ -549,5 +549,3 @@ pub impl Show for PHINode with output(self, logger) {
     (if num_incoming > 0 { " " + incoming_strs.join(", ") } else { "" })
   logger.write_string(str)
 }
-
-

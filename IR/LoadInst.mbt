@@ -306,5 +306,3 @@ pub impl Show for LoadInst with output(self, logger) {
   }
   logger.write_string(str)
 }
-
-

@@ -595,5 +595,3 @@ pub impl Show for CastInst with output(self, logger) {
     "  \{repr} = \{self.opcode} \{from_ty} \{from_val_repr} to \{to_ty}",
   )
 }
-
-
