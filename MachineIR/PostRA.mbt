@@ -54,7 +54,7 @@ fn Function::store_load_caller_saved_registers(self : Self) -> Unit {
     let _ = bb.insts.search_by(i => i == inst)
     // capture checks not needed after skipping return regs
     // Collect caller-saved registers to preserve: live-out ∪ live-in
-    let mut to_preserve : Array[Operand] = Array::new()
+    let to_preserve : Array[Operand] = Array::new()
     inst.live_out.each(op => if is_caller_saved_register(op) {
       to_preserve.push(op)
     })

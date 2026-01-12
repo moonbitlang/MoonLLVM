@@ -286,7 +286,7 @@ pub fn Function::collect_blocks_with_opcode(
   self : Self,
   opcode : OpCode,
 ) -> Array[BasicBlock] {
-  let mut blocks = Array::new()
+  let blocks = Array::new()
   for bb in self.body {
     for inst in bb.insts {
       if inst.opcode == opcode {
