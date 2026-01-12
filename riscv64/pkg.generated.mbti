@@ -1,0 +1,284 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Kaida-Amethyst/MoonMIR/riscv64"
+
+import(
+  "Kaida-Amethyst/MoonLLVM/IR"
+  "Kaida-Amethyst/MoonMIR"
+)
+
+// Values
+pub fn compile(@IR.Module) -> Riscv64Module raise
+
+pub fn mir_block_to_riscv(@MoonMIR.BasicBlock, Int) -> Array[RvAsm] raise MIRToRiscvError
+
+pub fn mir_function_to_riscv(@MoonMIR.Function) -> Array[RvAsm] raise MIRToRiscvError
+
+pub fn mir_global_to_riscv(@MoonMIR.GlobalValue) -> Array[RvAsm]
+
+pub fn mir_inst_to_riscv(@MoonMIR.Instruction) -> Array[RvAsm] raise MIRToRiscvError
+
+pub fn mir_module_to_riscv(@MoonMIR.Module) -> Array[RvAsm] raise MIRToRiscvError
+
+// Errors
+pub suberror MIRToRiscvError String
+pub impl Show for MIRToRiscvError
+
+// Types and methods
+pub(all) enum FReg {
+  Ft0
+  Ft1
+  Ft2
+  Ft3
+  Ft4
+  Ft5
+  Ft6
+  Ft7
+  Fs0
+  Fs1
+  Fa0
+  Fa1
+  Fa2
+  Fa3
+  Fa4
+  Fa5
+  Fa6
+  Fa7
+  Fs2
+  Fs3
+  Fs4
+  Fs5
+  Fs6
+  Fs7
+  Fs8
+  Fs9
+  Fs10
+  Fs11
+  Ft8
+  Ft9
+  Ft10
+  Ft11
+}
+pub impl Compare for FReg
+pub impl Eq for FReg
+pub impl Hash for FReg
+pub impl Show for FReg
+
+pub(all) struct Mem {
+  base : Reg
+  offset : Int64
+}
+pub impl Compare for Mem
+pub impl Eq for Mem
+pub impl Hash for Mem
+pub impl Show for Mem
+
+pub(all) enum Reg {
+  Zero
+  Ra
+  Sp
+  Gp
+  Tp
+  T0
+  T1
+  T2
+  Fp
+  S1
+  A0
+  A1
+  A2
+  A3
+  A4
+  A5
+  A6
+  A7
+  S2
+  S3
+  S4
+  S5
+  S6
+  S7
+  S8
+  S9
+  S10
+  S11
+  T3
+  T4
+  T5
+  T6
+}
+pub impl Compare for Reg
+pub impl Eq for Reg
+pub impl Hash for Reg
+pub impl Show for Reg
+
+pub struct Riscv64Module {
+  insts : Array[RvAsm]
+}
+pub impl Show for Riscv64Module
+
+pub(all) enum RvAsm {
+  Global(String)
+  Asciz(String)
+  Byte(Byte)
+  Half(UInt16)
+  Word(UInt)
+  Quad(UInt64)
+  Zero(UInt)
+  Section(String)
+  LuiHi(Reg, String)
+  AddiLo(Reg, Reg, String)
+  Add(Reg, Reg, Reg)
+  Sub(Reg, Reg, Reg)
+  Xor(Reg, Reg, Reg)
+  Or(Reg, Reg, Reg)
+  And(Reg, Reg, Reg)
+  Sll(Reg, Reg, Reg)
+  Srl(Reg, Reg, Reg)
+  Sra(Reg, Reg, Reg)
+  Slt(Reg, Reg, Reg)
+  Sltu(Reg, Reg, Reg)
+  Addw(Reg, Reg, Reg)
+  Subw(Reg, Reg, Reg)
+  Sllw(Reg, Reg, Reg)
+  Srlw(Reg, Reg, Reg)
+  Sraw(Reg, Reg, Reg)
+  Addi(Reg, Reg, Int)
+  Addiw(Reg, Reg, Int)
+  Xori(Reg, Reg, Int)
+  Ori(Reg, Reg, Int)
+  Andi(Reg, Reg, Int)
+  Slli(Reg, Reg, Int)
+  Srli(Reg, Reg, Int)
+  Srai(Reg, Reg, Int)
+  Slti(Reg, Reg, Int)
+  Sltiu(Reg, Reg, Int)
+  Lb(Reg, Mem)
+  Lh(Reg, Mem)
+  Lw(Reg, Mem)
+  Ld(Reg, Mem)
+  Lbu(Reg, Mem)
+  Lhu(Reg, Mem)
+  Lwu(Reg, Mem)
+  Sb(Reg, Mem)
+  Sh(Reg, Mem)
+  Sw(Reg, Mem)
+  Sd(Reg, Mem)
+  Beq(Reg, Reg, String)
+  Bne(Reg, Reg, String)
+  Blt(Reg, Reg, String)
+  Bge(Reg, Reg, String)
+  Ble(Reg, Reg, String)
+  Bgt(Reg, Reg, String)
+  Bltu(Reg, Reg, String)
+  Bgeu(Reg, Reg, String)
+  Ecall
+  Mul(Reg, Reg, Reg)
+  Mulw(Reg, Reg, Reg)
+  Mulh(Reg, Reg, Reg)
+  Mulhsu(Reg, Reg, Reg)
+  Mulhu(Reg, Reg, Reg)
+  Div(Reg, Reg, Reg)
+  Divw(Reg, Reg, Reg)
+  Divu(Reg, Reg, Reg)
+  Rem(Reg, Reg, Reg)
+  Remw(Reg, Reg, Reg)
+  Remu(Reg, Reg, Reg)
+  FaddD(FReg, FReg, FReg)
+  FsubD(FReg, FReg, FReg)
+  FmulD(FReg, FReg, FReg)
+  FdivD(FReg, FReg, FReg)
+  Fld(FReg, Mem)
+  Fsd(FReg, Mem)
+  FeqD(Reg, FReg, FReg)
+  FleD(Reg, FReg, FReg)
+  FmvDX(FReg, Reg)
+  FmvXD(Reg, FReg)
+  Nop
+  La(Reg, String)
+  Li(Reg, String)
+  Neg(Reg, Reg)
+  FnegD(FReg, FReg)
+  Mv(Reg, Reg)
+  FmvD(FReg, FReg)
+  J(String)
+  Jalr(Reg)
+  Jr(Reg)
+  Call(String)
+  Tail(String)
+  Ret
+  Not(Reg, Reg)
+  Negw(Reg, Reg)
+  SextW(Reg, Reg)
+  Seqz(Reg, Reg)
+  Snez(Reg, Reg)
+  Sltz(Reg, Reg)
+  Sgtz(Reg, Reg)
+  Beqz(Reg, String)
+  Bnez(Reg, String)
+  Blez(Reg, String)
+  Bgez(Reg, String)
+  Bltz(Reg, String)
+  Bgtz(Reg, String)
+  FabsS(FReg, FReg)
+  FmvS(FReg, FReg)
+  FnegS(FReg, FReg)
+  FabsD(FReg, FReg)
+  Lui(Reg, Int)
+  Auipc(Reg, Int)
+  Jal(Reg, String)
+  Ebreak
+  Fence
+  LrW(Reg, Reg)
+  ScW(Reg, Reg, Reg)
+  AmoswapW(Reg, Reg, Reg)
+  AmoaddW(Reg, Reg, Reg)
+  AmoandW(Reg, Reg, Reg)
+  AmoorW(Reg, Reg, Reg)
+  AmoxorW(Reg, Reg, Reg)
+  AmomaxW(Reg, Reg, Reg)
+  AmominW(Reg, Reg, Reg)
+  AmomaxuW(Reg, Reg, Reg)
+  AmominuW(Reg, Reg, Reg)
+  Flw(FReg, Mem)
+  Fsw(FReg, Mem)
+  FaddS(FReg, FReg, FReg)
+  FsubS(FReg, FReg, FReg)
+  FmulS(FReg, FReg, FReg)
+  FdivS(FReg, FReg, FReg)
+  FsqrtS(FReg, FReg)
+  FsqrtD(FReg, FReg)
+  FmvWX(Reg, FReg)
+  FmvXW(FReg, Reg)
+  FeqS(Reg, FReg, FReg)
+  FleS(Reg, FReg, FReg)
+  FltS(Reg, FReg, FReg)
+  FltD(Reg, FReg, FReg)
+  FminS(FReg, FReg, FReg)
+  FmaxS(FReg, FReg, FReg)
+  FminD(FReg, FReg, FReg)
+  FmaxD(FReg, FReg, FReg)
+  FcvtSW(FReg, Reg)
+  FcvtSWu(FReg, Reg)
+  FcvtWS(Reg, FReg)
+  FcvtWuS(Reg, FReg)
+  FcvtSD(FReg, FReg)
+  FcvtDS(FReg, FReg)
+  FcvtDW(FReg, Reg)
+  FcvtDWu(FReg, Reg)
+  FcvtWD(Reg, FReg)
+  FcvtWuD(Reg, FReg)
+  FcvtDL(FReg, Reg)
+  FcvtLD(Reg, FReg)
+  FcvtLuD(Reg, FReg)
+  FcvtSL(FReg, Reg)
+  FcvtLS(Reg, FReg)
+  FcvtLuS(Reg, FReg)
+  Label(String)
+  Comment(String)
+}
+pub impl Show for RvAsm
+
+// Type aliases
+
+// Traits
+

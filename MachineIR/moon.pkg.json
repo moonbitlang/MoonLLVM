@@ -1,0 +1,9 @@
+{
+  "import" : [
+    "Kaida-Amethyst/MoonLLVM/IR",
+    "Kaida-Amethyst/MoonLLVM/int8",
+    "Kaida-Amethyst/MoonLLVM/uint8",
+    "Kaida-Amethyst/either",
+  ],
+  "warn-list": "-15-29"
+}

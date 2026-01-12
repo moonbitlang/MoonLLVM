@@ -1,0 +1,6 @@
+{
+  "import" : [
+    "Kaida-Amethyst/MoonLLVM/MachineIR",
+    "Kaida-Amethyst/MoonLLVM/IR"
+  ]
+}
