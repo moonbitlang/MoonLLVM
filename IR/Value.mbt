@@ -733,13 +733,13 @@ impl Instruction with insertBefore(self, insertPt : &Instruction) {
 ///|
 impl Instruction with moveBefore(self, insertPt : &Instruction) {
   self.removeFromParent()
-  (try? self.insertBefore(insertPt)).unwrap()
+  try! self.insertBefore(insertPt)
 }
 
 ///|
 impl Instruction with moveAfter(self, insertPt : &Instruction) {
   self.removeFromParent()
-  (try? self.insertAfter(insertPt)).unwrap()
+  try! self.insertAfter(insertPt)
 }
 
 ///|

@@ -2764,7 +2764,7 @@ pub struct ConstantString {
 
 ///|
 fn ConstantString::new(ctx : Context, data : String) -> ConstantString {
-  let vty = (try? ctx.getArrayType(ctx.getInt8Ty(), data.length() + 1)).unwrap()
+  let vty = try! ctx.getArrayType(ctx.getInt8Ty(), data.length() + 1)
   let uid = valueUIDAssigner.assign()
   ConstantString::{ uid, vty, data }
 }

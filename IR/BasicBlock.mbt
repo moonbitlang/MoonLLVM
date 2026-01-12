@@ -110,7 +110,7 @@ pub fn BasicBlock::lastInst(self : BasicBlock) -> &Instruction? {
 ///|
 pub fn BasicBlock::instIter(self : BasicBlock) -> Iter[&Instruction] {
   let mut next_inst = self.head
-  Iterator::new(fn() {
+  Iter::new(fn() {
     match next_inst {
       Some(inst) => {
         next_inst = inst.next()
@@ -118,7 +118,7 @@ pub fn BasicBlock::instIter(self : BasicBlock) -> Iter[&Instruction] {
       }
       None => None
     }
-  }).iter()
+  })
 }
 
 ///|

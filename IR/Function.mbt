@@ -267,7 +267,7 @@ fn Function::new(
     slotTracker: None,
   }
   f.symbols.set(name, f)
-  for i, ty in fty.params().iterator2() {
+  for i, ty in fty.params().iter2() {
     let ui = i.reinterpret_as_uint()
     let arg = Argument::new(ty, ui, f)
     f.arguments.push(arg)
@@ -332,7 +332,7 @@ pub fn Function::isDeclaration(self : Function) -> Bool {
 pub fn Function::instIter(self : Function) -> Iter[&Instruction] {
   let mut bb_index = 0
   let mut next_inst : &Instruction? = None
-  Iterator::new(fn() {
+  Iter::new(fn() {
     loop next_inst {
       Some(inst) => {
         next_inst = inst.next()
@@ -349,7 +349,7 @@ pub fn Function::instIter(self : Function) -> Iter[&Instruction] {
         continue start_inst
       }
     }
-  }).iter()
+  })
 }
 
 ///|

@@ -911,7 +911,7 @@ pub fn Context::getConstInt8Array(
   self : Context,
   data : Array[Int],
 ) -> ConstantArray {
-  let ty = (try? self.getArrayType(self.getInt8Ty(), data.length())).unwrap()
+  let ty = try! self.getArrayType(self.getInt8Ty(), data.length())
   ConstantArray::newInt8Array(ty, data)
 }
 
@@ -932,7 +932,7 @@ pub fn Context::getConstInt16Array(
   self : Context,
   data : Array[Int16],
 ) -> ConstantArray {
-  let ty = (try? self.getArrayType(self.getInt16Ty(), data.length())).unwrap()
+  let ty = try! self.getArrayType(self.getInt16Ty(), data.length())
   ConstantArray::newInt16Array(ty, data)
 }
 
@@ -953,7 +953,7 @@ pub fn Context::getConstInt32Array(
   self : Context,
   data : Array[Int],
 ) -> ConstantArray {
-  let ty = (try? self.getArrayType(self.getInt32Ty(), data.length())).unwrap()
+  let ty = try! self.getArrayType(self.getInt32Ty(), data.length())
   ConstantArray::newInt32Array(ty, data)
 }
 
@@ -974,7 +974,7 @@ pub fn Context::getConstInt64Array(
   self : Context,
   data : Array[Int64],
 ) -> ConstantArray {
-  let ty = (try? self.getArrayType(self.getInt64Ty(), data.length())).unwrap()
+  let ty = try! self.getArrayType(self.getInt64Ty(), data.length())
   ConstantArray::newInt64Array(ty, data)
 }
 
@@ -996,7 +996,7 @@ pub fn Context::getConstUInt8Array(
   data : Array[Byte],
 ) -> ConstantArray {
   let len = data.length()
-  let ty = (try? self.getArrayType(self.getInt8Ty(), len)).unwrap()
+  let ty = try! self.getArrayType(self.getInt8Ty(), len)
   ConstantArray::newUInt8Array(ty, data)
 }
 
@@ -1018,7 +1018,7 @@ pub fn Context::getConstUInt16Array(
   data : Array[UInt16],
 ) -> ConstantArray {
   let len = data.length()
-  let ty = (try? self.getArrayType(self.getInt16Ty(), len)).unwrap()
+  let ty = try! self.getArrayType(self.getInt16Ty(), len)
   ConstantArray::newUInt16Array(ty, data)
 }
 
@@ -1040,7 +1040,7 @@ pub fn Context::getConstUInt32Array(
   data : Array[UInt],
 ) -> ConstantArray {
   let len = data.length()
-  let ty = (try? self.getArrayType(self.getInt32Ty(), len)).unwrap()
+  let ty = try! self.getArrayType(self.getInt32Ty(), len)
   ConstantArray::newUInt32Array(ty, data)
 }
 
@@ -1062,7 +1062,7 @@ pub fn Context::getConstUInt64Array(
   data : Array[UInt64],
 ) -> ConstantArray {
   let len = data.length()
-  let ty = (try? self.getArrayType(self.getInt64Ty(), len)).unwrap()
+  let ty = try! self.getArrayType(self.getInt64Ty(), len)
   ConstantArray::newUInt64Array(ty, data)
 }
 
@@ -1087,7 +1087,7 @@ pub fn Context::getConstFloatArray(
   data : Array[Float],
 ) -> ConstantArray {
   let len = data.length()
-  let ty = (try? self.getArrayType(self.getFloatTy(), len)).unwrap()
+  let ty = try! self.getArrayType(self.getFloatTy(), len)
   ConstantArray::newFloatArray(ty, data)
 }
 
@@ -1112,7 +1112,7 @@ pub fn Context::getConstDoubleArray(
   data : Array[Double],
 ) -> ConstantArray {
   let len = data.length()
-  let ty = (try? self.getArrayType(self.getDoubleTy(), len)).unwrap()
+  let ty = try! self.getArrayType(self.getDoubleTy(), len)
   ConstantArray::newDoubleArray(ty, data)
 }
 
@@ -1123,7 +1123,7 @@ pub fn Context::getConstArray(
   data : Array[&Constant],
 ) -> ConstantArray {
   let len = data.length()
-  let ty = (try? self.getArrayType(elementType, len)).unwrap()
+  let ty = try! self.getArrayType(elementType, len)
   ConstantArray::newConstantArray(ty, data)
 }
 
@@ -1152,7 +1152,7 @@ pub fn Context::getConstInt8Vector(
   data : Array[Int],
 ) -> ConstantVector {
   let len = data.length()
-  let ty = (try? self.getFixedVectorType(self.getInt8Ty(), len)).unwrap()
+  let ty = try! self.getFixedVectorType(self.getInt8Ty(), len)
   ConstantVector::newInt8Vector(ty, data)
 }
 
@@ -1174,7 +1174,7 @@ pub fn Context::getConstInt16Vector(
   data : Array[Int16],
 ) -> ConstantVector {
   let len = data.length()
-  let ty = (try? self.getFixedVectorType(self.getInt16Ty(), len)).unwrap()
+  let ty = try! self.getFixedVectorType(self.getInt16Ty(), len)
   ConstantVector::newInt16Vector(ty, data)
 }
 
@@ -1196,7 +1196,7 @@ pub fn Context::getConstInt32Vector(
   data : Array[Int],
 ) -> ConstantVector {
   let len = data.length()
-  let ty = (try? self.getFixedVectorType(self.getInt32Ty(), len)).unwrap()
+  let ty = try! self.getFixedVectorType(self.getInt32Ty(), len)
   ConstantVector::newInt32Vector(ty, data)
 }
 
@@ -1218,7 +1218,7 @@ pub fn Context::getConstInt64Vector(
   data : Array[Int64],
 ) -> ConstantVector {
   let len = data.length()
-  let ty = (try? self.getFixedVectorType(self.getInt64Ty(), len)).unwrap()
+  let ty = try! self.getFixedVectorType(self.getInt64Ty(), len)
   ConstantVector::newInt64Vector(ty, data)
 }
 
@@ -1239,7 +1239,7 @@ pub fn Context::getConstUInt8Vector(
   self : Context,
   data : Array[Byte],
 ) -> ConstantVector {
-  let ty = (try? self.getFixedVectorType(self.getInt8Ty(), data.length())).unwrap()
+  let ty = try! self.getFixedVectorType(self.getInt8Ty(), data.length())
   ConstantVector::newUInt8Vector(ty, data)
 }
 
@@ -1260,7 +1260,7 @@ pub fn Context::getConstUInt16Vector(
   self : Context,
   data : Array[UInt16],
 ) -> ConstantVector {
-  let ty = (try? self.getFixedVectorType(self.getInt16Ty(), data.length())).unwrap()
+  let ty = try! self.getFixedVectorType(self.getInt16Ty(), data.length())
   ConstantVector::newUInt16Vector(ty, data)
 }
 
@@ -1281,7 +1281,7 @@ pub fn Context::getConstUInt32Vector(
   self : Context,
   data : Array[UInt],
 ) -> ConstantVector {
-  let ty = (try? self.getFixedVectorType(self.getInt32Ty(), data.length())).unwrap()
+  let ty = try! self.getFixedVectorType(self.getInt32Ty(), data.length())
   ConstantVector::newUInt32Vector(ty, data)
 }
 
@@ -1302,7 +1302,7 @@ pub fn Context::getConstUInt64Vector(
   self : Context,
   data : Array[UInt64],
 ) -> ConstantVector {
-  let ty = (try? self.getFixedVectorType(self.getInt64Ty(), data.length())).unwrap()
+  let ty = try! self.getFixedVectorType(self.getInt64Ty(), data.length())
   ConstantVector::newUInt64Vector(ty, data)
 }
 
@@ -1326,7 +1326,7 @@ pub fn Context::getConstFloatVector(
   self : Context,
   data : Array[Float],
 ) -> ConstantVector {
-  let ty = (try? self.getFixedVectorType(self.getFloatTy(), data.length())).unwrap()
+  let ty = try! self.getFixedVectorType(self.getFloatTy(), data.length())
   ConstantVector::newFloatVector(ty, data)
 }
 
@@ -1350,7 +1350,7 @@ pub fn Context::getConstDoubleVector(
   self : Context,
   data : Array[Double],
 ) -> ConstantVector {
-  let ty = (try? self.getFixedVectorType(self.getDoubleTy(), data.length())).unwrap()
+  let ty = try! self.getFixedVectorType(self.getDoubleTy(), data.length())
   ConstantVector::newDoubleVector(ty, data)
 }
 

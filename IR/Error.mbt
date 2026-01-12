@@ -14,7 +14,9 @@ suberror LLVMTypeError {
 } derive(Show)
 
 ///|
-pub suberror LLVMValueError String
+pub suberror LLVMValueError {
+  LLVMValueError(String)
+}
 
 ///|
 pub impl Show for LLVMValueError with output(self, logger) {
