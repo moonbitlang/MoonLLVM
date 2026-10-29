@@ -12,7 +12,7 @@ pub(all) struct BasicBlock {
 }
 
 ///|
-pub impl Eq for BasicBlock with equal(self, other) {
+pub impl Eq for BasicBlock with fn equal(self, other) {
   self.label == other.label
 }
 
@@ -130,7 +130,7 @@ pub fn BasicBlock::compute_live_out_from_succs(self : Self) -> Set[Operand] {
 }
 
 ///|
-pub impl Show for BasicBlock with output(self, logger) {
+pub impl Show for BasicBlock with fn output(self, logger) {
   if !self.preds.is_empty() {
     let pred_labels = self.preds.map(b => b.label).join(", ")
     logger.write_string("; preds: \{pred_labels}\n")
@@ -154,7 +154,7 @@ pub impl Show for BasicBlock with output(self, logger) {
     }
     inst_strs.push((inst_str, live_str))
   }
-  fn max(a : Int, b : Int) {
+  fn max(a : Int32, b : Int32) {
     if a > b {
       a
     } else {

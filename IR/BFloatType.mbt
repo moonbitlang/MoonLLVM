@@ -14,26 +14,26 @@ fn BFloatType::new(ctx : Context) -> BFloatType {
 }
 
 ///|
-pub impl Show for BFloatType with output(_, logger : &Logger) {
+pub impl Show for BFloatType with fn output(_, logger : &Logger) {
   logger.write_string("bfloat")
 }
 
 ///|
-pub impl Type for BFloatType with asTypeEnum(self) -> TypeEnum {
+pub impl Type for BFloatType with fn asTypeEnum(self) -> TypeEnum {
   BFloatType(self)
 }
 
 ///|
-pub impl Type for BFloatType with getContext(self) -> Context {
+pub impl Type for BFloatType with fn getContext(self) -> Context {
   self.ctx
 }
 
 ///|
-pub impl FPType for BFloatType with asFPTypeEnum(self) -> FPTypeEnum {
+pub impl FPType for BFloatType with fn asFPTypeEnum(self) -> FPTypeEnum {
   BFloatType(self)
 }
 
 ///|
-pub impl PrimitiveType for BFloatType with asPrimitiveTypeEnum(self) -> PrimitiveTypeEnum {
+pub impl PrimitiveType for BFloatType with fn asPrimitiveTypeEnum(self) -> PrimitiveTypeEnum {
   BFloatType(self)
 }

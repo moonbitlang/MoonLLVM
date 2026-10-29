@@ -12,8 +12,8 @@ test "BasicBlock - Creation and Basic Operations" {
   let _exit_bb = fval.addBasicBlock(name="exit")
 
   // Test parent relationship
-  assert_eq(entry.getParent(), fval)
-  assert_eq(loop_bb.getParent(), fval)
+  assert_true(entry.getParent() == fval)
+  assert_true(loop_bb.getParent() == fval)
 
   // Test module relationship
   assert_eq(entry.getModule().moduleID, "test_bb")
@@ -74,7 +74,7 @@ test "BasicBlock - Successors and Predecessors" {
   assert_eq(entry_succs.length(), 2)
   let then_succs = then_bb.getSuccessors()
   assert_eq(then_succs.length(), 1)
-  assert_eq(then_succs[0], merge)
+  assert_true(then_succs[0] == merge)
 }
 
 ///|
@@ -341,7 +341,6 @@ test "Module - Data Layout" {
   let layout = mod.getDataLayout()
   // Just verify getDataLayout works
   let _ = layout
-
 }
 
 ///|

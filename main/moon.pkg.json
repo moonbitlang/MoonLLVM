@@ -1,6 +1,0 @@
-{
-  "is-main": true,
-  "import": [
-    "Kaida-Amethyst/MoonLLVM/IR"
-  ]
-}

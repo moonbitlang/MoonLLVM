@@ -15,7 +15,7 @@ pub struct TokenType {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let tokenty = ctx.getTokenTy()
 ///   inspect(tokenty, content="token")
 /// }
@@ -25,21 +25,21 @@ fn TokenType::new(ctx : Context) -> TokenType {
 }
 
 ///|
-pub impl Show for TokenType with output(_, logger : &Logger) {
+pub impl Show for TokenType with fn output(_, logger : &Logger) {
   logger.write_string("token")
 }
 
 ///|
-pub impl Type for TokenType with asTypeEnum(self) -> TypeEnum {
+pub impl Type for TokenType with fn asTypeEnum(self) -> TypeEnum {
   TokenType(self)
 }
 
 ///|
-pub impl Type for TokenType with getContext(self) -> Context {
+pub impl Type for TokenType with fn getContext(self) -> Context {
   self.ctx
 }
 
 ///|
-pub impl AbstractType for TokenType with asAbstractTypeEnum(self) -> AbstractTypeEnum {
+pub impl AbstractType for TokenType with fn asAbstractTypeEnum(self) -> AbstractTypeEnum {
   TokenType(self)
 }

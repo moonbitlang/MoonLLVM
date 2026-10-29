@@ -1,9 +1,9 @@
 ///|
 pub(all) enum IRegister {
-  VReg(Int) // Virtual Register
-  AReg(Int) // Argument Register (after grouping)
-  TReg(Int) // Temporary Register (after grouping)
-  SReg(Int) // Saved Register (after grouping)
+  VReg(Int32) // Virtual Register
+  AReg(Int32) // Argument Register (after grouping)
+  TReg(Int32) // Temporary Register (after grouping)
+  SReg(Int32) // Saved Register (after grouping)
   StackPtr // Stack Pointer
   FramePtr // Frame Pointer
   FramePtrPrim // Fake Frame Pointer used in prologue/epilogue
@@ -11,7 +11,7 @@ pub(all) enum IRegister {
 } derive(Hash, Eq)
 
 ///|
-pub impl Show for IRegister with output(self, logger) {
+pub impl Show for IRegister with fn output(self, logger) {
   let s = match self {
     VReg(n) => "v\{n}"
     AReg(n) => "a\{n}"
@@ -27,14 +27,14 @@ pub impl Show for IRegister with output(self, logger) {
 
 ///|
 pub(all) enum FRegister {
-  VFReg(Int) // Virtual Float Register
-  FAReg(Int) // Float Argument Register (after grouping)
-  FTReg(Int) // Float Temporary Register (after grouping)
-  FSReg(Int) // Float Saved Register (after grouping)
+  VFReg(Int32) // Virtual Float Register
+  FAReg(Int32) // Float Argument Register (after grouping)
+  FTReg(Int32) // Float Temporary Register (after grouping)
+  FSReg(Int32) // Float Saved Register (after grouping)
 } derive(Hash, Eq)
 
 ///|
-pub impl Show for FRegister with output(self, logger) {
+pub impl Show for FRegister with fn output(self, logger) {
   let s = match self {
     VFReg(n) => "vf\{n}"
     FAReg(n) => "fa\{n}"
@@ -78,7 +78,7 @@ fn Operand::is_virtual_reg(self : Self) -> Bool {
 }
 
 ///|
-pub impl Show for Operand with output(self, logger) {
+pub impl Show for Operand with fn output(self, logger) {
   let s = match self {
     IRegister(r) => r.to_string()
     FRegister(r) => r.to_string()

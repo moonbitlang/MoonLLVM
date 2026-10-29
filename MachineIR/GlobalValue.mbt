@@ -9,20 +9,20 @@ pub(all) struct GlobalValue {
 ///|
 pub(all) enum GlobalValueContent {
   String(String)
-  Zero(UInt) // size in bytes
+  Zero(UInt32) // size in bytes
   Data(Array[GlobalValueData])
 }
 
 ///|
 pub(all) enum GlobalValueData {
   Quad(UInt64)
-  Word(UInt)
+  Word(UInt32)
   Half(UInt16)
   Byte(Byte)
 }
 
 ///|
-pub impl Show for GlobalValue with output(self, logger) {
+pub impl Show for GlobalValue with fn output(self, logger) {
   logger.write_string("global \{self.label} {\n")
   match self.content {
     String(s) => logger.write_string("  \"\{s}\"\n")

@@ -34,7 +34,7 @@ pub(all) enum ArgPattern {
 
 ///|
 ///
-/// ```mbt
+/// ```mbt nocheck
 /// let mod = Module::new(ArchConfig::riscv64())
 /// let func = mod.add_function("add", [I, I], false)
 /// let entry_bb = func.append_basic_block("entry")
@@ -65,7 +65,7 @@ pub fn Module::add_function(
   name : String,
   arg_patterns : Array[ArgPattern],
   is_external : Bool,
-  is_variadic? : Bool = false,
+  is_variadic~ : Bool = false,
 ) -> Function {
   let func = Function::new(self, name, is_external, is_variadic~)
   self.functions.set(name, func)
@@ -83,7 +83,7 @@ pub fn Module::get_function(self : Self, name : String) -> Function? {
 
 ///|
 ///
-/// ```mbt
+/// ```mbt nocheck
 /// let mod = Module::new(ArchConfig::riscv64())
 /// let content = #|Hello, World!\n
 /// let gv = mod.add_global_string(label="msg", content~)
@@ -116,7 +116,7 @@ pub fn Module::add_global_string(
 
 ///|
 ///
-/// ```mbt
+/// ```mbt nocheck
 /// let mod = Module::new(ArchConfig::riscv64())
 /// let gv = mod.add_global_zero_data("buffer", 64)
 ///
@@ -130,7 +130,7 @@ pub fn Module::add_global_string(
 pub fn Module::add_global_zero_data(
   self : Self,
   label : String,
-  size : UInt,
+  size : UInt32,
 ) -> GlobalValue {
   let gv = GlobalValue::{
     label,
@@ -144,7 +144,7 @@ pub fn Module::add_global_zero_data(
 
 ///|
 ///
-/// ```mbt
+/// ```mbt nocheck
 /// let mod = Module::new(ArchConfig::riscv64())
 /// let data : Array[GlobalValueData] = [
 ///   Quad(0x1122334455667788),
@@ -180,7 +180,7 @@ pub fn Module::add_global_data(
 }
 
 ///|
-pub impl Show for Module with output(self, logger) {
+pub impl Show for Module with fn output(self, logger) {
   logger.write_string("; Source File: \{self.source_file}\n")
   logger.write_string("; Architecture: \{self.arch_config.arch_name}\n\n")
   for gv in self.global_values {

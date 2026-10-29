@@ -15,7 +15,7 @@ pub struct VoidType {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let voidty = ctx.getVoidTy()
 ///   inspect(voidty, content="void")
 /// }
@@ -25,21 +25,21 @@ fn VoidType::new(ctx : Context) -> VoidType {
 }
 
 ///|
-pub impl Show for VoidType with output(_, logger : &Logger) {
+pub impl Show for VoidType with fn output(_, logger : &Logger) {
   logger.write_string("void")
 }
 
 ///|
-pub impl Type for VoidType with getContext(self) -> Context {
+pub impl Type for VoidType with fn getContext(self) -> Context {
   self.ctx
 }
 
 ///|
-pub impl Type for VoidType with asTypeEnum(self) -> TypeEnum {
+pub impl Type for VoidType with fn asTypeEnum(self) -> TypeEnum {
   VoidType(self)
 }
 
 ///|
-pub impl AbstractType for VoidType with asAbstractTypeEnum(self) -> AbstractTypeEnum {
+pub impl AbstractType for VoidType with fn asAbstractTypeEnum(self) -> AbstractTypeEnum {
   VoidType(self)
 }

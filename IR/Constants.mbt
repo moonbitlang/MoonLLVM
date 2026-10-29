@@ -10,7 +10,7 @@
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let i8 = ctx.getConstInt8(0)
 ///   let i16 = ctx.getConstInt16(1)
 ///   let i32 = ctx.getConstInt32(-2)
@@ -42,7 +42,7 @@ fn ConstantInt::new(vty : &IntegerType, value : Int64) -> ConstantInt {
     Int64Type(_) => value
   }
   let uid = valueUIDAssigner.assign()
-  ConstantInt::{ uid, vty, value }
+  ConstantInt::{ uid, vty, value, }
 }
 
 ///|
@@ -55,7 +55,7 @@ fn ConstantInt::getValue(self : ConstantInt) -> Int64 {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let i8_zero = ctx.getConstInt8(0)
 ///   let i16_one = ctx.getConstInt16(1)
 ///   let i32_two = ctx.getConstInt32(2)
@@ -77,7 +77,7 @@ pub fn ConstantInt::getValueAsInt64(self : ConstantInt) -> Int64 {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let i8_zero = ctx.getConstInt8(0)
 ///   let i16_one = ctx.getConstInt16(1)
 ///   let i32_m2 = ctx.getConstInt32(-2)
@@ -97,7 +97,7 @@ pub fn ConstantInt::getIntegerType(self : ConstantInt) -> &IntegerType {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   assert_true(ctx.getConstInt8(0).equals(0))
 ///   assert_true(ctx.getConstInt8(-1).equals(-1))
 ///   assert_true(ctx.getConstInt8(1).equals(1))
@@ -119,7 +119,7 @@ pub fn ConstantInt::isNegative(self : ConstantInt) -> Bool {
 
 ///|
 pub fn ConstantInt::isMaxValue(self : ConstantInt) -> Bool {
-  guard self.getType().tryAsIntTypeEnum() is Some(ty)
+  guard! self.getType().tryAsIntTypeEnum() is Some(ty)
   match ty {
     Int1Type(_) => self.value == 1
     Int8Type(_) => Int8::from_int64(self.value) == @int8.max_value
@@ -131,7 +131,7 @@ pub fn ConstantInt::isMaxValue(self : ConstantInt) -> Bool {
 
 ///|
 pub fn ConstantInt::isMinValue(self : ConstantInt) -> Bool {
-  guard self.getType().tryAsIntTypeEnum() is Some(ty)
+  guard! self.getType().tryAsIntTypeEnum() is Some(ty)
   match ty {
     Int1Type(_) => self.value == 0
     Int8Type(_) => Int8::from_int64(self.value) == @int8.min_value
@@ -149,7 +149,7 @@ pub fn ConstantInt::isMinValue(self : ConstantInt) -> Bool {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let i8_0 = ctx.getConstInt8(0)
 ///   let i8_31 = ctx.getConstInt8(31)
 ///   inspect(i8_0.add(i8_31), content="i8 31")
@@ -162,7 +162,7 @@ pub fn ConstantInt::isMinValue(self : ConstantInt) -> Bool {
 ///   let i64_16 = ctx.getConstInt64(16)
 ///   let i64_m33 = ctx.getConstInt64(-33)
 ///   inspect(i64_16.add(i64_m33), content="i64 -17")
-///   assert_true((try? i8_0.add(i16_5)) is Err(_))
+///   assert_true((Ok(i8_0.add(i16_5)) catch { e => Err(e) }) is Err(_))
 /// }
 /// ```
 pub fn ConstantInt::add(
@@ -194,7 +194,7 @@ pub fn ConstantInt::add(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let i8_0 = ctx.getConstInt8(0)
 ///   let i8_31 = ctx.getConstInt8(31)
 ///   inspect(i8_31.sub(i8_0), content="i8 31")
@@ -208,7 +208,7 @@ pub fn ConstantInt::add(
 ///   let i64_16 = ctx.getConstInt64(16)
 ///   let i64_m33 = ctx.getConstInt64(-33)
 ///   inspect(i64_16.sub(i64_m33), content="i64 49")
-///   assert_true((try? i32_81.sub(i64_16)) is Err(_))
+///   assert_true((Ok(i32_81.sub(i64_16)) catch { e => Err(e) }) is Err(_))
 /// }
 /// ```
 pub fn ConstantInt::sub(
@@ -240,7 +240,7 @@ pub fn ConstantInt::sub(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let i8_0 = ctx.getConstInt8(0)
 ///   let i8_31 = ctx.getConstInt8(31)
 ///   inspect(i8_0.mul(i8_31), content="i8 0")
@@ -284,7 +284,7 @@ pub fn ConstantInt::mul(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let i8_1 = ctx.getConstInt8(1)
 ///   let i8_31 = ctx.getConstInt8(31)
 ///   inspect(i8_31.sdiv(i8_1), content="i8 31")
@@ -332,7 +332,7 @@ pub fn ConstantInt::sdiv(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///
 ///   // Test case 1: i8 unsigned division
 ///   // 200u8 / 10u8 = 20u8. ConstantInt stores 20L.
@@ -361,11 +361,11 @@ pub fn ConstantInt::sdiv(
 ///   // Test case 5: Type mismatch
 ///   let i8_5 = ctx.getConstInt8(5)
 ///   let i16_2 = ctx.getConstInt16(2)
-///   assert_true((try? i8_5.udiv(i16_2)) is Err(_))
+///   assert_true((Ok(i8_5.udiv(i16_2)) catch { e => Err(e) }) is Err(_))
 ///
 ///   // Test case 6: Division by zero
 ///   let i8_0 = ctx.getConstInt8(0)
-///   assert_true((try? i8_5.udiv(i8_0)) is Err(_))
+///   assert_true((Ok(i8_5.udiv(i8_0)) catch { e => Err(e) }) is Err(_))
 ///
 ///   // Test case 7: i1 unsigned division
 ///   let i1_true = ctx.getConstTrue()
@@ -419,7 +419,7 @@ pub fn ConstantInt::udiv(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let i8_6 = ctx.getConstInt8(6) // 00000110
 ///   let i8_3 = ctx.getConstInt8(3) // 00000011
 ///   inspect(i8_6.compute_and(i8_3), content="i8 2") // 00000010
@@ -463,7 +463,7 @@ pub fn ConstantInt::compute_and(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let i8_6 = ctx.getConstInt8(6) // 00000110
 ///   let i8_3 = ctx.getConstInt8(3) // 00000011
 ///   inspect(i8_6.or(i8_3), content="i8 7") // 00000111
@@ -507,7 +507,7 @@ pub fn ConstantInt::or(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let i8_6 = ctx.getConstInt8(6) // 00000110
 ///   let i8_3 = ctx.getConstInt8(3) // 00000011
 ///   inspect(i8_6.xor(i8_3), content="i8 5") // 00000101
@@ -551,7 +551,7 @@ pub fn ConstantInt::xor(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let i8_1 = ctx.getConstInt8(1) // 00000001
 ///   let i8_3 = ctx.getConstInt8(3) // shift by 3
 ///   inspect(i8_1.compute_shl(i8_3), content="i8 8") // 00001000
@@ -595,7 +595,7 @@ pub fn ConstantInt::compute_shl(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let i8_200 = ctx.getConstInt8(200) // 11001000 (as unsigned)
 ///   let i8_2 = ctx.getConstInt8(2) // shift by 2
 ///   inspect(i8_200.lshr(i8_2), content="i8 50") // 00110010 (50)
@@ -657,7 +657,7 @@ pub fn ConstantInt::lshr(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let i8_m1 = ctx.getConstInt8(-1) // 11111111
 ///   let i8_2 = ctx.getConstInt8(2) // shift by 2
 ///   inspect(i8_m1.ashr(i8_2), content="i8 -1") // 11111111 (sign extended)
@@ -706,7 +706,7 @@ pub fn ConstantInt::ashr(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let i8_5 = ctx.getConstInt8(5)
 ///   let i8_10 = ctx.getConstInt8(10)
 ///   let i8_m5 = ctx.getConstInt8(-5)
@@ -739,7 +739,7 @@ pub fn ConstantInt::ashr(
 ///
 ///   // Test type mismatch
 ///   let i16_5 = ctx.getConstInt16(5)
-///   assert_true((try? i8_5.compare(EQ, i16_5)) is Err(_))
+///   assert_true((Ok(i8_5.compare(EQ, i16_5)) catch { e => Err(e) }) is Err(_))
 /// }
 /// ```
 pub fn ConstantInt::compare(
@@ -828,7 +828,7 @@ pub fn ConstantInt::compare(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let i32_255 = ctx.getConstInt32(255)
 ///   let i8_255 = i32_255.trunc(ctx.getInt8Ty())
 ///   inspect(i8_255, content="i8 -1")
@@ -841,7 +841,9 @@ pub fn ConstantInt::compare(
 ///
 ///   // Test error case: cannot truncate to larger type
 ///   let i8_val = ctx.getConstInt8(42)
-///   assert_true((try? i8_val.trunc(ctx.getInt32Ty())) is Err(_))
+///   assert_true(
+///     (Ok(i8_val.trunc(ctx.getInt32Ty())) catch { e => Err(e) }) is Err(_),
+///   )
 /// }
 /// ```
 pub fn ConstantInt::trunc(
@@ -864,7 +866,7 @@ pub fn ConstantInt::trunc(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let i8_255 = ctx.getConstInt8(255) // -1 as signed, 255 as unsigned
 ///   let i32_255 = i8_255.zext(ctx.getInt32Ty())
 ///   inspect(i32_255, content="i32 255")
@@ -877,7 +879,9 @@ pub fn ConstantInt::trunc(
 ///
 ///   // Test error case: cannot zext to smaller type
 ///   let i32_val = ctx.getConstInt32(42)
-///   assert_true((try? i32_val.zext(ctx.getInt8Ty())) is Err(_))
+///   assert_true(
+///     (Ok(i32_val.zext(ctx.getInt8Ty())) catch { e => Err(e) }) is Err(_),
+///   )
 /// }
 /// ```
 pub fn ConstantInt::zext(
@@ -908,7 +912,7 @@ pub fn ConstantInt::zext(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let i8_m1 = ctx.getConstInt8(-1)
 ///   let i32_m1 = i8_m1.sext(ctx.getInt32Ty())
 ///   inspect(i32_m1, content="i32 -1")
@@ -921,7 +925,9 @@ pub fn ConstantInt::zext(
 ///
 ///   // Test error case: cannot sext to smaller type
 ///   let i32_val = ctx.getConstInt32(42)
-///   assert_true((try? i32_val.sext(ctx.getInt8Ty())) is Err(_))
+///   assert_true(
+///     (Ok(i32_val.sext(ctx.getInt8Ty())) catch { e => Err(e) }) is Err(_),
+///   )
 /// }
 /// ```
 pub fn ConstantInt::sext(
@@ -948,7 +954,7 @@ pub fn ConstantInt::sext(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let i32_255 = ctx.getConstInt32(255)
 ///   let f32_255 = i32_255.uitofp(ctx.getFloatTy())
 ///   assert_eq(f32_255.getValue(), 255.0)
@@ -981,7 +987,7 @@ pub fn ConstantInt::uitofp(self : ConstantInt, dst_ty : &FPType) -> ConstantFP {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let i32_m42 = ctx.getConstInt32(-42)
 ///   let f32_m42 = i32_m42.sitofp(ctx.getFloatTy())
 ///   assert_eq(f32_m42.getValue(), -42.0)
@@ -1008,7 +1014,7 @@ pub fn ConstantInt::sitofp(self : ConstantInt, dst_ty : &FPType) -> ConstantFP {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let i64_0 = ctx.getConstInt64(0)
 ///   let null_ptr = i64_0.inttoptr()
 ///   inspect(null_ptr, content="ptr null")
@@ -1031,23 +1037,25 @@ pub fn ConstantInt::inttoptr(self : ConstantInt) -> ConstantPointerNull {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///
 ///   // Test i32 to f32 bitcast
 ///   let i32_val = ctx.getConstInt32(0x40000000) // 2.0 in float
 ///   let f32_val = i32_val.bitcast(ctx.getFloatTy())
-///   guard f32_val.asConstantEnum() is ConstantFP(f32_val)
+///   guard! f32_val.asConstantEnum() is ConstantFP(f32_val)
 ///   assert_eq(f32_val.getValue(), 2.0)
 ///
 ///   // Test i64 to f64 bitcast
 ///   let i64_val = ctx.getConstInt64(0x4000000000000000L) // 2.0 in double
 ///   let f64_val = i64_val.bitcast(ctx.getDoubleTy())
-///   guard f64_val.asConstantEnum() is ConstantFP(f64_val)
+///   guard! f64_val.asConstantEnum() is ConstantFP(f64_val)
 ///   assert_eq(f64_val.getValue(), 2.0)
 ///
 ///   // Test error case: different bit widths
 ///   let i8_val = ctx.getConstInt8(42)
-///   assert_true((try? i8_val.bitcast(ctx.getFloatTy())) is Err(_))
+///   assert_true(
+///     (Ok(i8_val.bitcast(ctx.getFloatTy())) catch { e => Err(e) }) is Err(_),
+///   )
 /// }
 /// ```
 pub fn ConstantInt::bitcast(
@@ -1093,17 +1101,17 @@ pub fn ConstantInt::bitcast(
 }
 
 ///|
-pub impl Value for ConstantInt with getValueBase(self) {
-  ValueBase::{ uid: self.uid, vty: self.vty, users: [] }
+pub impl Value for ConstantInt with fn getValueBase(self) {
+  ValueBase::{ uid: self.uid, vty: self.vty, users: [], }
 }
 
 ///|
-pub impl Value for ConstantInt with asValueEnum(self) {
+pub impl Value for ConstantInt with fn asValueEnum(self) {
   ConstantInt(self)
 }
 
 ///|
-pub impl Value for ConstantInt with getValueRepr(self) {
+pub impl Value for ConstantInt with fn getValueRepr(self) {
   let vty = self.getIntegerType()
   let val = match vty.asIntegerTypeEnum() {
     Int1Type(_) => if self.value != 0 { "true" } else { "false" }
@@ -1113,34 +1121,34 @@ pub impl Value for ConstantInt with getValueRepr(self) {
 }
 
 ///|
-pub impl Value for ConstantInt with getName(_) {
+pub impl Value for ConstantInt with fn getName(_) {
   None
 }
 
 ///|
-pub impl Value for ConstantInt with setName(_, _) {
+pub impl Value for ConstantInt with fn setName(_, _) {
   let msg = "Calling always failed function `ConstantInt::setName`. " +
     "Set name for ConstantInt is not allowed."
   raise LLVMValueError(msg)
 }
 
 ///|
-pub impl Value for ConstantInt with removeName(_) {
+pub impl Value for ConstantInt with fn removeName(_) {
   ()
 }
 
 ///|
-pub impl Value for ConstantInt with getNameOrSlot(_) {
+pub impl Value for ConstantInt with fn getNameOrSlot(_) {
   None
 }
 
 ///|
-pub impl Constant for ConstantInt with asConstantEnum(self) {
+pub impl Constant for ConstantInt with fn asConstantEnum(self) {
   ConstantInt(self)
 }
 
 ///|
-pub impl Show for ConstantInt with output(self, logger) {
+pub impl Show for ConstantInt with fn output(self, logger) {
   let val_str = self.getValueRepr()
   logger.write_string("\{self.getIntegerType()} \{val_str}")
 }
@@ -1164,7 +1172,7 @@ pub struct ConstantFP {
 ///|
 fn ConstantFP::new(vty : &FPType, value : Double) -> ConstantFP {
   let uid = valueUIDAssigner.assign()
-  ConstantFP::{ uid, vty, value }
+  ConstantFP::{ uid, vty, value, }
 }
 
 ///|
@@ -1199,7 +1207,7 @@ pub fn[T : Floating] ConstantFP::exactlyEquals(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let f32_0 = ctx.getConstFloat(0.0)
 ///   let f32_1_5 = ctx.getConstFloat(1.5)
 ///   let result1 = f32_0.add(f32_1_5)
@@ -1232,7 +1240,7 @@ pub fn ConstantFP::add(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let f32_0 = ctx.getConstFloat(0.0)
 ///   let f32_1_5 = ctx.getConstFloat(1.5)
 ///   let result1 = f32_0.sub(f32_1_5)
@@ -1265,7 +1273,7 @@ pub fn ConstantFP::sub(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let f32_0 = ctx.getConstFloat(0.0)
 ///   let f32_1_5 = ctx.getConstFloat(1.5)
 ///   let result1 = f32_0.mul(f32_1_5)
@@ -1298,7 +1306,7 @@ pub fn ConstantFP::mul(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let f32_0 = ctx.getConstFloat(0.0)
 ///   let f32_1_5 = ctx.getConstFloat(1.5)
 ///   let result1 = f32_0.div(f32_1_5)
@@ -1331,7 +1339,7 @@ pub fn ConstantFP::div(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let f32_1_5 = ctx.getConstFloat(1.5)
 ///   let f32_2_5 = ctx.getConstFloat(2.5)
 ///   let f32_nan = ctx.getConstFloat(0.0 / 0.0)
@@ -1372,7 +1380,9 @@ pub fn ConstantFP::div(
 ///
 ///   // Test type mismatch
 ///   let f64_1_5 = ctx.getConstDouble(1.5)
-///   assert_true((try? f32_1_5.compare(OEQ, f64_1_5)) is Err(_))
+///   assert_true(
+///     (Ok(f32_1_5.compare(OEQ, f64_1_5)) catch { e => Err(e) }) is Err(_),
+///   )
 /// }
 /// ```
 pub fn ConstantFP::compare(
@@ -1423,7 +1433,7 @@ pub fn ConstantFP::compare(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///
 ///   // Test f64 to f32 truncation
 ///   let f64_1_5 = ctx.getConstDouble(1.5)
@@ -1438,7 +1448,9 @@ pub fn ConstantFP::compare(
 ///
 ///   // Test error case: cannot truncate to larger type
 ///   let f32_val = ctx.getConstFloat(2.0)
-///   assert_true((try? f32_val.fptrunc(ctx.getDoubleTy())) is Err(_))
+///   assert_true(
+///     (Ok(f32_val.fptrunc(ctx.getDoubleTy())) catch { e => Err(e) }) is Err(_),
+///   )
 /// }
 /// ```
 pub fn ConstantFP::fptrunc(
@@ -1463,7 +1475,7 @@ pub fn ConstantFP::fptrunc(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///
 ///   // Test f32 to f64 extension
 ///   let f32_1_5 = ctx.getConstFloat(1.5)
@@ -1477,7 +1489,9 @@ pub fn ConstantFP::fptrunc(
 ///
 ///   // Test error case: cannot extend to smaller type
 ///   let f64_val = ctx.getConstDouble(2.0)
-///   assert_true((try? f64_val.fpext(ctx.getFloatTy())) is Err(_))
+///   assert_true(
+///     (Ok(f64_val.fpext(ctx.getFloatTy())) catch { e => Err(e) }) is Err(_),
+///   )
 /// }
 /// ```
 pub fn ConstantFP::fpext(
@@ -1501,7 +1515,7 @@ pub fn ConstantFP::fpext(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///
 ///   // Test positive float to unsigned integer
 ///   let f32_3_7 = ctx.getConstFloat(3.7)
@@ -1546,7 +1560,7 @@ pub fn ConstantFP::fptoui(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///
 ///   // Test positive float to signed integer
 ///   let f32_3_7 = ctx.getConstFloat(3.7)
@@ -1587,27 +1601,31 @@ pub fn ConstantFP::fptosi(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///
 ///   // Test f32 to i32 bitcast
 ///   let f32_2_0 = ctx.getConstFloat(2.0)
 ///   let i32_bits = f32_2_0.bitcast(ctx.getInt32Ty())
-///   guard i32_bits.asConstantEnum() is ConstantInt(i32_bits)
+///   guard! i32_bits.asConstantEnum() is ConstantInt(i32_bits)
 ///   assert_eq(i32_bits.getValueAsInt64(), 0x40000000) // 2.0f bit pattern
 ///
 ///   // Test f64 to i64 bitcast
 ///   let f64_2_0 = ctx.getConstDouble(2.0)
 ///   let i64_bits = f64_2_0.bitcast(ctx.getInt64Ty())
-///   guard i64_bits.asConstantEnum() is ConstantInt(i64_bits)
+///   guard! i64_bits.asConstantEnum() is ConstantInt(i64_bits)
 ///   assert_eq(i64_bits.getValueAsInt64(), 0x4000000000000000L) // 2.0 bit pattern
 ///
 ///   // Test f32 to f32 (same type should error)
 ///   let f32_val = ctx.getConstFloat(1.0)
-///   assert_true((try? f32_val.bitcast(ctx.getFloatTy())) is Err(_))
+///   assert_true(
+///     (Ok(f32_val.bitcast(ctx.getFloatTy())) catch { e => Err(e) }) is Err(_),
+///   )
 ///
 ///   // Test error case: different bit widths
 ///   let f64_val = ctx.getConstDouble(42.0)
-///   assert_true((try? f64_val.bitcast(ctx.getInt32Ty())) is Err(_))
+///   assert_true(
+///     (Ok(f64_val.bitcast(ctx.getInt32Ty())) catch { e => Err(e) }) is Err(_),
+///   )
 /// }
 /// ```
 pub fn ConstantFP::bitcast(
@@ -1654,12 +1672,12 @@ pub fn ConstantFP::bitcast(
 }
 
 ///|
-pub impl Value for ConstantFP with getValueBase(self) {
-  ValueBase::{ uid: self.uid, vty: self.vty, users: [] }
+pub impl Value for ConstantFP with fn getValueBase(self) {
+  ValueBase::{ uid: self.uid, vty: self.vty, users: [], }
 }
 
 ///|
-pub impl Value for ConstantFP with getValueRepr(self) {
+pub impl Value for ConstantFP with fn getValueRepr(self) {
   let val_str = self.value
     .reinterpret_as_uint64()
     .to_string(radix=16)
@@ -1668,39 +1686,39 @@ pub impl Value for ConstantFP with getValueRepr(self) {
 }
 
 ///|
-pub impl Value for ConstantFP with asValueEnum(self) {
+pub impl Value for ConstantFP with fn asValueEnum(self) {
   ConstantFP(self)
 }
 
 ///|
-pub impl Value for ConstantFP with getName(_) {
+pub impl Value for ConstantFP with fn getName(_) {
   None
 }
 
 ///|
-pub impl Value for ConstantFP with setName(_, _) {
+pub impl Value for ConstantFP with fn setName(_, _) {
   let msg = "Calling always failed function `ConstantFP::setName`. " +
     "Set name for ConstantFP is not allowed."
   raise LLVMValueError(msg)
 }
 
 ///|
-pub impl Value for ConstantFP with removeName(_) {
+pub impl Value for ConstantFP with fn removeName(_) {
   ()
 }
 
 ///|
-pub impl Value for ConstantFP with getNameOrSlot(_) {
+pub impl Value for ConstantFP with fn getNameOrSlot(_) {
   None
 }
 
 ///|
-pub impl Constant for ConstantFP with asConstantEnum(self) {
+pub impl Constant for ConstantFP with fn asConstantEnum(self) {
   ConstantFP(self)
 }
 
 ///|
-pub impl Show for ConstantFP with output(self, logger) {
+pub impl Show for ConstantFP with fn output(self, logger) {
   let val_str = self.getValueRepr()
   logger.write_string("\{self.getFPType()} \{val_str}")
 }
@@ -1754,57 +1772,57 @@ pub struct ConstantPointerNull {
 ///|
 fn ConstantPointerNull::new(
   ctx : Context,
-  addressSpace? : UInt = 0,
+  addressSpace~ : UInt32 = 0,
 ) -> ConstantPointerNull {
   let vty = PointerType::new(ctx, addressSpace=AddressSpace(addressSpace))
   let uid = valueUIDAssigner.assign()
-  ConstantPointerNull::{ uid, vty }
+  ConstantPointerNull::{ uid, vty, }
 }
 
 ///|
-pub impl Value for ConstantPointerNull with getValueBase(self) {
-  ValueBase::{ uid: self.uid, vty: self.vty, users: [] }
+pub impl Value for ConstantPointerNull with fn getValueBase(self) {
+  ValueBase::{ uid: self.uid, vty: self.vty, users: [], }
 }
 
 ///|
-pub impl Value for ConstantPointerNull with asValueEnum(self) {
+pub impl Value for ConstantPointerNull with fn asValueEnum(self) {
   ConstantPointerNull(self)
 }
 
 ///|
-pub impl Value for ConstantPointerNull with getValueRepr(_) {
+pub impl Value for ConstantPointerNull with fn getValueRepr(_) {
   "null"
 }
 
 ///|
-pub impl Value for ConstantPointerNull with getName(_) {
+pub impl Value for ConstantPointerNull with fn getName(_) {
   None
 }
 
 ///|
-pub impl Value for ConstantPointerNull with setName(_, _) {
+pub impl Value for ConstantPointerNull with fn setName(_, _) {
   let msg = "Calling always failed function `ConstantPointerNull::setName`. " +
     "Set name for ConstantPointerNull is not allowed."
   raise LLVMValueError(msg)
 }
 
 ///|
-pub impl Value for ConstantPointerNull with removeName(_) {
+pub impl Value for ConstantPointerNull with fn removeName(_) {
   ()
 }
 
 ///|
-pub impl Value for ConstantPointerNull with getNameOrSlot(_) {
+pub impl Value for ConstantPointerNull with fn getNameOrSlot(_) {
   None
 }
 
 ///|
-pub impl Constant for ConstantPointerNull with asConstantEnum(self) {
+pub impl Constant for ConstantPointerNull with fn asConstantEnum(self) {
   ConstantPointerNull(self)
 }
 
 ///|
-pub impl Show for ConstantPointerNull with output(self, logger) {
+pub impl Show for ConstantPointerNull with fn output(self, logger) {
   logger.write_string("\{self.getType()} null")
 }
 
@@ -1854,7 +1872,7 @@ pub struct ConstantArray {
 ///|
 fn ConstantArray::newInt8Array(
   vty : ArrayType,
-  data : Array[Int],
+  data : Array[Int32],
 ) -> ConstantArray {
   let eleCnt = vty.getElementCount()
   guard data.length() == eleCnt else {
@@ -1870,7 +1888,7 @@ fn ConstantArray::newInt8Array(
     |> NumberArrayEnum::Int8Array
     |> Either::Right
   let uid = valueUIDAssigner.assign()
-  ConstantArray::{ uid, vty, data }
+  ConstantArray::{ uid, vty, data, }
 }
 
 ///|
@@ -1892,13 +1910,13 @@ fn ConstantArray::newInt16Array(
     |> NumberArrayEnum::Int16Array
     |> Either::Right
   let uid = valueUIDAssigner.assign()
-  ConstantArray::{ uid, vty, data }
+  ConstantArray::{ uid, vty, data, }
 }
 
 ///|
 fn ConstantArray::newInt32Array(
   vty : ArrayType,
-  data : Array[Int],
+  data : Array[Int32],
 ) -> ConstantArray {
   let eleCnt = vty.getElementCount()
   guard data.length() == eleCnt else {
@@ -1914,7 +1932,7 @@ fn ConstantArray::newInt32Array(
     |> NumberArrayEnum::Int32Array
     |> Either::Right
   let uid = valueUIDAssigner.assign()
-  ConstantArray::{ uid, vty, data }
+  ConstantArray::{ uid, vty, data, }
 }
 
 ///|
@@ -1936,7 +1954,7 @@ fn ConstantArray::newInt64Array(
     |> NumberArrayEnum::Int64Array
     |> Either::Right
   let uid = valueUIDAssigner.assign()
-  ConstantArray::{ uid, vty, data }
+  ConstantArray::{ uid, vty, data, }
 }
 
 ///|
@@ -1958,7 +1976,7 @@ fn ConstantArray::newUInt8Array(
     |> NumberArrayEnum::UInt8Array
     |> Either::Right
   let uid = valueUIDAssigner.assign()
-  ConstantArray::{ uid, vty, data }
+  ConstantArray::{ uid, vty, data, }
 }
 
 ///|
@@ -1980,13 +1998,13 @@ fn ConstantArray::newUInt16Array(
     |> NumberArrayEnum::UInt16Array
     |> Either::Right
   let uid = valueUIDAssigner.assign()
-  ConstantArray::{ uid, vty, data }
+  ConstantArray::{ uid, vty, data, }
 }
 
 ///|
 fn ConstantArray::newUInt32Array(
   vty : ArrayType,
-  data : Array[UInt],
+  data : Array[UInt32],
 ) -> ConstantArray {
   let eleCnt = vty.getElementCount()
   guard data.length() == eleCnt else {
@@ -2002,7 +2020,7 @@ fn ConstantArray::newUInt32Array(
     |> NumberArrayEnum::UInt32Array
     |> Either::Right
   let uid = valueUIDAssigner.assign()
-  ConstantArray::{ uid, vty, data }
+  ConstantArray::{ uid, vty, data, }
 }
 
 ///|
@@ -2024,7 +2042,7 @@ fn ConstantArray::newUInt64Array(
     |> NumberArrayEnum::UInt64Array
     |> Either::Right
   let uid = valueUIDAssigner.assign()
-  ConstantArray::{ uid, vty, data }
+  ConstantArray::{ uid, vty, data, }
 }
 
 ///|
@@ -2046,7 +2064,7 @@ fn ConstantArray::newFloatArray(
     |> NumberArrayEnum::FloatArray
     |> Either::Right
   let uid = valueUIDAssigner.assign()
-  ConstantArray::{ uid, vty, data }
+  ConstantArray::{ uid, vty, data, }
 }
 
 ///|
@@ -2068,7 +2086,7 @@ fn ConstantArray::newDoubleArray(
     |> NumberArrayEnum::DoubleArray
     |> Either::Right
   let uid = valueUIDAssigner.assign()
-  ConstantArray::{ uid, vty, data }
+  ConstantArray::{ uid, vty, data, }
 }
 
 ///|
@@ -2092,21 +2110,21 @@ fn ConstantArray::newConstantArray(
     )
   }
   let uid = valueUIDAssigner.assign()
-  ConstantArray::{ uid, vty, data: Either::Left(data) }
+  ConstantArray::{ uid, vty, data: Either::Left(data), }
 }
 
 ///|
-pub impl Value for ConstantArray with getValueBase(self) {
-  ValueBase::{ uid: self.uid, vty: self.vty, users: [] }
+pub impl Value for ConstantArray with fn getValueBase(self) {
+  ValueBase::{ uid: self.uid, vty: self.vty, users: [], }
 }
 
 ///|
-pub impl Value for ConstantArray with asValueEnum(self) {
+pub impl Value for ConstantArray with fn asValueEnum(self) {
   ConstantArray(self)
 }
 
 ///|
-pub impl Value for ConstantArray with getValueRepr(self) {
+pub impl Value for ConstantArray with fn getValueRepr(self) {
   match self.data {
     Left(constants) => constants.map(c => c.to_string()).join(", ")
     Right(arr) =>
@@ -2143,34 +2161,34 @@ pub impl Value for ConstantArray with getValueRepr(self) {
 }
 
 ///|
-pub impl Value for ConstantArray with getName(_) {
+pub impl Value for ConstantArray with fn getName(_) {
   None
 }
 
 ///|
-pub impl Value for ConstantArray with setName(_, _) {
+pub impl Value for ConstantArray with fn setName(_, _) {
   let msg = "Calling always failed function `ConstantArray::setName`. " +
     "Set name for ConstantArray is not allowed."
   raise LLVMValueError(msg)
 }
 
 ///|
-pub impl Value for ConstantArray with removeName(_) {
+pub impl Value for ConstantArray with fn removeName(_) {
   ()
 }
 
 ///|
-pub impl Value for ConstantArray with getNameOrSlot(_) {
+pub impl Value for ConstantArray with fn getNameOrSlot(_) {
   None
 }
 
 ///|
-pub impl Constant for ConstantArray with asConstantEnum(self) {
+pub impl Constant for ConstantArray with fn asConstantEnum(self) {
   ConstantArray(self)
 }
 
 ///|
-pub impl Show for ConstantArray with output(self, logger) {
+pub impl Show for ConstantArray with fn output(self, logger) {
   let data_str = self.getValueRepr()
   logger.write_string("\{self.getType()} [\{data_str}]")
 }
@@ -2218,7 +2236,7 @@ pub struct ConstantVector {
 ///|
 fn ConstantVector::newInt8Vector(
   vty : VectorType,
-  data : Array[Int],
+  data : Array[Int32],
 ) -> ConstantVector {
   let eleCnt = vty.getElementCount()
   guard data.length() == eleCnt else {
@@ -2234,7 +2252,7 @@ fn ConstantVector::newInt8Vector(
     |> NumberArrayEnum::Int8Array
     |> Either::Right
   let uid = valueUIDAssigner.assign()
-  ConstantVector::{ uid, vty, data }
+  ConstantVector::{ uid, vty, data, }
 }
 
 ///|
@@ -2256,13 +2274,13 @@ fn ConstantVector::newInt16Vector(
     |> NumberArrayEnum::Int16Array
     |> Either::Right
   let uid = valueUIDAssigner.assign()
-  ConstantVector::{ uid, vty, data }
+  ConstantVector::{ uid, vty, data, }
 }
 
 ///|
 fn ConstantVector::newInt32Vector(
   vty : VectorType,
-  data : Array[Int],
+  data : Array[Int32],
 ) -> ConstantVector {
   let eleCnt = vty.getElementCount()
   guard data.length() == eleCnt else {
@@ -2278,7 +2296,7 @@ fn ConstantVector::newInt32Vector(
     |> NumberArrayEnum::Int32Array
     |> Either::Right
   let uid = valueUIDAssigner.assign()
-  ConstantVector::{ uid, vty, data }
+  ConstantVector::{ uid, vty, data, }
 }
 
 ///|
@@ -2300,7 +2318,7 @@ fn ConstantVector::newInt64Vector(
     |> NumberArrayEnum::Int64Array
     |> Either::Right
   let uid = valueUIDAssigner.assign()
-  ConstantVector::{ uid, vty, data }
+  ConstantVector::{ uid, vty, data, }
 }
 
 ///|
@@ -2322,7 +2340,7 @@ fn ConstantVector::newUInt8Vector(
     |> NumberArrayEnum::UInt8Array
     |> Either::Right
   let uid = valueUIDAssigner.assign()
-  ConstantVector::{ uid, vty, data }
+  ConstantVector::{ uid, vty, data, }
 }
 
 ///|
@@ -2344,13 +2362,13 @@ fn ConstantVector::newUInt16Vector(
     |> NumberArrayEnum::UInt16Array
     |> Either::Right
   let uid = valueUIDAssigner.assign()
-  ConstantVector::{ uid, vty, data }
+  ConstantVector::{ uid, vty, data, }
 }
 
 ///|
 fn ConstantVector::newUInt32Vector(
   vty : VectorType,
-  data : Array[UInt],
+  data : Array[UInt32],
 ) -> ConstantVector {
   let eleCnt = vty.getElementCount()
   guard data.length() == eleCnt else {
@@ -2366,7 +2384,7 @@ fn ConstantVector::newUInt32Vector(
     |> NumberArrayEnum::UInt32Array
     |> Either::Right
   let uid = valueUIDAssigner.assign()
-  ConstantVector::{ uid, vty, data }
+  ConstantVector::{ uid, vty, data, }
 }
 
 ///|
@@ -2388,7 +2406,7 @@ fn ConstantVector::newUInt64Vector(
     |> NumberArrayEnum::UInt64Array
     |> Either::Right
   let uid = valueUIDAssigner.assign()
-  ConstantVector::{ uid, vty, data }
+  ConstantVector::{ uid, vty, data, }
 }
 
 ///|
@@ -2410,7 +2428,7 @@ fn ConstantVector::newFloatVector(
     |> NumberArrayEnum::FloatArray
     |> Either::Right
   let uid = valueUIDAssigner.assign()
-  ConstantVector::{ uid, vty, data }
+  ConstantVector::{ uid, vty, data, }
 }
 
 ///|
@@ -2432,21 +2450,21 @@ fn ConstantVector::newDoubleVector(
     |> NumberArrayEnum::DoubleArray
     |> Either::Right
   let uid = valueUIDAssigner.assign()
-  ConstantVector::{ uid, vty, data }
+  ConstantVector::{ uid, vty, data, }
 }
 
 ///|
-pub impl Value for ConstantVector with getValueBase(self) {
-  ValueBase::{ uid: self.uid, vty: self.vty, users: [] }
+pub impl Value for ConstantVector with fn getValueBase(self) {
+  ValueBase::{ uid: self.uid, vty: self.vty, users: [], }
 }
 
 ///|
-pub impl Value for ConstantVector with asValueEnum(self) {
+pub impl Value for ConstantVector with fn asValueEnum(self) {
   ConstantVector(self)
 }
 
 ///|
-pub impl Value for ConstantVector with getValueRepr(self) {
+pub impl Value for ConstantVector with fn getValueRepr(self) {
   match self.data {
     Left(constants) => constants.map(c => c.to_string()).join(", ")
     Right(arr) =>
@@ -2483,34 +2501,34 @@ pub impl Value for ConstantVector with getValueRepr(self) {
 }
 
 ///|
-pub impl Value for ConstantVector with getName(_) {
+pub impl Value for ConstantVector with fn getName(_) {
   None
 }
 
 ///|
-pub impl Value for ConstantVector with setName(_, _) {
+pub impl Value for ConstantVector with fn setName(_, _) {
   let msg = "Calling always failed function `ConstantVector::setName`. " +
     "Set name for ConstantVector is not allowed."
   raise LLVMValueError(msg)
 }
 
 ///|
-pub impl Value for ConstantVector with removeName(_) {
+pub impl Value for ConstantVector with fn removeName(_) {
   ()
 }
 
 ///|
-pub impl Value for ConstantVector with getNameOrSlot(_) {
+pub impl Value for ConstantVector with fn getNameOrSlot(_) {
   None
 }
 
 ///|
-pub impl Constant for ConstantVector with asConstantEnum(self) {
+pub impl Constant for ConstantVector with fn asConstantEnum(self) {
   ConstantVector(self)
 }
 
 ///|
-pub impl Show for ConstantVector with output(self, logger) {
+pub impl Show for ConstantVector with fn output(self, logger) {
   let data_str = self.getValueRepr()
   logger.write_string("\{self.getType()} <\{data_str}>")
 }
@@ -2526,13 +2544,13 @@ pub impl Show for ConstantVector with output(self, logger) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let i32ty = ctx.getInt32Ty()
 ///   let f32ty = ctx.getFloatTy()
 ///   let sty = ctx.getStructType([i32ty, f32ty])
 ///   let i32_val = ctx.getConstInt32(42)
 ///   let f32_val = ctx.getConstFloat(3.14)
-///   let struct_val = ConstantStruct::new(sty, [i32_val, f32_val])
+///   let struct_val = @IR.ConstantStruct::new(sty, [i32_val, f32_val])
 ///   inspect(
 ///     struct_val,
 ///     content="{ i32, float } { i32 42, float 0x40091EB860000000 }",
@@ -2568,7 +2586,7 @@ pub fn ConstantStruct::new(
     }
   }
   let uid = valueUIDAssigner.assign()
-  ConstantStruct::{ uid, vty, elements: elements.copy() }
+  ConstantStruct::{ uid, vty, elements: elements.copy(), }
 }
 
 ///|
@@ -2581,7 +2599,7 @@ pub fn ConstantStruct::getElements(self : ConstantStruct) -> Array[&Constant] {
 /// Get the element at the specified index.
 pub fn ConstantStruct::getElement(
   self : ConstantStruct,
-  index : Int,
+  index : Int32,
 ) -> &Constant? {
   if index >= 0 && index < self.elements.length() {
     Some(self.elements[index])
@@ -2598,13 +2616,13 @@ pub fn ConstantStruct::getElement(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let i32ty = ctx.getInt32Ty()
 ///   let f32ty = ctx.getFloatTy()
 ///   let sty = ctx.getStructType([i32ty, f32ty])
 ///   let i32_val = ctx.getConstInt32(42)
 ///   let f32_val = ctx.getConstFloat(3.14)
-///   let struct_val = ConstantStruct::new(sty, [i32_val, f32_val])
+///   let struct_val = @IR.ConstantStruct::new(sty, [i32_val, f32_val])
 ///   inspect(struct_val.extractValue([0]), content="Some(i32 42)")
 ///   inspect(
 ///     struct_val.extractValue([1]),
@@ -2615,7 +2633,7 @@ pub fn ConstantStruct::getElement(
 /// ```
 pub fn ConstantStruct::extractValue(
   self : ConstantStruct,
-  indices : ArrayView[Int],
+  indices : ArrayView[Int32],
 ) -> &Constant? {
   guard indices.length() > 0 else { return None }
   let first_index = indices[0]
@@ -2643,17 +2661,17 @@ pub fn ConstantStruct::extractValue(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let i32ty = ctx.getInt32Ty()
 ///   let f32ty = ctx.getFloatTy()
 ///   let sty = ctx.getStructType([i32ty, f32ty])
 ///   let i32_val = ctx.getConstInt32(42)
 ///   let f32_val = ctx.getConstFloat(3.14)
-///   let struct_val = ConstantStruct::new(sty, [i32_val, f32_val])
+///   let struct_val = @IR.ConstantStruct::new(sty, [i32_val, f32_val])
 ///
 ///   // Insert new value at index 0
 ///   let new_i32_val = ctx.getConstInt32(100)
-///   guard struct_val.insertValue([0], new_i32_val) is Some(new_struct)
+///   guard! struct_val.insertValue([0], new_i32_val) is Some(new_struct)
 ///
 ///   // Verify the new value was inserted
 ///   assert_true(new_struct.extractValue([0]) is Some(_))
@@ -2662,7 +2680,7 @@ pub fn ConstantStruct::extractValue(
 /// // TODO: not correct
 pub fn ConstantStruct::insertValue(
   self : ConstantStruct,
-  indices : ArrayView[Int],
+  indices : ArrayView[Int32],
   value : &Constant,
 ) -> ConstantStruct? {
   let first_index = indices[0]
@@ -2699,49 +2717,49 @@ pub fn ConstantStruct::insertValue(
 }
 
 ///|
-pub impl Value for ConstantStruct with getValueBase(self) {
-  ValueBase::{ uid: self.uid, vty: self.vty, users: [] }
+pub impl Value for ConstantStruct with fn getValueBase(self) {
+  ValueBase::{ uid: self.uid, vty: self.vty, users: [], }
 }
 
 ///|
-pub impl Value for ConstantStruct with asValueEnum(self) {
+pub impl Value for ConstantStruct with fn asValueEnum(self) {
   ConstantStruct(self)
 }
 
 ///|
-pub impl Value for ConstantStruct with getValueRepr(self) {
+pub impl Value for ConstantStruct with fn getValueRepr(self) {
   self.elements.map(c => c.to_string()).join(", ")
 }
 
 ///|
-pub impl Value for ConstantStruct with getName(_) {
+pub impl Value for ConstantStruct with fn getName(_) {
   None
 }
 
 ///|
-pub impl Value for ConstantStruct with setName(_, _) {
+pub impl Value for ConstantStruct with fn setName(_, _) {
   let msg = "Calling always failed function `ConstantStruct::setName`. " +
     "Set name for ConstantStruct is not allowed."
   raise LLVMValueError(msg)
 }
 
 ///|
-pub impl Value for ConstantStruct with removeName(_) {
+pub impl Value for ConstantStruct with fn removeName(_) {
   ()
 }
 
 ///|
-pub impl Value for ConstantStruct with getNameOrSlot(_) {
+pub impl Value for ConstantStruct with fn getNameOrSlot(_) {
   None
 }
 
 ///|
-pub impl Constant for ConstantStruct with asConstantEnum(self) {
+pub impl Constant for ConstantStruct with fn asConstantEnum(self) {
   ConstantStruct(self)
 }
 
 ///|
-pub impl Show for ConstantStruct with output(self, logger) {
+pub impl Show for ConstantStruct with fn output(self, logger) {
   let data_str = self.getValueRepr()
   logger.write_string("\{self.getType()} { \{data_str} }")
 }
@@ -2766,21 +2784,21 @@ pub struct ConstantString {
 fn ConstantString::new(ctx : Context, data : String) -> ConstantString {
   let vty = try! ctx.getArrayType(ctx.getInt8Ty(), data.length() + 1)
   let uid = valueUIDAssigner.assign()
-  ConstantString::{ uid, vty, data }
+  ConstantString::{ uid, vty, data, }
 }
 
 ///|
-pub impl Value for ConstantString with getValueBase(self) -> ValueBase {
-  ValueBase::{ uid: self.uid, vty: self.vty, users: [] }
+pub impl Value for ConstantString with fn getValueBase(self) -> ValueBase {
+  ValueBase::{ uid: self.uid, vty: self.vty, users: [], }
 }
 
 ///|
-pub impl Value for ConstantString with asValueEnum(self) -> ValueEnum {
+pub impl Value for ConstantString with fn asValueEnum(self) -> ValueEnum {
   ConstantString(self)
 }
 
 ///|
-pub impl Value for ConstantString with getValueRepr(self) -> String {
+pub impl Value for ConstantString with fn getValueRepr(self) -> String {
   let str_builder = StringBuilder::new()
   for c in self.data {
     match c {
@@ -2798,34 +2816,34 @@ pub impl Value for ConstantString with getValueRepr(self) -> String {
 }
 
 ///|
-pub impl Value for ConstantString with getName(_) {
+pub impl Value for ConstantString with fn getName(_) {
   None
 }
 
 ///|
-pub impl Value for ConstantString with setName(_, _) {
+pub impl Value for ConstantString with fn setName(_, _) {
   let msg = "Calling always failed function `ConstantString::setName`. " +
     "Set name for ConstantString is not allowed."
   raise LLVMValueError(msg)
 }
 
 ///|
-pub impl Value for ConstantString with removeName(_) {
+pub impl Value for ConstantString with fn removeName(_) {
   ()
 }
 
 ///|
-pub impl Value for ConstantString with getNameOrSlot(_) {
+pub impl Value for ConstantString with fn getNameOrSlot(_) {
   None
 }
 
 ///|
-pub impl Constant for ConstantString with asConstantEnum(self) -> ConstantEnum {
+pub impl Constant for ConstantString with fn asConstantEnum(self) -> ConstantEnum {
   ConstantString(self)
 }
 
 ///|
-pub impl Show for ConstantString with output(self, logger) {
+pub impl Show for ConstantString with fn output(self, logger) {
   let val_str = self.getValueRepr()
   let len = self.data.length() + 1
   logger.write_string("[\{len} x i8] \{val_str}")

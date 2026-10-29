@@ -27,7 +27,7 @@ pub(all) enum IntPredicate {
 }
 
 ///|
-pub impl Show for IntPredicate with output(self, logger) {
+pub impl Show for IntPredicate with fn output(self, logger) {
   let s = match self {
     EQ => "icmp eq"
     NE => "icmp ne"
@@ -52,7 +52,7 @@ pub impl Show for IntPredicate with output(self, logger) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -98,8 +98,8 @@ fn ICmpInst::new(
   name~ : String?,
 ) -> ICmpInst {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
-  guard lhsTy == rhsTy
-  guard lhsTy.tryAsIntTypeEnum() is Some(_)
+  guard! lhsTy == rhsTy
+  guard! lhsTy.tryAsIntTypeEnum() is Some(_)
   let uid = valueUIDAssigner.assign()
   let bb : Ref[BasicBlock?] = Ref::new(None)
   let prev : Ref[&Instruction?] = Ref::new(None)
@@ -124,7 +124,7 @@ fn ICmpInst::new(
 }
 
 ///|
-pub impl Value for ICmpInst with getValueBase(self) {
+pub impl Value for ICmpInst with fn getValueBase(self) {
   ValueBase::{
     uid: self.uid,
     vty: self.getParent().getContext().getInt1Ty(),
@@ -133,7 +133,7 @@ pub impl Value for ICmpInst with getValueBase(self) {
 }
 
 ///|
-pub impl Value for ICmpInst with asValueEnum(self) {
+pub impl Value for ICmpInst with fn asValueEnum(self) {
   ICmpInst(self)
 }
 
@@ -142,7 +142,7 @@ pub impl Value for ICmpInst with asValueEnum(self) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -158,7 +158,7 @@ pub impl Value for ICmpInst with asValueEnum(self) {
 ///   inspect(eq_cmp.getValueRepr(), content="%eq_cmp")
 /// }
 /// ```
-pub impl Value for ICmpInst with getValueRepr(self) {
+pub impl Value for ICmpInst with fn getValueRepr(self) {
   match self.getNameOrSlot() {
     Some(Left(name)) => "%\{name}"
     Some(Right(slot)) => "%\{slot}"
@@ -175,7 +175,7 @@ pub impl Value for ICmpInst with getValueRepr(self) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -186,12 +186,12 @@ pub impl Value for ICmpInst with getValueRepr(self) {
 ///   let arg2 = fval.getArg(1).unwrap()
 ///   builder.setInsertPoint(bb)
 ///   let eq_cmp = builder.createICmp(EQ, arg1, arg2)
-///   inspect(eq_cmp.getName(), content="None")
+///   debug_inspect(eq_cmp.getName(), content="None")
 ///   eq_cmp.setName("eq_cmp")
-///   inspect(eq_cmp.getName(), content="Some(\"eq_cmp\")")
+///   debug_inspect(eq_cmp.getName(), content="Some(\"eq_cmp\")")
 /// }
 /// ```
-pub impl Value for ICmpInst with getName(self) {
+pub impl Value for ICmpInst with fn getName(self) {
   self.name
 }
 
@@ -205,7 +205,7 @@ pub impl Value for ICmpInst with getName(self) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -216,12 +216,12 @@ pub impl Value for ICmpInst with getName(self) {
 ///   let arg2 = fval.getArg(1).unwrap()
 ///   builder.setInsertPoint(bb)
 ///   let eq_cmp = builder.createICmp(EQ, arg1, arg2)
-///   inspect(eq_cmp.getName(), content="None")
+///   debug_inspect(eq_cmp.getName(), content="None")
 ///   eq_cmp.setName("eq_cmp")
-///   inspect(eq_cmp.getName(), content="Some(\"eq_cmp\")")
+///   debug_inspect(eq_cmp.getName(), content="Some(\"eq_cmp\")")
 /// }
 /// ```
-pub impl Value for ICmpInst with setName(self, name) {
+pub impl Value for ICmpInst with fn setName(self, name) {
   match self.getParent().setSymbol(name, self) {
     EmptyName => {
       let msg = "Misuse `ICmpInst::setName`: name cannot be empty."
@@ -247,7 +247,7 @@ pub impl Value for ICmpInst with setName(self, name) {
 }
 
 ///|
-pub impl Value for ICmpInst with removeName(self) {
+pub impl Value for ICmpInst with fn removeName(self) {
   match self.name {
     None => ()
     Some(name) => {
@@ -258,7 +258,7 @@ pub impl Value for ICmpInst with removeName(self) {
 }
 
 ///|
-pub impl Value for ICmpInst with getNameOrSlot(self) {
+pub impl Value for ICmpInst with fn getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
     None =>
@@ -270,32 +270,32 @@ pub impl Value for ICmpInst with getNameOrSlot(self) {
 }
 
 ///|
-pub impl User for ICmpInst with asUserEnum(self) {
+pub impl User for ICmpInst with fn asUserEnum(self) {
   ICmpInst(self)
 }
 
 ///|
-pub impl User for ICmpInst with getUserBase(self) {
-  UserBase::{ operands: [self.lhs, self.rhs] }
+pub impl User for ICmpInst with fn getUserBase(self) {
+  UserBase::{ operands: [self.lhs, self.rhs], }
 }
 
 ///|
-pub impl Instruction for ICmpInst with getInstBase(self) {
-  InstBase::{ bb: self.bb, prev: self.prev, next: self.next }
+pub impl Instruction for ICmpInst with fn getInstBase(self) {
+  InstBase::{ bb: self.bb, prev: self.prev, next: self.next, }
 }
 
 ///|
-pub impl Instruction for ICmpInst with asInstEnum(self) {
+pub impl Instruction for ICmpInst with fn asInstEnum(self) {
   InstEnum::ICmpInst(self)
 }
 
 ///|
-pub impl Instruction for ICmpInst with getParent(self) {
+pub impl Instruction for ICmpInst with fn getParent(self) {
   self.parent
 }
 
 ///|
-pub impl Show for ICmpInst with output(self, logger) {
+pub impl Show for ICmpInst with fn output(self, logger) {
   let lhs_ty = self.lhs.getType()
   let repr = self.getValueRepr()
   let lhs_repr = self.lhs.getValueRepr()

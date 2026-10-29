@@ -4,12 +4,12 @@
 
 ///|
 pub trait AggregateType: Type {
-  asAggregateTypeEnum(Self) -> AggregateTypeEnum
-  getIndexedType(Self, idxs : ArrayView[Int]) -> &Type? = _
+  fn asAggregateTypeEnum(Self) -> AggregateTypeEnum
+  fn getIndexedType(Self, idxs : ArrayView[Int32]) -> &Type? = _
 }
 
 ///|
-impl AggregateType with getIndexedType(self, idxs : ArrayView[Int]) -> &Type? {
+impl AggregateType with fn getIndexedType(self, idxs : ArrayView[Int32]) -> &Type? {
   self.asAggregateTypeEnum().getIndexedType(idxs)
 }
 
@@ -44,7 +44,7 @@ pub fn AggregateTypeEnum::asTypeClass(self : Self) -> &Type {
 ///|
 pub fn AggregateTypeEnum::getIndexedType(
   self : Self,
-  idxs : ArrayView[Int],
+  idxs : ArrayView[Int32],
 ) -> &Type? {
   match self {
     StructType(sty) => sty.getIndexedType(idxs)

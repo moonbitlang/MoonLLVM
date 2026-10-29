@@ -5,8 +5,8 @@ pub(all) struct Mem {
 } derive(Eq, Compare, Hash)
 
 ///|
-pub impl Show for Mem with output(self, logger) {
-  let { base, offset } = self
+pub impl Show for Mem with fn output(self, logger) {
+  let { base, offset, } = self
   logger.write_string("\{offset}(\{base})")
 }
 
@@ -47,7 +47,7 @@ pub(all) enum Reg {
 } derive(Eq, Compare, Hash)
 
 ///|
-pub impl Show for Reg with output(self, logger) {
+pub impl Show for Reg with fn output(self, logger) {
   let s = match self {
     Zero => "zero"
     Ra => "ra"
@@ -123,7 +123,7 @@ pub(all) enum FReg {
 } derive(Eq, Compare, Hash)
 
 ///|
-pub impl Show for FReg with output(self, logger) {
+pub impl Show for FReg with fn output(self, logger) {
   let s = match self {
     Ft0 => "ft0"
     Ft1 => "ft1"
@@ -167,9 +167,9 @@ pub(all) enum RvAsm {
   Asciz(String)
   Byte(Byte) // actually int8, but int is easier to use
   Half(UInt16)
-  Word(UInt)
+  Word(UInt32)
   Quad(UInt64)
-  Zero(UInt)
+  Zero(UInt32)
   Section(String) // .section directive
 
   // Speicial inst
@@ -197,16 +197,16 @@ pub(all) enum RvAsm {
   Sraw(Reg, Reg, Reg)
 
   // reg-imm arith
-  Addi(Reg, Reg, Int)
-  Addiw(Reg, Reg, Int)
-  Xori(Reg, Reg, Int)
-  Ori(Reg, Reg, Int)
-  Andi(Reg, Reg, Int)
-  Slli(Reg, Reg, Int)
-  Srli(Reg, Reg, Int)
-  Srai(Reg, Reg, Int)
-  Slti(Reg, Reg, Int)
-  Sltiu(Reg, Reg, Int)
+  Addi(Reg, Reg, Int32)
+  Addiw(Reg, Reg, Int32)
+  Xori(Reg, Reg, Int32)
+  Ori(Reg, Reg, Int32)
+  Andi(Reg, Reg, Int32)
+  Slli(Reg, Reg, Int32)
+  Srli(Reg, Reg, Int32)
+  Srai(Reg, Reg, Int32)
+  Slti(Reg, Reg, Int32)
+  Sltiu(Reg, Reg, Int32)
   // mem
   // memory access
   Lb(Reg, Mem)
@@ -286,8 +286,8 @@ pub(all) enum RvAsm {
   FnegS(FReg, FReg)
   FabsD(FReg, FReg)
   // base
-  Lui(Reg, Int)
-  Auipc(Reg, Int)
+  Lui(Reg, Int32)
+  Auipc(Reg, Int32)
   Jal(Reg, String)
   Ebreak
   Fence
@@ -344,7 +344,7 @@ pub(all) enum RvAsm {
 }
 
 ///|
-pub impl Show for RvAsm with output(self, logger) {
+pub impl Show for RvAsm with fn output(self, logger) {
   match self {
     Label(name) => {
       logger.write_string("\{name}:")

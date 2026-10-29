@@ -9,7 +9,7 @@
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let int32ty = ctx.getInt32Ty()
 ///   let voidty = ctx.getVoidTy()
 ///   let f32ty = ctx.getFloatTy()
@@ -30,7 +30,7 @@ pub struct FunctionType {
 fn FunctionType::new(
   returnType : &Type,
   paramsTypes : Array[&Type],
-  isVarArg? : Bool = false,
+  isVarArg~ : Bool = false,
 ) -> FunctionType raise LLVMTypeError {
   let ctx = returnType.getContext()
   if not(FunctionType::isValidReturnType(returnType)) {
@@ -42,7 +42,7 @@ fn FunctionType::new(
     }
   }
   let paramTypes = paramsTypes.copy()
-  FunctionType::{ ctx, returnType, paramTypes, isVarArg }
+  FunctionType::{ ctx, returnType, paramTypes, isVarArg, }
 }
 
 ///|
@@ -80,18 +80,18 @@ pub fn FunctionType::getParamTypes(self : FunctionType) -> Array[&Type] {
 /// This does not consider varargs.
 ///
 /// - See LLVM: `FunctionType::getNumParams`.
-pub fn FunctionType::getNumParams(self : FunctionType) -> Int {
+pub fn FunctionType::getNumParams(self : FunctionType) -> Int32 {
   self.paramTypes.length()
 }
 
 ///|
 /// Get the param type by given index.
-pub fn FunctionType::getParamType(self : FunctionType, idx : Int) -> &Type? {
+pub fn FunctionType::getParamType(self : FunctionType, idx : Int32) -> &Type? {
   self.paramTypes.get(idx)
 }
 
 ///|
-pub impl Show for FunctionType with output(self, logger : &Logger) {
+pub impl Show for FunctionType with fn output(self, logger : &Logger) {
   let ret_str = self.getReturnType().to_string()
   let param_strs = self.param_iter().map(p => "\{p}").collect()
   if self.isVarArg {
@@ -115,16 +115,16 @@ fn FunctionType::isValidArgumentType(argTy : &Type) -> Bool {
 }
 
 ///|
-pub impl Type for FunctionType with asTypeEnum(self) -> TypeEnum {
+pub impl Type for FunctionType with fn asTypeEnum(self) -> TypeEnum {
   TypeEnum::FunctionType(self)
 }
 
 ///|
-pub impl Type for FunctionType with getContext(self) -> Context {
+pub impl Type for FunctionType with fn getContext(self) -> Context {
   self.ctx
 }
 
 ///|
-pub impl AbstractType for FunctionType with asAbstractTypeEnum(self) -> AbstractTypeEnum {
+pub impl AbstractType for FunctionType with fn asAbstractTypeEnum(self) -> AbstractTypeEnum {
   AbstractTypeEnum::FunctionType(self)
 }

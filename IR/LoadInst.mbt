@@ -14,7 +14,7 @@ pub(all) enum AtomicOrdering {
 } derive(Hash, Eq)
 
 ///|
-pub impl Show for AtomicOrdering with output(self, logger) {
+pub impl Show for AtomicOrdering with fn output(self, logger) {
   let str = match self {
     NotAtomic => ""
     Unordered => "unordered"
@@ -36,7 +36,7 @@ pub impl Show for AtomicOrdering with output(self, logger) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let ptr_ty = ctx.getPtrTy()
@@ -118,13 +118,13 @@ fn LoadInst::new(
 }
 
 ///|
-pub impl Value for LoadInst with asValueEnum(self) {
+pub impl Value for LoadInst with fn asValueEnum(self) {
   LoadInst(self)
 }
 
 ///|
-pub impl Value for LoadInst with getValueBase(self) {
-  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users }
+pub impl Value for LoadInst with fn getValueBase(self) {
+  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users, }
 }
 
 ///|
@@ -132,7 +132,7 @@ pub impl Value for LoadInst with getValueBase(self) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let ptr_ty = ctx.getPtrTy()
@@ -148,7 +148,7 @@ pub impl Value for LoadInst with getValueBase(self) {
 ///   inspect(val.getValueRepr(), content="%val")
 /// }
 /// ```
-pub impl Value for LoadInst with getValueRepr(self) {
+pub impl Value for LoadInst with fn getValueRepr(self) {
   match self.getNameOrSlot() {
     Some(Left(name)) => "%\{name}"
     Some(Right(slot)) => "%\{slot}"
@@ -165,7 +165,7 @@ pub impl Value for LoadInst with getValueRepr(self) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let ptr_ty = ctx.getPtrTy()
@@ -176,12 +176,12 @@ pub impl Value for LoadInst with getValueRepr(self) {
 ///   builder.setInsertPoint(bb)
 ///   let ptr = fval.getArg(0).unwrap()
 ///   let val = builder.createLoad(i32_ty, ptr)
-///   inspect(val.getName(), content="None")
+///   debug_inspect(val.getName(), content="None")
 ///   val.setName("val")
-///   inspect(val.getName(), content="Some(\"val\")")
+///   debug_inspect(val.getName(), content="Some(\"val\")")
 /// }
 /// ```
-pub impl Value for LoadInst with getName(self) {
+pub impl Value for LoadInst with fn getName(self) {
   self.name
 }
 
@@ -195,7 +195,7 @@ pub impl Value for LoadInst with getName(self) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let ptr_ty = ctx.getPtrTy()
@@ -206,12 +206,12 @@ pub impl Value for LoadInst with getName(self) {
 ///   builder.setInsertPoint(bb)
 ///   let ptr = fval.getArg(0).unwrap()
 ///   let val = builder.createLoad(i32_ty, ptr)
-///   inspect(val.getName(), content="None")
+///   debug_inspect(val.getName(), content="None")
 ///   val.setName("val")
-///   inspect(val.getName(), content="Some(\"val\")")
+///   debug_inspect(val.getName(), content="Some(\"val\")")
 /// }
 /// ```
-pub impl Value for LoadInst with setName(self, name) {
+pub impl Value for LoadInst with fn setName(self, name) {
   match self.getParent().setSymbol(name, self) {
     EmptyName => {
       let msg = "Misuse `LoadInst::setName`: name cannot be empty."
@@ -238,7 +238,7 @@ pub impl Value for LoadInst with setName(self, name) {
 
 ///|
 /// Remove the name of the instruction.
-pub impl Value for LoadInst with removeName(self) {
+pub impl Value for LoadInst with fn removeName(self) {
   match self.name {
     None => ()
     Some(name) => {
@@ -249,7 +249,7 @@ pub impl Value for LoadInst with removeName(self) {
 }
 
 ///|
-pub impl Value for LoadInst with getNameOrSlot(self) {
+pub impl Value for LoadInst with fn getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
     None =>
@@ -261,37 +261,37 @@ pub impl Value for LoadInst with getNameOrSlot(self) {
 }
 
 ///|
-pub impl User for LoadInst with asUserEnum(self) {
+pub impl User for LoadInst with fn asUserEnum(self) {
   LoadInst(self)
 }
 
 ///|
-pub impl User for LoadInst with getUserBase(self) {
-  UserBase::{ operands: [self.ptr] }
+pub impl User for LoadInst with fn getUserBase(self) {
+  UserBase::{ operands: [self.ptr], }
 }
 
 ///|
-pub impl Instruction for LoadInst with getInstBase(self) {
-  InstBase::{ bb: self.bb, prev: self.prev, next: self.next }
+pub impl Instruction for LoadInst with fn getInstBase(self) {
+  InstBase::{ bb: self.bb, prev: self.prev, next: self.next, }
 }
 
 ///|
-pub impl Instruction for LoadInst with asInstEnum(self) {
+pub impl Instruction for LoadInst with fn asInstEnum(self) {
   LoadInst(self)
 }
 
 ///|
-pub impl Instruction for LoadInst with getParent(self) {
+pub impl Instruction for LoadInst with fn getParent(self) {
   self.parent
 }
 
 ///|
-pub impl UnaryInst for LoadInst with asUnaryInstEnum(self) {
+pub impl UnaryInst for LoadInst with fn asUnaryInstEnum(self) {
   LoadInst(self)
 }
 
 ///|
-pub impl Show for LoadInst with output(self, logger) {
+pub impl Show for LoadInst with fn output(self, logger) {
   let align = self.align
   let repr = self.getValueRepr()
   let ptr_repr = self.ptr.getValueRepr()

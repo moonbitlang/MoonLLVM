@@ -5,8 +5,8 @@ pub(all) struct Mem {
 } derive(Eq, Compare, Hash)
 
 ///|
-pub impl Show for Mem with output(self, logger) {
-  let { base, offset } = self
+pub impl Show for Mem with fn output(self, logger) {
+  let { base, offset, } = self
   if offset == 0 {
     logger.write_string("[\{base}]")
   } else {
@@ -90,7 +90,7 @@ pub(all) enum WReg {
 } derive(Eq, Compare, Hash)
 
 ///|
-pub impl Show for Reg with output(self, logger) {
+pub impl Show for Reg with fn output(self, logger) {
   let s = match self {
     X0 => "x0"
     X1 => "x1"
@@ -174,7 +174,7 @@ fn Reg::to_w_string(self : Self) -> String {
 }
 
 ///|
-pub impl Show for WReg with output(self, logger) {
+pub impl Show for WReg with fn output(self, logger) {
   let s = match self {
     W0 => "w0"
     W1 => "w1"
@@ -282,7 +282,7 @@ pub(all) enum FReg {
 } derive(Eq, Compare, Hash)
 
 ///|
-pub impl Show for FReg with output(self, logger) {
+pub impl Show for FReg with fn output(self, logger) {
   let s = match self {
     D0 => "d0"
     D1 => "d1"
@@ -362,34 +362,34 @@ pub(all) enum AArch64Asm {
   Asciz(String)
   Byte(Byte)
   Half(UInt16)
-  Word(UInt)
+  Word(UInt32)
   Quad(UInt64)
-  Zero(UInt)
+  Zero(UInt32)
 
   // Data movement
   Mov64(Reg, Reg) // mov x1, x2
   Mov32(Reg, Reg) // mov w1, w2
   MovImm64(Reg, Int64) // mov x1, #imm
-  MovImm32(Reg, Int) // mov w1, #imm
-  Movz64(Reg, UInt16, Int) // movz x1, #imm, lsl #shift
-  Movz32(Reg, UInt16, Int) // movz w1, #imm, lsl #shift
-  Movk64(Reg, UInt16, Int) // movk x1, #imm, lsl #shift
-  Movk32(Reg, UInt16, Int) // movk w1, #imm, lsl #shift
+  MovImm32(Reg, Int32) // mov w1, #imm
+  Movz64(Reg, UInt16, Int32) // movz x1, #imm, lsl #shift
+  Movz32(Reg, UInt16, Int32) // movz w1, #imm, lsl #shift
+  Movk64(Reg, UInt16, Int32) // movk x1, #imm, lsl #shift
+  Movk32(Reg, UInt16, Int32) // movk w1, #imm, lsl #shift
 
   // Arithmetic (64-bit)
   Add64(Reg, Reg, Reg) // add x1, x2, x3
-  Add64Imm(Reg, Reg, Int) // add x1, x2, #imm
+  Add64Imm(Reg, Reg, Int32) // add x1, x2, #imm
   Sub64(Reg, Reg, Reg) // sub x1, x2, x3
-  Sub64Imm(Reg, Reg, Int) // sub x1, x2, #imm
+  Sub64Imm(Reg, Reg, Int32) // sub x1, x2, #imm
   Mul64(Reg, Reg, Reg) // mul x1, x2, x3
   Sdiv64(Reg, Reg, Reg) // sdiv x1, x2, x3
   Udiv64(Reg, Reg, Reg) // udiv x1, x2, x3
 
   // Arithmetic (32-bit)
   Add32(Reg, Reg, Reg) // add w1, w2, w3
-  Add32Imm(Reg, Reg, Int) // add w1, w2, #imm
+  Add32Imm(Reg, Reg, Int32) // add w1, w2, #imm
   Sub32(Reg, Reg, Reg) // sub w1, w2, w3
-  Sub32Imm(Reg, Reg, Int) // sub w1, w2, #imm
+  Sub32Imm(Reg, Reg, Int32) // sub w1, w2, #imm
   Mul32(Reg, Reg, Reg) // mul w1, w2, w3
   Sdiv32(Reg, Reg, Reg) // sdiv w1, w2, w3
   Udiv32(Reg, Reg, Reg) // udiv w1, w2, w3
@@ -398,31 +398,31 @@ pub(all) enum AArch64Asm {
   And64(Reg, Reg, Reg) // and x1, x2, x3
   And64Imm(Reg, Reg, Int64) // and x1, x2, #imm
   And32(Reg, Reg, Reg) // and w1, w2, w3
-  And32Imm(Reg, Reg, Int) // and w1, w2, #imm
+  And32Imm(Reg, Reg, Int32) // and w1, w2, #imm
   Orr64(Reg, Reg, Reg) // orr x1, x2, x3
   Orr64Imm(Reg, Reg, Int64) // orr x1, x2, #imm
   Orr32(Reg, Reg, Reg) // orr w1, w2, w3
-  Orr32Imm(Reg, Reg, Int) // orr w1, w2, #imm
+  Orr32Imm(Reg, Reg, Int32) // orr w1, w2, #imm
   Eor64(Reg, Reg, Reg) // eor x1, x2, x3
   Eor64Imm(Reg, Reg, Int64) // eor x1, x2, #imm
   Eor32(Reg, Reg, Reg) // eor w1, w2, w3
-  Eor32Imm(Reg, Reg, Int) // eor w1, w2, #imm
+  Eor32Imm(Reg, Reg, Int32) // eor w1, w2, #imm
   Mvn64(Reg, Reg) // mvn x1, x2
   Mvn32(Reg, Reg) // mvn w1, w2
 
   // Shift operations
   Lsl64(Reg, Reg, Reg) // lsl x1, x2, x3
-  Lsl64Imm(Reg, Reg, Int) // lsl x1, x2, #imm
+  Lsl64Imm(Reg, Reg, Int32) // lsl x1, x2, #imm
   Lsl32(Reg, Reg, Reg) // lsl w1, w2, w3
-  Lsl32Imm(Reg, Reg, Int) // lsl w1, w2, #imm
+  Lsl32Imm(Reg, Reg, Int32) // lsl w1, w2, #imm
   Lsr64(Reg, Reg, Reg) // lsr x1, x2, x3
-  Lsr64Imm(Reg, Reg, Int) // lsr x1, x2, #imm
+  Lsr64Imm(Reg, Reg, Int32) // lsr x1, x2, #imm
   Lsr32(Reg, Reg, Reg) // lsr w1, w2, w3
-  Lsr32Imm(Reg, Reg, Int) // lsr w1, w2, #imm
+  Lsr32Imm(Reg, Reg, Int32) // lsr w1, w2, #imm
   Asr64(Reg, Reg, Reg) // asr x1, x2, x3
-  Asr64Imm(Reg, Reg, Int) // asr x1, x2, #imm
+  Asr64Imm(Reg, Reg, Int32) // asr x1, x2, #imm
   Asr32(Reg, Reg, Reg) // asr w1, w2, w3
-  Asr32Imm(Reg, Reg, Int) // asr w1, w2, #imm
+  Asr32Imm(Reg, Reg, Int32) // asr w1, w2, #imm
 
   // Load/Store
   Ldr64(Reg, Mem) // ldr x1, [x2, #offset]
@@ -477,9 +477,9 @@ pub(all) enum AArch64Asm {
 
   // Comparison
   Cmp64(Reg, Reg) // cmp x1, x2
-  Cmp64Imm(Reg, Int) // cmp x1, #imm
+  Cmp64Imm(Reg, Int32) // cmp x1, #imm
   Cmp32(WReg, WReg) // cmp w1, w2
-  Cmp32Imm(WReg, Int) // cmp w1, #imm
+  Cmp32Imm(WReg, Int32) // cmp w1, #imm
   FcmpD(FReg, FReg) // fcmp d1, d2
   FcmpS(FReg, FReg) // fcmp s1, s2
 
@@ -525,7 +525,7 @@ pub(all) enum AArch64Asm {
 }
 
 ///|
-pub impl Show for AArch64Asm with output(self, logger) {
+pub impl Show for AArch64Asm with fn output(self, logger) {
   match self {
     Label(name) => {
       logger.write_string("\{name}:")

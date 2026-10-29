@@ -9,7 +9,7 @@
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   inspect(ctx.getInt16Ty(), content="i16")
 /// }
 /// ```
@@ -28,26 +28,26 @@ pub fn Int16Type::getExtendedType(self : Int16Type) -> Int32Type {
 }
 
 ///|
-pub impl Show for Int16Type with output(_, logger : &Logger) {
+pub impl Show for Int16Type with fn output(_, logger : &Logger) {
   logger.write_string("i16")
 }
 
 ///|
-pub impl Type for Int16Type with asTypeEnum(self) -> TypeEnum {
+pub impl Type for Int16Type with fn asTypeEnum(self) -> TypeEnum {
   TypeEnum::Int16Type(self)
 }
 
 ///|
-pub impl Type for Int16Type with getContext(self) -> Context {
+pub impl Type for Int16Type with fn getContext(self) -> Context {
   self.ctx
 }
 
 ///|
-pub impl IntegerType for Int16Type with asIntegerTypeEnum(self) -> IntegerTypeEnum {
+pub impl IntegerType for Int16Type with fn asIntegerTypeEnum(self) -> IntegerTypeEnum {
   Int16Type(self)
 }
 
 ///|
-pub impl PrimitiveType for Int16Type with asPrimitiveTypeEnum(self) -> PrimitiveTypeEnum {
+pub impl PrimitiveType for Int16Type with fn asPrimitiveTypeEnum(self) -> PrimitiveTypeEnum {
   Int16Type(self)
 }

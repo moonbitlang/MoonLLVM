@@ -23,8 +23,8 @@ fn GlobalVariable::new(
   name : String,
   initializer~ : &Constant?,
   linkage~ : Linkage,
-  visibility? : Visibility = Visibility::Default,
-  unnamed_addr? : UnnamedAddr = UnnamedAddr::NoUnnamedAddr,
+  visibility~ : Visibility = Visibility::Default,
+  unnamed_addr~ : UnnamedAddr = UnnamedAddr::NoUnnamedAddr,
   mod : Module,
 ) -> GlobalVariable {
   let uid = valueUIDAssigner.assign()
@@ -52,27 +52,27 @@ fn GlobalVariable::new(
 }
 
 ///|
-pub impl Value for GlobalVariable with getValueBase(self) {
-  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users }
+pub impl Value for GlobalVariable with fn getValueBase(self) {
+  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users, }
 }
 
 ///|
-pub impl Value for GlobalVariable with asValueEnum(self) {
+pub impl Value for GlobalVariable with fn asValueEnum(self) {
   GlobalVariable(self)
 }
 
 ///|
-pub impl Value for GlobalVariable with getValueRepr(self) {
+pub impl Value for GlobalVariable with fn getValueRepr(self) {
   "@\{self.name}"
 }
 
 ///|
-pub impl Value for GlobalVariable with getName(self) {
+pub impl Value for GlobalVariable with fn getName(self) {
   Some(self.name)
 }
 
 ///|
-pub impl Value for GlobalVariable with setName(self, name : String) {
+pub impl Value for GlobalVariable with fn setName(self, name : String) {
   if name is "" {
     raise LLVMValueError(
       "Misuse `GlobalVariable::setName`: name cannot be empty",
@@ -88,24 +88,24 @@ pub impl Value for GlobalVariable with setName(self, name : String) {
 }
 
 ///|
-pub impl Value for GlobalVariable with removeName(_) {
+pub impl Value for GlobalVariable with fn removeName(_) {
   let msg = "Calling always failed function `GlobalVariable::removeName`. " +
     "remove function name is not allowed."
   raise LLVMValueError(msg)
 }
 
 ///|
-pub impl Value for GlobalVariable with getNameOrSlot(self) {
+pub impl Value for GlobalVariable with fn getNameOrSlot(self) {
   Some(Left(self.name))
 }
 
 ///|
-pub impl GlobalValue for GlobalVariable with asGlobalValueEnum(self) {
+pub impl GlobalValue for GlobalVariable with fn asGlobalValueEnum(self) {
   GlobalVariable(self)
 }
 
 ///|
-pub impl GlobalValue for GlobalVariable with getGlobalValueBase(self) {
+pub impl GlobalValue for GlobalVariable with fn getGlobalValueBase(self) {
   GlobalValueBase::{
     linkage: self.linkage,
     visibility: self.visibility,
@@ -114,7 +114,7 @@ pub impl GlobalValue for GlobalVariable with getGlobalValueBase(self) {
 }
 
 ///|
-pub impl Show for GlobalVariable with output(self, logger) {
+pub impl Show for GlobalVariable with fn output(self, logger) {
   let align = self.mod.getDataLayout().getAlignment(self.elementTy)
   logger.write_string("@\{self.name} = ")
   let linkage_str = self.linkage.val.to_string()
@@ -205,27 +205,27 @@ fn GlobalConstant::new(
 }
 
 ///|
-pub impl Value for GlobalConstant with getValueBase(self) {
-  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users }
+pub impl Value for GlobalConstant with fn getValueBase(self) {
+  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users, }
 }
 
 ///|
-pub impl Value for GlobalConstant with asValueEnum(self) {
+pub impl Value for GlobalConstant with fn asValueEnum(self) {
   GlobalConstant(self)
 }
 
 ///|
-pub impl Value for GlobalConstant with getValueRepr(self) {
+pub impl Value for GlobalConstant with fn getValueRepr(self) {
   "@\{self.name}"
 }
 
 ///|
-pub impl Value for GlobalConstant with getName(self) {
+pub impl Value for GlobalConstant with fn getName(self) {
   Some(self.name)
 }
 
 ///|
-pub impl Value for GlobalConstant with setName(self, name : String) {
+pub impl Value for GlobalConstant with fn setName(self, name : String) {
   if name is "" {
     raise LLVMValueError(
       "Misuse `GlobalConstant::setName`: name cannot be empty",
@@ -241,24 +241,24 @@ pub impl Value for GlobalConstant with setName(self, name : String) {
 }
 
 ///|
-pub impl Value for GlobalConstant with removeName(_) {
+pub impl Value for GlobalConstant with fn removeName(_) {
   let msg = "Calling always failed function `GlobalConstant::removeName`. " +
     "remove function name is not allowed."
   raise LLVMValueError(msg)
 }
 
 ///|
-pub impl Value for GlobalConstant with getNameOrSlot(self) {
+pub impl Value for GlobalConstant with fn getNameOrSlot(self) {
   Some(Left(self.name))
 }
 
 ///|
-pub impl GlobalValue for GlobalConstant with asGlobalValueEnum(self) {
+pub impl GlobalValue for GlobalConstant with fn asGlobalValueEnum(self) {
   GlobalConstant(self)
 }
 
 ///|
-pub impl GlobalValue for GlobalConstant with getGlobalValueBase(self) {
+pub impl GlobalValue for GlobalConstant with fn getGlobalValueBase(self) {
   GlobalValueBase::{
     linkage: self.linkage,
     visibility: self.visibility,
@@ -267,7 +267,7 @@ pub impl GlobalValue for GlobalConstant with getGlobalValueBase(self) {
 }
 
 ///|
-pub impl Show for GlobalConstant with output(self, logger) {
+pub impl Show for GlobalConstant with fn output(self, logger) {
   let align = self.mod.getDataLayout().getAlignment(self.elementTy)
   logger.write_string("@\{self.name} = ")
   let linkage_str = self.linkage.val.to_string()

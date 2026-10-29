@@ -11,7 +11,7 @@
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -50,7 +50,7 @@ fn PHINode::new(vty : &Type, parent : Function, name~ : String?) -> PHINode {
   let bb : Ref[BasicBlock?] = Ref::new(None)
   let prev : Ref[&Instruction?] = Ref::new(None)
   let next : Ref[&Instruction?] = Ref::new(None)
-  PHINode::{ uid, vty, users: [], name, incomings: [], parent, bb, prev, next }
+  PHINode::{ uid, vty, users: [], name, incomings: [], parent, bb, prev, next, }
 }
 
 ///|
@@ -62,7 +62,7 @@ fn PHINode::new(vty : &Type, parent : Function, name~ : String?) -> PHINode {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -85,7 +85,7 @@ fn PHINode::new(vty : &Type, parent : Function, name~ : String?) -> PHINode {
 ///   inspect(phi.getNumIncomingValues(), content="3")
 /// }
 /// ```
-pub fn PHINode::getNumIncomingValues(self : PHINode) -> Int {
+pub fn PHINode::getNumIncomingValues(self : PHINode) -> Int32 {
   self.incomings.length()
 }
 
@@ -98,7 +98,7 @@ pub fn PHINode::getNumIncomingValues(self : PHINode) -> Int {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -118,7 +118,7 @@ pub fn PHINode::getNumIncomingValues(self : PHINode) -> Int {
 ///   inspect(phi.getIncomingValue(2), content="None")
 /// }
 /// ```
-pub fn PHINode::getIncomingValue(self : PHINode, idx : Int) -> &Value? {
+pub fn PHINode::getIncomingValue(self : PHINode, idx : Int32) -> &Value? {
   match self.incomings.get(idx) {
     Some((value, _)) => Some(value)
     None => None
@@ -134,7 +134,7 @@ pub fn PHINode::getIncomingValue(self : PHINode, idx : Int) -> &Value? {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -154,7 +154,7 @@ pub fn PHINode::getIncomingValue(self : PHINode, idx : Int) -> &Value? {
 ///   inspect(phi.getIncomingBlock(2), content="None")
 /// }
 /// ```
-pub fn PHINode::getIncomingBlock(self : PHINode, idx : Int) -> BasicBlock? {
+pub fn PHINode::getIncomingBlock(self : PHINode, idx : Int32) -> BasicBlock? {
   match self.incomings.get(idx) {
     Some((_, block)) => Some(block)
     None => None
@@ -170,7 +170,7 @@ pub fn PHINode::getIncomingBlock(self : PHINode, idx : Int) -> BasicBlock? {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -194,7 +194,10 @@ pub fn PHINode::getIncomingBlock(self : PHINode, idx : Int) -> BasicBlock? {
 ///   inspect(phi.getIncoming(2), content="None")
 /// }
 /// ```
-pub fn PHINode::getIncoming(self : PHINode, idx : Int) -> (&Value, BasicBlock)? {
+pub fn PHINode::getIncoming(
+  self : PHINode,
+  idx : Int32,
+) -> (&Value, BasicBlock)? {
   self.incomings.get(idx)
 }
 
@@ -207,7 +210,7 @@ pub fn PHINode::getIncoming(self : PHINode, idx : Int) -> (&Value, BasicBlock)? 
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -246,7 +249,7 @@ pub fn PHINode::getIncomings(self : PHINode) -> Array[(&Value, BasicBlock)] {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -284,7 +287,7 @@ pub fn PHINode::getIncomingValues(self : PHINode) -> Array[&Value] {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -323,7 +326,7 @@ pub fn PHINode::getIncomingBlocks(self : PHINode) -> Array[BasicBlock] {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -366,8 +369,8 @@ pub fn PHINode::addIncoming(
 }
 
 ///|
-pub impl Value for PHINode with getValueBase(self) {
-  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users }
+pub impl Value for PHINode with fn getValueBase(self) {
+  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users, }
 }
 
 ///|
@@ -375,7 +378,7 @@ pub impl Value for PHINode with getValueBase(self) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -389,7 +392,7 @@ pub impl Value for PHINode with getValueBase(self) {
 ///   inspect(phi.getValueRepr(), content="%result")
 /// }
 /// ```
-pub impl Value for PHINode with getValueRepr(self) {
+pub impl Value for PHINode with fn getValueRepr(self) {
   match self.getNameOrSlot() {
     Some(Left(name)) => "%\{name}"
     Some(Right(slot)) => "%\{slot}"
@@ -406,7 +409,7 @@ pub impl Value for PHINode with getValueRepr(self) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -415,12 +418,12 @@ pub impl Value for PHINode with getValueRepr(self) {
 ///   let entry_bb = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(entry_bb)
 ///   let phi = builder.createPHI(i32_ty)
-///   inspect(phi.getName(), content="None")
+///   debug_inspect(phi.getName(), content="None")
 ///   phi.setName("result")
-///   inspect(phi.getName(), content="Some(\"result\")")
+///   debug_inspect(phi.getName(), content="Some(\"result\")")
 /// }
 /// ```
-pub impl Value for PHINode with getName(self) {
+pub impl Value for PHINode with fn getName(self) {
   self.name
 }
 
@@ -434,7 +437,7 @@ pub impl Value for PHINode with getName(self) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -443,12 +446,12 @@ pub impl Value for PHINode with getName(self) {
 ///   let merge_bb = fval.addBasicBlock(name="merge")
 ///   builder.setInsertPoint(merge_bb)
 ///   let phi = builder.createPHI(i32_ty)
-///   inspect(phi.getName(), content="None")
+///   debug_inspect(phi.getName(), content="None")
 ///   phi.setName("result")
-///   inspect(phi.getName(), content="Some(\"result\")")
+///   debug_inspect(phi.getName(), content="Some(\"result\")")
 /// }
 /// ```
-pub impl Value for PHINode with setName(self, name) {
+pub impl Value for PHINode with fn setName(self, name) {
   match self.getParent().setSymbol(name, self) {
     EmptyName => {
       let msg = "Misuse `PHINode::setName`: name cannot be empty."
@@ -474,7 +477,7 @@ pub impl Value for PHINode with setName(self, name) {
 }
 
 ///|
-pub impl Value for PHINode with removeName(self) {
+pub impl Value for PHINode with fn removeName(self) {
   match self.name {
     None => ()
     Some(name) => {
@@ -485,7 +488,7 @@ pub impl Value for PHINode with removeName(self) {
 }
 
 ///|
-pub impl Value for PHINode with getNameOrSlot(self) {
+pub impl Value for PHINode with fn getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
     None =>
@@ -497,17 +500,17 @@ pub impl Value for PHINode with getNameOrSlot(self) {
 }
 
 ///|
-pub impl Value for PHINode with asValueEnum(self) {
+pub impl Value for PHINode with fn asValueEnum(self) {
   PHINode(self)
 }
 
 ///|
-pub impl User for PHINode with asUserEnum(self) {
+pub impl User for PHINode with fn asUserEnum(self) {
   PHINode(self)
 }
 
 ///|
-pub impl User for PHINode with getUserBase(self) {
+pub impl User for PHINode with fn getUserBase(self) {
   let operands : Array[&Value] = []
   self.incomings.each(incoming => {
     operands.push(incoming.0)
@@ -517,22 +520,22 @@ pub impl User for PHINode with getUserBase(self) {
 }
 
 ///|
-pub impl Instruction for PHINode with getInstBase(self) {
-  InstBase::{ bb: self.bb, prev: self.prev, next: self.next }
+pub impl Instruction for PHINode with fn getInstBase(self) {
+  InstBase::{ bb: self.bb, prev: self.prev, next: self.next, }
 }
 
 ///|
-pub impl Instruction for PHINode with asInstEnum(self) {
+pub impl Instruction for PHINode with fn asInstEnum(self) {
   InstEnum::PHINode(self)
 }
 
 ///|
-pub impl Instruction for PHINode with getParent(self) {
+pub impl Instruction for PHINode with fn getParent(self) {
   self.parent
 }
 
 ///|
-pub impl Show for PHINode with output(self, logger) {
+pub impl Show for PHINode with fn output(self, logger) {
   let repr = self.getValueRepr()
   let ty = self.getType()
   let str = "  \{repr} = phi \{ty}"

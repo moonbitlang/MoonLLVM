@@ -1,10 +1,10 @@
 ///|
-let contextKey : Ref[UInt] = Ref::new(0)
+let contextKey : Ref[UInt32] = Ref::new(0)
 
 ///|
 pub struct Context {
   // used for identify different contexts, or hash
-  key : UInt
+  key : UInt32
   priv mut pimpl : LLVMContextImpl?
 }
 
@@ -39,7 +39,7 @@ struct LLVMContextImpl {
 
 ///|
 pub fn Context::new() -> Context {
-  let ctx = Context::{ key: contextKey.val, pimpl: None }
+  let ctx = Context::{ key: contextKey.val, pimpl: None, }
   contextKey.val += 1
   let addr0 = AddressSpace::default()
   let pointerTypes = Map::new()
@@ -71,12 +71,12 @@ pub fn Context::new() -> Context {
 }
 
 ///|
-pub impl Eq for Context with equal(self, other) {
+pub impl Eq for Context with fn equal(self, other) {
   self.key == other.key
 }
 
 ///|
-pub impl Hash for Context with hash_combine(self, hasher) {
+pub impl Hash for Context with fn hash_combine(self, hasher) {
   hasher.combine_uint(self.key)
 }
 
@@ -84,7 +84,7 @@ pub impl Hash for Context with hash_combine(self, hasher) {
 pub fn Context::addModule(
   self : Context,
   moduleID : String,
-  source_file? : String? = None,
+  source_file~ : String? = None,
 ) -> Module {
   let source_file = match source_file {
     Some(f) => f
@@ -107,7 +107,7 @@ pub fn Context::createBuilder(self : Context) -> IRBuilder {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let half_ty = ctx.getHalfTy()
 ///   inspect(half_ty, content="half")
 /// }
@@ -123,7 +123,7 @@ pub fn Context::getHalfTy(self : Context) -> HalfType {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let bfloat_ty = ctx.getBFloatTy()
 ///   inspect(bfloat_ty, content="bfloat")
 /// }
@@ -139,7 +139,7 @@ pub fn Context::getBFloatTy(self : Context) -> BFloatType {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let f32ty = ctx.getFloatTy()
 ///   inspect(f32ty, content="float")
 /// }
@@ -155,7 +155,7 @@ pub fn Context::getFloatTy(self : Context) -> FloatType {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let doubletype = ctx.getDoubleTy()
 ///   inspect(doubletype, content="double")
 /// }
@@ -171,7 +171,7 @@ pub fn Context::getDoubleTy(self : Context) -> DoubleType {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let fp128ty = ctx.getFP128Ty()
 ///   inspect(fp128ty, content="fp128")
 /// }
@@ -187,7 +187,7 @@ pub fn Context::getFP128Ty(self : Context) -> FP128Type {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let voidty = ctx.getVoidTy()
 ///   inspect(voidty, content="void")
 /// }
@@ -215,7 +215,7 @@ pub fn Context::getMetadataTy(self : Context) -> MetadataType {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let tokenty = ctx.getTokenTy()
 ///   inspect(tokenty, content="token")
 /// }
@@ -266,15 +266,15 @@ pub fn Context::getInt64Ty(self : Context) -> Int64Type {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   inspect(ctx.getPtrTy(), content="ptr")
-///   let addressSpace = AddressSpace::new(1)
+///   let addressSpace = @IR.AddressSpace::new(1)
 ///   inspect(ctx.getPtrTy(addressSpace~), content="ptr")
 /// }
 /// ```
 pub fn Context::getPtrTy(
   self : Context,
-  addressSpace? : AddressSpace = AddressSpace::default(),
+  addressSpace~ : AddressSpace = AddressSpace::default(),
 ) -> PointerType {
   match self.pimpl.unwrap().pointerTypes.get(addressSpace) {
     Some(ty) => ty
@@ -292,13 +292,13 @@ pub fn Context::getPtrTy(
 /// This is different with the method of creating function type in LLVM.
 /// In LLVM, usually use `FunctionType::get` to create a function type.
 ///
-/// In Moonbit Aether framework, we use `Context::getFunctionType` to create a function type.
+/// In Moonbit Aether framework, we use `@IR.Context::getFunctionType` to create a function type.
 ///
 /// - See LLVM: `FunctionType::get`.
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let voidty = ctx.getVoidTy()
 ///   let i32ty = ctx.getInt32Ty()
 ///   let f64ty = ctx.getDoubleTy()
@@ -310,7 +310,7 @@ pub fn Context::getFunctionType(
   self : Context,
   returnType : &Type,
   paramTypes : Array[&Type],
-  isVarArg? : Bool = false,
+  isVarArg~ : Bool = false,
 ) -> FunctionType raise LLVMTypeError {
   ignore(self)
   FunctionType::new(returnType, paramTypes, isVarArg~)
@@ -322,13 +322,13 @@ pub fn Context::getFunctionType(
 /// This is different with the method of creating struct type in LLVM.
 /// In LLVM, usually use `StructType::create` to create a struct type.
 ///
-/// In Moonbit Aether framework, we use `Context::getStructType` to create a struct type.
+/// In Moonbit Aether framework, we use `@IR.Context::getStructType` to create a struct type.
 ///
 /// - See LLVM: `StructType::create`.
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let i32ty = ctx.getInt32Ty()
 ///   let f32ty = ctx.getFloatTy()
 ///   let f64ty = ctx.getDoubleTy()
@@ -336,18 +336,20 @@ pub fn Context::getFunctionType(
 ///   inspect(sty.full_info(), content="%foo = type { i32, float, double }")
 ///
 ///   // Cannot create a ananymous struct type with empty elements.
-///   assert_true((try? ctx.getStructType([])) is Err(_))
+///   assert_true((Ok(ctx.getStructType([])) catch { e => Err(e) }) is Err(_))
 ///
 ///   // Cannot create a struct which has same name with other struct.
 ///   // the `foo` struct is already created.
-///   assert_true((try? ctx.getStructType([], name="foo")) is Err(_))
+///   assert_true(
+///     (Ok(ctx.getStructType([], name="foo")) catch { e => Err(e) }) is Err(_),
+///   )
 /// }
 /// ```
 pub fn Context::getStructType(
   self : Context,
   elements : Array[&Type],
-  name? : String = "",
-  isPacked? : Bool = false,
+  name~ : String = "",
+  isPacked~ : Bool = false,
 ) -> StructType raise LLVMTypeError {
   let name = unless(name.is_empty(), fn() { name })
   StructType::new(self, elements, name~, isPacked~)
@@ -360,7 +362,7 @@ pub fn Context::getStructType(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let i32ty = ctx.getInt32Ty()
 ///   let f32ty = ctx.getFloatTy()
 ///   let _ = ctx.getStructType([i32ty, f32ty], name="foo")
@@ -378,13 +380,13 @@ pub fn Context::getStructTypeByName(self : Self, name : String) -> StructType? {
 /// This is different with the method of creating array type in LLVM.
 /// In LLVM, usually use `ArrayType::get` to create an array type.
 ///
-/// In Moonbit Aether framework, we use `Context::getArrayType` to create an array type.
+/// In Moonbit Aether framework, we use `@IR.Context::getArrayType` to create an array type.
 ///
 /// - See LLVM: `ArrayType::get`.
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let i32ty = ctx.getInt32Ty()
 ///   let arrty = ctx.getArrayType(i32ty, 16)
 ///   inspect(arrty, content="[16 x i32]")
@@ -395,7 +397,7 @@ pub fn Context::getStructTypeByName(self : Self, name : String) -> StructType? {
 pub fn Context::getArrayType(
   self : Context,
   elementType : &Type,
-  numElements : Int,
+  numElements : Int32,
 ) -> ArrayType raise LLVMTypeError {
   if numElements < 0 {
     raise InValidTypeSize(numElements)
@@ -410,7 +412,7 @@ pub fn Context::getArrayType(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let i32ty = ctx.getInt32Ty()
 ///   let fixedVecTy = ctx.getFixedVectorType(i32ty, 32)
 ///   inspect(fixedVecTy, content="<32 x i32>")
@@ -419,7 +421,7 @@ pub fn Context::getArrayType(
 pub fn Context::getFixedVectorType(
   self : Context,
   elementType : &Type,
-  elementQuantity : Int,
+  elementQuantity : Int32,
 ) -> VectorType raise LLVMTypeError {
   if elementQuantity < 0 {
     raise InValidTypeSize(elementQuantity)
@@ -434,7 +436,7 @@ pub fn Context::getFixedVectorType(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let i32ty = ctx.getInt32Ty()
 ///   let scalableVecTy = ctx.getScalableVectorType(i32ty, 16)
 ///   inspect(scalableVecTy, content="<vscale x 16 x i32>")
@@ -443,7 +445,7 @@ pub fn Context::getFixedVectorType(
 pub fn Context::getScalableVectorType(
   self : Context,
   elementType : &Type,
-  elementQuantity : Int,
+  elementQuantity : Int32,
 ) -> ScalableVectorType raise LLVMTypeError {
   ScalableVectorType::new(self, elementType, elementQuantity)
 }
@@ -455,13 +457,13 @@ pub fn Context::getScalableVectorType(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   inspect(ctx.getConstInt8(0), content="i8 0")
 ///   inspect(ctx.getConstInt8(1), content="i8 1")
 ///   inspect(ctx.getConstInt8(-1), content="i8 -1")
 /// }
 /// ```
-pub fn Context::getConstInt8(self : Context, value : Int) -> ConstantInt {
+pub fn Context::getConstInt8(self : Context, value : Int32) -> ConstantInt {
   let i8val = Int8::from(value)
   ConstantInt::new(self.getInt8Ty(), i8val.to_int64())
 }
@@ -473,7 +475,7 @@ pub fn Context::getConstInt8(self : Context, value : Int) -> ConstantInt {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   inspect(ctx.getConstInt16(0), content="i16 0")
 ///   inspect(ctx.getConstInt16(1), content="i16 1")
 ///   inspect(ctx.getConstInt16(-1), content="i16 -1")
@@ -490,13 +492,13 @@ pub fn Context::getConstInt16(self : Context, value : Int16) -> ConstantInt {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   inspect(ctx.getConstInt32(0), content="i32 0")
 ///   inspect(ctx.getConstInt32(1), content="i32 1")
 ///   inspect(ctx.getConstInt32(-1), content="i32 -1")
 /// }
 /// ```
-pub fn Context::getConstInt32(self : Context, value : Int) -> ConstantInt {
+pub fn Context::getConstInt32(self : Context, value : Int32) -> ConstantInt {
   ConstantInt::new(self.getInt32Ty(), value.to_int64())
 }
 
@@ -507,7 +509,7 @@ pub fn Context::getConstInt32(self : Context, value : Int) -> ConstantInt {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   inspect(ctx.getConstInt64(0), content="i64 0")
 ///   inspect(ctx.getConstInt64(1), content="i64 1")
 ///   inspect(ctx.getConstInt64(-1), content="i64 -1")
@@ -524,7 +526,7 @@ pub fn Context::getConstInt64(self : Context, value : Int64) -> ConstantInt {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   inspect(ctx.getConstTrue(), content="i1 true")
 /// }
 /// ```
@@ -539,7 +541,7 @@ pub fn Context::getConstTrue(self : Context) -> ConstantInt {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   inspect(ctx.getConstFalse(), content="i1 false")
 /// }
 /// ```
@@ -554,7 +556,7 @@ pub fn Context::getConstFalse(self : Context) -> ConstantInt {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   inspect(ctx.getConstBool(true), content="i1 true")
 ///   inspect(ctx.getConstBool(false), content="i1 false")
 /// }
@@ -570,7 +572,7 @@ pub fn Context::getConstBool(self : Context, b : Bool) -> ConstantInt {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let one = ctx.getConstFloat(1.0)
 ///   let two = ctx.getConstFloat(2.0)
 ///   inspect(one, content="float 0x3FF0000000000000")
@@ -588,7 +590,7 @@ pub fn Context::getConstFloat(self : Context, value : Float) -> ConstantFP {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let one = ctx.getConstDouble(1.0)
 ///   let two = ctx.getConstDouble(2.0)
 ///   inspect(one, content="double 0x3FF0000000000000")
@@ -610,7 +612,7 @@ pub fn Context::getConstDouble(self : Context, value : Double) -> ConstantFP {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let zero = ctx.getConstZeroFloat()
 ///   let neg_zero = ctx.getConstZeroFloat(isNegative=true)
 ///   inspect(zero, content="float 0x0")
@@ -619,7 +621,7 @@ pub fn Context::getConstDouble(self : Context, value : Double) -> ConstantFP {
 /// ```
 pub fn Context::getConstZeroFloat(
   self : Context,
-  isNegative? : Bool = false,
+  isNegative~ : Bool = false,
 ) -> ConstantFP {
   let uv = match isNegative {
     false => 0UL
@@ -639,7 +641,7 @@ pub fn Context::getConstZeroFloat(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let zero = ctx.getConstZeroDouble()
 ///   let neg_zero = ctx.getConstZeroDouble(isNegative=true)
 ///   inspect(zero, content="double 0x0")
@@ -648,7 +650,7 @@ pub fn Context::getConstZeroFloat(
 /// ```
 pub fn Context::getConstZeroDouble(
   self : Context,
-  isNegative? : Bool = false,
+  isNegative~ : Bool = false,
 ) -> ConstantFP {
   let uv = match isNegative {
     false => 0UL
@@ -668,7 +670,7 @@ pub fn Context::getConstZeroDouble(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let nan = ctx.getConstNaNDouble()
 ///   let neg_nan = ctx.getConstNaNDouble(isNegative=true)
 ///   inspect(nan, content="double 0x7FF8000000000000")
@@ -677,7 +679,7 @@ pub fn Context::getConstZeroDouble(
 /// ```
 pub fn Context::getConstNaNFloat(
   self : Context,
-  isNegative? : Bool = false,
+  isNegative~ : Bool = false,
 ) -> ConstantFP {
   let uv = match isNegative {
     false => 0x7FF8_0000_0000_0000UL
@@ -697,7 +699,7 @@ pub fn Context::getConstNaNFloat(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let nan = ctx.getConstQNaNFloat()
 ///   let neg_nan = ctx.getConstQNaNFloat(isNegative=true)
 ///   inspect(nan, content="float 0x7FF8000000000000")
@@ -706,7 +708,7 @@ pub fn Context::getConstNaNFloat(
 /// ```
 pub fn Context::getConstQNaNFloat(
   self : Context,
-  isNegative? : Bool = false,
+  isNegative~ : Bool = false,
 ) -> ConstantFP {
   let uv = match isNegative {
     false => 0x7FF8_0000_0000_0000UL
@@ -726,7 +728,7 @@ pub fn Context::getConstQNaNFloat(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let nan = ctx.getConstSNaNFloat()
 ///   let neg_nan = ctx.getConstSNaNFloat(isNegative=true)
 ///   inspect(nan, content="float 0x7FF4000000000000")
@@ -735,7 +737,7 @@ pub fn Context::getConstQNaNFloat(
 /// ```
 pub fn Context::getConstSNaNFloat(
   self : Context,
-  isNegative? : Bool = false,
+  isNegative~ : Bool = false,
 ) -> ConstantFP {
   let uv = match isNegative {
     false => 0x7FF4_0000_0000_0000UL
@@ -755,7 +757,7 @@ pub fn Context::getConstSNaNFloat(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let inf = ctx.getConstInfFloat()
 ///   let neg_inf = ctx.getConstInfFloat(isNegative=true)
 ///   inspect(inf, content="float 0x7FF0000000000000")
@@ -764,7 +766,7 @@ pub fn Context::getConstSNaNFloat(
 /// ```
 pub fn Context::getConstInfFloat(
   self : Context,
-  isNegative? : Bool = false,
+  isNegative~ : Bool = false,
 ) -> ConstantFP {
   let uv = match isNegative {
     false => 0x7FF0_0000_0000_0000UL
@@ -784,7 +786,7 @@ pub fn Context::getConstInfFloat(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let nan = ctx.getConstNaNDouble()
 ///   let neg_nan = ctx.getConstNaNDouble(isNegative=true)
 ///   inspect(nan, content="double 0x7FF8000000000000")
@@ -793,7 +795,7 @@ pub fn Context::getConstInfFloat(
 /// ```
 pub fn Context::getConstNaNDouble(
   self : Context,
-  isNegative? : Bool = false,
+  isNegative~ : Bool = false,
 ) -> ConstantFP {
   let uv = match isNegative {
     false => 0x7FF8_0000_0000_0000UL
@@ -813,7 +815,7 @@ pub fn Context::getConstNaNDouble(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let nan = ctx.getConstQNaNDouble()
 ///   let neg_nan = ctx.getConstQNaNDouble(isNegative=true)
 ///   inspect(nan, content="double 0x7FF8000000000000")
@@ -822,7 +824,7 @@ pub fn Context::getConstNaNDouble(
 /// ```
 pub fn Context::getConstQNaNDouble(
   self : Context,
-  isNegative? : Bool = false,
+  isNegative~ : Bool = false,
 ) -> ConstantFP {
   let uv = match isNegative {
     false => 0x7FF8_0000_0000_0000UL
@@ -842,7 +844,7 @@ pub fn Context::getConstQNaNDouble(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let nan = ctx.getConstSNaNDouble()
 ///   let neg_nan = ctx.getConstSNaNDouble(isNegative=true)
 ///   inspect(nan, content="double 0x7FF4000000000000")
@@ -851,7 +853,7 @@ pub fn Context::getConstQNaNDouble(
 /// ```
 pub fn Context::getConstSNaNDouble(
   self : Context,
-  isNegative? : Bool = false,
+  isNegative~ : Bool = false,
 ) -> ConstantFP {
   let uv = match isNegative {
     false => 0x7FF4_0000_0000_0000UL
@@ -871,7 +873,7 @@ pub fn Context::getConstSNaNDouble(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let inf = ctx.getConstInfDouble()
 ///   let neg_inf = ctx.getConstInfDouble(isNegative=true)
 ///   inspect(inf, content="double 0x7FF0000000000000")
@@ -880,7 +882,7 @@ pub fn Context::getConstSNaNDouble(
 /// ```
 pub fn Context::getConstInfDouble(
   self : Context,
-  isNegative? : Bool = false,
+  isNegative~ : Bool = false,
 ) -> ConstantFP {
   let uv = match isNegative {
     false => 0x7FF0_0000_0000_0000UL
@@ -901,15 +903,15 @@ pub fn Context::getConstInfDouble(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
-///   let data : Array[Int] = [42, 63, 77, 89]
+///   let ctx = @IR.Context::new()
+///   let data : Array[Int32] = [42, 63, 77, 89]
 ///   let arr = ctx.getConstInt8Array(data)
 ///   inspect(arr, content="[4 x i8] [i8 42, i8 63, i8 77, i8 89]")
 /// }
 /// ```
 pub fn Context::getConstInt8Array(
   self : Context,
-  data : Array[Int],
+  data : Array[Int32],
 ) -> ConstantArray {
   let ty = try! self.getArrayType(self.getInt8Ty(), data.length())
   ConstantArray::newInt8Array(ty, data)
@@ -922,7 +924,7 @@ pub fn Context::getConstInt8Array(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let data : Array[Int16] = [42, 63, 77, 89]
 ///   let arr = ctx.getConstInt16Array(data)
 ///   inspect(arr, content="[4 x i16] [i16 42, i16 63, i16 77, i16 89]")
@@ -943,15 +945,15 @@ pub fn Context::getConstInt16Array(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
-///   let data : Array[Int] = [42, 63, 77, 89]
+///   let ctx = @IR.Context::new()
+///   let data : Array[Int32] = [42, 63, 77, 89]
 ///   let arr = ctx.getConstInt32Array(data)
 ///   inspect(arr, content="[4 x i32] [i32 42, i32 63, i32 77, i32 89]")
 /// }
 /// ```
 pub fn Context::getConstInt32Array(
   self : Context,
-  data : Array[Int],
+  data : Array[Int32],
 ) -> ConstantArray {
   let ty = try! self.getArrayType(self.getInt32Ty(), data.length())
   ConstantArray::newInt32Array(ty, data)
@@ -964,7 +966,7 @@ pub fn Context::getConstInt32Array(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let data : Array[Int64] = [42, 63, 77, 89]
 ///   let arr = ctx.getConstInt64Array(data)
 ///   inspect(arr, content="[4 x i64] [i64 42, i64 63, i64 77, i64 89]")
@@ -985,7 +987,7 @@ pub fn Context::getConstInt64Array(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let data : Array[Byte] = [42, 63, 77, 89]
 ///   let arr = ctx.getConstUInt8Array(data)
 ///   inspect(arr, content="[4 x i8] [i8 42, i8 63, i8 77, i8 89]")
@@ -1007,7 +1009,7 @@ pub fn Context::getConstUInt8Array(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let data : Array[UInt16] = [42, 63, 77, 89]
 ///   let arr = ctx.getConstUInt16Array(data)
 ///   inspect(arr, content="[4 x i16] [i16 42, i16 63, i16 77, i16 89]")
@@ -1029,15 +1031,15 @@ pub fn Context::getConstUInt16Array(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
-///   let data : Array[UInt] = [42, 63, 77, 89]
+///   let ctx = @IR.Context::new()
+///   let data : Array[UInt32] = [42, 63, 77, 89]
 ///   let arr = ctx.getConstUInt32Array(data)
 ///   inspect(arr, content="[4 x i32] [i32 42, i32 63, i32 77, i32 89]")
 /// }
 /// ```
 pub fn Context::getConstUInt32Array(
   self : Context,
-  data : Array[UInt],
+  data : Array[UInt32],
 ) -> ConstantArray {
   let len = data.length()
   let ty = try! self.getArrayType(self.getInt32Ty(), len)
@@ -1051,7 +1053,7 @@ pub fn Context::getConstUInt32Array(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let data : Array[UInt64] = [42, 63, 77, 89]
 ///   let arr = ctx.getConstUInt64Array(data)
 ///   inspect(arr, content="[4 x i64] [i64 42, i64 63, i64 77, i64 89]")
@@ -1073,7 +1075,7 @@ pub fn Context::getConstUInt64Array(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let data : Array[Float] = [1.0, 2.0]
 ///   let arr = ctx.getConstFloatArray(data)
 ///   inspect(
@@ -1098,7 +1100,7 @@ pub fn Context::getConstFloatArray(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let data : Array[Double] = [1.0, 2.0]
 ///   let arr = ctx.getConstDoubleArray(data)
 ///   inspect(
@@ -1141,15 +1143,15 @@ pub fn Context::getConstArray(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
-///   let data : Array[Int] = [42, 63, 77, 89]
+///   let ctx = @IR.Context::new()
+///   let data : Array[Int32] = [42, 63, 77, 89]
 ///   let arr = ctx.getConstInt8Vector(data)
 ///   inspect(arr, content="<4 x i8> <i8 42, i8 63, i8 77, i8 89>")
 /// }
 /// ```
 pub fn Context::getConstInt8Vector(
   self : Context,
-  data : Array[Int],
+  data : Array[Int32],
 ) -> ConstantVector {
   let len = data.length()
   let ty = try! self.getFixedVectorType(self.getInt8Ty(), len)
@@ -1163,7 +1165,7 @@ pub fn Context::getConstInt8Vector(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let data : Array[Int16] = [42, 63, 77, 89]
 ///   let arr = ctx.getConstInt16Vector(data)
 ///   inspect(arr, content="<4 x i16> <i16 42, i16 63, i16 77, i16 89>")
@@ -1185,15 +1187,15 @@ pub fn Context::getConstInt16Vector(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
-///   let data : Array[Int] = [42, 63, 77, 89]
+///   let ctx = @IR.Context::new()
+///   let data : Array[Int32] = [42, 63, 77, 89]
 ///   let arr = ctx.getConstInt32Vector(data)
 ///   inspect(arr, content="<4 x i32> <i32 42, i32 63, i32 77, i32 89>")
 /// }
 /// ```
 pub fn Context::getConstInt32Vector(
   self : Context,
-  data : Array[Int],
+  data : Array[Int32],
 ) -> ConstantVector {
   let len = data.length()
   let ty = try! self.getFixedVectorType(self.getInt32Ty(), len)
@@ -1207,7 +1209,7 @@ pub fn Context::getConstInt32Vector(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let data : Array[Int64] = [42, 63, 77, 89]
 ///   let arr = ctx.getConstInt64Vector(data)
 ///   inspect(arr, content="<4 x i64> <i64 42, i64 63, i64 77, i64 89>")
@@ -1229,7 +1231,7 @@ pub fn Context::getConstInt64Vector(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let data : Array[Byte] = [42, 63, 77, 89]
 ///   let arr = ctx.getConstUInt8Vector(data)
 ///   inspect(arr, content="<4 x i8> <i8 42, i8 63, i8 77, i8 89>")
@@ -1250,7 +1252,7 @@ pub fn Context::getConstUInt8Vector(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let data : Array[UInt16] = [42, 63, 77, 89]
 ///   let arr = ctx.getConstUInt16Vector(data)
 ///   inspect(arr, content="<4 x i16> <i16 42, i16 63, i16 77, i16 89>")
@@ -1271,15 +1273,15 @@ pub fn Context::getConstUInt16Vector(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
-///   let data : Array[UInt] = [42, 63, 77, 89]
+///   let ctx = @IR.Context::new()
+///   let data : Array[UInt32] = [42, 63, 77, 89]
 ///   let arr = ctx.getConstUInt32Vector(data)
 ///   inspect(arr, content="<4 x i32> <i32 42, i32 63, i32 77, i32 89>")
 /// }
 /// ```
 pub fn Context::getConstUInt32Vector(
   self : Context,
-  data : Array[UInt],
+  data : Array[UInt32],
 ) -> ConstantVector {
   let ty = try! self.getFixedVectorType(self.getInt32Ty(), data.length())
   ConstantVector::newUInt32Vector(ty, data)
@@ -1292,7 +1294,7 @@ pub fn Context::getConstUInt32Vector(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let data : Array[UInt64] = [42, 63, 77, 89]
 ///   let arr = ctx.getConstUInt64Vector(data)
 ///   inspect(arr, content="<4 x i64> <i64 42, i64 63, i64 77, i64 89>")
@@ -1313,7 +1315,7 @@ pub fn Context::getConstUInt64Vector(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let data : Array[Float] = [1.0, 2.0]
 ///   let arr = ctx.getConstFloatVector(data)
 ///   inspect(
@@ -1337,7 +1339,7 @@ pub fn Context::getConstFloatVector(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let data : Array[Double] = [1.0, 2.0]
 ///   let arr = ctx.getConstDoubleVector(data)
 ///   inspect(
@@ -1360,7 +1362,7 @@ pub fn Context::getConstDoubleVector(
 /// TODO: wait compiler bug fixed.
 ///
 /// ```mbt test-no-run
-/// let ctx = Context::new()
+/// let ctx = @IR.Context::new()
 /// let i32ty = ctx.getInt32Ty()
 /// let zero_i32 = ctx.getConstZero(i32ty)
 /// inspect(zero_i32, content="i32 0")
@@ -1447,7 +1449,7 @@ pub fn Context::getConstOne(
 pub fn Context::getConstPointerNull(
   self : Context,
   ty : &Type,
-  addressSpace? : UInt = 0,
+  addressSpace~ : UInt32 = 0,
 ) -> ConstantPointerNull {
   ignore(ty) // TODO: remove this in the future.
   ConstantPointerNull::new(self, addressSpace~)

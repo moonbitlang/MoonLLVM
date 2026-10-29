@@ -4,14 +4,14 @@
 
 ///|
 pub trait FPType: PrimitiveType {
-  asFPTypeEnum(Self) -> FPTypeEnum
+  fn asFPTypeEnum(Self) -> FPTypeEnum
 
   /// Return the width of the mantissa of this type. 
-  getFPMantissaWidth(Self) -> Int = _
+  fn getFPMantissaWidth(Self) -> Int32 = _
 }
 
 ///|
-impl Eq for &FPType with equal(self, other) {
+impl Eq for &FPType with fn equal(self, other) {
   self.asFPTypeEnum() == other.asFPTypeEnum()
 }
 
@@ -47,7 +47,7 @@ pub fn FPTypeEnum::asFPTypeClass(self : FPTypeEnum) -> &FPType {
 }
 
 ///|
-pub fn FPTypeEnum::getFPMantissaWidth(self : FPTypeEnum) -> Int {
+pub fn FPTypeEnum::getFPMantissaWidth(self : FPTypeEnum) -> Int32 {
   match self {
     HalfType(_) => 11
     BFloatType(_) => 8
@@ -58,11 +58,11 @@ pub fn FPTypeEnum::getFPMantissaWidth(self : FPTypeEnum) -> Int {
 }
 
 ///|
-pub fn FPTypeEnum::getBitWidth(self : Self) -> Int {
+pub fn FPTypeEnum::getBitWidth(self : Self) -> Int32 {
   self.asFPTypeClass().getBitWidth()
 }
 
 ///|
-impl FPType with getFPMantissaWidth(self) {
+impl FPType with fn getFPMantissaWidth(self) {
   self.asFPTypeEnum().getFPMantissaWidth()
 }

@@ -6,12 +6,12 @@ pub struct TypeSize {
 
 ///|
 pub fn TypeSize::getFixed(quantity : UInt64) -> TypeSize {
-  return TypeSize::{ quantity, scalable: false }
+  return TypeSize::{ quantity, scalable: false, }
 }
 
 ///|
 pub fn TypeSize::getScalable(quantity : UInt64) -> TypeSize {
-  return TypeSize::{ quantity, scalable: true }
+  return TypeSize::{ quantity, scalable: true, }
 }
 
 ///|

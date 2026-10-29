@@ -9,7 +9,7 @@
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let f32ty = ctx.getFloatTy()
 ///   let vecty = ctx.getScalableVectorType(f32ty, 16)
 ///   inspect(vecty, content="<vscale x 16 x float>")
@@ -20,7 +20,7 @@
 pub struct ScalableVectorType {
   ctx : Context
   elementType : &Type
-  elementCount : Int
+  elementCount : Int32
 } derive(Eq, Hash)
 
 ///|
@@ -28,12 +28,12 @@ pub struct ScalableVectorType {
 fn ScalableVectorType::new(
   ctx : Context,
   elementType : &Type,
-  elementCount : Int,
+  elementCount : Int32,
 ) -> ScalableVectorType raise LLVMTypeError {
   guard ScalableVectorType::isValidElementType(elementType) else {
     raise InValidVectorElementType(elementType)
   }
-  ScalableVectorType::{ ctx, elementType, elementCount }
+  ScalableVectorType::{ ctx, elementType, elementCount, }
 }
 
 ///|
@@ -55,28 +55,28 @@ pub fn ScalableVectorType::getElementType(self : ScalableVectorType) -> &Type {
 
 ///|
 /// Get the number of elements in the vector.
-pub fn ScalableVectorType::getElementCount(self : ScalableVectorType) -> Int {
+pub fn ScalableVectorType::getElementCount(self : ScalableVectorType) -> Int32 {
   self.elementCount
 }
 
 ///|
-pub impl Show for ScalableVectorType with output(self, logger : &Logger) {
+pub impl Show for ScalableVectorType with fn output(self, logger : &Logger) {
   logger.write_string(
     "<vscale x \{self.getElementCount()} x \{self.getElementType()}>",
   )
 }
 
 ///|
-pub impl Type for ScalableVectorType with asTypeEnum(self) -> TypeEnum {
+pub impl Type for ScalableVectorType with fn asTypeEnum(self) -> TypeEnum {
   TypeEnum::ScalableVectorType(self)
 }
 
 ///|
-pub impl Type for ScalableVectorType with getContext(self) -> Context {
+pub impl Type for ScalableVectorType with fn getContext(self) -> Context {
   self.ctx
 }
 
 ///|
-pub impl AggregateType for ScalableVectorType with asAggregateTypeEnum(self) -> AggregateTypeEnum {
+pub impl AggregateType for ScalableVectorType with fn asAggregateTypeEnum(self) -> AggregateTypeEnum {
   ScalableVectorType(self)
 }

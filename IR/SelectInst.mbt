@@ -11,7 +11,7 @@
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i1_ty = ctx.getInt1Ty()
@@ -92,8 +92,8 @@ pub fn SelectInst::getFalseValue(self : SelectInst) -> &Value {
 }
 
 ///|
-pub impl Value for SelectInst with getValueBase(self) {
-  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users }
+pub impl Value for SelectInst with fn getValueBase(self) {
+  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users, }
 }
 
 ///|
@@ -101,7 +101,7 @@ pub impl Value for SelectInst with getValueBase(self) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i1_ty = ctx.getInt1Ty()
@@ -119,7 +119,7 @@ pub impl Value for SelectInst with getValueBase(self) {
 ///   inspect(select.getValueRepr(), content="%result")
 /// }
 /// ```
-pub impl Value for SelectInst with getValueRepr(self) {
+pub impl Value for SelectInst with fn getValueRepr(self) {
   match self.getNameOrSlot() {
     Some(Left(name)) => "%\{name}"
     Some(Right(slot)) => "%\{slot}"
@@ -128,7 +128,7 @@ pub impl Value for SelectInst with getValueRepr(self) {
 }
 
 ///|
-pub impl Value for SelectInst with asValueEnum(self) {
+pub impl Value for SelectInst with fn asValueEnum(self) {
   SelectInst(self)
 }
 
@@ -141,7 +141,7 @@ pub impl Value for SelectInst with asValueEnum(self) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i1_ty = ctx.getInt1Ty()
@@ -154,12 +154,12 @@ pub impl Value for SelectInst with asValueEnum(self) {
 ///   let false_val = fval.getArg(2).unwrap()
 ///   builder.setInsertPoint(bb)
 ///   let select = builder.createSelect(cond, true_val, false_val)
-///   inspect(select.getName(), content="None")
+///   debug_inspect(select.getName(), content="None")
 ///   select.setName("result")
-///   inspect(select.getName(), content="Some(\"result\")")
+///   debug_inspect(select.getName(), content="Some(\"result\")")
 /// }
 /// ```
-pub impl Value for SelectInst with getName(self) {
+pub impl Value for SelectInst with fn getName(self) {
   self.name
 }
 
@@ -173,7 +173,7 @@ pub impl Value for SelectInst with getName(self) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i1_ty = ctx.getInt1Ty()
@@ -186,12 +186,12 @@ pub impl Value for SelectInst with getName(self) {
 ///   let false_val = fval.getArg(2).unwrap()
 ///   builder.setInsertPoint(bb)
 ///   let select = builder.createSelect(cond, true_val, false_val)
-///   inspect(select.getName(), content="None")
+///   debug_inspect(select.getName(), content="None")
 ///   select.setName("result")
-///   inspect(select.getName(), content="Some(\"result\")")
+///   debug_inspect(select.getName(), content="Some(\"result\")")
 /// }
 /// ```
-pub impl Value for SelectInst with setName(self, name) {
+pub impl Value for SelectInst with fn setName(self, name) {
   match self.getParent().setSymbol(name, self) {
     EmptyName => {
       let msg = "Misuse `SelectInst::setName`: name cannot be empty."
@@ -217,7 +217,7 @@ pub impl Value for SelectInst with setName(self, name) {
 }
 
 ///|
-pub impl Value for SelectInst with removeName(self) {
+pub impl Value for SelectInst with fn removeName(self) {
   match self.name {
     None => ()
     Some(name) => {
@@ -228,7 +228,7 @@ pub impl Value for SelectInst with removeName(self) {
 }
 
 ///|
-pub impl Value for SelectInst with getNameOrSlot(self) {
+pub impl Value for SelectInst with fn getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
     None =>
@@ -240,32 +240,32 @@ pub impl Value for SelectInst with getNameOrSlot(self) {
 }
 
 ///|
-pub impl User for SelectInst with asUserEnum(self) {
+pub impl User for SelectInst with fn asUserEnum(self) {
   SelectInst(self)
 }
 
 ///|
-pub impl User for SelectInst with getUserBase(self) {
-  UserBase::{ operands: [self.condition, self.trueValue, self.falseValue] }
+pub impl User for SelectInst with fn getUserBase(self) {
+  UserBase::{ operands: [self.condition, self.trueValue, self.falseValue], }
 }
 
 ///|
-pub impl Instruction for SelectInst with getInstBase(self) {
-  InstBase::{ bb: self.bb, prev: self.prev, next: self.next }
+pub impl Instruction for SelectInst with fn getInstBase(self) {
+  InstBase::{ bb: self.bb, prev: self.prev, next: self.next, }
 }
 
 ///|
-pub impl Instruction for SelectInst with asInstEnum(self) {
+pub impl Instruction for SelectInst with fn asInstEnum(self) {
   InstEnum::SelectInst(self)
 }
 
 ///|
-pub impl Instruction for SelectInst with getParent(self) {
+pub impl Instruction for SelectInst with fn getParent(self) {
   self.parent
 }
 
 ///|
-pub impl Show for SelectInst with output(self, logger) {
+pub impl Show for SelectInst with fn output(self, logger) {
   let repr = self.getValueRepr()
   let condition = self.getCondition()
   let trueValue = self.getTrueValue()

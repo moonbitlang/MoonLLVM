@@ -15,26 +15,26 @@ fn DoubleType::new(ctx : Context) -> DoubleType {
 }
 
 ///|
-pub impl Show for DoubleType with output(_, logger : &Logger) {
+pub impl Show for DoubleType with fn output(_, logger : &Logger) {
   logger.write_string("double")
 }
 
 ///|
-pub impl Type for DoubleType with asTypeEnum(self) -> TypeEnum {
+pub impl Type for DoubleType with fn asTypeEnum(self) -> TypeEnum {
   DoubleType(self)
 }
 
 ///|
-pub impl Type for DoubleType with getContext(self) -> Context {
+pub impl Type for DoubleType with fn getContext(self) -> Context {
   self.ctx
 }
 
 ///|
-pub impl FPType for DoubleType with asFPTypeEnum(self) -> FPTypeEnum {
+pub impl FPType for DoubleType with fn asFPTypeEnum(self) -> FPTypeEnum {
   DoubleType(self)
 }
 
 ///|
-pub impl PrimitiveType for DoubleType with asPrimitiveTypeEnum(self) -> PrimitiveTypeEnum {
+pub impl PrimitiveType for DoubleType with fn asPrimitiveTypeEnum(self) -> PrimitiveTypeEnum {
   DoubleType(self)
 }

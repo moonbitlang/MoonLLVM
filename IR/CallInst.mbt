@@ -10,7 +10,7 @@ pub(all) enum TailCallKind {
 }
 
 ///|
-pub impl Show for TailCallKind with output(self, logger) {
+pub impl Show for TailCallKind with fn output(self, logger) {
   let str = match self {
     NoTail => ""
     Tail => "tail"
@@ -28,7 +28,7 @@ pub impl Show for TailCallKind with output(self, logger) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -168,28 +168,28 @@ pub fn CallInst::getFunctionType(self : CallInst) -> FunctionType {
 
 ///|
 pub fn CallInst::getCallee(self : CallInst) -> Function {
-  guard self.getOperand(0) is Some(callee_val)
-  guard callee_val.asValueEnum() is Function(callee)
+  guard! self.getOperand(0) is Some(callee_val)
+  guard! callee_val.asValueEnum() is Function(callee)
   callee
 }
 
 ///|
-pub fn CallInst::getArgOperand(self : Self, idx : Int) -> &Value? {
+pub fn CallInst::getArgOperand(self : Self, idx : Int32) -> &Value? {
   self.args.get(idx)
 }
 
 ///|
-pub fn CallInst::getNumArgs(self : Self) -> Int {
+pub fn CallInst::getNumArgs(self : Self) -> Int32 {
   self.function_type.getNumParams()
 }
 
 ///|
-pub impl Value for CallInst with getValueBase(self) {
-  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users }
+pub impl Value for CallInst with fn getValueBase(self) {
+  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users, }
 }
 
 ///|
-pub impl Value for CallInst with asValueEnum(self) {
+pub impl Value for CallInst with fn asValueEnum(self) {
   CallInst(self)
 }
 
@@ -198,7 +198,7 @@ pub impl Value for CallInst with asValueEnum(self) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -216,7 +216,7 @@ pub impl Value for CallInst with asValueEnum(self) {
 ///   inspect(call.getValueRepr(), content="%sum")
 /// }
 /// ```
-pub impl Value for CallInst with getValueRepr(self) {
+pub impl Value for CallInst with fn getValueRepr(self) {
   if self.vty.asTypeEnum() is VoidType(_) {
     return ""
   }
@@ -236,7 +236,7 @@ pub impl Value for CallInst with getValueRepr(self) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -249,17 +249,17 @@ pub impl Value for CallInst with getValueRepr(self) {
 ///   let arg2 = ctx.getConstInt32(20)
 ///   builder.setInsertPoint(bb)
 ///   let call = builder.createCall(add_func, [arg1, arg2])
-///   inspect(call.getName(), content="None")
+///   debug_inspect(call.getName(), content="None")
 ///   call.setName("sum")
-///   inspect(call.getName(), content="Some(\"sum\")")
+///   debug_inspect(call.getName(), content="Some(\"sum\")")
 /// }
 /// ```
-pub impl Value for CallInst with getName(self) {
+pub impl Value for CallInst with fn getName(self) {
   self.name
 }
 
 ///|
-pub impl Value for CallInst with getNameOrSlot(self) {
+pub impl Value for CallInst with fn getNameOrSlot(self) {
   if self.vty.asTypeEnum() is VoidType(_) {
     return None
   }
@@ -283,7 +283,7 @@ pub impl Value for CallInst with getNameOrSlot(self) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -296,12 +296,12 @@ pub impl Value for CallInst with getNameOrSlot(self) {
 ///   let arg2 = ctx.getConstInt32(20)
 ///   builder.setInsertPoint(bb)
 ///   let call = builder.createCall(add_func, [arg1, arg2])
-///   inspect(call.getName(), content="None")
+///   debug_inspect(call.getName(), content="None")
 ///   call.setName("sum")
-///   inspect(call.getName(), content="Some(\"sum\")")
+///   debug_inspect(call.getName(), content="Some(\"sum\")")
 /// }
 /// ```
-pub impl Value for CallInst with setName(self, name) {
+pub impl Value for CallInst with fn setName(self, name) {
   if self.vty.asTypeEnum() is VoidType(_) {
     let msg = "Misuse `CallInst::setName`: " +
       "cannot set name for CallInst with void return type."
@@ -332,7 +332,7 @@ pub impl Value for CallInst with setName(self, name) {
 }
 
 ///|
-pub impl Value for CallInst with removeName(self) {
+pub impl Value for CallInst with fn removeName(self) {
   match self.name {
     None => ()
     Some(name) => {
@@ -343,12 +343,12 @@ pub impl Value for CallInst with removeName(self) {
 }
 
 ///|
-pub impl User for CallInst with asUserEnum(self) {
+pub impl User for CallInst with fn asUserEnum(self) {
   CallInst(self)
 }
 
 ///|
-pub impl User for CallInst with getUserBase(self) {
+pub impl User for CallInst with fn getUserBase(self) {
   let operands : Array[&Value] = []
   match self.callee {
     Left(func) => operands.push(func)
@@ -359,22 +359,22 @@ pub impl User for CallInst with getUserBase(self) {
 }
 
 ///|
-pub impl Instruction for CallInst with getInstBase(self) {
-  InstBase::{ bb: self.bb, prev: self.prev, next: self.next }
+pub impl Instruction for CallInst with fn getInstBase(self) {
+  InstBase::{ bb: self.bb, prev: self.prev, next: self.next, }
 }
 
 ///|
-pub impl Instruction for CallInst with asInstEnum(self) {
+pub impl Instruction for CallInst with fn asInstEnum(self) {
   InstEnum::CallInst(self)
 }
 
 ///|
-pub impl Instruction for CallInst with getParent(self) {
+pub impl Instruction for CallInst with fn getParent(self) {
   self.parent
 }
 
 ///|
-pub impl Show for CallInst with output(self, logger) {
+pub impl Show for CallInst with fn output(self, logger) {
   let callee = self.callee
   let fty = self.function_type
   let ret_ty = fty.getReturnType()
@@ -401,10 +401,10 @@ pub impl Show for CallInst with output(self, logger) {
     } else {
       None
     }
-    let arg_attrs_str = if not(arg_attrs is None) {
-      " " + arg_attrs.iter().map(fn(a) { "\{a}" }).join(" ")
-    } else {
-      ""
+    let arg_attrs_str = match arg_attrs {
+      Some(attrs) if !attrs.is_empty() =>
+        " " + attrs.iter().map(fn(a) { "\{a}" }).join(" ")
+      _ => ""
     }
     // When the argument is a Function, print it as "ptr @fn" instead of "fn_type @fn"
     // This matches LLVM's behavior where functions decay to pointers when used as values
@@ -440,7 +440,7 @@ pub impl Show for CallInst with output(self, logger) {
     }
     return
   }
-  guard self.callee is Right(callee)
+  guard! self.callee is Right(callee)
   if is_void_ret {
     logger.write_string(
       "  \{call_prefix}\{ret_attrs_str} \{ret_ty}\{var_arg_func_mark} \{callee.getValueRepr()}(\{args_str})",

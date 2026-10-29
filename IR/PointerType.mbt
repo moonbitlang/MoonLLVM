@@ -4,10 +4,10 @@
 
 ///|
 /// Memory address space of a pointer type.
-pub struct AddressSpace(UInt) derive(Hash, Show, Eq, Default)
+pub struct AddressSpace(UInt32) derive(Hash, Show, Eq, Default)
 
 ///|
-pub fn AddressSpace::new(v : UInt) -> AddressSpace {
+pub fn AddressSpace::new(v : UInt32) -> AddressSpace {
   AddressSpace(v)
 }
 
@@ -21,15 +21,15 @@ pub fn AddressSpace::new(v : UInt) -> AddressSpace {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   inspect(ctx.getPtrTy(), content="ptr")
-///   let addressSpace = AddressSpace::new(0)
+///   let addressSpace = @IR.AddressSpace::new(0)
 ///   let ptr = ctx.getPtrTy(addressSpace~)
 ///   inspect(ptr, content="ptr")
 ///   let i32ty = ctx.getInt32Ty()
-///   assert_true(PointerType::isLoadableOrStorableType(i32ty))
+///   assert_true(@IR.PointerType::isLoadableOrStorableType(i32ty))
 ///   let voidty = ctx.getVoidTy()
-///   assert_false(PointerType::isLoadableOrStorableType(voidty))
+///   assert_false(@IR.PointerType::isLoadableOrStorableType(voidty))
 /// }
 /// ```
 pub struct PointerType {
@@ -39,7 +39,7 @@ pub struct PointerType {
 
 ///|
 fn PointerType::new(ctx : Context, addressSpace~ : AddressSpace) -> PointerType {
-  PointerType::{ ctx, addressSpace }
+  PointerType::{ ctx, addressSpace, }
 }
 
 ///|
@@ -64,16 +64,16 @@ pub fn PointerType::isLoadableOrStorableType(eleTy : &Type) -> Bool {
 }
 
 ///|
-pub impl Show for PointerType with output(_, logger : &Logger) {
+pub impl Show for PointerType with fn output(_, logger : &Logger) {
   logger.write_string("ptr")
 }
 
 ///|
-pub impl Type for PointerType with asTypeEnum(self) -> TypeEnum {
+pub impl Type for PointerType with fn asTypeEnum(self) -> TypeEnum {
   TypeEnum::PointerType(self)
 }
 
 ///|
-pub impl Type for PointerType with getContext(self) -> Context {
+pub impl Type for PointerType with fn getContext(self) -> Context {
   self.ctx
 }

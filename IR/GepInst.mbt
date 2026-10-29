@@ -11,7 +11,7 @@
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -89,8 +89,8 @@ fn GetElementPtrInst::new(
 }
 
 ///|
-pub impl Value for GetElementPtrInst with getValueBase(self) {
-  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users }
+pub impl Value for GetElementPtrInst with fn getValueBase(self) {
+  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users, }
 }
 
 ///|
@@ -98,7 +98,7 @@ pub impl Value for GetElementPtrInst with getValueBase(self) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -117,7 +117,7 @@ pub impl Value for GetElementPtrInst with getValueBase(self) {
 ///   inspect(gep.getValueRepr(), content="%elem_ptr")
 /// }
 /// ```
-pub impl Value for GetElementPtrInst with getValueRepr(self) {
+pub impl Value for GetElementPtrInst with fn getValueRepr(self) {
   match self.getNameOrSlot() {
     Some(Left(name)) => "%\{name}"
     Some(Right(slot)) => "%\{slot}"
@@ -126,7 +126,7 @@ pub impl Value for GetElementPtrInst with getValueRepr(self) {
 }
 
 ///|
-pub impl Value for GetElementPtrInst with asValueEnum(self) {
+pub impl Value for GetElementPtrInst with fn asValueEnum(self) {
   GetElementPtrInst(self)
 }
 
@@ -139,7 +139,7 @@ pub impl Value for GetElementPtrInst with asValueEnum(self) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -153,12 +153,12 @@ pub impl Value for GetElementPtrInst with asValueEnum(self) {
 ///   let two = ctx.getConstInt32(2)
 ///   builder.setInsertPoint(bb)
 ///   let gep = builder.createGEP(arg, array_ty, [zero, two])
-///   inspect(gep.getName(), content="None")
+///   debug_inspect(gep.getName(), content="None")
 ///   gep.setName("elem_ptr")
-///   inspect(gep.getName(), content="Some(\"elem_ptr\")")
+///   debug_inspect(gep.getName(), content="Some(\"elem_ptr\")")
 /// }
 /// ```
-pub impl Value for GetElementPtrInst with getName(self) {
+pub impl Value for GetElementPtrInst with fn getName(self) {
   self.name
 }
 
@@ -172,7 +172,7 @@ pub impl Value for GetElementPtrInst with getName(self) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -186,12 +186,12 @@ pub impl Value for GetElementPtrInst with getName(self) {
 ///   let two = ctx.getConstInt32(2)
 ///   builder.setInsertPoint(bb)
 ///   let gep = builder.createGEP(arg, array_ty, [zero, two])
-///   inspect(gep.getName(), content="None")
+///   debug_inspect(gep.getName(), content="None")
 ///   gep.setName("elem_ptr")
-///   inspect(gep.getName(), content="Some(\"elem_ptr\")")
+///   debug_inspect(gep.getName(), content="Some(\"elem_ptr\")")
 /// }
 /// ```
-pub impl Value for GetElementPtrInst with setName(self, name) {
+pub impl Value for GetElementPtrInst with fn setName(self, name) {
   match self.getParent().setSymbol(name, self) {
     EmptyName => {
       let msg = "Misuse `GetElementPtrInst::setName`: name cannot be empty."
@@ -217,7 +217,7 @@ pub impl Value for GetElementPtrInst with setName(self, name) {
 }
 
 ///|
-pub impl Value for GetElementPtrInst with removeName(self) {
+pub impl Value for GetElementPtrInst with fn removeName(self) {
   match self.name {
     None => ()
     Some(name) => {
@@ -228,7 +228,7 @@ pub impl Value for GetElementPtrInst with removeName(self) {
 }
 
 ///|
-pub impl Value for GetElementPtrInst with getNameOrSlot(self) {
+pub impl Value for GetElementPtrInst with fn getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
     None =>
@@ -240,38 +240,38 @@ pub impl Value for GetElementPtrInst with getNameOrSlot(self) {
 }
 
 ///|
-pub impl User for GetElementPtrInst with asUserEnum(self) {
+pub impl User for GetElementPtrInst with fn asUserEnum(self) {
   GetElementPtrInst(self)
 }
 
 ///|
-pub impl User for GetElementPtrInst with getUserBase(self) {
-  UserBase::{ operands: [self.ptr] + self.indices }
+pub impl User for GetElementPtrInst with fn getUserBase(self) {
+  UserBase::{ operands: [self.ptr] + self.indices, }
 }
 
 ///|
-pub impl Instruction for GetElementPtrInst with getInstBase(self) {
-  InstBase::{ bb: self.bb, prev: self.prev, next: self.next }
+pub impl Instruction for GetElementPtrInst with fn getInstBase(self) {
+  InstBase::{ bb: self.bb, prev: self.prev, next: self.next, }
 }
 
 ///|
-pub impl Instruction for GetElementPtrInst with asInstEnum(self) {
+pub impl Instruction for GetElementPtrInst with fn asInstEnum(self) {
   InstEnum::GetElementPtrInst(self)
 }
 
 ///|
-pub impl Instruction for GetElementPtrInst with getParent(self) {
+pub impl Instruction for GetElementPtrInst with fn getParent(self) {
   self.parent
 }
 
 ///|
-pub impl Show for GetElementPtrInst with output(self, logger) {
+pub impl Show for GetElementPtrInst with fn output(self, logger) {
   let repr = self.getValueRepr()
   let ptr_repr = self.ptr.getValueRepr()
   let indices_reprs = []
-  self.indices.each(index => indices_reprs.push(
-    "\{index.getType()} \{index.getValueRepr()}",
-  ))
+  self.indices.each(index => {
+    indices_reprs.push("\{index.getType()} \{index.getValueRepr()}")
+  })
   let indices_repr = if indices_reprs.length() > 0 {
     ", " + indices_reprs.join(", ")
   } else {

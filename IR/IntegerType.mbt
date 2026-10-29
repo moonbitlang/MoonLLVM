@@ -7,32 +7,32 @@
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
-///   let i8ty : &IntegerType = ctx.getInt8Ty()
+///   let ctx = @IR.Context::new()
+///   let i8ty : &@IR.IntegerType = ctx.getInt8Ty()
 ///   assert_eq(i8ty.getBitWidth(), 8)
 ///   inspect(i8ty.getExtendedType().unwrap(), content="i16")
 ///   assert_eq(i8ty.getBitMask(), 0xFF)
 ///   assert_eq(i8ty.getExtendedType().unwrap().getSignBit(), 0x8000)
 ///   let i32ty = i8ty.getExtendedType().unwrap().getExtendedType().unwrap()
 ///   inspect(i32ty, content="i32")
-///   guard i32ty.asIntegerTypeEnum() is Int32Type(i32ty)
+///   guard! i32ty.asIntegerTypeEnum() is Int32Type(i32ty)
 ///   inspect(i32ty, content="i32")
 /// }
 /// ```
 pub trait IntegerType: PrimitiveType {
-  asIntegerTypeEnum(Self) -> IntegerTypeEnum
-  getBitMask(Self) -> UInt64 = _
-  getSignBit(Self) -> UInt64 = _
-  getExtendedType(Self) -> &IntegerType? = _
+  fn asIntegerTypeEnum(Self) -> IntegerTypeEnum
+  fn getBitMask(Self) -> UInt64 = _
+  fn getSignBit(Self) -> UInt64 = _
+  fn getExtendedType(Self) -> &IntegerType? = _
 }
 
 ///|
-impl Eq for &IntegerType with equal(self, other) {
+impl Eq for &IntegerType with fn equal(self, other) {
   self.asIntegerTypeEnum() == other.asIntegerTypeEnum()
 }
 
 ///|
-impl IntegerType with getBitMask(self) -> UInt64 {
+impl IntegerType with fn getBitMask(self) -> UInt64 {
   match self.asIntegerTypeEnum() {
     Int1Type(_) => 0x1
     Int8Type(_) => 0xFF
@@ -43,7 +43,7 @@ impl IntegerType with getBitMask(self) -> UInt64 {
 }
 
 ///|
-impl IntegerType with getSignBit(self) -> UInt64 {
+impl IntegerType with fn getSignBit(self) -> UInt64 {
   match self.asIntegerTypeEnum() {
     Int1Type(_) => 0x1
     Int8Type(_) => 0x80
@@ -54,8 +54,8 @@ impl IntegerType with getSignBit(self) -> UInt64 {
 }
 
 ///|
-impl IntegerType with getExtendedType(self) -> &IntegerType? {
-  let ctx = self.getContext()
+impl IntegerType with fn getExtendedType(self) -> &IntegerType? {
+  let ctx = Type::getContext(self)
   match self.asIntegerTypeEnum() {
     Int8Type(_) => ctx.getInt16Ty() |> Some
     Int16Type(_) => ctx.getInt32Ty() |> Some
@@ -99,6 +99,6 @@ pub fn IntegerTypeEnum::asTypeClass(self : IntegerTypeEnum) -> &Type {
 }
 
 ///|
-pub fn IntegerTypeEnum::getBitWidth(self : IntegerTypeEnum) -> Int {
+pub fn IntegerTypeEnum::getBitWidth(self : IntegerTypeEnum) -> Int32 {
   self.asIntegerTypeClass().getBitWidth()
 }

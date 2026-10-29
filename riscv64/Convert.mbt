@@ -157,7 +157,7 @@ pub fn mir_function_to_riscv(
 ///|
 pub fn mir_block_to_riscv(
   bb : @MachineIR.BasicBlock,
-  i : Int,
+  i : Int32,
 ) -> Array[RvAsm] raise MIRToRiscvError {
   let insts : Array[RvAsm] = Array::new()
   let label = bb.label
@@ -969,7 +969,7 @@ fn i32_load_mir_to_riscv(
     { defs: [IRegister(d)], uses: [Mem(base, offset)], .. } => {
       let dst = Reg::from_mir_reg(d)
       let base = Reg::from_mir_reg(base)
-      let mem = Mem::{ base, offset }
+      let mem = Mem::{ base, offset, }
       [Lw(dst, mem)]
     }
     _ =>
@@ -991,7 +991,7 @@ fn i64_load_mir_to_riscv(
     { defs: [IRegister(d)], uses: [Mem(base, offset)], .. } => {
       let dst = Reg::from_mir_reg(d)
       let base = Reg::from_mir_reg(base)
-      let mem = Mem::{ base, offset }
+      let mem = Mem::{ base, offset, }
       [Ld(dst, mem)]
     }
     _ =>
@@ -1013,7 +1013,7 @@ fn i32_store_mir_to_riscv(
     { defs: [], uses: [Mem(base, offset), IRegister(r)], .. } => {
       let src = Reg::from_mir_reg(r)
       let base = Reg::from_mir_reg(base)
-      let mem = Mem::{ base, offset }
+      let mem = Mem::{ base, offset, }
       [Sw(src, mem)]
     }
     _ =>
@@ -1035,7 +1035,7 @@ fn i64_store_mir_to_riscv(
     { defs: [], uses: [Mem(base, offset), IRegister(r)], .. } => {
       let src = Reg::from_mir_reg(r)
       let base = Reg::from_mir_reg(base)
-      let mem = Mem::{ base, offset }
+      let mem = Mem::{ base, offset, }
       [Sd(src, mem)]
     }
     _ =>
@@ -1088,7 +1088,7 @@ fn branch_eq_mir_to_riscv(
         Label(true_label),
         Label(false_label),
       ],
-      ..,
+      ..
     } => {
       let src1 = Reg::from_mir_reg(r1)
       let src2 = Reg::from_mir_reg(r2)
@@ -1118,7 +1118,7 @@ fn branch_ne_mir_to_riscv(
         Label(true_label),
         Label(false_label),
       ],
-      ..,
+      ..
     } => {
       let src1 = Reg::from_mir_reg(r1)
       let src2 = Reg::from_mir_reg(r2)
@@ -1148,7 +1148,7 @@ fn branch_lt_mir_to_riscv(
         Label(true_label),
         Label(false_label),
       ],
-      ..,
+      ..
     } => {
       let src1 = Reg::from_mir_reg(r1)
       let src2 = Reg::from_mir_reg(r2)
@@ -1178,7 +1178,7 @@ fn branch_ge_mir_to_riscv(
         Label(true_label),
         Label(false_label),
       ],
-      ..,
+      ..
     } => {
       let src1 = Reg::from_mir_reg(r1)
       let src2 = Reg::from_mir_reg(r2)
@@ -1208,7 +1208,7 @@ fn branch_ltu_mir_to_riscv(
         Label(true_label),
         Label(false_label),
       ],
-      ..,
+      ..
     } => {
       let src1 = Reg::from_mir_reg(r1)
       let src2 = Reg::from_mir_reg(r2)
@@ -1238,7 +1238,7 @@ fn branch_geu_mir_to_riscv(
         Label(true_label),
         Label(false_label),
       ],
-      ..,
+      ..
     } => {
       let src1 = Reg::from_mir_reg(r1)
       let src2 = Reg::from_mir_reg(r2)
@@ -1448,7 +1448,7 @@ fn i8_load_mir_to_riscv(
     { defs: [IRegister(d)], uses: [Mem(base, offset)], .. } => {
       let dst = Reg::from_mir_reg(d)
       let base = Reg::from_mir_reg(base)
-      let mem = Mem::{ base, offset }
+      let mem = Mem::{ base, offset, }
       [Lb(dst, mem)]
     }
     _ =>
@@ -1470,7 +1470,7 @@ fn i16_load_mir_to_riscv(
     { defs: [IRegister(d)], uses: [Mem(base, offset)], .. } => {
       let dst = Reg::from_mir_reg(d)
       let base = Reg::from_mir_reg(base)
-      let mem = Mem::{ base, offset }
+      let mem = Mem::{ base, offset, }
       [Lh(dst, mem)]
     }
     _ =>
@@ -1492,7 +1492,7 @@ fn i8_store_mir_to_riscv(
     { defs: [], uses: [Mem(base, offset), IRegister(r)], .. } => {
       let src = Reg::from_mir_reg(r)
       let base = Reg::from_mir_reg(base)
-      let mem = Mem::{ base, offset }
+      let mem = Mem::{ base, offset, }
       [Sb(src, mem)]
     }
     _ =>
@@ -1514,7 +1514,7 @@ fn i16_store_mir_to_riscv(
     { defs: [], uses: [Mem(base, offset), IRegister(r)], .. } => {
       let src = Reg::from_mir_reg(r)
       let base = Reg::from_mir_reg(base)
-      let mem = Mem::{ base, offset }
+      let mem = Mem::{ base, offset, }
       [Sh(src, mem)]
     }
     _ =>
@@ -1541,7 +1541,7 @@ fn branch_le_mir_to_riscv(
         Label(true_label),
         Label(false_label),
       ],
-      ..,
+      ..
     } => {
       let src1 = Reg::from_mir_reg(r1)
       let src2 = Reg::from_mir_reg(r2)
@@ -1572,7 +1572,7 @@ fn branch_gt_mir_to_riscv(
         Label(true_label),
         Label(false_label),
       ],
-      ..,
+      ..
     } => {
       let src1 = Reg::from_mir_reg(r1)
       let src2 = Reg::from_mir_reg(r2)
@@ -1603,7 +1603,7 @@ fn branch_leu_mir_to_riscv(
         Label(true_label),
         Label(false_label),
       ],
-      ..,
+      ..
     } => {
       let src1 = Reg::from_mir_reg(r1)
       let src2 = Reg::from_mir_reg(r2)
@@ -1634,7 +1634,7 @@ fn branch_gtu_mir_to_riscv(
         Label(true_label),
         Label(false_label),
       ],
-      ..,
+      ..
     } => {
       let src1 = Reg::from_mir_reg(r1)
       let src2 = Reg::from_mir_reg(r2)
@@ -2148,7 +2148,7 @@ fn f32_load_mir_to_riscv(
     { defs: [FRegister(d)], uses: [Mem(base, offset)], .. } => {
       let dst = FReg::from_mir_freg(d)
       let base = Reg::from_mir_reg(base)
-      let mem = Mem::{ base, offset }
+      let mem = Mem::{ base, offset, }
       [Flw(dst, mem)]
     }
     _ =>
@@ -2170,7 +2170,7 @@ fn f64_load_mir_to_riscv(
     { defs: [FRegister(d)], uses: [Mem(base, offset)], .. } => {
       let dst = FReg::from_mir_freg(d)
       let base = Reg::from_mir_reg(base)
-      let mem = Mem::{ base, offset }
+      let mem = Mem::{ base, offset, }
       [Fld(dst, mem)]
     }
     _ =>
@@ -2192,7 +2192,7 @@ fn f32_store_mir_to_riscv(
     { defs: [], uses: [Mem(base, offset), FRegister(r)], .. } => {
       let src = FReg::from_mir_freg(r)
       let base = Reg::from_mir_reg(base)
-      let mem = Mem::{ base, offset }
+      let mem = Mem::{ base, offset, }
       [Fsw(src, mem)]
     }
     _ =>
@@ -2214,7 +2214,7 @@ fn f64_store_mir_to_riscv(
     { defs: [], uses: [Mem(base, offset), FRegister(r)], .. } => {
       let src = FReg::from_mir_freg(r)
       let base = Reg::from_mir_reg(base)
-      let mem = Mem::{ base, offset }
+      let mem = Mem::{ base, offset, }
       [Fsd(src, mem)]
     }
     _ =>

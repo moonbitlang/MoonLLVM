@@ -207,7 +207,7 @@ pub fn mir_function_to_aarch64(
 ///|
 pub fn mir_block_to_aarch64(
   bb : @MachineIR.BasicBlock,
-  i : Int,
+  i : Int32,
 ) -> Array[AArch64Asm] raise MIRToAArch64Error {
   let insts : Array[AArch64Asm] = Array::new()
   let label = bb.label
@@ -698,7 +698,7 @@ fn i64_and_mir_to_aarch64(
 // I'll include a few more critical ones and then provide the rest in a summary
 
 ///|
-fn load_immediate_32(reg : Reg, value : Int) -> Array[AArch64Asm] {
+fn load_immediate_32(reg : Reg, value : Int32) -> Array[AArch64Asm] {
   // AArch64 mov instruction can only handle 16-bit immediate values
   // For larger values, we need to use movz and movk instructions
   if value >= -65536 && value <= 65535 {
@@ -842,14 +842,14 @@ fn i32_load_mir_to_aarch64(
       let dst = Reg::from_mir_reg(d)
       let base = Reg::from_mir_reg(base)
       if offset >= -256 && offset <= 255 {
-        let mem = Mem::{ base, offset }
+        let mem = Mem::{ base, offset, }
         [Ldr32(dst, mem)]
       } else {
         // For large offsets, use a temporary register to compute the address
         let tmp = X16 // Use IP0 as temporary register
         [
           Add64Imm(tmp, base, offset.to_int()),
-          Ldr32(dst, Mem::{ base: tmp, offset: 0 }),
+          Ldr32(dst, Mem::{ base: tmp, offset: 0, }),
         ]
       }
     }
@@ -873,14 +873,14 @@ fn i64_load_mir_to_aarch64(
       let dst = Reg::from_mir_reg(d)
       let base = Reg::from_mir_reg(base)
       if offset >= -256 && offset <= 255 {
-        let mem = Mem::{ base, offset }
+        let mem = Mem::{ base, offset, }
         [Ldr64(dst, mem)]
       } else {
         // For large offsets, use a temporary register to compute the address
         let tmp = X16 // Use IP0 as temporary register
         [
           Add64Imm(tmp, base, offset.to_int()),
-          Ldr64(dst, Mem::{ base: tmp, offset: 0 }),
+          Ldr64(dst, Mem::{ base: tmp, offset: 0, }),
         ]
       }
     }
@@ -1541,14 +1541,14 @@ fn i8_load_mir_to_aarch64(
       let dst = Reg::from_mir_reg(d)
       let base = Reg::from_mir_reg(base)
       if offset >= -256 && offset <= 255 {
-        let mem = Mem::{ base, offset }
+        let mem = Mem::{ base, offset, }
         [Ldrb(dst, mem)]
       } else {
         // For large offsets, use a temporary register to compute the address
         let tmp = X16 // Use IP0 as temporary register
         [
           Add64Imm(tmp, base, offset.to_int()),
-          Ldrb(dst, Mem::{ base: tmp, offset: 0 }),
+          Ldrb(dst, Mem::{ base: tmp, offset: 0, }),
         ]
       }
     }
@@ -1572,14 +1572,14 @@ fn i16_load_mir_to_aarch64(
       let dst = Reg::from_mir_reg(d)
       let base = Reg::from_mir_reg(base)
       if offset >= -256 && offset <= 255 {
-        let mem = Mem::{ base, offset }
+        let mem = Mem::{ base, offset, }
         [Ldrh(dst, mem)]
       } else {
         // For large offsets, use a temporary register to compute the address
         let tmp = X16 // Use IP0 as temporary register
         [
           Add64Imm(tmp, base, offset.to_int()),
-          Ldrh(dst, Mem::{ base: tmp, offset: 0 }),
+          Ldrh(dst, Mem::{ base: tmp, offset: 0, }),
         ]
       }
     }
@@ -1603,14 +1603,14 @@ fn i8_store_mir_to_aarch64(
       let src = Reg::from_mir_reg(r)
       let base = Reg::from_mir_reg(base)
       if offset >= -256 && offset <= 255 {
-        let mem = Mem::{ base, offset }
+        let mem = Mem::{ base, offset, }
         [Strb(src, mem)]
       } else {
         // For large offsets, use a temporary register to compute the address
         let tmp = X16 // Use IP0 as temporary register
         [
           Add64Imm(tmp, base, offset.to_int()),
-          Strb(src, Mem::{ base: tmp, offset: 0 }),
+          Strb(src, Mem::{ base: tmp, offset: 0, }),
         ]
       }
     }
@@ -1634,14 +1634,14 @@ fn i16_store_mir_to_aarch64(
       let src = Reg::from_mir_reg(r)
       let base = Reg::from_mir_reg(base)
       if offset >= -256 && offset <= 255 {
-        let mem = Mem::{ base, offset }
+        let mem = Mem::{ base, offset, }
         [Strh(src, mem)]
       } else {
         // For large offsets, use a temporary register to compute the address
         let tmp = X16 // Use IP0 as temporary register
         [
           Add64Imm(tmp, base, offset.to_int()),
-          Strh(src, Mem::{ base: tmp, offset: 0 }),
+          Strh(src, Mem::{ base: tmp, offset: 0, }),
         ]
       }
     }
@@ -1665,14 +1665,14 @@ fn i32_store_mir_to_aarch64(
       let src = Reg::from_mir_reg(r)
       let base = Reg::from_mir_reg(base)
       if offset >= -256 && offset <= 255 {
-        let mem = Mem::{ base, offset }
+        let mem = Mem::{ base, offset, }
         [Str32(src, mem)]
       } else {
         // For large offsets, use a temporary register to compute the address
         let tmp = X16 // Use IP0 as temporary register
         [
           Add64Imm(tmp, base, offset.to_int()),
-          Str32(src, Mem::{ base: tmp, offset: 0 }),
+          Str32(src, Mem::{ base: tmp, offset: 0, }),
         ]
       }
     }
@@ -1696,14 +1696,14 @@ fn i64_store_mir_to_aarch64(
       let src = Reg::from_mir_reg(r)
       let base = Reg::from_mir_reg(base)
       if offset >= -256 && offset <= 255 {
-        let mem = Mem::{ base, offset }
+        let mem = Mem::{ base, offset, }
         [Str64(src, mem)]
       } else {
         // For large offsets, use a temporary register to compute the address
         let tmp = X16 // Use IP0 as temporary register
         [
           Add64Imm(tmp, base, offset.to_int()),
-          Str64(src, Mem::{ base: tmp, offset: 0 }),
+          Str64(src, Mem::{ base: tmp, offset: 0, }),
         ]
       }
     }
@@ -1717,7 +1717,7 @@ fn i64_store_mir_to_aarch64(
 ///|
 fn branch_eq_mir_to_aarch64(
   inst : @MachineIR.Instruction,
-  bits : Int,
+  bits : Int32,
 ) -> Array[AArch64Asm] raise MIRToAArch64Error {
   guard inst is { opcode: Branch(Beq, _), .. } else {
     println(
@@ -1734,7 +1734,7 @@ fn branch_eq_mir_to_aarch64(
         Label(true_label),
         Label(false_label),
       ],
-      ..,
+      ..
     } => {
       let src1 = Reg::from_mir_reg(r1)
       let src2 = Reg::from_mir_reg(r2)
@@ -1754,7 +1754,7 @@ fn branch_eq_mir_to_aarch64(
 ///|
 fn branch_ne_mir_to_aarch64(
   inst : @MachineIR.Instruction,
-  bits : Int,
+  bits : Int32,
 ) -> Array[AArch64Asm] raise MIRToAArch64Error {
   guard inst is { opcode: Branch(Bne, _), .. } else {
     println(
@@ -1771,7 +1771,7 @@ fn branch_ne_mir_to_aarch64(
         Label(true_label),
         Label(false_label),
       ],
-      ..,
+      ..
     } => {
       let src1 = Reg::from_mir_reg(r1)
       let src2 = Reg::from_mir_reg(r2)
@@ -1791,7 +1791,7 @@ fn branch_ne_mir_to_aarch64(
 ///|
 fn branch_lt_mir_to_aarch64(
   inst : @MachineIR.Instruction,
-  bits : Int,
+  bits : Int32,
 ) -> Array[AArch64Asm] raise MIRToAArch64Error {
   guard inst is { opcode: Branch(Blt, _), .. } else {
     println(
@@ -1808,7 +1808,7 @@ fn branch_lt_mir_to_aarch64(
         Label(true_label),
         Label(false_label),
       ],
-      ..,
+      ..
     } => {
       let src1 = Reg::from_mir_reg(r1)
       let src2 = Reg::from_mir_reg(r2)
@@ -1828,7 +1828,7 @@ fn branch_lt_mir_to_aarch64(
 ///|
 fn branch_ge_mir_to_aarch64(
   inst : @MachineIR.Instruction,
-  bits : Int,
+  bits : Int32,
 ) -> Array[AArch64Asm] raise MIRToAArch64Error {
   guard inst is { opcode: Branch(Bge, _), .. } else {
     println(
@@ -1845,7 +1845,7 @@ fn branch_ge_mir_to_aarch64(
         Label(true_label),
         Label(false_label),
       ],
-      ..,
+      ..
     } => {
       let src1 = Reg::from_mir_reg(r1)
       let src2 = Reg::from_mir_reg(r2)
@@ -1865,7 +1865,7 @@ fn branch_ge_mir_to_aarch64(
 ///|
 fn branch_le_mir_to_aarch64(
   inst : @MachineIR.Instruction,
-  bits : Int,
+  bits : Int32,
 ) -> Array[AArch64Asm] raise MIRToAArch64Error {
   guard inst is { opcode: Branch(Ble, _), .. } else {
     println(
@@ -1882,7 +1882,7 @@ fn branch_le_mir_to_aarch64(
         Label(true_label),
         Label(false_label),
       ],
-      ..,
+      ..
     } => {
       let src1 = Reg::from_mir_reg(r1)
       let src2 = Reg::from_mir_reg(r2)
@@ -1902,7 +1902,7 @@ fn branch_le_mir_to_aarch64(
 ///|
 fn branch_gt_mir_to_aarch64(
   inst : @MachineIR.Instruction,
-  bits : Int,
+  bits : Int32,
 ) -> Array[AArch64Asm] raise MIRToAArch64Error {
   guard inst is { opcode: Branch(Bgt, _), .. } else {
     println(
@@ -1919,7 +1919,7 @@ fn branch_gt_mir_to_aarch64(
         Label(true_label),
         Label(false_label),
       ],
-      ..,
+      ..
     } => {
       let src1 = Reg::from_mir_reg(r1)
       let src2 = Reg::from_mir_reg(r2)
@@ -1939,7 +1939,7 @@ fn branch_gt_mir_to_aarch64(
 ///|
 fn branch_ltu_mir_to_aarch64(
   inst : @MachineIR.Instruction,
-  bits : Int,
+  bits : Int32,
 ) -> Array[AArch64Asm] raise MIRToAArch64Error {
   guard inst is { opcode: Branch(Bltu, _), .. } else {
     println(
@@ -1956,7 +1956,7 @@ fn branch_ltu_mir_to_aarch64(
         Label(true_label),
         Label(false_label),
       ],
-      ..,
+      ..
     } => {
       let src1 = Reg::from_mir_reg(r1)
       let src2 = Reg::from_mir_reg(r2)
@@ -1976,7 +1976,7 @@ fn branch_ltu_mir_to_aarch64(
 ///|
 fn branch_geu_mir_to_aarch64(
   inst : @MachineIR.Instruction,
-  bits : Int,
+  bits : Int32,
 ) -> Array[AArch64Asm] raise MIRToAArch64Error {
   guard inst is { opcode: Branch(Bgeu, _), .. } else {
     println(
@@ -1993,7 +1993,7 @@ fn branch_geu_mir_to_aarch64(
         Label(true_label),
         Label(false_label),
       ],
-      ..,
+      ..
     } => {
       let src1 = Reg::from_mir_reg(r1)
       let src2 = Reg::from_mir_reg(r2)
@@ -2013,7 +2013,7 @@ fn branch_geu_mir_to_aarch64(
 ///|
 fn branch_leu_mir_to_aarch64(
   inst : @MachineIR.Instruction,
-  bits : Int,
+  bits : Int32,
 ) -> Array[AArch64Asm] raise MIRToAArch64Error {
   guard inst is { opcode: Branch(Bleu, _), .. } else {
     println(
@@ -2030,7 +2030,7 @@ fn branch_leu_mir_to_aarch64(
         Label(true_label),
         Label(false_label),
       ],
-      ..,
+      ..
     } => {
       let src1 = Reg::from_mir_reg(r1)
       let src2 = Reg::from_mir_reg(r2)
@@ -2050,7 +2050,7 @@ fn branch_leu_mir_to_aarch64(
 ///|
 fn branch_gtu_mir_to_aarch64(
   inst : @MachineIR.Instruction,
-  bits : Int,
+  bits : Int32,
 ) -> Array[AArch64Asm] raise MIRToAArch64Error {
   guard inst is { opcode: Branch(Bgtu, _), .. } else {
     println(
@@ -2067,7 +2067,7 @@ fn branch_gtu_mir_to_aarch64(
         Label(true_label),
         Label(false_label),
       ],
-      ..,
+      ..
     } => {
       let src1 = Reg::from_mir_reg(r1)
       let src2 = Reg::from_mir_reg(r2)
@@ -2603,7 +2603,7 @@ fn f32_load_mir_to_aarch64(
     { defs: [FRegister(d)], uses: [Mem(base, offset)], .. } => {
       let dst = FReg::from_mir_freg_32(d)
       let base = Reg::from_mir_reg(base)
-      let mem = Mem::{ base, offset }
+      let mem = Mem::{ base, offset, }
       [LdrS(dst, mem)]
     }
     _ =>
@@ -2625,7 +2625,7 @@ fn f64_load_mir_to_aarch64(
     { defs: [FRegister(d)], uses: [Mem(base, offset)], .. } => {
       let dst = FReg::from_mir_freg(d)
       let base = Reg::from_mir_reg(base)
-      let mem = Mem::{ base, offset }
+      let mem = Mem::{ base, offset, }
       [LdrD(dst, mem)]
     }
     _ =>
@@ -2647,7 +2647,7 @@ fn f32_store_mir_to_aarch64(
     { defs: [], uses: [Mem(base, offset), FRegister(r)], .. } => {
       let src = FReg::from_mir_freg_32(r)
       let base = Reg::from_mir_reg(base)
-      let mem = Mem::{ base, offset }
+      let mem = Mem::{ base, offset, }
       [StrS(src, mem)]
     }
     _ =>
@@ -2669,7 +2669,7 @@ fn f64_store_mir_to_aarch64(
     { defs: [], uses: [Mem(base, offset), FRegister(r)], .. } => {
       let src = FReg::from_mir_freg(r)
       let base = Reg::from_mir_reg(base)
-      let mem = Mem::{ base, offset }
+      let mem = Mem::{ base, offset, }
       [StrD(src, mem)]
     }
     _ =>

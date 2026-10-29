@@ -28,7 +28,7 @@ pub enum BinaryOps {
 } derive(Hash, Eq)
 
 ///|
-pub impl Show for BinaryOps with output(self, logger) {
+pub impl Show for BinaryOps with fn output(self, logger) {
   let str = match self {
     Add => "add"
     FAdd => "fadd"
@@ -69,7 +69,7 @@ pub enum BinaryOpFlags {
 } derive(Hash, Eq)
 
 ///|
-pub impl Show for BinaryOpFlags with output(self, logger) {
+pub impl Show for BinaryOpFlags with fn output(self, logger) {
   let str = match self {
     NoUnsignedWrap => "nuw"
     NoSignedWrap => "nsw"
@@ -91,7 +91,7 @@ pub(all) enum FastMathFlag {
 } derive(Hash, Eq)
 
 ///|
-pub impl Show for FastMathFlag with output(self, logger) {
+pub impl Show for FastMathFlag with fn output(self, logger) {
   let str = match self {
     AllowReassoc => "reassoc"
     NoNaNs => "nnan"
@@ -113,7 +113,7 @@ pub impl Show for FastMathFlag with output(self, logger) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -197,8 +197,8 @@ fn BinaryInst::newStandardOp(
     )
   }
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
-  guard lhsTy == rhsTy
-  guard lhsTy.tryAsIntTypeEnum() is Some(_)
+  guard! lhsTy == rhsTy
+  guard! lhsTy.tryAsIntTypeEnum() is Some(_)
   let vty = lhsTy
   let uid = valueUIDAssigner.assign()
   let bb : Ref[BasicBlock?] = Ref::new(None)
@@ -239,8 +239,8 @@ fn BinaryInst::newFPMathOp(
     )
   }
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
-  guard lhsTy == rhsTy
-  guard lhsTy.tryAsFPTypeEnum() is Some(_)
+  guard! lhsTy == rhsTy
+  guard! lhsTy.tryAsFPTypeEnum() is Some(_)
   let uid = valueUIDAssigner.assign()
   let vty = lhsTy
   let bb : Ref[BasicBlock?] = Ref::new(None)
@@ -267,12 +267,12 @@ fn BinaryInst::newFPMathOp(
 }
 
 ///|
-pub impl Value for BinaryInst with getValueBase(self) {
-  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users }
+pub impl Value for BinaryInst with fn getValueBase(self) {
+  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users, }
 }
 
 ///|
-pub impl Value for BinaryInst with asValueEnum(self) {
+pub impl Value for BinaryInst with fn asValueEnum(self) {
   BinaryInst(self)
 }
 
@@ -281,7 +281,7 @@ pub impl Value for BinaryInst with asValueEnum(self) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -297,7 +297,7 @@ pub impl Value for BinaryInst with asValueEnum(self) {
 ///   inspect(add.getValueRepr(), content="%sum")
 /// }
 /// ```
-pub impl Value for BinaryInst with getValueRepr(self) {
+pub impl Value for BinaryInst with fn getValueRepr(self) {
   match self.getNameOrSlot() {
     Some(Left(name)) => "%\{name}"
     Some(Right(slot)) => "%\{slot}"
@@ -314,7 +314,7 @@ pub impl Value for BinaryInst with getValueRepr(self) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -325,12 +325,12 @@ pub impl Value for BinaryInst with getValueRepr(self) {
 ///   let arg2 = fval.getArg(1).unwrap()
 ///   builder.setInsertPoint(bb)
 ///   let add = builder.createAdd(arg1, arg2)
-///   inspect(add.getName(), content="None")
+///   debug_inspect(add.getName(), content="None")
 ///   add.setName("sum")
-///   inspect(add.getName(), content="Some(\"sum\")")
+///   debug_inspect(add.getName(), content="Some(\"sum\")")
 /// }
 /// ```
-pub impl Value for BinaryInst with getName(self) {
+pub impl Value for BinaryInst with fn getName(self) {
   self.name
 }
 
@@ -344,7 +344,7 @@ pub impl Value for BinaryInst with getName(self) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -355,12 +355,12 @@ pub impl Value for BinaryInst with getName(self) {
 ///   let arg2 = fval.getArg(1).unwrap()
 ///   builder.setInsertPoint(bb)
 ///   let add = builder.createAdd(arg1, arg2)
-///   inspect(add.getName(), content="None")
+///   debug_inspect(add.getName(), content="None")
 ///   add.setName("sum")
-///   inspect(add.getName(), content="Some(\"sum\")")
+///   debug_inspect(add.getName(), content="Some(\"sum\")")
 /// }
 /// ```
-pub impl Value for BinaryInst with setName(self, name) {
+pub impl Value for BinaryInst with fn setName(self, name) {
   match self.getParent().setSymbol(name, self) {
     EmptyName => {
       let msg = "Misuse `BinaryInst::setName`: name cannot be empty."
@@ -386,7 +386,7 @@ pub impl Value for BinaryInst with setName(self, name) {
 }
 
 ///|
-pub impl Value for BinaryInst with removeName(self) {
+pub impl Value for BinaryInst with fn removeName(self) {
   match self.name {
     None => ()
     Some(name) => {
@@ -397,7 +397,7 @@ pub impl Value for BinaryInst with removeName(self) {
 }
 
 ///|
-pub impl Value for BinaryInst with getNameOrSlot(self) {
+pub impl Value for BinaryInst with fn getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
     None =>
@@ -409,32 +409,32 @@ pub impl Value for BinaryInst with getNameOrSlot(self) {
 }
 
 ///|
-pub impl User for BinaryInst with asUserEnum(self) {
+pub impl User for BinaryInst with fn asUserEnum(self) {
   BinaryInst(self)
 }
 
 ///|
-pub impl User for BinaryInst with getUserBase(self) {
-  UserBase::{ operands: [self.lhs, self.rhs] }
+pub impl User for BinaryInst with fn getUserBase(self) {
+  UserBase::{ operands: [self.lhs, self.rhs], }
 }
 
 ///|
-pub impl Instruction for BinaryInst with getInstBase(self) {
-  InstBase::{ bb: self.bb, prev: self.prev, next: self.next }
+pub impl Instruction for BinaryInst with fn getInstBase(self) {
+  InstBase::{ bb: self.bb, prev: self.prev, next: self.next, }
 }
 
 ///|
-pub impl Instruction for BinaryInst with asInstEnum(self) {
+pub impl Instruction for BinaryInst with fn asInstEnum(self) {
   BinaryInst(self)
 }
 
 ///|
-pub impl Instruction for BinaryInst with getParent(self) {
+pub impl Instruction for BinaryInst with fn getParent(self) {
   self.parent
 }
 
 ///|
-pub impl Show for BinaryInst with output(self, logger) {
+pub impl Show for BinaryInst with fn output(self, logger) {
   let ty = self.getType()
   let repr = self.getValueRepr()
   let lhs_repr = self.lhs.getValueRepr()

@@ -9,7 +9,7 @@
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   inspect(ctx.getInt32Ty(), content="i32")
 /// }
 /// ```
@@ -28,26 +28,26 @@ pub fn Int32Type::getExtendedType(self : Int32Type) -> Int64Type {
 }
 
 ///|
-pub impl Show for Int32Type with output(_, logger : &Logger) {
+pub impl Show for Int32Type with fn output(_, logger : &Logger) {
   logger.write_string("i32")
 }
 
 ///|
-pub impl Type for Int32Type with asTypeEnum(self) -> TypeEnum {
+pub impl Type for Int32Type with fn asTypeEnum(self) -> TypeEnum {
   TypeEnum::Int32Type(self)
 }
 
 ///|
-pub impl Type for Int32Type with getContext(self) -> Context {
+pub impl Type for Int32Type with fn getContext(self) -> Context {
   self.ctx
 }
 
 ///|
-pub impl IntegerType for Int32Type with asIntegerTypeEnum(self) -> IntegerTypeEnum {
+pub impl IntegerType for Int32Type with fn asIntegerTypeEnum(self) -> IntegerTypeEnum {
   Int32Type(self)
 }
 
 ///|
-pub impl PrimitiveType for Int32Type with asPrimitiveTypeEnum(self) -> PrimitiveTypeEnum {
+pub impl PrimitiveType for Int32Type with fn asPrimitiveTypeEnum(self) -> PrimitiveTypeEnum {
   Int32Type(self)
 }

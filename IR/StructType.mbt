@@ -9,7 +9,7 @@
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let i8ty = ctx.getInt8Ty()
 ///   let i16ty = ctx.getInt16Ty()
 ///   let i32ty = ctx.getInt32Ty()
@@ -54,7 +54,7 @@ fn StructType::new(
   //let containsScalableVector = false
   //let containsNonGlobalTargetExtType = false
   //let containsNonLocalTargetExtType = false
-  let sty = StructType::{ ctx, name, elements, isPacked, isSized: None }
+  let sty = StructType::{ ctx, name, elements, isPacked, isSized: None, }
   //containsScalableVector,
   //containsNonGlobalTargetExtType,
   //containsNonLocalTargetExtType
@@ -73,7 +73,7 @@ fn StructType::new(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let i32ty = ctx.getInt32Ty()
 ///   let f32ty = ctx.getFloatTy()
 ///   let foo = ctx.getStructType([i32ty, f32ty])
@@ -95,7 +95,7 @@ pub fn StructType::isLiteral(self : StructType) -> Bool {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let i32ty = ctx.getInt32Ty()
 ///   let f32ty = ctx.getFloatTy()
 ///   let foo = ctx.getStructType([], name="foo")
@@ -157,7 +157,7 @@ pub fn StructType::element_iter(self : StructType) -> Iter[&Type] {
 pub fn StructType::setBody(
   self : StructType,
   elements : Array[&Type],
-  isPacked? : Bool = false,
+  isPacked~ : Bool = false,
 ) -> Unit raise LLVMTypeError {
   // only opaque struct can be set body.
   guard self.isOpaque() else { raise SetBodyForNonOpaqueStruct }
@@ -226,7 +226,10 @@ pub fn StructType::removeName(self : StructType) -> Unit {
 }
 
 ///|
-pub fn StructType::getIndexedType(self : Self, idxs : ArrayView[Int]) -> &Type? {
+pub fn StructType::getIndexedType(
+  self : Self,
+  idxs : ArrayView[Int32],
+) -> &Type? {
   guard self.elements.get(idxs[0]) is Some(ty) else { return None }
   if idxs.length() == 1 {
     return Some(ty)
@@ -261,7 +264,7 @@ pub fn StructType::full_info(self : Self) -> String {
 }
 
 ///|
-pub impl Show for StructType with output(self, logger : &Logger) {
+pub impl Show for StructType with fn output(self, logger : &Logger) {
   let s = match self.getName() {
     Some(name) => "%\{name}"
     None => self.body_str()
@@ -270,7 +273,7 @@ pub impl Show for StructType with output(self, logger : &Logger) {
 }
 
 ///|
-pub impl Eq for StructType with equal(self, other) {
+pub impl Eq for StructType with fn equal(self, other) {
   match (self.name, other.name) {
     (Some(n1), Some(n2)) => n1 == n2
     (Some(_), None) => false
@@ -280,16 +283,16 @@ pub impl Eq for StructType with equal(self, other) {
 }
 
 ///|
-pub impl Type for StructType with asTypeEnum(self) -> TypeEnum {
+pub impl Type for StructType with fn asTypeEnum(self) -> TypeEnum {
   StructType(self)
 }
 
 ///|
-pub impl Type for StructType with getContext(self) -> Context {
+pub impl Type for StructType with fn getContext(self) -> Context {
   self.ctx
 }
 
 ///|
-pub impl AggregateType for StructType with asAggregateTypeEnum(self) -> AggregateTypeEnum {
+pub impl AggregateType for StructType with fn asAggregateTypeEnum(self) -> AggregateTypeEnum {
   StructType(self)
 }

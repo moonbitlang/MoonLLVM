@@ -5,13 +5,13 @@ pub struct InterferenceGraph {
   color_map : Map[Operand, Operand]
   available_int_colors : Set[Operand]
   available_fp_colors : Set[Operand]
-  mut spilled_count : Int
+  mut spilled_count : Int32
 }
 
 ///|
 pub fn InterferenceGraph::new(
   config : ArchConfig,
-  spilled_count : Int,
+  spilled_count : Int32,
 ) -> InterferenceGraph {
   let {
     num_arg_regs,
@@ -20,7 +20,7 @@ pub fn InterferenceGraph::new(
     num_arg_fregs,
     num_temp_fregs,
     num_saved_fregs,
-    ..,
+    ..
   } = config
   let available_int_colors : Set[Operand] = Set::new()
   let available_fp_colors : Set[Operand] = Set::new()
@@ -57,7 +57,7 @@ pub fn InterferenceGraph::new(
 }
 
 ///|
-pub impl Show for InterferenceGraph with output(self, logger) {
+pub impl Show for InterferenceGraph with fn output(self, logger) {
   logger.write_string("Interference Graph:\n")
   logger.write_string("Nodes:\n")
   for i, node in self.nodes.iter() {
@@ -222,7 +222,7 @@ pub fn Function::build_preference_list(
 pub fn InterferenceGraph::coloring(
   self : Self,
   preference_list : Map[Operand, Deque[Operand]],
-) -> (Map[Operand, Operand], Int) {
+) -> (Map[Operand, Operand], Int32) {
   // for debugging infinite loop
   // TODO: remove this guard after confirmed no infinite loop
   let mut exit_guard = 0
@@ -255,7 +255,7 @@ pub fn InterferenceGraph::coloring(
         self.color_map[node] = color
         break
       }
-    } else {
+    } nobreak {
       if avaliable_int_colors.is_empty() {
         // Spill
         self.color_map[node] = Mem(
@@ -298,7 +298,7 @@ pub fn InterferenceGraph::coloring(
         self.color_map[node] = color
         break
       }
-    } else {
+    } nobreak {
       if avaliable_fp_colors.is_empty() {
         // Spill
         self.color_map[node] = Mem(
