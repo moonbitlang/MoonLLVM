@@ -11,7 +11,7 @@
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -51,7 +51,7 @@ fn ReturnInst::new(retVal : &Value?, parent : Function) -> ReturnInst {
   let prev : Ref[&Instruction?] = Ref::new(None)
   let next : Ref[&Instruction?] = Ref::new(None)
   let vty = parent.getContext().getVoidTy()
-  let inst = ReturnInst::{ uid, vty, retVal, parent, bb, prev, next }
+  let inst = ReturnInst::{ uid, vty, retVal, parent, bb, prev, next, }
   if retVal is Some(val) {
     val.addUser(inst)
   }
@@ -59,7 +59,7 @@ fn ReturnInst::new(retVal : &Value?, parent : Function) -> ReturnInst {
 }
 
 ///|
-pub impl Value for ReturnInst with getValueBase(self) {
+pub impl Value for ReturnInst with fn getValueBase(self) {
   ValueBase::{
     uid: self.uid,
     vty: self.vty, // ReturnInst does not have a value type
@@ -68,44 +68,44 @@ pub impl Value for ReturnInst with getValueBase(self) {
 }
 
 ///|
-pub impl Value for ReturnInst with asValueEnum(self) {
+pub impl Value for ReturnInst with fn asValueEnum(self) {
   ReturnInst(self)
 }
 
 ///|
-pub impl Value for ReturnInst with getValueRepr(_) {
+pub impl Value for ReturnInst with fn getValueRepr(_) {
   ""
 }
 
 ///|
-pub impl Value for ReturnInst with getName(_) {
+pub impl Value for ReturnInst with fn getName(_) {
   None
 }
 
 ///|
-pub impl Value for ReturnInst with setName(_, _) {
+pub impl Value for ReturnInst with fn setName(_, _) {
   let msg = "Calling always failed function `ReturnInst::setName`. " +
     "Set name for ReturnInst is not allowed."
   raise LLVMValueError(msg)
 }
 
 ///|
-pub impl Value for ReturnInst with removeName(_) {
+pub impl Value for ReturnInst with fn removeName(_) {
   ()
 }
 
 ///|
-pub impl Value for ReturnInst with getNameOrSlot(_) {
+pub impl Value for ReturnInst with fn getNameOrSlot(_) {
   None
 }
 
 ///|
-pub impl User for ReturnInst with asUserEnum(self) {
+pub impl User for ReturnInst with fn asUserEnum(self) {
   ReturnInst(self)
 }
 
 ///|
-pub impl User for ReturnInst with getUserBase(self) {
+pub impl User for ReturnInst with fn getUserBase(self) {
   let operands : Array[&Value] = match self.retVal {
     Some(val) => [val]
     None => []
@@ -114,22 +114,22 @@ pub impl User for ReturnInst with getUserBase(self) {
 }
 
 ///|
-pub impl Instruction for ReturnInst with getInstBase(self) {
-  InstBase::{ bb: self.bb, prev: self.prev, next: self.next }
+pub impl Instruction for ReturnInst with fn getInstBase(self) {
+  InstBase::{ bb: self.bb, prev: self.prev, next: self.next, }
 }
 
 ///|
-pub impl Instruction for ReturnInst with asInstEnum(self) {
+pub impl Instruction for ReturnInst with fn asInstEnum(self) {
   ReturnInst(self)
 }
 
 ///|
-pub impl Instruction for ReturnInst with getParent(self) {
+pub impl Instruction for ReturnInst with fn getParent(self) {
   self.parent
 }
 
 ///|
-pub impl Show for ReturnInst with output(self, logger) {
+pub impl Show for ReturnInst with fn output(self, logger) {
   let retStr = match self.retVal {
     Some(val) => "\{val.getType()} \{val.getValueRepr()}"
     None => "void"

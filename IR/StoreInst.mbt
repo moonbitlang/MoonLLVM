@@ -11,7 +11,7 @@
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let ptr_ty = ctx.getPtrTy()
@@ -92,7 +92,7 @@ fn StoreInst::new(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let ptr_ty = ctx.getPtrTy()
@@ -120,7 +120,7 @@ pub fn StoreInst::getValueOperand(self : StoreInst) -> &Value {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let void_ty = ctx.getVoidTy()
@@ -139,72 +139,72 @@ pub fn StoreInst::getPointerOperand(self : StoreInst) -> &Value {
 }
 
 ///|
-pub impl Value for StoreInst with asValueEnum(self) {
+pub impl Value for StoreInst with fn asValueEnum(self) {
   StoreInst(self)
 }
 
 ///|
-pub impl Value for StoreInst with getValueRepr(_) {
+pub impl Value for StoreInst with fn getValueRepr(_) {
   ""
 }
 
 ///|
-pub impl Value for StoreInst with getValueBase(self) {
-  ValueBase::{ uid: self.uid, vty: self.vty, users: [] }
+pub impl Value for StoreInst with fn getValueBase(self) {
+  ValueBase::{ uid: self.uid, vty: self.vty, users: [], }
 }
 
 ///|
 /// StoreInst has no name, calling `getName` will always return `None`.
-pub impl Value for StoreInst with getName(self) {
+pub impl Value for StoreInst with fn getName(self) {
   ignore(self)
   None
 }
 
 ///|
 /// StoreInst has no name, calling `setName` will always fail with an error.
-pub impl Value for StoreInst with setName(_, _) {
+pub impl Value for StoreInst with fn setName(_, _) {
   let msg = "Calling always failed function `StoreInst::setName`. " +
     "Set name for StoreInst is not allowed."
   raise LLVMValueError(msg)
 }
 
 ///|
-pub impl Value for StoreInst with removeName(_) {
+pub impl Value for StoreInst with fn removeName(_) {
   ()
 }
 
 ///|
-pub impl Value for StoreInst with getNameOrSlot(_) {
+pub impl Value for StoreInst with fn getNameOrSlot(_) {
   None
 }
 
 ///|
-pub impl User for StoreInst with asUserEnum(self) {
+pub impl User for StoreInst with fn asUserEnum(self) {
   StoreInst(self)
 }
 
 ///|
-pub impl User for StoreInst with getUserBase(self) {
-  UserBase::{ operands: [self.value, self.ptr] }
+pub impl User for StoreInst with fn getUserBase(self) {
+  UserBase::{ operands: [self.value, self.ptr], }
 }
 
 ///|
-pub impl Instruction for StoreInst with getInstBase(self) {
-  InstBase::{ bb: self.bb, prev: self.prev, next: self.next }
+pub impl Instruction for StoreInst with fn getInstBase(self) {
+  InstBase::{ bb: self.bb, prev: self.prev, next: self.next, }
 }
 
 ///|
-pub impl Instruction for StoreInst with asInstEnum(self) {
+pub impl Instruction for StoreInst with fn asInstEnum(self) {
   StoreInst(self)
 }
 
 ///|
-pub impl Instruction for StoreInst with getParent(self) {
+pub impl Instruction for StoreInst with fn getParent(self) {
   self.parent
 }
 
 ///|
-pub impl Show for StoreInst with output(self, logger) {
+pub impl Show for StoreInst with fn output(self, logger) {
   let align = self.align
   let value = self.getValueOperand()
   let ptr = self.getPointerOperand()

@@ -9,7 +9,7 @@
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   inspect(ctx.getInt64Ty(), content="i64")
 /// }
 /// ```
@@ -23,26 +23,26 @@ fn Int64Type::new(ctx : Context) -> Int64Type {
 }
 
 ///|
-pub impl Show for Int64Type with output(_, logger : &Logger) {
+pub impl Show for Int64Type with fn output(_, logger : &Logger) {
   logger.write_string("i64")
 }
 
 ///|
-pub impl Type for Int64Type with asTypeEnum(self) -> TypeEnum {
+pub impl Type for Int64Type with fn asTypeEnum(self) -> TypeEnum {
   TypeEnum::Int64Type(self)
 }
 
 ///|
-pub impl Type for Int64Type with getContext(self) -> Context {
+pub impl Type for Int64Type with fn getContext(self) -> Context {
   self.ctx
 }
 
 ///|
-pub impl IntegerType for Int64Type with asIntegerTypeEnum(self) -> IntegerTypeEnum {
+pub impl IntegerType for Int64Type with fn asIntegerTypeEnum(self) -> IntegerTypeEnum {
   Int64Type(self)
 }
 
 ///|
-pub impl PrimitiveType for Int64Type with asPrimitiveTypeEnum(self) -> PrimitiveTypeEnum {
+pub impl PrimitiveType for Int64Type with fn asPrimitiveTypeEnum(self) -> PrimitiveTypeEnum {
   Int64Type(self)
 }

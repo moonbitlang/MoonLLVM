@@ -1,9 +1,9 @@
 ///|
-let inst_id : Ref[Int] = Ref::new(0)
+let inst_id : Ref[Int32] = Ref::new(0)
 
 ///|
 pub(all) struct Instruction {
-  id : Int
+  id : Int32
   opcode : OpCode
   defs : Array[Operand]
   uses : Array[Operand]
@@ -35,7 +35,7 @@ pub fn Instruction::new(
 }
 
 ///|
-pub impl Eq for Instruction with equal(self, other) {
+pub impl Eq for Instruction with fn equal(self, other) {
   self.id == other.id
 }
 
@@ -80,7 +80,7 @@ pub fn Instruction::contains_virtual_reg(self : Self) -> Bool {
 }
 
 ///|
-pub impl Show for Instruction with output(self, logger) {
+pub impl Show for Instruction with fn output(self, logger) {
   match self.defs {
     [] => ()
     [d] => logger.write_string("\{d} = ")

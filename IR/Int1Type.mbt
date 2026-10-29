@@ -9,7 +9,7 @@
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   inspect(ctx.getInt1Ty(), content="i1")
 /// }
 /// ```
@@ -23,26 +23,26 @@ fn Int1Type::new(ctx : Context) -> Int1Type {
 }
 
 ///|
-pub impl Show for Int1Type with output(_, logger : &Logger) {
+pub impl Show for Int1Type with fn output(_, logger : &Logger) {
   logger.write_string("i1")
 }
 
 ///|
-pub impl Type for Int1Type with asTypeEnum(self) -> TypeEnum {
+pub impl Type for Int1Type with fn asTypeEnum(self) -> TypeEnum {
   TypeEnum::Int1Type(self)
 }
 
 ///|
-pub impl Type for Int1Type with getContext(self) -> Context {
+pub impl Type for Int1Type with fn getContext(self) -> Context {
   self.ctx
 }
 
 ///|
-pub impl IntegerType for Int1Type with asIntegerTypeEnum(self) -> IntegerTypeEnum {
+pub impl IntegerType for Int1Type with fn asIntegerTypeEnum(self) -> IntegerTypeEnum {
   Int1Type(self)
 }
 
 ///|
-pub impl PrimitiveType for Int1Type with asPrimitiveTypeEnum(self) -> PrimitiveTypeEnum {
+pub impl PrimitiveType for Int1Type with fn asPrimitiveTypeEnum(self) -> PrimitiveTypeEnum {
   Int1Type(self)
 }

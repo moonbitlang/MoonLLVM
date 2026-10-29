@@ -4,7 +4,7 @@ pub struct AArch64Module {
 }
 
 ///|
-pub impl Show for AArch64Module with output(self, logger) {
+pub impl Show for AArch64Module with fn output(self, logger) {
   self.insts.map(inst => "\{inst}\n").join("")
   |> &Logger::write_string(logger, _)
 }

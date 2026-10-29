@@ -55,12 +55,15 @@ fn Function::store_load_caller_saved_registers(self : Self) -> Unit {
     // capture checks not needed after skipping return regs
     // Collect caller-saved registers to preserve: live-out ∪ live-in
     let to_preserve : Array[Operand] = Array::new()
-    inst.live_out.each(op => if is_caller_saved_register(op) {
-      to_preserve.push(op)
+    inst.live_out.each(op => {
+      if is_caller_saved_register(op) {
+        to_preserve.push(op)
+      }
     })
-    inst.live_in.each(op => if is_caller_saved_register(op) &&
-      !to_preserve.contains(op) {
-      to_preserve.push(op)
+    inst.live_in.each(op => {
+      if is_caller_saved_register(op) && !to_preserve.contains(op) {
+        to_preserve.push(op)
+      }
     })
     for op in to_preserve {
       // Skip return registers entirely (call writes them)
@@ -108,7 +111,6 @@ fn Function::store_load_caller_saved_registers(self : Self) -> Unit {
           }
         }
         let _ = inst.bb.insert_inst_after(after=inst, load_inst)
-
       }
     }
   }
@@ -287,7 +289,7 @@ pub fn Function::adjust_mem_operands(self : Function) -> Unit {
       is {
         opcode: IBinary(Add, _),
         uses: [IRegister(FramePtrPrim), Imm(i)],
-        ..,
+        ..
       } {
       inst.uses[0] = IRegister(StackPtr)
       inst.uses[1] = Imm(i + var_stack_size)
@@ -298,15 +300,15 @@ pub fn Function::adjust_mem_operands(self : Function) -> Unit {
         opcode: IBinary(Add, _),
         defs: [IRegister(d)],
         uses: [IRegister(FramePtrPrim), IRegister(r)],
-        ..,
+        ..
       } {
-      insts_to_fix.push({ inst, bb: inst.bb, r, dst: d })
+      insts_to_fix.push({ inst, bb: inst.bb, r, dst: d, })
     }
   }
 
   // Second pass: fix collected instructions
   for item in insts_to_fix {
-    let { inst, bb, r, dst } = item
+    let { inst, bb, r, dst, } = item
     let builder = IRBuilder::new(self, bb)
     // Create: dst = StackPtr + var_stack_size
     let add_offset_inst = try! builder.build_ibinary_imm(

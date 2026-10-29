@@ -15,7 +15,7 @@ pub struct LabelType {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let labelty = ctx.getLabelTy()
 ///   inspect(labelty, content="label")
 /// }
@@ -25,21 +25,21 @@ fn LabelType::new(ctx : Context) -> LabelType {
 }
 
 ///|
-pub impl Show for LabelType with output(_, logger : &Logger) {
+pub impl Show for LabelType with fn output(_, logger : &Logger) {
   logger.write_string("label")
 }
 
 ///|
-pub impl Type for LabelType with asTypeEnum(self) -> TypeEnum {
+pub impl Type for LabelType with fn asTypeEnum(self) -> TypeEnum {
   TypeEnum::LabelType(self)
 }
 
 ///|
-pub impl Type for LabelType with getContext(self) -> Context {
+pub impl Type for LabelType with fn getContext(self) -> Context {
   self.ctx
 }
 
 ///|
-pub impl AbstractType for LabelType with asAbstractTypeEnum(self) -> AbstractTypeEnum {
+pub impl AbstractType for LabelType with fn asAbstractTypeEnum(self) -> AbstractTypeEnum {
   LabelType(self)
 }

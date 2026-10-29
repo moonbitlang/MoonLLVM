@@ -27,7 +27,7 @@ pub fn Align::to_int64(self : Align) -> Int64 {
 //}
 
 ///|
-pub impl Show for Align with output(self, logger) {
+pub impl Show for Align with fn output(self, logger) {
   let Align(v) = self
   logger.write_string("align \{v}")
 }
@@ -87,7 +87,7 @@ pub fn DataLayout::getEndian(self : DataLayout) -> Endian {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let datalayout = mod.getDataLayout()
 ///
@@ -105,7 +105,7 @@ pub fn DataLayout::getEndian(self : DataLayout) -> Endian {
 /// }
 /// ```
 ///
-pub fn DataLayout::getTypeAllocSize(self : Self, ty : &Type) -> Int {
+pub fn DataLayout::getTypeAllocSize(self : Self, ty : &Type) -> Int32 {
   match ty.asTypeEnum() {
     HalfType(_) => 2
     BFloatType(_) => 2
@@ -125,12 +125,12 @@ pub fn DataLayout::getTypeAllocSize(self : Self, ty : &Type) -> Int {
 }
 
 ///|
-fn DataLayout::getStructTypeAllocSize(self : Self, ty : StructType) -> Int {
+fn DataLayout::getStructTypeAllocSize(self : Self, ty : StructType) -> Int32 {
   letrec align_to = (size, align) => (size + align - 1) / align * align
 
   // Handle packed structs specially
   if ty.isPacked() {
-    let mut size : Int = 0
+    let mut size : Int32 = 0
     for ele in ty.elements {
       size += DataLayout::getTypeAllocSize(self, ele)
     }
@@ -141,7 +141,7 @@ fn DataLayout::getStructTypeAllocSize(self : Self, ty : StructType) -> Int {
   if ty.isOpaque() || ty.elements().length() == 0 {
     return 0
   }
-  let mut size : Int = 0
+  let mut size : Int32 = 0
   for ele in ty.elements {
     let Align(align) = DataLayout::getAlignment(self, ele)
     let align = align.to_int()
@@ -157,7 +157,7 @@ fn DataLayout::getStructTypeAllocSize(self : Self, ty : StructType) -> Int {
 }
 
 ///|
-fn DataLayout::getArrayTypeAllocSize(self : Self, ty : ArrayType) -> Int {
+fn DataLayout::getArrayTypeAllocSize(self : Self, ty : ArrayType) -> Int32 {
   let element_size = DataLayout::getTypeAllocSize(self, ty.getElementType())
   let count = ty.getElementCount()
 
@@ -238,7 +238,7 @@ fn DataLayout::getAlignment(self : DataLayout, ty : &Type) -> Align {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let datalayout = mod.getDataLayout()
 ///   let i8ty = ctx.getInt8Ty()
@@ -266,8 +266,8 @@ fn DataLayout::getAlignment(self : DataLayout, ty : &Type) -> Align {
 pub fn DataLayout::getStructTypeOffset(
   self : Self,
   sty : StructType,
-  index : Int,
-) -> Int {
+  index : Int32,
+) -> Int32 {
   letrec align_to = (size, align) => (size + align - 1) / align * align
 
   // Handle bounds checking
@@ -279,7 +279,7 @@ pub fn DataLayout::getStructTypeOffset(
   if sty.isOpaque() || sty.elements().length() == 0 {
     return 0
   }
-  let mut offset : Int = 0
+  let mut offset : Int32 = 0
 
   // For packed structs, no alignment padding between fields
   if sty.isPacked() {
@@ -310,7 +310,7 @@ pub fn DataLayout::getStructTypeOffset(
 }
 
 ///|
-pub fn DataLayout::getTypeAllocSizeInBits(self : Self, ty : &Type) -> Int {
+pub fn DataLayout::getTypeAllocSizeInBits(self : Self, ty : &Type) -> Int32 {
   DataLayout::getTypeAllocSize(self, ty) * 8
 }
 
@@ -318,7 +318,7 @@ pub fn DataLayout::getTypeAllocSizeInBits(self : Self, ty : &Type) -> Int {
 pub fn DataLayout::getStructTypeAllocSizeInBits(
   self : Self,
   ty : StructType,
-) -> Int {
+) -> Int32 {
   DataLayout::getStructTypeAllocSize(self, ty) * 8
 }
 
@@ -326,6 +326,6 @@ pub fn DataLayout::getStructTypeAllocSizeInBits(
 pub fn DataLayout::getArrayTypeAllocSizeInBits(
   self : Self,
   ty : ArrayType,
-) -> Int {
+) -> Int32 {
   DataLayout::getArrayTypeAllocSize(self, ty) * 8
 }

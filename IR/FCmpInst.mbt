@@ -39,7 +39,7 @@ pub(all) enum FloatPredicate {
 }
 
 ///|
-pub impl Show for FloatPredicate with output(self, logger) {
+pub impl Show for FloatPredicate with fn output(self, logger) {
   let s = match self {
     FALSE => "fcmp false"
     OEQ => "fcmp oeq"
@@ -70,7 +70,7 @@ pub impl Show for FloatPredicate with output(self, logger) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let f32_ty = ctx.getFloatTy()
@@ -116,8 +116,8 @@ fn FCmpInst::new(
   name~ : String?,
 ) -> FCmpInst {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
-  guard lhsTy == rhsTy
-  guard lhsTy.tryAsFPTypeEnum() is Some(_)
+  guard! lhsTy == rhsTy
+  guard! lhsTy.tryAsFPTypeEnum() is Some(_)
   let uid = valueUIDAssigner.assign()
   let bb : Ref[BasicBlock?] = Ref::new(None)
   let prev : Ref[&Instruction?] = Ref::new(None)
@@ -142,8 +142,8 @@ fn FCmpInst::new(
 }
 
 ///|
-pub impl Value for FCmpInst with getValueBase(self) {
-  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users }
+pub impl Value for FCmpInst with fn getValueBase(self) {
+  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users, }
 }
 
 ///|
@@ -151,7 +151,7 @@ pub impl Value for FCmpInst with getValueBase(self) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let f32_ty = ctx.getFloatTy()
@@ -167,7 +167,7 @@ pub impl Value for FCmpInst with getValueBase(self) {
 ///   inspect(oeq_cmp.getValueRepr(), content="%oeq_cmp")
 /// }
 /// ```
-pub impl Value for FCmpInst with getValueRepr(self) {
+pub impl Value for FCmpInst with fn getValueRepr(self) {
   match self.getNameOrSlot() {
     Some(Left(name)) => "%\{name}"
     Some(Right(slot)) => "%\{slot}"
@@ -176,7 +176,7 @@ pub impl Value for FCmpInst with getValueRepr(self) {
 }
 
 ///|
-pub impl Value for FCmpInst with asValueEnum(self) {
+pub impl Value for FCmpInst with fn asValueEnum(self) {
   FCmpInst(self)
 }
 
@@ -189,7 +189,7 @@ pub impl Value for FCmpInst with asValueEnum(self) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let f32_ty = ctx.getFloatTy()
@@ -200,12 +200,12 @@ pub impl Value for FCmpInst with asValueEnum(self) {
 ///   let arg2 = fval.getArg(1).unwrap()
 ///   builder.setInsertPoint(bb)
 ///   let oeq_cmp = builder.createFCmp(OEQ, arg1, arg2)
-///   inspect(oeq_cmp.getName(), content="None")
+///   debug_inspect(oeq_cmp.getName(), content="None")
 ///   oeq_cmp.setName("oeq_cmp")
-///   inspect(oeq_cmp.getName(), content="Some(\"oeq_cmp\")")
+///   debug_inspect(oeq_cmp.getName(), content="Some(\"oeq_cmp\")")
 /// }
 /// ```
-pub impl Value for FCmpInst with getName(self) {
+pub impl Value for FCmpInst with fn getName(self) {
   self.name
 }
 
@@ -219,7 +219,7 @@ pub impl Value for FCmpInst with getName(self) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let f32_ty = ctx.getFloatTy()
@@ -230,12 +230,12 @@ pub impl Value for FCmpInst with getName(self) {
 ///   let arg2 = fval.getArg(1).unwrap()
 ///   builder.setInsertPoint(bb)
 ///   let oeq_cmp = builder.createFCmp(OEQ, arg1, arg2)
-///   inspect(oeq_cmp.getName(), content="None")
+///   debug_inspect(oeq_cmp.getName(), content="None")
 ///   oeq_cmp.setName("oeq_cmp")
-///   inspect(oeq_cmp.getName(), content="Some(\"oeq_cmp\")")
+///   debug_inspect(oeq_cmp.getName(), content="Some(\"oeq_cmp\")")
 /// }
 /// ```
-pub impl Value for FCmpInst with setName(self, name) {
+pub impl Value for FCmpInst with fn setName(self, name) {
   match self.getParent().setSymbol(name, self) {
     EmptyName => {
       let msg = "Misuse `FCmpInst::setName`: name cannot be empty."
@@ -261,7 +261,7 @@ pub impl Value for FCmpInst with setName(self, name) {
 }
 
 ///|
-pub impl Value for FCmpInst with removeName(self) {
+pub impl Value for FCmpInst with fn removeName(self) {
   match self.name {
     None => ()
     Some(name) => {
@@ -272,7 +272,7 @@ pub impl Value for FCmpInst with removeName(self) {
 }
 
 ///|
-pub impl Value for FCmpInst with getNameOrSlot(self) {
+pub impl Value for FCmpInst with fn getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
     None =>
@@ -284,32 +284,32 @@ pub impl Value for FCmpInst with getNameOrSlot(self) {
 }
 
 ///|
-pub impl User for FCmpInst with asUserEnum(self) {
+pub impl User for FCmpInst with fn asUserEnum(self) {
   FCmpInst(self)
 }
 
 ///|
-pub impl User for FCmpInst with getUserBase(self) {
-  UserBase::{ operands: [self.lhs, self.rhs] }
+pub impl User for FCmpInst with fn getUserBase(self) {
+  UserBase::{ operands: [self.lhs, self.rhs], }
 }
 
 ///|
-pub impl Instruction for FCmpInst with getInstBase(self) {
-  InstBase::{ bb: self.bb, prev: self.prev, next: self.next }
+pub impl Instruction for FCmpInst with fn getInstBase(self) {
+  InstBase::{ bb: self.bb, prev: self.prev, next: self.next, }
 }
 
 ///|
-pub impl Instruction for FCmpInst with asInstEnum(self) {
+pub impl Instruction for FCmpInst with fn asInstEnum(self) {
   FCmpInst(self)
 }
 
 ///|
-pub impl Instruction for FCmpInst with getParent(self) {
+pub impl Instruction for FCmpInst with fn getParent(self) {
   self.parent
 }
 
 ///|
-pub impl Show for FCmpInst with output(self, logger) {
+pub impl Show for FCmpInst with fn output(self, logger) {
   let lhs_ty = self.lhs.getType()
   let repr = self.getValueRepr()
   let lhs_repr = self.lhs.getValueRepr()

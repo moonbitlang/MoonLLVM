@@ -1,5 +1,5 @@
 ///|
-pub struct Int8(Int) derive(Eq, Hash, Compare)
+pub struct Int8(Int32) derive(Eq, Hash, Compare)
 
 ///|
 pub let max_value : Int8 = 127
@@ -8,7 +8,7 @@ pub let max_value : Int8 = 127
 pub let min_value : Int8 = -128
 
 ///|
-pub fn Int8::from(val : Int) -> Int8 {
+pub fn Int8::from(val : Int32) -> Int8 {
   let masked = val & 0xFF
   match masked & 0x80 {
     0x80 => Int8(masked | 0xFFFFFF00)
@@ -27,7 +27,7 @@ pub fn Int8::from_int64(val : Int64) -> Int8 {
 }
 
 ///|
-pub fn Int8::to_int(self : Int8) -> Int {
+pub fn Int8::to_int(self : Int8) -> Int32 {
   let Int8(v) = self
   v
 }
@@ -39,7 +39,7 @@ pub fn Int8::to_byte(self : Int8) -> Byte {
 }
 
 ///|
-pub fn Int8::to_uint(self : Int8) -> UInt {
+pub fn Int8::to_uint(self : Int8) -> UInt32 {
   self.to_int().reinterpret_as_uint()
 }
 
@@ -54,35 +54,35 @@ pub fn Int8::to_uint64(self : Int8) -> UInt64 {
 }
 
 ///|
-pub impl Add for Int8 with add(self : Int8, other : Int8) -> Int8 {
+pub impl Add for Int8 with fn add(self : Int8, other : Int8) -> Int8 {
   let Int8(v1) = self
   let Int8(v2) = other
   Int8::from(v1 + v2)
 }
 
 ///|
-pub impl Sub for Int8 with sub(self : Int8, other : Int8) -> Int8 {
+pub impl Sub for Int8 with fn sub(self : Int8, other : Int8) -> Int8 {
   let Int8(v1) = self
   let Int8(v2) = other
   Int8::from(v1 - v2)
 }
 
 ///|
-pub impl Mul for Int8 with mul(self : Int8, other : Int8) -> Int8 {
+pub impl Mul for Int8 with fn mul(self : Int8, other : Int8) -> Int8 {
   let Int8(v1) = self
   let Int8(v2) = other
   Int8::from(v1 * v2)
 }
 
 ///|
-pub impl Div for Int8 with div(self : Int8, other : Int8) -> Int8 {
+pub impl Div for Int8 with fn div(self : Int8, other : Int8) -> Int8 {
   let Int8(v1) = self
   let Int8(v2) = other
   Int8::from(v1 / v2)
 }
 
 ///|
-pub impl Show for Int8 with output(self, logger) {
+pub impl Show for Int8 with fn output(self, logger) {
   logger.write_string("\{self.to_int()}")
 }
 

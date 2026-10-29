@@ -23,13 +23,13 @@ pub fn UInt8::from_uint64(val : UInt64) -> UInt8 {
 }
 
 ///|
-pub fn UInt8::to_uint(self : UInt8) -> UInt {
+pub fn UInt8::to_uint(self : UInt8) -> UInt32 {
   let UInt8(val) = self
   val.to_uint()
 }
 
 ///|
-pub fn UInt8::to_int(self : UInt8) -> Int {
+pub fn UInt8::to_int(self : UInt8) -> Int32 {
   let UInt8(val) = self
   val.to_int()
 }
@@ -47,34 +47,34 @@ pub fn UInt8::to_uint64(self : UInt8) -> UInt64 {
 }
 
 ///|
-pub impl Add for UInt8 with add(self, other) {
+pub impl Add for UInt8 with fn add(self, other) {
   let UInt8(val1) = self
   let UInt8(val2) = other
   UInt8(val1 + val2)
 }
 
 ///|
-pub impl Sub for UInt8 with sub(self, other) {
+pub impl Sub for UInt8 with fn sub(self, other) {
   let UInt8(val1) = self
   let UInt8(val2) = other
   UInt8(val1 - val2)
 }
 
 ///|
-pub impl Mul for UInt8 with mul(self, other) {
+pub impl Mul for UInt8 with fn mul(self, other) {
   let UInt8(val1) = self
   let UInt8(val2) = other
   UInt8(val1 * val2)
 }
 
 ///|
-pub impl Div for UInt8 with div(self, other) {
+pub impl Div for UInt8 with fn div(self, other) {
   let UInt8(val1) = self
   let UInt8(val2) = other
   UInt8(val1 / val2)
 }
 
 ///|
-pub impl Show for UInt8 with output(self, logger) {
+pub impl Show for UInt8 with fn output(self, logger) {
   logger.write_string("\{self.to_uint()}")
 }

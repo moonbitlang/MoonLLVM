@@ -25,7 +25,6 @@ pub fn Function::alloc_register(self : Function) -> Unit raise MIRError {
   if spilled_count != self.spilled_count {
     let extra_spilled = spilled_count - self.spilled_count
     let _ = self.extend_reg_stack(extra_spilled.to_int64() * 8, 8L)
-
   }
   let need_rewrite = !replacement_map.is_empty() ||
     spilled_count != self.spilled_count

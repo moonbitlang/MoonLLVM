@@ -20,7 +20,7 @@ pub(all) enum CastOps {
 } derive(Hash, Eq)
 
 ///|
-pub impl Show for CastOps with output(self, logger) {
+pub impl Show for CastOps with fn output(self, logger) {
   let str = match self {
     Trunc => "trunc"
     ZExt => "zext"
@@ -48,7 +48,7 @@ pub impl Show for CastOps with output(self, logger) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -90,8 +90,8 @@ fn CastInst::newTrunc(
   parent : Function,
   name~ : String?,
 ) -> CastInst {
-  guard from_val.getType().tryAsIntTypeEnum() is Some(from_ty)
-  guard from_ty.getBitWidth() > to_ty.getBitWidth()
+  guard! from_val.getType().tryAsIntTypeEnum() is Some(from_ty)
+  guard! from_ty.getBitWidth() > to_ty.getBitWidth()
   let uid = valueUIDAssigner.assign()
   let bb : Ref[BasicBlock?] = Ref::new(None)
   let prev : Ref[&Instruction?] = Ref::new(None)
@@ -119,8 +119,8 @@ fn CastInst::newZExt(
   parent : Function,
   name~ : String?,
 ) -> CastInst {
-  guard from_val.getType().tryAsIntTypeEnum() is Some(from_ty)
-  guard from_ty.getBitWidth() < to_ty.getBitWidth()
+  guard! from_val.getType().tryAsIntTypeEnum() is Some(from_ty)
+  guard! from_ty.getBitWidth() < to_ty.getBitWidth()
   let uid = valueUIDAssigner.assign()
   let bb : Ref[BasicBlock?] = Ref::new(None)
   let prev : Ref[&Instruction?] = Ref::new(None)
@@ -414,8 +414,8 @@ fn CastInst::newBitCast(
 }
 
 ///|
-pub impl Value for CastInst with getValueBase(self) {
-  ValueBase::{ uid: self.uid, vty: self.to_ty, users: self.users }
+pub impl Value for CastInst with fn getValueBase(self) {
+  ValueBase::{ uid: self.uid, vty: self.to_ty, users: self.users, }
 }
 
 ///|
@@ -423,7 +423,7 @@ pub impl Value for CastInst with getValueBase(self) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -439,7 +439,7 @@ pub impl Value for CastInst with getValueBase(self) {
 ///   inspect(trunc.getValueRepr(), content="%truncated")
 /// }
 /// ```
-pub impl Value for CastInst with getValueRepr(self) {
+pub impl Value for CastInst with fn getValueRepr(self) {
   match self.getNameOrSlot() {
     Some(Left(name)) => "%\{name}"
     Some(Right(slot)) => "%\{slot}"
@@ -448,7 +448,7 @@ pub impl Value for CastInst with getValueRepr(self) {
 }
 
 ///|
-pub impl Value for CastInst with asValueEnum(self) {
+pub impl Value for CastInst with fn asValueEnum(self) {
   CastInst(self)
 }
 
@@ -461,7 +461,7 @@ pub impl Value for CastInst with asValueEnum(self) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -472,12 +472,12 @@ pub impl Value for CastInst with asValueEnum(self) {
 ///   let arg = fval.getArg(0).unwrap()
 ///   builder.setInsertPoint(bb)
 ///   let trunc = builder.createTrunc(arg, i32_ty)
-///   inspect(trunc.getName(), content="None")
+///   debug_inspect(trunc.getName(), content="None")
 ///   trunc.setName("truncated")
-///   inspect(trunc.getName(), content="Some(\"truncated\")")
+///   debug_inspect(trunc.getName(), content="Some(\"truncated\")")
 /// }
 /// ```
-pub impl Value for CastInst with getName(self) {
+pub impl Value for CastInst with fn getName(self) {
   self.name
 }
 
@@ -491,7 +491,7 @@ pub impl Value for CastInst with getName(self) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -502,12 +502,12 @@ pub impl Value for CastInst with getName(self) {
 ///   let arg = fval.getArg(0).unwrap()
 ///   builder.setInsertPoint(bb)
 ///   let trunc = builder.createTrunc(arg, i32_ty)
-///   inspect(trunc.getName(), content="None")
+///   debug_inspect(trunc.getName(), content="None")
 ///   trunc.setName("truncated")
-///   inspect(trunc.getName(), content="Some(\"truncated\")")
+///   debug_inspect(trunc.getName(), content="Some(\"truncated\")")
 /// }
 /// ```
-pub impl Value for CastInst with setName(self, name) {
+pub impl Value for CastInst with fn setName(self, name) {
   match self.getParent().setSymbol(name, self) {
     EmptyName => {
       let msg = "Misuse `CastInst::setName`: name cannot be empty."
@@ -533,7 +533,7 @@ pub impl Value for CastInst with setName(self, name) {
 }
 
 ///|
-pub impl Value for CastInst with removeName(self) {
+pub impl Value for CastInst with fn removeName(self) {
   match self.name {
     None => ()
     Some(name) => {
@@ -544,7 +544,7 @@ pub impl Value for CastInst with removeName(self) {
 }
 
 ///|
-pub impl Value for CastInst with getNameOrSlot(self) {
+pub impl Value for CastInst with fn getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
     None =>
@@ -556,37 +556,37 @@ pub impl Value for CastInst with getNameOrSlot(self) {
 }
 
 ///|
-pub impl User for CastInst with asUserEnum(self) {
+pub impl User for CastInst with fn asUserEnum(self) {
   CastInst(self)
 }
 
 ///|
-pub impl User for CastInst with getUserBase(self) {
-  UserBase::{ operands: [self.from_val] }
+pub impl User for CastInst with fn getUserBase(self) {
+  UserBase::{ operands: [self.from_val], }
 }
 
 ///|
-pub impl UnaryInst for CastInst with asUnaryInstEnum(self) {
+pub impl UnaryInst for CastInst with fn asUnaryInstEnum(self) {
   CastInst(self)
 }
 
 ///|
-pub impl Instruction for CastInst with getInstBase(self) {
-  InstBase::{ bb: self.bb, prev: self.prev, next: self.next }
+pub impl Instruction for CastInst with fn getInstBase(self) {
+  InstBase::{ bb: self.bb, prev: self.prev, next: self.next, }
 }
 
 ///|
-pub impl Instruction for CastInst with asInstEnum(self) {
+pub impl Instruction for CastInst with fn asInstEnum(self) {
   CastInst(self)
 }
 
 ///|
-pub impl Instruction for CastInst with getParent(self) {
+pub impl Instruction for CastInst with fn getParent(self) {
   self.parent
 }
 
 ///|
-pub impl Show for CastInst with output(self, logger) {
+pub impl Show for CastInst with fn output(self, logger) {
   let repr = self.getValueRepr()
   let to_ty = self.to_ty
   let from_ty = self.from_val.getType()

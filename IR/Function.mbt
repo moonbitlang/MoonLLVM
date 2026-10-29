@@ -9,7 +9,7 @@
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let prog = ctx.addModule("demo")
 ///   let i32ty = ctx.getInt32Ty()
 ///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
@@ -35,16 +35,16 @@ pub struct Argument {
   parent : Function
 
   // Number of the argument.
-  argNo : UInt
+  argNo : UInt32
 
   // Name of the argument, if set.
   mut name : String?
 }
 
 ///|
-fn Argument::new(vty : &Type, argNo : UInt, parent : Function) -> Argument {
+fn Argument::new(vty : &Type, argNo : UInt32, parent : Function) -> Argument {
   let uid = valueUIDAssigner.assign()
-  Argument::{ uid, vty, users: [], parent, argNo, name: None }
+  Argument::{ uid, vty, users: [], parent, argNo, name: None, }
 }
 
 ///|
@@ -53,7 +53,7 @@ fn Argument::new(vty : &Type, argNo : UInt, parent : Function) -> Argument {
 /// - See `llvm::Argument::addAttribute`.
 ///
 /// ```mbt test`
-/// let ctx = Context::new()
+/// let ctx = @IR.Context::new()
 /// let prog = ctx.addModule("demo")
 ///
 /// let i32ty = ctx.getInt32Ty()
@@ -89,17 +89,17 @@ pub fn Argument::getModule(self : Argument) -> Module {
 }
 
 ///|
-pub impl Value for Argument with getValueBase(self) {
-  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users }
+pub impl Value for Argument with fn getValueBase(self) {
+  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users, }
 }
 
 ///|
-pub impl Value for Argument with asValueEnum(self) {
+pub impl Value for Argument with fn asValueEnum(self) {
   Argument(self)
 }
 
 ///|
-pub impl Value for Argument with getValueRepr(self) {
+pub impl Value for Argument with fn getValueRepr(self) {
   match self.getNameOrSlot().unwrap() {
     Left(name) => "%\{name}"
     Right(slot) => "%\{slot}"
@@ -107,7 +107,7 @@ pub impl Value for Argument with getValueRepr(self) {
 }
 
 ///|
-pub impl Value for Argument with getName(self : Argument) -> String? {
+pub impl Value for Argument with fn getName(self : Argument) -> String? {
   self.name
 }
 
@@ -118,7 +118,7 @@ pub impl Value for Argument with getName(self : Argument) -> String? {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let prog = ctx.addModule("demo")
 ///   let i32ty = ctx.getInt32Ty()
 ///   let fty = ctx.getFunctionType(i32ty, [i32ty, i32ty])
@@ -132,10 +132,10 @@ pub impl Value for Argument with getName(self : Argument) -> String? {
 ///   arg1.setName("rhs")
 ///   inspect(arg0, content="i32 %lhs")
 ///   inspect(arg1, content="i32 %rhs")
-///   assert_true((try? arg1.setName("lhs")) is Err(_))
+///   assert_true((Ok(arg1.setName("lhs")) catch { e => Err(e) }) is Err(_))
 /// }
 /// ```
-pub impl Value for Argument with setName(self : Argument, name : String) -> Unit raise LLVMValueError {
+pub impl Value for Argument with fn setName(self : Argument, name : String) -> Unit raise LLVMValueError {
   if name.is_empty() {
     raise LLVMValueError("Argument name cannot be empty")
   }
@@ -160,7 +160,7 @@ pub impl Value for Argument with setName(self : Argument, name : String) -> Unit
 }
 
 ///|
-pub impl Value for Argument with removeName(self) {
+pub impl Value for Argument with fn removeName(self) {
   match self.name {
     Some(name) => {
       self.name = None
@@ -173,7 +173,7 @@ pub impl Value for Argument with removeName(self) {
 ///|
 ///
 /// Note: This function is impossibly to return `None`.
-pub impl Value for Argument with getNameOrSlot(self) {
+pub impl Value for Argument with fn getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
     None =>
@@ -185,7 +185,7 @@ pub impl Value for Argument with getNameOrSlot(self) {
 }
 
 ///|
-pub impl Show for Argument with output(self, logger) {
+pub impl Show for Argument with fn output(self, logger) {
   let ty = self.getType()
   let label = self.getValueRepr()
   logger.write_string("\{ty} \{label}")
@@ -215,7 +215,7 @@ pub struct Function {
   unnamed_addr : Ref[UnnamedAddr]
   mod : Module
   /// index of the function in the program
-  index : Int
+  index : Int32
   priv mut name : String
   addressSpace : AddressSpace
   arguments : Array[Argument]
@@ -240,7 +240,7 @@ fn Function::new(
   visibility~ : Visibility,
   unnamed_addr~ : UnnamedAddr,
   addressSpace~ : AddressSpace,
-  index : Int,
+  index : Int32,
   mod : Module,
 ) -> Function {
   let uid = valueUIDAssigner.assign()
@@ -299,12 +299,12 @@ pub fn Function::getReturnType(self : Function) -> &Type {
 }
 
 ///|
-pub fn Function::getNumArgs(self : Function) -> Int {
+pub fn Function::getNumArgs(self : Function) -> Int32 {
   self.arguments.length()
 }
 
 ///|
-pub fn Function::getNumParams(self : Function) -> Int {
+pub fn Function::getNumParams(self : Function) -> Int32 {
   self.arguments.length()
 }
 
@@ -314,7 +314,7 @@ pub fn Function::getParamTypes(self : Function) -> Array[&Type] {
 }
 
 ///|
-pub fn Function::getNumBasicBlocks(self : Function) -> Int {
+pub fn Function::getNumBasicBlocks(self : Function) -> Int32 {
   self.basicBlocks.length()
 }
 
@@ -368,8 +368,8 @@ pub fn Function::instIter(self : Function) -> Iter[&Instruction] {
 ///|
 pub fn Function::addBasicBlock(
   self : Function,
-  name? : String = "",
-  before? : BasicBlock? = None,
+  name~ : String = "",
+  before~ : BasicBlock? = None,
 ) -> BasicBlock {
   let name = match name {
     "" => None
@@ -396,7 +396,7 @@ pub fn Function::addBasicBlock(
 }
 
 ///|
-pub fn Function::getArg(self : Function, idx : Int) -> Argument? {
+pub fn Function::getArg(self : Function, idx : Int32) -> Argument? {
   when(idx >= 0 && idx < self.getNumArgs(), fn() { self.arguments[idx] })
 }
 
@@ -473,38 +473,38 @@ pub fn Function::getReturnAttrs(self : Function) -> Set[RetAttr] {
 ///|
 pub fn Function::getParamAttrs(
   self : Function,
-  argno : UInt,
+  argno : UInt32,
 ) -> Set[ParamAttr]? {
   self.attrSet.paramAttrs.get(argno)
 }
 
 ///|
-pub impl Eq for Function with equal(self, other) {
+pub impl Eq for Function with fn equal(self, other) {
   self.index == other.index
 }
 
 ///|
-pub impl Value for Function with getValueBase(self) {
-  ValueBase::{ uid: self.uid, vty: self.fty, users: self.users }
+pub impl Value for Function with fn getValueBase(self) {
+  ValueBase::{ uid: self.uid, vty: self.fty, users: self.users, }
 }
 
 ///|
-pub impl Value for Function with getValueRepr(self) {
+pub impl Value for Function with fn getValueRepr(self) {
   "@\{self.name}"
 }
 
 ///|
-pub impl Value for Function with getName(self : Function) -> String? {
+pub impl Value for Function with fn getName(self : Function) -> String? {
   Some(self.name)
 }
 
 ///|
-pub impl Value for Function with getNameOrSlot(self) {
+pub impl Value for Function with fn getNameOrSlot(self) {
   Some(Left(self.name))
 }
 
 ///|
-pub impl Value for Function with setName(self, name) -> Unit raise LLVMValueError {
+pub impl Value for Function with fn setName(self, name) -> Unit raise LLVMValueError {
   if name is "" {
     raise LLVMValueError("Misuse `Function::setName`: name cannot be empty")
   }
@@ -521,19 +521,19 @@ pub impl Value for Function with setName(self, name) -> Unit raise LLVMValueErro
 }
 
 ///|
-pub impl Value for Function with removeName(_) {
+pub impl Value for Function with fn removeName(_) {
   let msg = "Calling always failed function `Function::removeName`. " +
     "remove function name is not allowed."
   raise LLVMValueError(msg)
 }
 
 ///|
-pub impl Value for Function with asValueEnum(self) {
+pub impl Value for Function with fn asValueEnum(self) {
   Function(self)
 }
 
 ///|
-pub impl GlobalValue for Function with getGlobalValueBase(self) {
+pub impl GlobalValue for Function with fn getGlobalValueBase(self) {
   GlobalValueBase::{
     linkage: self.linkage,
     visibility: self.visibility,
@@ -542,7 +542,7 @@ pub impl GlobalValue for Function with getGlobalValueBase(self) {
 }
 
 ///|
-pub impl GlobalValue for Function with asGlobalValueEnum(self) {
+pub impl GlobalValue for Function with fn asGlobalValueEnum(self) {
   Function(self)
 }
 
@@ -561,7 +561,6 @@ pub fn Function::removeUnreachableBlocks(self : Function) -> Unit {
   }
   for i in remove_list.rev_iter() {
     let _ = self.basicBlocks.remove(i)
-
   }
 }
 
@@ -571,14 +570,13 @@ pub fn Function::removeBasicBlock(self : Function, bb : BasicBlock) -> Unit {
   match idx {
     Some(i) => {
       let _ = self.basicBlocks.remove(i)
-
     }
     None => ()
   }
 }
 
 ///|
-pub impl Show for Function with output(self, logger) {
+pub impl Show for Function with fn output(self, logger) {
   let hasBody = self.hasBody()
   // Print Function Attributes
   let fn_attrs = self.attrSet.fnAttrs

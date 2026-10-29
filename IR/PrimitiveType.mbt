@@ -4,12 +4,12 @@
 
 ///|
 pub trait PrimitiveType: Type {
-  asPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum
-  getBitWidth(Self) -> Int = _
+  fn asPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum
+  fn getBitWidth(Self) -> Int32 = _
 }
 
 ///|
-impl PrimitiveType with getBitWidth(self) -> Int {
+impl PrimitiveType with fn getBitWidth(self) -> Int32 {
   self.asPrimitiveTypeEnum().getBitWidth()
 }
 
@@ -28,7 +28,7 @@ pub enum PrimitiveTypeEnum {
 } derive(Eq, Show)
 
 ///|
-pub fn PrimitiveTypeEnum::getBitWidth(self : PrimitiveTypeEnum) -> Int {
+pub fn PrimitiveTypeEnum::getBitWidth(self : PrimitiveTypeEnum) -> Int32 {
   match self {
     HalfType(_) => 16
     BFloatType(_) => 16

@@ -37,7 +37,6 @@ pub fn Module::translate_global_values(
           .getTypeAllocSize(initializerTy)
           .reinterpret_as_uint()
         let _ = self.add_global_zero_data(global_name, size)
-
       }
       GlobalVariable({ initializer: Some(initializer), .. }) =>
         self.translate_llvm_global_constant(global_name, initializer)
@@ -67,7 +66,6 @@ pub fn Module::translate_llvm_global_constant(
       }
   }
   let _ = gv
-
 }
 
 ///|
@@ -101,7 +99,7 @@ pub fn is_zero_initializer(constant : &@IR.Constant) -> Bool {
 
 ///|
 /// Get the size of a constant in bytes
-pub fn get_constant_size(constant : &@IR.Constant) -> UInt {
+pub fn get_constant_size(constant : &@IR.Constant) -> UInt32 {
   match constant.asConstantEnum() {
     ConstantArray({ data: Left(const_arr), vty, .. }) => {
       let element_size = get_type_size(vty.getElementType())
@@ -109,7 +107,7 @@ pub fn get_constant_size(constant : &@IR.Constant) -> UInt {
       element_size * count.reinterpret_as_uint()
     }
     ConstantStruct({ elements, .. }) => {
-      let mut total_size : UInt = 0
+      let mut total_size : UInt32 = 0
       for element in elements {
         total_size = total_size + get_constant_size(element)
       }
@@ -124,7 +122,7 @@ pub fn get_constant_size(constant : &@IR.Constant) -> UInt {
 
 ///|
 /// Get the size of a type in bytes
-pub fn get_type_size(ty : &@IR.Type) -> UInt {
+pub fn get_type_size(ty : &@IR.Type) -> UInt32 {
   // This is a simplified implementation
   // In a real implementation, we would need to handle all type kinds
   match ty.asTypeEnum() {
@@ -374,7 +372,7 @@ pub fn Function::translate_params(self : Self, loc~ : SourceLoc) -> Unit {
       continue
     }
     let is_fp = arg.getType().isIEEELikeFPTy()
-    guard param is Mem(base, offset)
+    guard! param is Mem(base, offset)
     if is_fp {
       let tmp = self.new_virtual_freg()
       let load_inst = buiilder.build_loadf(data_size, dst=tmp, base~, offset~) catch {
@@ -1334,7 +1332,7 @@ pub fn translate_llvm_conditional_branch(
       condition: Some(cond),
       trueBlock: Some(truebb),
       falseBlock: Some(falsebb),
-      ..,
+      ..
     } else {
     raise IRTranslateError("BranchInst: Invalid conditional branch instruction")
   }
@@ -1431,7 +1429,7 @@ pub fn translate_llvm_conditional_branch(
 
   // If the comparison instruction only used in this branch,
   // generate breach with the comparison.
-  guard cond.asValueEnum() is ICmpInst({ predicate, lhs, rhs, .. })
+  guard! cond.asValueEnum() is ICmpInst({ predicate, lhs, rhs, .. })
   let opcode = match predicate {
     EQ => Beq
     NE => Bne
@@ -1719,8 +1717,8 @@ pub fn translate_llvm_cast_inst(
 
 ///|
 pub fn translate_trunc(
-  from_ty_size : Int,
-  to_ty_size : Int,
+  from_ty_size : Int32,
+  to_ty_size : Int32,
   from_op : Operand,
   dst_op : Operand,
   builder : IRBuilder,
@@ -1745,8 +1743,8 @@ pub fn translate_trunc(
 
 ///|
 pub fn translate_sext(
-  from_ty_size : Int,
-  to_ty_size : Int,
+  from_ty_size : Int32,
+  to_ty_size : Int32,
   from_op : Operand,
   dst_op : Operand,
   builder : IRBuilder,
@@ -1771,8 +1769,8 @@ pub fn translate_sext(
 
 ///|
 pub fn translate_zext(
-  from_ty_size : Int,
-  to_ty_size : Int,
+  from_ty_size : Int32,
+  to_ty_size : Int32,
   from_op : Operand,
   dst_op : Operand,
   builder : IRBuilder,
@@ -1797,8 +1795,8 @@ pub fn translate_zext(
 
 ///|
 pub fn translate_fptrunc(
-  from_ty_size : Int,
-  to_ty_size : Int,
+  from_ty_size : Int32,
+  to_ty_size : Int32,
   from_op : Operand,
   dst_op : Operand,
   builder : IRBuilder,
@@ -1829,8 +1827,8 @@ pub fn translate_fptrunc(
 
 ///|
 pub fn translate_fpext(
-  from_ty_size : Int,
-  to_ty_size : Int,
+  from_ty_size : Int32,
+  to_ty_size : Int32,
   from_op : Operand,
   dst_op : Operand,
   builder : IRBuilder,
@@ -1861,8 +1859,8 @@ pub fn translate_fpext(
 
 ///|
 pub fn translate_uitofp(
-  from_ty_size : Int,
-  to_ty_size : Int,
+  from_ty_size : Int32,
+  to_ty_size : Int32,
   from_op : Operand,
   dst_op : Operand,
   builder : IRBuilder,
@@ -1887,8 +1885,8 @@ pub fn translate_uitofp(
 
 ///|
 pub fn translate_sitofp(
-  from_ty_size : Int,
-  to_ty_size : Int,
+  from_ty_size : Int32,
+  to_ty_size : Int32,
   from_op : Operand,
   dst_op : Operand,
   builder : IRBuilder,
@@ -1913,8 +1911,8 @@ pub fn translate_sitofp(
 
 ///|
 pub fn translate_fptoui(
-  from_ty_size : Int,
-  to_ty_size : Int,
+  from_ty_size : Int32,
+  to_ty_size : Int32,
   from_op : Operand,
   dst_op : Operand,
   builder : IRBuilder,
@@ -1945,8 +1943,8 @@ pub fn translate_fptoui(
 
 ///|
 pub fn translate_fptosi(
-  from_ty_size : Int,
-  to_ty_size : Int,
+  from_ty_size : Int32,
+  to_ty_size : Int32,
   from_op : Operand,
   dst_op : Operand,
   builder : IRBuilder,
@@ -1980,7 +1978,7 @@ pub fn translate_fptosi(
 
 ///|
 pub fn translate_bitcast(
-  data_size : Int,
+  data_size : Int32,
   from_op : Operand,
   dst_op : Operand,
   builder : IRBuilder,
@@ -2094,7 +2092,7 @@ pub fn translate_llvm_gep_inst(
     }
     indices_ops.push(idx_op)
   }
-  guard indices_ops is [first_idx_op, .. indices_ops]
+  guard! indices_ops is [first_idx_op, .. indices_ops]
   match first_idx_op {
     Imm(0) => ()
     Imm(i) => {

@@ -30,11 +30,11 @@ pub(all) struct Function {
   // Value Map
   value_map : Map[&@IR.Value, Operand]
   bbmap : Map[String, BasicBlock] // Map from label to BasicBlock
-  mut vreg_cnt : Int
-  mut vfreg_cnt : Int
+  mut vreg_cnt : Int32
+  mut vfreg_cnt : Int32
 
   // spilled_count
-  mut spilled_count : Int
+  mut spilled_count : Int32
 }
 
 ///|
@@ -42,7 +42,7 @@ pub fn Function::new(
   mod : Module,
   name : String,
   is_external : Bool,
-  is_variadic? : Bool = false,
+  is_variadic~ : Bool = false,
 ) -> Function {
   Function::{
     mod,
@@ -139,7 +139,7 @@ pub fn Function::append_basic_block(
 }
 
 ///|
-pub fn Function::get_param(self : Self, idx : Int) -> Operand? {
+pub fn Function::get_param(self : Self, idx : Int32) -> Operand? {
   self.params.get(idx)
 }
 
@@ -314,7 +314,7 @@ pub fn Function::contains_virtual_reg(self : Self) -> Bool {
 }
 
 ///|
-pub impl Show for Function with output(self, logger) {
+pub impl Show for Function with fn output(self, logger) {
   logger.write_string("func \{self.name}(")
   let pstr = self.params.map(p => "\{p}").join(", ")
   logger.write_string(pstr)

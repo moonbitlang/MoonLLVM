@@ -11,7 +11,7 @@
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -38,19 +38,19 @@ pub struct ExtractValueInst {
   bb : Ref[BasicBlock?]
   prev : Ref[&Instruction?]
   next : Ref[&Instruction?]
-  indices : Array[Int]
+  indices : Array[Int32]
 }
 
 ///|
 fn ExtractValueInst::new(
   aggregate : &Value,
-  indices : Array[Int],
+  indices : Array[Int32],
   parent : Function,
   name~ : String?,
 ) -> ExtractValueInst {
   let agg_ty = aggregate.getType()
-  guard agg_ty.tryAsAggregateTypeEnum() is Some(agg_ty)
-  guard agg_ty.getIndexedType(indices) is Some(result_ty)
+  guard! agg_ty.tryAsAggregateTypeEnum() is Some(agg_ty)
+  guard! agg_ty.getIndexedType(indices) is Some(result_ty)
   let uid = valueUIDAssigner.assign()
   let vty = result_ty
   let bb : Ref[BasicBlock?] = Ref::new(None)
@@ -78,13 +78,13 @@ pub fn ExtractValueInst::getAggregateOperand(self : ExtractValueInst) -> &Value 
 }
 
 ///|
-pub fn ExtractValueInst::getIndices(self : ExtractValueInst) -> Array[Int] {
+pub fn ExtractValueInst::getIndices(self : ExtractValueInst) -> Array[Int32] {
   self.indices
 }
 
 ///|
-pub impl Value for ExtractValueInst with getValueBase(self) {
-  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users }
+pub impl Value for ExtractValueInst with fn getValueBase(self) {
+  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users, }
 }
 
 ///|
@@ -92,7 +92,7 @@ pub impl Value for ExtractValueInst with getValueBase(self) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -108,7 +108,7 @@ pub impl Value for ExtractValueInst with getValueBase(self) {
 ///   inspect(extract.getValueRepr(), content="%field")
 /// }
 /// ```
-pub impl Value for ExtractValueInst with getValueRepr(self) {
+pub impl Value for ExtractValueInst with fn getValueRepr(self) {
   match self.getNameOrSlot() {
     Some(Left(name)) => "%\{name}"
     Some(Right(slot)) => "%\{slot}"
@@ -117,7 +117,7 @@ pub impl Value for ExtractValueInst with getValueRepr(self) {
 }
 
 ///|
-pub impl Value for ExtractValueInst with asValueEnum(self) {
+pub impl Value for ExtractValueInst with fn asValueEnum(self) {
   ExtractValueInst(self)
 }
 
@@ -130,7 +130,7 @@ pub impl Value for ExtractValueInst with asValueEnum(self) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -141,12 +141,12 @@ pub impl Value for ExtractValueInst with asValueEnum(self) {
 ///   let aggregate = fval.getArg(0).unwrap()
 ///   builder.setInsertPoint(bb)
 ///   let extract = builder.createExtractValue(aggregate, [0])
-///   inspect(extract.getName(), content="None")
+///   debug_inspect(extract.getName(), content="None")
 ///   extract.setName("field")
-///   inspect(extract.getName(), content="Some(\"field\")")
+///   debug_inspect(extract.getName(), content="Some(\"field\")")
 /// }
 /// ```
-pub impl Value for ExtractValueInst with getName(self) {
+pub impl Value for ExtractValueInst with fn getName(self) {
   self.name
 }
 
@@ -160,7 +160,7 @@ pub impl Value for ExtractValueInst with getName(self) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -171,12 +171,12 @@ pub impl Value for ExtractValueInst with getName(self) {
 ///   let aggregate = fval.getArg(0).unwrap()
 ///   builder.setInsertPoint(bb)
 ///   let extract = builder.createExtractValue(aggregate, [0])
-///   inspect(extract.getName(), content="None")
+///   debug_inspect(extract.getName(), content="None")
 ///   extract.setName("field")
-///   inspect(extract.getName(), content="Some(\"field\")")
+///   debug_inspect(extract.getName(), content="Some(\"field\")")
 /// }
 /// ```
-pub impl Value for ExtractValueInst with setName(self, name) {
+pub impl Value for ExtractValueInst with fn setName(self, name) {
   match self.getParent().setSymbol(name, self) {
     EmptyName => {
       let msg = "Misuse `ExtractValueInst::setName`: name cannot be empty."
@@ -202,7 +202,7 @@ pub impl Value for ExtractValueInst with setName(self, name) {
 }
 
 ///|
-pub impl Value for ExtractValueInst with removeName(self) {
+pub impl Value for ExtractValueInst with fn removeName(self) {
   match self.name {
     None => ()
     Some(name) => {
@@ -213,7 +213,7 @@ pub impl Value for ExtractValueInst with removeName(self) {
 }
 
 ///|
-pub impl Value for ExtractValueInst with getNameOrSlot(self) {
+pub impl Value for ExtractValueInst with fn getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
     None =>
@@ -225,37 +225,37 @@ pub impl Value for ExtractValueInst with getNameOrSlot(self) {
 }
 
 ///|
-pub impl User for ExtractValueInst with asUserEnum(self) {
+pub impl User for ExtractValueInst with fn asUserEnum(self) {
   ExtractValueInst(self)
 }
 
 ///|
-pub impl User for ExtractValueInst with getUserBase(self) {
-  UserBase::{ operands: [self.aggregate] }
+pub impl User for ExtractValueInst with fn getUserBase(self) {
+  UserBase::{ operands: [self.aggregate], }
 }
 
 ///|
-pub impl Instruction for ExtractValueInst with getInstBase(self) {
-  InstBase::{ bb: self.bb, prev: self.prev, next: self.next }
+pub impl Instruction for ExtractValueInst with fn getInstBase(self) {
+  InstBase::{ bb: self.bb, prev: self.prev, next: self.next, }
 }
 
 ///|
-pub impl Instruction for ExtractValueInst with asInstEnum(self) {
+pub impl Instruction for ExtractValueInst with fn asInstEnum(self) {
   InstEnum::ExtractValueInst(self)
 }
 
 ///|
-pub impl Instruction for ExtractValueInst with getParent(self) {
+pub impl Instruction for ExtractValueInst with fn getParent(self) {
   self.parent
 }
 
 ///|
-pub impl UnaryInst for ExtractValueInst with asUnaryInstEnum(self) {
+pub impl UnaryInst for ExtractValueInst with fn asUnaryInstEnum(self) {
   UnaryInstEnum::ExtractValueInst(self)
 }
 
 ///|
-pub impl Show for ExtractValueInst with output(self, logger) {
+pub impl Show for ExtractValueInst with fn output(self, logger) {
   let repr = self.getValueRepr()
   let agg = self.getAggregateOperand()
   let agg_ty = agg.getType()

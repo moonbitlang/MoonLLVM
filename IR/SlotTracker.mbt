@@ -6,7 +6,7 @@ struct SlotTracker {
 
 ///|
 fn SlotTracker::new(function : Function) -> SlotTracker {
-  SlotTracker::{ function, valueMap: Map::new() }
+  SlotTracker::{ function, valueMap: Map::new(), }
 }
 
 ///|

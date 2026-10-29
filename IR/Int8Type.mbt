@@ -9,7 +9,7 @@
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   inspect(ctx.getInt8Ty(), content="i8")
 /// }
 /// ```
@@ -28,26 +28,26 @@ pub fn Int8Type::getExtendedType(self : Int8Type) -> Int16Type {
 }
 
 ///|
-pub impl Show for Int8Type with output(_, logger : &Logger) {
+pub impl Show for Int8Type with fn output(_, logger : &Logger) {
   logger.write_string("i8")
 }
 
 ///|
-pub impl Type for Int8Type with asTypeEnum(self) -> TypeEnum {
+pub impl Type for Int8Type with fn asTypeEnum(self) -> TypeEnum {
   TypeEnum::Int8Type(self)
 }
 
 ///|
-pub impl Type for Int8Type with getContext(self) -> Context {
+pub impl Type for Int8Type with fn getContext(self) -> Context {
   self.ctx
 }
 
 ///|
-pub impl IntegerType for Int8Type with asIntegerTypeEnum(self) -> IntegerTypeEnum {
+pub impl IntegerType for Int8Type with fn asIntegerTypeEnum(self) -> IntegerTypeEnum {
   Int8Type(self)
 }
 
 ///|
-pub impl PrimitiveType for Int8Type with asPrimitiveTypeEnum(self) -> PrimitiveTypeEnum {
+pub impl PrimitiveType for Int8Type with fn asPrimitiveTypeEnum(self) -> PrimitiveTypeEnum {
   Int8Type(self)
 }

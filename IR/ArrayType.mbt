@@ -9,7 +9,7 @@
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let i32ty = ctx.getInt32Ty()
 ///   let arrty = ctx.getArrayType(i32ty, 16)
 ///   inspect(arrty, content="[16 x i32]")
@@ -20,19 +20,19 @@
 pub struct ArrayType {
   ctx : Context
   elementType : &Type
-  elementCount : Int
+  elementCount : Int32
 } derive(Eq, Hash)
 
 ///|
 fn ArrayType::new(
   ctx : Context,
   elementType : &Type,
-  elementCount : Int,
+  elementCount : Int32,
 ) -> ArrayType raise LLVMTypeError {
   guard ArrayType::isValidElementType(elementType) else {
     raise InValidArrayElementType(elementType)
   }
-  ArrayType::{ ctx, elementType, elementCount }
+  ArrayType::{ ctx, elementType, elementCount, }
 }
 
 ///|
@@ -45,7 +45,7 @@ fn ArrayType::isValidElementType(eleTy : &Type) -> Bool {
 }
 
 ///|
-pub fn ArrayType::getElementCount(self : ArrayType) -> Int {
+pub fn ArrayType::getElementCount(self : ArrayType) -> Int32 {
   self.elementCount
 }
 
@@ -55,21 +55,21 @@ pub fn ArrayType::getElementType(self : ArrayType) -> &Type {
 }
 
 ///|
-pub impl Show for ArrayType with output(self, logger : &Logger) {
+pub impl Show for ArrayType with fn output(self, logger : &Logger) {
   logger.write_string("[\{self.getElementCount()} x \{self.getElementType()}]")
 }
 
 ///|
-pub impl Type for ArrayType with asTypeEnum(self) -> TypeEnum {
+pub impl Type for ArrayType with fn asTypeEnum(self) -> TypeEnum {
   ArrayType(self)
 }
 
 ///|
-pub impl Type for ArrayType with getContext(self) -> Context {
+pub impl Type for ArrayType with fn getContext(self) -> Context {
   self.ctx
 }
 
 ///|
-pub impl AggregateType for ArrayType with asAggregateTypeEnum(self) -> AggregateTypeEnum {
+pub impl AggregateType for ArrayType with fn asAggregateTypeEnum(self) -> AggregateTypeEnum {
   ArrayType(self)
 }

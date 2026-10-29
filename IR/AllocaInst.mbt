@@ -11,7 +11,7 @@
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let void_ty = ctx.getVoidTy()
@@ -67,8 +67,8 @@ fn AllocaInst::new(
 
 ///|
 /// AllocaInst is one of `Value`.
-pub impl Value for AllocaInst with getValueBase(self) {
-  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users }
+pub impl Value for AllocaInst with fn getValueBase(self) {
+  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users, }
 }
 
 ///|
@@ -76,7 +76,7 @@ pub impl Value for AllocaInst with getValueBase(self) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let void_ty = ctx.getVoidTy()
@@ -91,7 +91,7 @@ pub impl Value for AllocaInst with getValueBase(self) {
 ///   inspect(inst.getValueRepr(), content="%var1")
 /// }
 /// ```
-pub impl Value for AllocaInst with getValueRepr(self) {
+pub impl Value for AllocaInst with fn getValueRepr(self) {
   match self.getNameOrSlot() {
     Some(Left(name)) => "%\{name}"
     Some(Right(slot)) => "%\{slot}"
@@ -100,7 +100,7 @@ pub impl Value for AllocaInst with getValueRepr(self) {
 }
 
 ///|
-pub impl Value for AllocaInst with asValueEnum(self) {
+pub impl Value for AllocaInst with fn asValueEnum(self) {
   AllocaInst(self)
 }
 
@@ -113,7 +113,7 @@ pub impl Value for AllocaInst with asValueEnum(self) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let void_ty = ctx.getVoidTy()
@@ -123,12 +123,12 @@ pub impl Value for AllocaInst with asValueEnum(self) {
 ///   let bb = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(bb)
 ///   let inst = builder.createAlloca(i32_ty)
-///   inspect(inst.getName(), content="None")
+///   debug_inspect(inst.getName(), content="None")
 ///   inst.setName("var1")
-///   inspect(inst.getName(), content="Some(\"var1\")")
+///   debug_inspect(inst.getName(), content="Some(\"var1\")")
 /// }
 /// ```
-pub impl Value for AllocaInst with getName(self) {
+pub impl Value for AllocaInst with fn getName(self) {
   self.name
 }
 
@@ -142,7 +142,7 @@ pub impl Value for AllocaInst with getName(self) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let void_ty = ctx.getVoidTy()
@@ -152,12 +152,12 @@ pub impl Value for AllocaInst with getName(self) {
 ///   let bb = fval.addBasicBlock(name="entry")
 ///   builder.setInsertPoint(bb)
 ///   let inst = builder.createAlloca(i32_ty)
-///   inspect(inst.getName(), content="None")
+///   debug_inspect(inst.getName(), content="None")
 ///   inst.setName("var1")
-///   inspect(inst.getName(), content="Some(\"var1\")")
+///   debug_inspect(inst.getName(), content="Some(\"var1\")")
 /// }
 /// ```
-pub impl Value for AllocaInst with setName(self, name) {
+pub impl Value for AllocaInst with fn setName(self, name) {
   match self.getParent().setSymbol(name, self) {
     EmptyName => {
       let msg = "Misuse `AllocaInst::setName`: name cannot be empty."
@@ -183,7 +183,7 @@ pub impl Value for AllocaInst with setName(self, name) {
 }
 
 ///|
-pub impl Value for AllocaInst with removeName(self) {
+pub impl Value for AllocaInst with fn removeName(self) {
   match self.name {
     None => ()
     Some(name) => {
@@ -194,7 +194,7 @@ pub impl Value for AllocaInst with removeName(self) {
 }
 
 ///|
-pub impl Value for AllocaInst with getNameOrSlot(self) {
+pub impl Value for AllocaInst with fn getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
     None =>
@@ -206,27 +206,27 @@ pub impl Value for AllocaInst with getNameOrSlot(self) {
 }
 
 ///|
-pub impl Instruction for AllocaInst with getInstBase(self) {
-  InstBase::{ bb: self.bb, prev: self.prev, next: self.next }
+pub impl Instruction for AllocaInst with fn getInstBase(self) {
+  InstBase::{ bb: self.bb, prev: self.prev, next: self.next, }
 }
 
 ///|
-pub impl Instruction for AllocaInst with asInstEnum(self) {
+pub impl Instruction for AllocaInst with fn asInstEnum(self) {
   AllocaInst(self)
 }
 
 ///|
-pub impl Instruction for AllocaInst with getParent(self) {
+pub impl Instruction for AllocaInst with fn getParent(self) {
   self.parent
 }
 
 ///|
-pub impl UnaryInst for AllocaInst with asUnaryInstEnum(self) {
+pub impl UnaryInst for AllocaInst with fn asUnaryInstEnum(self) {
   AllocaInst(self)
 }
 
 ///|
-pub impl Show for AllocaInst with output(self, logger) {
+pub impl Show for AllocaInst with fn output(self, logger) {
   let repr = self.getValueRepr()
   logger.write_string("  \{repr} = alloca \{self.data_ty}, \{self.align}")
 }

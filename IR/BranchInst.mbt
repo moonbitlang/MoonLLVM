@@ -11,7 +11,7 @@
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i1_ty = ctx.getInt1Ty()
@@ -106,7 +106,7 @@ fn BranchInst::newUnconditional(
 }
 
 ///|
-pub fn BranchInst::getNumSuccessors(self : Self) -> Int {
+pub fn BranchInst::getNumSuccessors(self : Self) -> Int32 {
   match self.condition {
     Some(_) => 2 // conditional branch
     None => 1 // unconditional branch
@@ -114,7 +114,7 @@ pub fn BranchInst::getNumSuccessors(self : Self) -> Int {
 }
 
 ///|
-pub fn BranchInst::getSuccessor(self : BranchInst, idx : Int) -> BasicBlock? {
+pub fn BranchInst::getSuccessor(self : BranchInst, idx : Int32) -> BasicBlock? {
   match idx {
     0 => self.trueBlock
     1 => self.falseBlock
@@ -139,7 +139,7 @@ pub fn BranchInst::isUnconditional(self : BranchInst) -> Bool {
 }
 
 ///|
-pub impl Value for BranchInst with getValueBase(self) {
+pub impl Value for BranchInst with fn getValueBase(self) {
   ValueBase::{
     uid: self.uid,
     vty: self.getParent().getContext().getVoidTy(), // BranchInst does not have a value type
@@ -148,44 +148,44 @@ pub impl Value for BranchInst with getValueBase(self) {
 }
 
 ///|
-pub impl Value for BranchInst with asValueEnum(self) {
+pub impl Value for BranchInst with fn asValueEnum(self) {
   BranchInst(self)
 }
 
 ///|
-pub impl Value for BranchInst with getValueRepr(_) {
+pub impl Value for BranchInst with fn getValueRepr(_) {
   ""
 }
 
 ///|
-pub impl Value for BranchInst with getName(_) {
+pub impl Value for BranchInst with fn getName(_) {
   None
 }
 
 ///|
-pub impl Value for BranchInst with setName(_, _) {
+pub impl Value for BranchInst with fn setName(_, _) {
   let msg = "Calling always failed function `ReturnInst::setName`. " +
     "Set name for ReturnInst is not allowed."
   raise LLVMValueError(msg)
 }
 
 ///|
-pub impl Value for BranchInst with removeName(_) {
+pub impl Value for BranchInst with fn removeName(_) {
   ()
 }
 
 ///|
-pub impl Value for BranchInst with getNameOrSlot(_) {
+pub impl Value for BranchInst with fn getNameOrSlot(_) {
   None
 }
 
 ///|
-pub impl User for BranchInst with asUserEnum(self) {
+pub impl User for BranchInst with fn asUserEnum(self) {
   BranchInst(self)
 }
 
 ///|
-pub impl User for BranchInst with getUserBase(self) {
+pub impl User for BranchInst with fn getUserBase(self) {
   let operands : Array[&Value] = []
   match self.condition {
     Some(cond) => operands.push(cond)
@@ -203,22 +203,22 @@ pub impl User for BranchInst with getUserBase(self) {
 }
 
 ///|
-pub impl Instruction for BranchInst with getInstBase(self) {
-  InstBase::{ bb: self.bb, prev: self.prev, next: self.next }
+pub impl Instruction for BranchInst with fn getInstBase(self) {
+  InstBase::{ bb: self.bb, prev: self.prev, next: self.next, }
 }
 
 ///|
-pub impl Instruction for BranchInst with asInstEnum(self) {
+pub impl Instruction for BranchInst with fn asInstEnum(self) {
   InstEnum::BranchInst(self)
 }
 
 ///|
-pub impl Instruction for BranchInst with getParent(self) {
+pub impl Instruction for BranchInst with fn getParent(self) {
   self.parent
 }
 
 ///|
-pub impl Show for BranchInst with output(self, logger) {
+pub impl Show for BranchInst with fn output(self, logger) {
   if self.isConditional() {
     let condition_repr = self.condition.unwrap().getValueRepr()
     let true_block_repr = self.trueBlock.unwrap().getValueRepr()

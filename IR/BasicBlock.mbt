@@ -7,7 +7,7 @@
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -33,7 +33,7 @@ pub struct BasicBlock {
   parent : Function
   mut name : String?
   mut head : &Instruction?
-  id : Int
+  id : Int32
   preds : Array[BasicBlock]
 }
 
@@ -56,7 +56,7 @@ fn BasicBlock::new(parent : Function, name~ : String?) -> BasicBlock {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -82,7 +82,7 @@ pub fn BasicBlock::firstInst(self : BasicBlock) -> &Instruction? {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -177,7 +177,7 @@ pub fn BasicBlock::getLabel(self : BasicBlock) -> String {
 }
 
 ///|
-pub impl Value for BasicBlock with getValueBase(self) {
+pub impl Value for BasicBlock with fn getValueBase(self) {
   ValueBase::{
     uid: self.uid,
     vty: self.parent.getContext().getLabelTy(),
@@ -186,12 +186,12 @@ pub impl Value for BasicBlock with getValueBase(self) {
 }
 
 ///|
-pub impl Value for BasicBlock with getName(self) {
+pub impl Value for BasicBlock with fn getName(self) {
   self.name
 }
 
 ///|
-pub impl Value for BasicBlock with getValueRepr(self) {
+pub impl Value for BasicBlock with fn getValueRepr(self) {
   match self.getNameOrSlot() {
     Some(Left(name)) => "%\{name}"
     Some(Right(slot)) => "%\{slot}"
@@ -200,7 +200,7 @@ pub impl Value for BasicBlock with getValueRepr(self) {
 }
 
 ///|
-pub impl Value for BasicBlock with setName(self, name) {
+pub impl Value for BasicBlock with fn setName(self, name) {
   if name is "" {
     let msg = "Misuse `BasicBlock::setName`: name cannot be empty."
     raise LLVMValueError(msg)
@@ -222,7 +222,7 @@ pub impl Value for BasicBlock with setName(self, name) {
 }
 
 ///|
-pub impl Value for BasicBlock with removeName(self) {
+pub impl Value for BasicBlock with fn removeName(self) {
   match self.name {
     Some(name) => {
       self.parent.symbols.remove(name)
@@ -233,7 +233,7 @@ pub impl Value for BasicBlock with removeName(self) {
 }
 
 ///|
-pub impl Value for BasicBlock with getNameOrSlot(self) {
+pub impl Value for BasicBlock with fn getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
     None =>
@@ -245,22 +245,22 @@ pub impl Value for BasicBlock with getNameOrSlot(self) {
 }
 
 ///|
-pub impl Value for BasicBlock with asValueEnum(self) {
+pub impl Value for BasicBlock with fn asValueEnum(self) {
   BasicBlock(self)
 }
 
 ///|
-pub impl Hash for BasicBlock with hash_combine(self, hasher) {
+pub impl Hash for BasicBlock with fn hash_combine(self, hasher) {
   hasher.combine_uint64(self.getValueBase().uid)
 }
 
 ///|
-pub impl Eq for BasicBlock with equal(self, other) {
+pub impl Eq for BasicBlock with fn equal(self, other) {
   self.parent == other.parent && self.id == other.id
 }
 
 ///|
-pub impl Show for BasicBlock with output(self, logger) {
+pub impl Show for BasicBlock with fn output(self, logger) {
   let label = self.getLabel()
   logger.write_string("\{label}:")
   if self.preds.length() > 0 {

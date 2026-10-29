@@ -11,7 +11,7 @@
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -45,20 +45,20 @@ pub struct InsertValueInst {
   bb : Ref[BasicBlock?]
   prev : Ref[&Instruction?]
   next : Ref[&Instruction?]
-  indices : Array[Int]
+  indices : Array[Int32]
 }
 
 ///|
 fn InsertValueInst::new(
   aggregate : &Value,
   insert_val : &Value,
-  indices : Array[Int],
+  indices : Array[Int32],
   parent : Function,
   name~ : String?,
 ) -> InsertValueInst {
   let agg_ty = aggregate.getType()
-  guard agg_ty.tryAsAggregateTypeEnum() is Some(agg_ty)
-  guard agg_ty.getIndexedType(indices) is Some(_)
+  guard! agg_ty.tryAsAggregateTypeEnum() is Some(agg_ty)
+  guard! agg_ty.getIndexedType(indices) is Some(_)
   let uid = valueUIDAssigner.assign()
   let vty = agg_ty.asTypeClass()
   let bb : Ref[BasicBlock?] = Ref::new(None)
@@ -95,17 +95,17 @@ pub fn InsertValueInst::getInsertedValueOperand(
 }
 
 ///|
-pub fn InsertValueInst::getIndices(self : InsertValueInst) -> Array[Int] {
+pub fn InsertValueInst::getIndices(self : InsertValueInst) -> Array[Int32] {
   self.indices
 }
 
 ///|
-pub impl Value for InsertValueInst with getValueBase(self) {
-  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users }
+pub impl Value for InsertValueInst with fn getValueBase(self) {
+  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users, }
 }
 
 ///|
-pub impl Value for InsertValueInst with asValueEnum(self) {
+pub impl Value for InsertValueInst with fn asValueEnum(self) {
   InsertValueInst(self)
 }
 
@@ -114,7 +114,7 @@ pub impl Value for InsertValueInst with asValueEnum(self) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -131,7 +131,7 @@ pub impl Value for InsertValueInst with asValueEnum(self) {
 ///   inspect(insert.getValueRepr(), content="%updated")
 /// }
 /// ```
-pub impl Value for InsertValueInst with getValueRepr(self) {
+pub impl Value for InsertValueInst with fn getValueRepr(self) {
   match self.getNameOrSlot() {
     Some(Left(name)) => "%\{name}"
     Some(Right(slot)) => "%\{slot}"
@@ -148,7 +148,7 @@ pub impl Value for InsertValueInst with getValueRepr(self) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -160,12 +160,12 @@ pub impl Value for InsertValueInst with getValueRepr(self) {
 ///   let new_value = fval.getArg(1).unwrap()
 ///   builder.setInsertPoint(bb)
 ///   let insert = builder.createInsertValue(aggregate, new_value, [1])
-///   inspect(insert.getName(), content="None")
+///   debug_inspect(insert.getName(), content="None")
 ///   insert.setName("updated")
-///   inspect(insert.getName(), content="Some(\"updated\")")
+///   debug_inspect(insert.getName(), content="Some(\"updated\")")
 /// }
 /// ```
-pub impl Value for InsertValueInst with getName(self) {
+pub impl Value for InsertValueInst with fn getName(self) {
   self.name
 }
 
@@ -179,7 +179,7 @@ pub impl Value for InsertValueInst with getName(self) {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -191,12 +191,12 @@ pub impl Value for InsertValueInst with getName(self) {
 ///   let new_value = fval.getArg(1).unwrap()
 ///   builder.setInsertPoint(bb)
 ///   let insert = builder.createInsertValue(aggregate, new_value, [1])
-///   inspect(insert.getName(), content="None")
+///   debug_inspect(insert.getName(), content="None")
 ///   insert.setName("updated")
-///   inspect(insert.getName(), content="Some(\"updated\")")
+///   debug_inspect(insert.getName(), content="Some(\"updated\")")
 /// }
 /// ```
-pub impl Value for InsertValueInst with setName(self, name) {
+pub impl Value for InsertValueInst with fn setName(self, name) {
   match self.getParent().setSymbol(name, self) {
     EmptyName => {
       let msg = "Misuse `InsertValueInst::setName`: name cannot be empty."
@@ -222,7 +222,7 @@ pub impl Value for InsertValueInst with setName(self, name) {
 }
 
 ///|
-pub impl Value for InsertValueInst with removeName(self) {
+pub impl Value for InsertValueInst with fn removeName(self) {
   match self.name {
     None => ()
     Some(name) => {
@@ -233,7 +233,7 @@ pub impl Value for InsertValueInst with removeName(self) {
 }
 
 ///|
-pub impl Value for InsertValueInst with getNameOrSlot(self) {
+pub impl Value for InsertValueInst with fn getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
     None =>
@@ -245,32 +245,32 @@ pub impl Value for InsertValueInst with getNameOrSlot(self) {
 }
 
 ///|
-pub impl User for InsertValueInst with asUserEnum(self) {
+pub impl User for InsertValueInst with fn asUserEnum(self) {
   InsertValueInst(self)
 }
 
 ///|
-pub impl User for InsertValueInst with getUserBase(self) {
-  UserBase::{ operands: [self.aggregate, self.getInsertedValueOperand()] }
+pub impl User for InsertValueInst with fn getUserBase(self) {
+  UserBase::{ operands: [self.aggregate, self.getInsertedValueOperand()], }
 }
 
 ///|
-pub impl Instruction for InsertValueInst with getInstBase(self) {
-  InstBase::{ bb: self.bb, prev: self.prev, next: self.next }
+pub impl Instruction for InsertValueInst with fn getInstBase(self) {
+  InstBase::{ bb: self.bb, prev: self.prev, next: self.next, }
 }
 
 ///|
-pub impl Instruction for InsertValueInst with asInstEnum(self) {
+pub impl Instruction for InsertValueInst with fn asInstEnum(self) {
   InstEnum::InsertValueInst(self)
 }
 
 ///|
-pub impl Instruction for InsertValueInst with getParent(self) {
+pub impl Instruction for InsertValueInst with fn getParent(self) {
   self.parent
 }
 
 ///|
-pub impl Show for InsertValueInst with output(self, logger) {
+pub impl Show for InsertValueInst with fn output(self, logger) {
   let repr = self.getValueRepr()
   let agg = self.getAggregateOperand()
   let val = self.getInsertedValueOperand()

@@ -5,7 +5,7 @@ pub struct IRBuilder {
 }
 
 ///|
-fn check_bits(bits : Int, loc : SourceLoc) -> Unit raise MIRError {
+fn check_bits(bits : Int32, loc : SourceLoc) -> Unit raise MIRError {
   guard bits is (8 | 16 | 32 | 64) else {
     raise InValidBitWidthError("Invalid bit width: \{bits}, loc: \{loc}")
   }
@@ -13,14 +13,14 @@ fn check_bits(bits : Int, loc : SourceLoc) -> Unit raise MIRError {
 
 ///|
 pub fn IRBuilder::new(func : Function, bb : BasicBlock) -> IRBuilder {
-  IRBuilder::{ func, bb }
+  IRBuilder::{ func, bb, }
 }
 
 ///|
 #callsite(autofill(loc))
 pub fn IRBuilder::build_loadi(
   self : Self,
-  bits : Int,
+  bits : Int32,
   dst~ : IRegister,
   base~ : IRegister,
   offset~ : Int64,
@@ -36,7 +36,7 @@ pub fn IRBuilder::build_loadi(
 #callsite(autofill(loc))
 pub fn IRBuilder::build_loadf(
   self : Self,
-  bits : Int,
+  bits : Int32,
   dst~ : FRegister,
   base~ : IRegister,
   offset~ : Int64,
@@ -52,7 +52,7 @@ pub fn IRBuilder::build_loadf(
 #callsite(autofill(loc))
 pub fn IRBuilder::build_storei(
   self : Self,
-  bits : Int,
+  bits : Int32,
   src~ : IRegister,
   base~ : IRegister,
   offset~ : Int64,
@@ -68,7 +68,7 @@ pub fn IRBuilder::build_storei(
 #callsite(autofill(loc))
 pub fn IRBuilder::build_storef(
   self : Self,
-  bits : Int,
+  bits : Int32,
   src~ : FRegister,
   base~ : IRegister,
   offset~ : Int64,
@@ -85,7 +85,7 @@ pub fn IRBuilder::build_storef(
 pub fn IRBuilder::build_ibinary(
   self : Self,
   binop : IBinaryOpCode,
-  bits : Int,
+  bits : Int32,
   dst~ : IRegister,
   src1~ : IRegister,
   src2~ : IRegister,
@@ -103,7 +103,7 @@ pub fn IRBuilder::build_ibinary(
 pub fn IRBuilder::build_ibinary_imm(
   self : Self,
   binop : IBinaryOpCode,
-  bits : Int,
+  bits : Int32,
   dst~ : IRegister,
   src1~ : IRegister,
   src2~ : Int64,
@@ -121,7 +121,7 @@ pub fn IRBuilder::build_ibinary_imm(
 pub fn IRBuilder::build_fbinary(
   self : Self,
   binop : FBinaryOpCode,
-  bits : Int,
+  bits : Int32,
   dst~ : FRegister,
   src1~ : FRegister,
   src2~ : FRegister,
@@ -139,7 +139,7 @@ pub fn IRBuilder::build_fbinary(
 pub fn IRBuilder::build_funary(
   self : Self,
   unop : FUnaryOpCode,
-  bits : Int,
+  bits : Int32,
   dst~ : FRegister,
   src~ : FRegister,
   loc~ : SourceLoc,
@@ -154,7 +154,7 @@ pub fn IRBuilder::build_funary(
 #callsite(autofill(loc))
 pub fn IRBuilder::build_fneg(
   self : Self,
-  bits : Int,
+  bits : Int32,
   dst~ : FRegister,
   src~ : FRegister,
   loc~ : SourceLoc,
@@ -170,7 +170,7 @@ pub fn IRBuilder::build_fneg(
 pub fn IRBuilder::build_icmp(
   self : Self,
   cmpop : ICmpOpCode,
-  bits : Int,
+  bits : Int32,
   dst~ : IRegister,
   src1~ : IRegister,
   src2~ : IRegister,
@@ -188,7 +188,7 @@ pub fn IRBuilder::build_icmp(
 pub fn IRBuilder::build_fcmp(
   self : Self,
   cmpop : FCmpOpCode,
-  bits : Int,
+  bits : Int32,
   dst~ : IRegister,
   src1~ : FRegister,
   src2~ : FRegister,
@@ -206,7 +206,7 @@ pub fn IRBuilder::build_fcmp(
 pub fn IRBuilder::build_iunary(
   self : Self,
   unop : IUnaryOpCode,
-  bits : Int,
+  bits : Int32,
   dst~ : IRegister,
   src~ : IRegister,
   loc~ : SourceLoc,
@@ -221,7 +221,7 @@ pub fn IRBuilder::build_iunary(
 #callsite(autofill(loc))
 pub fn IRBuilder::build_imove(
   self : Self,
-  bits : Int,
+  bits : Int32,
   dst~ : IRegister,
   src~ : IRegister,
   loc~ : SourceLoc,
@@ -236,7 +236,7 @@ pub fn IRBuilder::build_imove(
 #callsite(autofill(loc))
 pub fn IRBuilder::build_imove_imm(
   self : Self,
-  bits : Int,
+  bits : Int32,
   dst~ : IRegister,
   src~ : Int64,
   loc~ : SourceLoc,
@@ -251,7 +251,7 @@ pub fn IRBuilder::build_imove_imm(
 #callsite(autofill(loc))
 pub fn IRBuilder::build_fmove(
   self : Self,
-  bits : Int,
+  bits : Int32,
   dst~ : FRegister,
   src~ : FRegister,
   loc~ : SourceLoc,
@@ -266,7 +266,7 @@ pub fn IRBuilder::build_fmove(
 #callsite(autofill(loc))
 pub fn IRBuilder::build_fmove_imm(
   self : Self,
-  bits : Int,
+  bits : Int32,
   dst~ : FRegister,
   src~ : Double,
   loc~ : SourceLoc,
@@ -281,7 +281,7 @@ pub fn IRBuilder::build_fmove_imm(
 #callsite(autofill(loc))
 pub fn IRBuilder::build_fmove_from_ireg(
   self : Self,
-  bits : Int,
+  bits : Int32,
   dst~ : FRegister,
   src~ : IRegister,
   loc~ : SourceLoc,
@@ -296,7 +296,7 @@ pub fn IRBuilder::build_fmove_from_ireg(
 #callsite(autofill(loc))
 pub fn IRBuilder::build_fmove_to_ireg(
   self : Self,
-  bits : Int,
+  bits : Int32,
   dst~ : IRegister,
   src~ : FRegister,
   loc~ : SourceLoc,
@@ -311,8 +311,8 @@ pub fn IRBuilder::build_fmove_to_ireg(
 #callsite(autofill(loc))
 pub fn IRBuilder::build_trunc(
   self : Self,
-  from_ty_size~ : Int,
-  to_ty_size~ : Int,
+  from_ty_size~ : Int32,
+  to_ty_size~ : Int32,
   dst~ : IRegister,
   src~ : IRegister,
   loc~ : SourceLoc,
@@ -331,8 +331,8 @@ pub fn IRBuilder::build_trunc(
 #callsite(autofill(loc))
 pub fn IRBuilder::build_zext(
   self : Self,
-  from_ty_size~ : Int,
-  to_ty_size~ : Int,
+  from_ty_size~ : Int32,
+  to_ty_size~ : Int32,
   dst~ : IRegister,
   src~ : IRegister,
   loc~ : SourceLoc,
@@ -351,8 +351,8 @@ pub fn IRBuilder::build_zext(
 #callsite(autofill(loc))
 pub fn IRBuilder::build_sext(
   self : Self,
-  from_ty_size~ : Int,
-  to_ty_size~ : Int,
+  from_ty_size~ : Int32,
+  to_ty_size~ : Int32,
   dst~ : IRegister,
   src~ : IRegister,
   loc~ : SourceLoc,
@@ -371,8 +371,8 @@ pub fn IRBuilder::build_sext(
 #callsite(autofill(loc))
 pub fn IRBuilder::build_fptrunc(
   self : Self,
-  from_ty_size~ : Int,
-  to_ty_size~ : Int,
+  from_ty_size~ : Int32,
+  to_ty_size~ : Int32,
   dst~ : FRegister,
   src~ : FRegister,
   loc~ : SourceLoc,
@@ -396,8 +396,8 @@ pub fn IRBuilder::build_fptrunc(
 #callsite(autofill(loc))
 pub fn IRBuilder::build_fpext(
   self : Self,
-  from_ty_size~ : Int,
-  to_ty_size~ : Int,
+  from_ty_size~ : Int32,
+  to_ty_size~ : Int32,
   dst~ : FRegister,
   src~ : FRegister,
   loc~ : SourceLoc,
@@ -415,8 +415,8 @@ pub fn IRBuilder::build_fpext(
 ///|
 pub fn IRBuilder::build_fp_to_si(
   self : Self,
-  from_ty_size~ : Int,
-  to_ty_size~ : Int,
+  from_ty_size~ : Int32,
+  to_ty_size~ : Int32,
   dst~ : IRegister,
   src~ : FRegister,
 ) -> Instruction {
@@ -433,8 +433,8 @@ pub fn IRBuilder::build_fp_to_si(
 ///|
 pub fn IRBuilder::build_fp_to_ui(
   self : Self,
-  from_ty_size~ : Int,
-  to_ty_size~ : Int,
+  from_ty_size~ : Int32,
+  to_ty_size~ : Int32,
   dst~ : IRegister,
   src~ : FRegister,
 ) -> Instruction {
@@ -451,8 +451,8 @@ pub fn IRBuilder::build_fp_to_ui(
 ///|
 pub fn IRBuilder::build_si_to_fp(
   self : Self,
-  from_ty_size~ : Int,
-  to_ty_size~ : Int,
+  from_ty_size~ : Int32,
+  to_ty_size~ : Int32,
   dst~ : FRegister,
   src~ : IRegister,
 ) -> Instruction {
@@ -469,8 +469,8 @@ pub fn IRBuilder::build_si_to_fp(
 ///|
 pub fn IRBuilder::build_ui_to_fp(
   self : Self,
-  from_ty_size~ : Int,
-  to_ty_size~ : Int,
+  from_ty_size~ : Int32,
+  to_ty_size~ : Int32,
   dst~ : FRegister,
   src~ : IRegister,
 ) -> Instruction {
@@ -504,7 +504,7 @@ pub fn IRBuilder::build_ret(self : Self) -> Instruction {
 pub fn IRBuilder::build_branch(
   self : Self,
   opcode : BranchOpCode,
-  bits : Int,
+  bits : Int32,
   lhs~ : IRegister,
   rhs~ : IRegister,
   true_label~ : String,
@@ -526,7 +526,7 @@ pub fn IRBuilder::build_branch(
 pub fn IRBuilder::build_branch_imm(
   self : Self,
   opcode : BranchOpCode,
-  bits : Int,
+  bits : Int32,
   lhs~ : IRegister,
   rhs~ : Int64,
   true_label~ : String,

@@ -4,7 +4,7 @@
 
 ///|
 pub trait AbstractType: Type {
-  asAbstractTypeEnum(Self) -> AbstractTypeEnum
+  fn asAbstractTypeEnum(Self) -> AbstractTypeEnum
 }
 
 ///|

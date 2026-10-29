@@ -181,22 +181,22 @@ pub fn ValueEnum::asValueClass(self : ValueEnum) -> &Value {
 
 ///|
 pub trait Value: Show {
-  getValueBase(Self) -> ValueBase
-  asValueEnum(Self) -> ValueEnum
+  fn getValueBase(Self) -> ValueBase
+  fn asValueEnum(Self) -> ValueEnum
 
   // All values are typed, get the type of this value.
-  getType(Self) -> &Type = _
+  fn getType(Self) -> &Type = _
 
   // All values hold a context through their type.
-  getContext(Self) -> Context = _
+  fn getContext(Self) -> Context = _
   //getValueName(Self) -> String? = _
 
-  addUser(Self, user : &User) -> Unit = _
+  fn addUser(Self, user : &User) -> Unit = _
 
   // Get the string representation of the value.
   // If the value is named value, use name or its slot as the representation.
   // If the value is constant, use its value as the representation.
-  getValueRepr(Self) -> String
+  fn getValueRepr(Self) -> String
 
   /// Change the name of the value.
   ///
@@ -206,11 +206,11 @@ pub trait Value: Show {
   ///
   /// - `name`: The new name; if name is "", the value's name will be removed.
   //setName(Self, name: String) -> Unit raise LLVMValueError = _
-  getName(Self) -> String?
-  setName(Self, name : String) -> Unit raise LLVMValueError
-  removeName(Self) -> Unit raise LLVMValueError
-  getNameOrSlot(Self) -> Either[String, UInt64]?
-  getNameOrSlotStr(Self) -> String = _
+  fn getName(Self) -> String?
+  fn setName(Self, name : String) -> Unit raise LLVMValueError
+  fn removeName(Self) -> Unit raise LLVMValueError
+  fn getNameOrSlot(Self) -> Either[String, UInt64]?
+  fn getNameOrSlotStr(Self) -> String = _
 
   /// Change all uses of this to point to a new Value.
   ///
@@ -221,45 +221,45 @@ pub trait Value: Show {
   /// It's equivalent to: LLVM: replaceAllUsesWith(this, V)
   /// Please note that in LLVM, this API is `replaceAllUsesWith`, while here
   /// is `replaceAllUsersWith`.
-  replaceAllUsersWith(Self, other : &Value) -> Unit = _
-  getUsers(Self) -> Array[&User]? = _
+  fn replaceAllUsersWith(Self, other : &Value) -> Unit = _
+  fn getUsers(Self) -> Array[&User]? = _
 
   // It's equivalent to: LLVM: use_empty
   // Please note that in LLVM, this API is `use_empty`, while here
   // is `user_empty`.
-  user_empty(Self) -> Bool = _
-  tryAsConstant(Self) -> &Constant? = _
-  tryAsConstantEnum(Self) -> ConstantEnum? = _
-  tryAsUser(Self) -> &User? = _
-  tryAsUserEnum(Self) -> UserEnum? = _
-  tryAsInst(Self) -> &Instruction? = _
-  tryAsInstEnum(Self) -> InstEnum? = _
-  tryAsGlobalValue(Self) -> &GlobalValue? = _
-  tryAsGlobalValueEnum(Self) -> GlobalValueEnum? = _
+  fn user_empty(Self) -> Bool = _
+  fn tryAsConstant(Self) -> &Constant? = _
+  fn tryAsConstantEnum(Self) -> ConstantEnum? = _
+  fn tryAsUser(Self) -> &User? = _
+  fn tryAsUserEnum(Self) -> UserEnum? = _
+  fn tryAsInst(Self) -> &Instruction? = _
+  fn tryAsInstEnum(Self) -> InstEnum? = _
+  fn tryAsGlobalValue(Self) -> &GlobalValue? = _
+  fn tryAsGlobalValueEnum(Self) -> GlobalValueEnum? = _
 }
 
 ///|
-pub impl Eq for &Value with equal(self, other) {
+pub impl Eq for &Value with fn equal(self, other) {
   self.getValueBase() == other.getValueBase()
 }
 
 ///|
-impl Value with getType(self) {
+impl Value with fn getType(self) {
   self.getValueBase().vty
 }
 
 ///|
-impl Value with getContext(self) {
+impl Value with fn getContext(self) {
   self.getValueBase().vty.getContext()
 }
 
 ///|
-impl Value with addUser(self, user) {
+impl Value with fn addUser(self, user) {
   self.getValueBase().users.push(user)
 }
 
 ///|
-impl Value with getNameOrSlotStr(self) {
+impl Value with fn getNameOrSlotStr(self) {
   match self.getNameOrSlot() {
     Some(Left(name)) => name
     Some(Right(slot)) => slot.to_string()
@@ -268,7 +268,7 @@ impl Value with getNameOrSlotStr(self) {
 }
 
 ///|
-impl Value with replaceAllUsersWith(self, other : &Value) {
+impl Value with fn replaceAllUsersWith(self, other : &Value) {
   let users = match self.getUsers() {
     None => return
     Some(users) => users
@@ -284,7 +284,7 @@ impl Value with replaceAllUsersWith(self, other : &Value) {
 }
 
 ///|
-impl Value with getUsers(self) {
+impl Value with fn getUsers(self) {
   if self.tryAsConstant() is Some(_) {
     None
   } else {
@@ -293,7 +293,7 @@ impl Value with getUsers(self) {
 }
 
 ///|
-impl Value with user_empty(self) {
+impl Value with fn user_empty(self) {
   match self.getUsers() {
     Some(users) => users.is_empty()
     None => false // if self is constant, it `users` is None
@@ -302,7 +302,7 @@ impl Value with user_empty(self) {
 }
 
 ///|
-impl Value with tryAsConstant(self) {
+impl Value with fn tryAsConstant(self) {
   match self.asValueEnum() {
     ConstantInt(c) => Some((c : &Constant))
     ConstantFP(c) => Some(c)
@@ -316,7 +316,7 @@ impl Value with tryAsConstant(self) {
 }
 
 ///|
-impl Value with tryAsConstantEnum(self) {
+impl Value with fn tryAsConstantEnum(self) {
   match self.asValueEnum() {
     ConstantInt(c) => Some(ConstantInt(c))
     ConstantFP(c) => Some(ConstantFP(c))
@@ -330,7 +330,7 @@ impl Value with tryAsConstantEnum(self) {
 }
 
 ///|
-impl Value with tryAsUser(self) {
+impl Value with fn tryAsUser(self) {
   match self.asValueEnum() {
     LoadInst(c) => Some((c : &User))
     //VAArgInst(c) => Some(VAArgInst(c))
@@ -354,7 +354,7 @@ impl Value with tryAsUser(self) {
 }
 
 ///|
-impl Value with tryAsUserEnum(self) {
+impl Value with fn tryAsUserEnum(self) {
   match self.asValueEnum() {
     LoadInst(c) => Some(LoadInst(c))
     //VAArgInst(c) => Some(VAArgInst(c))
@@ -378,7 +378,7 @@ impl Value with tryAsUserEnum(self) {
 }
 
 ///|
-impl Value with tryAsInst(self) {
+impl Value with fn tryAsInst(self) {
   match self.asValueEnum() {
     AllocaInst(c) => Some((c : &Instruction))
     LoadInst(c) => Some(c)
@@ -403,7 +403,7 @@ impl Value with tryAsInst(self) {
 }
 
 ///|
-impl Value with tryAsInstEnum(self) {
+impl Value with fn tryAsInstEnum(self) {
   match self.asValueEnum() {
     AllocaInst(c) => Some(AllocaInst(c))
     LoadInst(c) => Some(LoadInst(c))
@@ -428,7 +428,7 @@ impl Value with tryAsInstEnum(self) {
 }
 
 ///|
-impl Value with tryAsGlobalValue(self) {
+impl Value with fn tryAsGlobalValue(self) {
   match self.asValueEnum() {
     Function(f) => Some((f : &GlobalValue))
     GlobalVariable(g) => Some(g)
@@ -439,7 +439,7 @@ impl Value with tryAsGlobalValue(self) {
 }
 
 ///|
-impl Value with tryAsGlobalValueEnum(self) {
+impl Value with fn tryAsGlobalValueEnum(self) {
   match self.asValueEnum() {
     Function(f) => Some(Function(f))
     GlobalVariable(g) => Some(GlobalVariable(g))
@@ -450,7 +450,7 @@ impl Value with tryAsGlobalValueEnum(self) {
 }
 
 ///|
-pub impl Hash for &Value with hash_combine(self, hasher) {
+pub impl Hash for &Value with fn hash_combine(self, hasher) {
   hasher.combine_uint64(self.getValueBase().uid)
 }
 
@@ -509,32 +509,32 @@ struct UserBase {
 
 ///|
 pub trait User: Value {
-  asUserEnum(Self) -> UserEnum
-  getUserBase(Self) -> UserBase
-  getOperands(Self) -> Array[&Value] = _
-  getOperand(Self, index : Int) -> &Value? = _
-  getNumOperands(Self) -> Int = _
+  fn asUserEnum(Self) -> UserEnum
+  fn getUserBase(Self) -> UserBase
+  fn getOperands(Self) -> Array[&Value] = _
+  fn getOperand(Self, index : Int32) -> &Value? = _
+  fn getNumOperands(Self) -> Int32 = _
 }
 
 ///|
-pub impl Eq for &User with equal(self, other) {
+pub impl Eq for &User with fn equal(self, other) {
   self.getValueBase().uid == other.getValueBase().uid
 }
 
 ///|
-impl User with getOperands(self) {
+impl User with fn getOperands(self) {
   self.getUserBase().operands
 }
 
 ///|
-impl User with getOperand(self, index : Int) {
+impl User with fn getOperand(self, index : Int32) {
   let operands = self.getOperands()
   guard index >= 0 && index < operands.length() else { return None }
   Some(operands[index])
 }
 
 ///|
-impl User with getNumOperands(self) {
+impl User with fn getNumOperands(self) {
   self.getOperands().length()
 }
 
@@ -605,36 +605,36 @@ pub struct InstBase {
 
 ///|
 pub trait Instruction: Value {
-  getInstBase(Self) -> InstBase
-  asInstEnum(Self) -> InstEnum
-  getParent(Self) -> Function
-  getModule(Self) -> Module = _
-  getBasicBlock(Self) -> BasicBlock? = _
-  getInstName(Self) -> String? = _
-  isIndependent(Self) -> Bool = _
-  isTerminator(Self) -> Bool = _
-  next(Self) -> &Instruction? = _
-  prev(Self) -> &Instruction? = _
-  insertAfter(Self, &Instruction) -> Unit raise LLVMValueError = _
-  insertBefore(Self, &Instruction) -> Unit raise LLVMValueError = _
-  moveBefore(Self, &Instruction) -> Unit = _
-  moveAfter(Self, &Instruction) -> Unit = _
-  removeFromParent(Self) -> Unit = _
-  eraseFromParent(Self) -> Unit = _
+  fn getInstBase(Self) -> InstBase
+  fn asInstEnum(Self) -> InstEnum
+  fn getParent(Self) -> Function
+  fn getModule(Self) -> Module = _
+  fn getBasicBlock(Self) -> BasicBlock? = _
+  fn getInstName(Self) -> String? = _
+  fn isIndependent(Self) -> Bool = _
+  fn isTerminator(Self) -> Bool = _
+  fn next(Self) -> &Instruction? = _
+  fn prev(Self) -> &Instruction? = _
+  fn insertAfter(Self, &Instruction) -> Unit raise LLVMValueError = _
+  fn insertBefore(Self, &Instruction) -> Unit raise LLVMValueError = _
+  fn moveBefore(Self, &Instruction) -> Unit = _
+  fn moveAfter(Self, &Instruction) -> Unit = _
+  fn removeFromParent(Self) -> Unit = _
+  fn eraseFromParent(Self) -> Unit = _
 }
 
 ///|
-impl Instruction with getModule(self) {
+impl Instruction with fn getModule(self) {
   self.getParent().mod
 }
 
 ///|
-impl Instruction with getBasicBlock(self) {
+impl Instruction with fn getBasicBlock(self) {
   self.getInstBase().bb.val
 }
 
 ///|
-impl Instruction with getInstName(self) {
+impl Instruction with fn getInstName(self) {
   match self.asInstEnum() {
     AllocaInst(i) => i.getName()
     LoadInst(i) => i.getName()
@@ -657,7 +657,7 @@ impl Instruction with getInstName(self) {
 }
 
 ///|
-impl Instruction with isIndependent(self) {
+impl Instruction with fn isIndependent(self) {
   let bb = self.getBasicBlock()
   let prev = self.prev()
   let next = self.next()
@@ -665,7 +665,7 @@ impl Instruction with isIndependent(self) {
 }
 
 ///|
-impl Instruction with isTerminator(self) {
+impl Instruction with fn isTerminator(self) {
   match self.asInstEnum() {
     ReturnInst(_) => true
     BranchInst(_) => true
@@ -675,17 +675,17 @@ impl Instruction with isTerminator(self) {
 }
 
 ///|
-impl Instruction with next(self) {
+impl Instruction with fn next(self) {
   self.getInstBase().next.val
 }
 
 ///|
-impl Instruction with prev(self) {
+impl Instruction with fn prev(self) {
   self.getInstBase().prev.val
 }
 
 ///|
-impl Instruction with insertAfter(self, insertPt : &Instruction) {
+impl Instruction with fn insertAfter(self, insertPt : &Instruction) {
   guard self.isIndependent() else {
     raise LLVMValueError(
       "Misuse `Instruction::insertAfter`, Only independent instruction can be inserted",
@@ -708,7 +708,7 @@ impl Instruction with insertAfter(self, insertPt : &Instruction) {
 }
 
 ///|
-impl Instruction with insertBefore(self, insertPt : &Instruction) {
+impl Instruction with fn insertBefore(self, insertPt : &Instruction) {
   guard self.isIndependent() else {
     raise LLVMValueError(
       "Misuse `Instruction::insertAfter`, Only independent instruction can be inserted",
@@ -731,19 +731,19 @@ impl Instruction with insertBefore(self, insertPt : &Instruction) {
 }
 
 ///|
-impl Instruction with moveBefore(self, insertPt : &Instruction) {
+impl Instruction with fn moveBefore(self, insertPt : &Instruction) {
   self.removeFromParent()
   try! self.insertBefore(insertPt)
 }
 
 ///|
-impl Instruction with moveAfter(self, insertPt : &Instruction) {
+impl Instruction with fn moveAfter(self, insertPt : &Instruction) {
   self.removeFromParent()
   try! self.insertAfter(insertPt)
 }
 
 ///|
-impl Instruction with removeFromParent(self) {
+impl Instruction with fn removeFromParent(self) {
   let bb = match self.getBasicBlock() {
     Some(bb) => bb
     None => return
@@ -765,7 +765,7 @@ impl Instruction with removeFromParent(self) {
 }
 
 ///|
-impl Instruction with eraseFromParent(self) {
+impl Instruction with fn eraseFromParent(self) {
   self.removeFromParent()
   if self.getInstName() is Some(name) {
     self.getParent().symbols.remove(name)
@@ -801,7 +801,7 @@ pub enum InstEnum {
 
 ///|
 pub trait UnaryInst: Instruction {
-  asUnaryInstEnum(Self) -> UnaryInstEnum
+  fn asUnaryInstEnum(Self) -> UnaryInstEnum
 }
 
 ///|
@@ -832,11 +832,11 @@ pub enum ConstantEnum {
 
 ///|
 pub trait Constant: Value {
-  asConstantEnum(Self) -> ConstantEnum
+  fn asConstantEnum(Self) -> ConstantEnum
 }
 
 ///|
-impl Eq for &Constant with equal(self, other) {
+impl Eq for &Constant with fn equal(self, other) {
   self.asConstantEnum() == other.asConstantEnum()
 }
 
@@ -846,16 +846,16 @@ impl Eq for &Constant with equal(self, other) {
 
 ///|
 pub trait GlobalValue: Value {
-  getGlobalValueBase(Self) -> GlobalValueBase
-  asGlobalValueEnum(Self) -> GlobalValueEnum
-  getModule(Self) -> Module = _
-  getLinkage(Self) -> Linkage = _
-  setLinkage(Self, linkage : Linkage) -> Unit = _
-  setUnnamedAddr(Self, unnamed_addr : UnnamedAddr) -> Unit = _
+  fn getGlobalValueBase(Self) -> GlobalValueBase
+  fn asGlobalValueEnum(Self) -> GlobalValueEnum
+  fn getModule(Self) -> Module = _
+  fn getLinkage(Self) -> Linkage = _
+  fn setLinkage(Self, linkage : Linkage) -> Unit = _
+  fn setUnnamedAddr(Self, unnamed_addr : UnnamedAddr) -> Unit = _
 }
 
 ///|
-impl GlobalValue with getModule(self) {
+impl GlobalValue with fn getModule(self) {
   match self.asGlobalValueEnum() {
     Function({ mod, .. }) => mod
     GlobalVariable({ mod, .. }) => mod
@@ -864,17 +864,17 @@ impl GlobalValue with getModule(self) {
 }
 
 ///|
-impl GlobalValue with getLinkage(self) {
+impl GlobalValue with fn getLinkage(self) {
   self.getGlobalValueBase().linkage.val
 }
 
 ///|
-impl GlobalValue with setLinkage(self, linkage : Linkage) {
+impl GlobalValue with fn setLinkage(self, linkage : Linkage) {
   self.getGlobalValueBase().linkage.val = linkage
 }
 
 ///|
-impl GlobalValue with setUnnamedAddr(self, unnamed_addr : UnnamedAddr) {
+impl GlobalValue with fn setUnnamedAddr(self, unnamed_addr : UnnamedAddr) {
   self.getGlobalValueBase().unnamed_addr.val = unnamed_addr
 }
 
@@ -924,7 +924,7 @@ pub(all) enum Linkage {
 }
 
 ///|
-pub impl Show for Linkage with output(self, logger) {
+pub impl Show for Linkage with fn output(self, logger) {
   let s = match self {
     External => ""
     AvailableExternally => "available_externally"
@@ -949,7 +949,7 @@ pub(all) enum Visibility {
 }
 
 ///|
-pub impl Show for Visibility with output(self, logger) {
+pub impl Show for Visibility with fn output(self, logger) {
   let s = match self {
     Default => ""
     Hidden => "dso_local"
@@ -966,7 +966,7 @@ pub(all) enum UnnamedAddr {
 }
 
 ///|
-pub impl Show for UnnamedAddr with output(self, logger) {
+pub impl Show for UnnamedAddr with fn output(self, logger) {
   let s = match self {
     NoUnnamedAddr => ""
     Local => "local_unnamed_addr"

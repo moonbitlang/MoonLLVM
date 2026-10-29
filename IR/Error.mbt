@@ -1,6 +1,6 @@
 ///|
 suberror LLVMTypeError {
-  InValidTypeSize(Int)
+  InValidTypeSize(Int32)
   OpaqueStructMustHaveName
   SetBodyForNonOpaqueStruct
   RecursiveStructDefinition
@@ -19,7 +19,7 @@ pub suberror LLVMValueError {
 }
 
 ///|
-pub impl Show for LLVMValueError with output(self, logger) {
+pub impl Show for LLVMValueError with fn output(self, logger) {
   let LLVMValueError(msg) = self
   logger.write_string("LLVMValueError:\n")
   logger.write_string(msg)

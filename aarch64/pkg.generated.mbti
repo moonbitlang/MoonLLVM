@@ -1,15 +1,15 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "Kaida-Amethyst/MoonLLVM/aarch64"
 
-import(
-  "Kaida-Amethyst/MoonLLVM/IR"
-  "Kaida-Amethyst/MoonLLVM/MachineIR"
-)
+import {
+  "Kaida-Amethyst/MoonLLVM/IR",
+  "Kaida-Amethyst/MoonLLVM/MachineIR",
+}
 
 // Values
 pub fn compile(@IR.Module) -> AArch64Module raise
 
-pub fn mir_block_to_aarch64(@MachineIR.BasicBlock, Int) -> Array[AArch64Asm] raise MIRToAArch64Error
+pub fn mir_block_to_aarch64(@MachineIR.BasicBlock, Int32) -> Array[AArch64Asm] raise MIRToAArch64Error
 
 pub fn mir_function_to_aarch64(@MachineIR.Function) -> Array[AArch64Asm] raise MIRToAArch64Error
 
@@ -22,8 +22,9 @@ pub fn mir_module_to_aarch64(@MachineIR.Module) -> Array[AArch64Asm] raise MIRTo
 // Errors
 pub suberror MIRToAArch64Error {
   MIRToAArch64Error(String)
-}
-pub impl Show for MIRToAArch64Error
+} derive(Show)
+pub fn MIRToAArch64Error::output(Self, &Logger) -> Unit
+pub fn MIRToAArch64Error::to_string(Self) -> String
 
 // Types and methods
 pub(all) enum AArch64Asm {
@@ -34,57 +35,57 @@ pub(all) enum AArch64Asm {
   Asciz(String)
   Byte(Byte)
   Half(UInt16)
-  Word(UInt)
+  Word(UInt32)
   Quad(UInt64)
-  Zero(UInt)
+  Zero(UInt32)
   Mov64(Reg, Reg)
   Mov32(Reg, Reg)
   MovImm64(Reg, Int64)
-  MovImm32(Reg, Int)
-  Movz64(Reg, UInt16, Int)
-  Movz32(Reg, UInt16, Int)
-  Movk64(Reg, UInt16, Int)
-  Movk32(Reg, UInt16, Int)
+  MovImm32(Reg, Int32)
+  Movz64(Reg, UInt16, Int32)
+  Movz32(Reg, UInt16, Int32)
+  Movk64(Reg, UInt16, Int32)
+  Movk32(Reg, UInt16, Int32)
   Add64(Reg, Reg, Reg)
-  Add64Imm(Reg, Reg, Int)
+  Add64Imm(Reg, Reg, Int32)
   Sub64(Reg, Reg, Reg)
-  Sub64Imm(Reg, Reg, Int)
+  Sub64Imm(Reg, Reg, Int32)
   Mul64(Reg, Reg, Reg)
   Sdiv64(Reg, Reg, Reg)
   Udiv64(Reg, Reg, Reg)
   Add32(Reg, Reg, Reg)
-  Add32Imm(Reg, Reg, Int)
+  Add32Imm(Reg, Reg, Int32)
   Sub32(Reg, Reg, Reg)
-  Sub32Imm(Reg, Reg, Int)
+  Sub32Imm(Reg, Reg, Int32)
   Mul32(Reg, Reg, Reg)
   Sdiv32(Reg, Reg, Reg)
   Udiv32(Reg, Reg, Reg)
   And64(Reg, Reg, Reg)
   And64Imm(Reg, Reg, Int64)
   And32(Reg, Reg, Reg)
-  And32Imm(Reg, Reg, Int)
+  And32Imm(Reg, Reg, Int32)
   Orr64(Reg, Reg, Reg)
   Orr64Imm(Reg, Reg, Int64)
   Orr32(Reg, Reg, Reg)
-  Orr32Imm(Reg, Reg, Int)
+  Orr32Imm(Reg, Reg, Int32)
   Eor64(Reg, Reg, Reg)
   Eor64Imm(Reg, Reg, Int64)
   Eor32(Reg, Reg, Reg)
-  Eor32Imm(Reg, Reg, Int)
+  Eor32Imm(Reg, Reg, Int32)
   Mvn64(Reg, Reg)
   Mvn32(Reg, Reg)
   Lsl64(Reg, Reg, Reg)
-  Lsl64Imm(Reg, Reg, Int)
+  Lsl64Imm(Reg, Reg, Int32)
   Lsl32(Reg, Reg, Reg)
-  Lsl32Imm(Reg, Reg, Int)
+  Lsl32Imm(Reg, Reg, Int32)
   Lsr64(Reg, Reg, Reg)
-  Lsr64Imm(Reg, Reg, Int)
+  Lsr64Imm(Reg, Reg, Int32)
   Lsr32(Reg, Reg, Reg)
-  Lsr32Imm(Reg, Reg, Int)
+  Lsr32Imm(Reg, Reg, Int32)
   Asr64(Reg, Reg, Reg)
-  Asr64Imm(Reg, Reg, Int)
+  Asr64Imm(Reg, Reg, Int32)
   Asr32(Reg, Reg, Reg)
-  Asr32Imm(Reg, Reg, Int)
+  Asr32Imm(Reg, Reg, Int32)
   Ldr64(Reg, Mem)
   Ldr32(Reg, Mem)
   Ldrh(Reg, Mem)
@@ -127,9 +128,9 @@ pub(all) enum AArch64Asm {
   FmovWtoS(FReg, Reg)
   FmovStoW(Reg, FReg)
   Cmp64(Reg, Reg)
-  Cmp64Imm(Reg, Int)
+  Cmp64Imm(Reg, Int32)
   Cmp32(WReg, WReg)
-  Cmp32Imm(WReg, Int)
+  Cmp32Imm(WReg, Int32)
   FcmpD(FReg, FReg)
   FcmpS(FReg, FReg)
   Cset(Reg, String)
@@ -157,11 +158,15 @@ pub(all) enum AArch64Asm {
   Label(String)
   Comment(String)
 }
+pub fn AArch64Asm::output(Self, &Logger) -> Unit
+pub fn AArch64Asm::to_string(Self) -> String
 pub impl Show for AArch64Asm
 
 pub struct AArch64Module {
   insts : Array[AArch64Asm]
 }
+pub fn AArch64Module::output(Self, &Logger) -> Unit
+pub fn AArch64Module::to_string(Self) -> String
 pub impl Show for AArch64Module
 
 pub(all) enum FReg {
@@ -229,19 +234,35 @@ pub(all) enum FReg {
   S29
   S30
   S31
-}
-pub impl Compare for FReg
-pub impl Eq for FReg
-pub impl Hash for FReg
+} derive(Compare, Eq, Hash)
+pub fn FReg::compare(Self, Self) -> Int32
+pub fn FReg::equal(Self, Self) -> Bool
+pub fn FReg::hash(Self) -> Int32
+pub fn FReg::hash_combine(Self, Hasher) -> Unit
+pub fn FReg::not_equal(Self, Self) -> Bool
+pub fn FReg::op_ge(Self, Self) -> Bool
+pub fn FReg::op_gt(Self, Self) -> Bool
+pub fn FReg::op_le(Self, Self) -> Bool
+pub fn FReg::op_lt(Self, Self) -> Bool
+pub fn FReg::output(Self, &Logger) -> Unit
+pub fn FReg::to_string(Self) -> String
 pub impl Show for FReg
 
 pub(all) struct Mem {
   base : Reg
   offset : Int64
-}
-pub impl Compare for Mem
-pub impl Eq for Mem
-pub impl Hash for Mem
+} derive(Compare, Eq, Hash)
+pub fn Mem::compare(Self, Self) -> Int32
+pub fn Mem::equal(Self, Self) -> Bool
+pub fn Mem::hash(Self) -> Int32
+pub fn Mem::hash_combine(Self, Hasher) -> Unit
+pub fn Mem::not_equal(Self, Self) -> Bool
+pub fn Mem::op_ge(Self, Self) -> Bool
+pub fn Mem::op_gt(Self, Self) -> Bool
+pub fn Mem::op_le(Self, Self) -> Bool
+pub fn Mem::op_lt(Self, Self) -> Bool
+pub fn Mem::output(Self, &Logger) -> Unit
+pub fn Mem::to_string(Self) -> String
 pub impl Show for Mem
 
 pub(all) enum Reg {
@@ -278,11 +299,19 @@ pub(all) enum Reg {
   X30
   SP
   XZR
-}
+} derive(Compare, Eq, Hash)
+pub fn Reg::compare(Self, Self) -> Int32
+pub fn Reg::equal(Self, Self) -> Bool
+pub fn Reg::hash(Self) -> Int32
+pub fn Reg::hash_combine(Self, Hasher) -> Unit
+pub fn Reg::not_equal(Self, Self) -> Bool
+pub fn Reg::op_ge(Self, Self) -> Bool
+pub fn Reg::op_gt(Self, Self) -> Bool
+pub fn Reg::op_le(Self, Self) -> Bool
+pub fn Reg::op_lt(Self, Self) -> Bool
+pub fn Reg::output(Self, &Logger) -> Unit
+pub fn Reg::to_string(Self) -> String
 pub fn Reg::to_wreg(Self) -> WReg
-pub impl Compare for Reg
-pub impl Eq for Reg
-pub impl Hash for Reg
 pub impl Show for Reg
 
 pub(all) enum WReg {
@@ -318,13 +347,20 @@ pub(all) enum WReg {
   W29
   W30
   WZR
-}
-pub impl Compare for WReg
-pub impl Eq for WReg
-pub impl Hash for WReg
+} derive(Compare, Eq, Hash)
+pub fn WReg::compare(Self, Self) -> Int32
+pub fn WReg::equal(Self, Self) -> Bool
+pub fn WReg::hash(Self) -> Int32
+pub fn WReg::hash_combine(Self, Hasher) -> Unit
+pub fn WReg::not_equal(Self, Self) -> Bool
+pub fn WReg::op_ge(Self, Self) -> Bool
+pub fn WReg::op_gt(Self, Self) -> Bool
+pub fn WReg::op_le(Self, Self) -> Bool
+pub fn WReg::op_lt(Self, Self) -> Bool
+pub fn WReg::output(Self, &Logger) -> Unit
+pub fn WReg::to_string(Self) -> String
 pub impl Show for WReg
 
 // Type aliases
 
 // Traits
-

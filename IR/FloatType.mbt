@@ -14,26 +14,26 @@ fn FloatType::new(ctx : Context) -> FloatType {
 }
 
 ///|
-pub impl Show for FloatType with output(_, logger : &Logger) {
+pub impl Show for FloatType with fn output(_, logger : &Logger) {
   logger.write_string("float")
 }
 
 ///|
-pub impl Type for FloatType with asTypeEnum(self) -> TypeEnum {
+pub impl Type for FloatType with fn asTypeEnum(self) -> TypeEnum {
   TypeEnum::FloatType(self)
 }
 
 ///|
-pub impl Type for FloatType with getContext(self) -> Context {
+pub impl Type for FloatType with fn getContext(self) -> Context {
   self.ctx
 }
 
 ///|
-pub impl FPType for FloatType with asFPTypeEnum(self) -> FPTypeEnum {
+pub impl FPType for FloatType with fn asFPTypeEnum(self) -> FPTypeEnum {
   FloatType(self)
 }
 
 ///|
-pub impl PrimitiveType for FloatType with asPrimitiveTypeEnum(self) -> PrimitiveTypeEnum {
+pub impl PrimitiveType for FloatType with fn asPrimitiveTypeEnum(self) -> PrimitiveTypeEnum {
   FloatType(self)
 }

@@ -1,15 +1,15 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "Kaida-Amethyst/MoonLLVM/riscv64"
 
-import(
-  "Kaida-Amethyst/MoonLLVM/IR"
-  "Kaida-Amethyst/MoonLLVM/MachineIR"
-)
+import {
+  "Kaida-Amethyst/MoonLLVM/IR",
+  "Kaida-Amethyst/MoonLLVM/MachineIR",
+}
 
 // Values
 pub fn compile(@IR.Module) -> Riscv64Module raise
 
-pub fn mir_block_to_riscv(@MachineIR.BasicBlock, Int) -> Array[RvAsm] raise MIRToRiscvError
+pub fn mir_block_to_riscv(@MachineIR.BasicBlock, Int32) -> Array[RvAsm] raise MIRToRiscvError
 
 pub fn mir_function_to_riscv(@MachineIR.Function) -> Array[RvAsm] raise MIRToRiscvError
 
@@ -22,8 +22,9 @@ pub fn mir_module_to_riscv(@MachineIR.Module) -> Array[RvAsm] raise MIRToRiscvEr
 // Errors
 pub suberror MIRToRiscvError {
   MIRToRiscvError(String)
-}
-pub impl Show for MIRToRiscvError
+} derive(Show)
+pub fn MIRToRiscvError::output(Self, &Logger) -> Unit
+pub fn MIRToRiscvError::to_string(Self) -> String
 
 // Types and methods
 pub(all) enum FReg {
@@ -59,19 +60,35 @@ pub(all) enum FReg {
   Ft9
   Ft10
   Ft11
-}
-pub impl Compare for FReg
-pub impl Eq for FReg
-pub impl Hash for FReg
+} derive(Compare, Eq, Hash)
+pub fn FReg::compare(Self, Self) -> Int32
+pub fn FReg::equal(Self, Self) -> Bool
+pub fn FReg::hash(Self) -> Int32
+pub fn FReg::hash_combine(Self, Hasher) -> Unit
+pub fn FReg::not_equal(Self, Self) -> Bool
+pub fn FReg::op_ge(Self, Self) -> Bool
+pub fn FReg::op_gt(Self, Self) -> Bool
+pub fn FReg::op_le(Self, Self) -> Bool
+pub fn FReg::op_lt(Self, Self) -> Bool
+pub fn FReg::output(Self, &Logger) -> Unit
+pub fn FReg::to_string(Self) -> String
 pub impl Show for FReg
 
 pub(all) struct Mem {
   base : Reg
   offset : Int64
-}
-pub impl Compare for Mem
-pub impl Eq for Mem
-pub impl Hash for Mem
+} derive(Compare, Eq, Hash)
+pub fn Mem::compare(Self, Self) -> Int32
+pub fn Mem::equal(Self, Self) -> Bool
+pub fn Mem::hash(Self) -> Int32
+pub fn Mem::hash_combine(Self, Hasher) -> Unit
+pub fn Mem::not_equal(Self, Self) -> Bool
+pub fn Mem::op_ge(Self, Self) -> Bool
+pub fn Mem::op_gt(Self, Self) -> Bool
+pub fn Mem::op_le(Self, Self) -> Bool
+pub fn Mem::op_lt(Self, Self) -> Bool
+pub fn Mem::output(Self, &Logger) -> Unit
+pub fn Mem::to_string(Self) -> String
 pub impl Show for Mem
 
 pub(all) enum Reg {
@@ -107,15 +124,25 @@ pub(all) enum Reg {
   T4
   T5
   T6
-}
-pub impl Compare for Reg
-pub impl Eq for Reg
-pub impl Hash for Reg
+} derive(Compare, Eq, Hash)
+pub fn Reg::compare(Self, Self) -> Int32
+pub fn Reg::equal(Self, Self) -> Bool
+pub fn Reg::hash(Self) -> Int32
+pub fn Reg::hash_combine(Self, Hasher) -> Unit
+pub fn Reg::not_equal(Self, Self) -> Bool
+pub fn Reg::op_ge(Self, Self) -> Bool
+pub fn Reg::op_gt(Self, Self) -> Bool
+pub fn Reg::op_le(Self, Self) -> Bool
+pub fn Reg::op_lt(Self, Self) -> Bool
+pub fn Reg::output(Self, &Logger) -> Unit
+pub fn Reg::to_string(Self) -> String
 pub impl Show for Reg
 
 pub struct Riscv64Module {
   insts : Array[RvAsm]
 }
+pub fn Riscv64Module::output(Self, &Logger) -> Unit
+pub fn Riscv64Module::to_string(Self) -> String
 pub impl Show for Riscv64Module
 
 pub(all) enum RvAsm {
@@ -123,9 +150,9 @@ pub(all) enum RvAsm {
   Asciz(String)
   Byte(Byte)
   Half(UInt16)
-  Word(UInt)
+  Word(UInt32)
   Quad(UInt64)
-  Zero(UInt)
+  Zero(UInt32)
   Section(String)
   LuiHi(Reg, String)
   AddiLo(Reg, Reg, String)
@@ -144,16 +171,16 @@ pub(all) enum RvAsm {
   Sllw(Reg, Reg, Reg)
   Srlw(Reg, Reg, Reg)
   Sraw(Reg, Reg, Reg)
-  Addi(Reg, Reg, Int)
-  Addiw(Reg, Reg, Int)
-  Xori(Reg, Reg, Int)
-  Ori(Reg, Reg, Int)
-  Andi(Reg, Reg, Int)
-  Slli(Reg, Reg, Int)
-  Srli(Reg, Reg, Int)
-  Srai(Reg, Reg, Int)
-  Slti(Reg, Reg, Int)
-  Sltiu(Reg, Reg, Int)
+  Addi(Reg, Reg, Int32)
+  Addiw(Reg, Reg, Int32)
+  Xori(Reg, Reg, Int32)
+  Ori(Reg, Reg, Int32)
+  Andi(Reg, Reg, Int32)
+  Slli(Reg, Reg, Int32)
+  Srli(Reg, Reg, Int32)
+  Srai(Reg, Reg, Int32)
+  Slti(Reg, Reg, Int32)
+  Sltiu(Reg, Reg, Int32)
   Lb(Reg, Mem)
   Lh(Reg, Mem)
   Lw(Reg, Mem)
@@ -225,8 +252,8 @@ pub(all) enum RvAsm {
   FmvS(FReg, FReg)
   FnegS(FReg, FReg)
   FabsD(FReg, FReg)
-  Lui(Reg, Int)
-  Auipc(Reg, Int)
+  Lui(Reg, Int32)
+  Auipc(Reg, Int32)
   Jal(Reg, String)
   Ebreak
   Fence
@@ -278,9 +305,10 @@ pub(all) enum RvAsm {
   Label(String)
   Comment(String)
 }
+pub fn RvAsm::output(Self, &Logger) -> Unit
+pub fn RvAsm::to_string(Self) -> String
 pub impl Show for RvAsm
 
 // Type aliases
 
 // Traits
-

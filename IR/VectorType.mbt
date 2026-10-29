@@ -9,7 +9,7 @@
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let i32ty = ctx.getInt32Ty()
 ///   let vecty = ctx.getFixedVectorType(i32ty, 16)
 ///   inspect(vecty, content="<16 x i32>")
@@ -20,7 +20,7 @@
 pub struct VectorType {
   ctx : Context
   elementType : &Type
-  elementCount : Int
+  elementCount : Int32
 } derive(Eq, Hash)
 
 ///|
@@ -28,12 +28,12 @@ pub struct VectorType {
 fn VectorType::new(
   ctx : Context,
   elementType : &Type,
-  elementCount : Int,
+  elementCount : Int32,
 ) -> VectorType raise LLVMTypeError {
   guard VectorType::isValidElementType(elementType) else {
     raise InValidVectorElementType(elementType)
   }
-  VectorType::{ ctx, elementType, elementCount }
+  VectorType::{ ctx, elementType, elementCount, }
 }
 
 ///|
@@ -55,26 +55,26 @@ pub fn VectorType::getElementType(self : VectorType) -> &Type {
 
 ///|
 /// Get the number of elements in the vector.
-pub fn VectorType::getElementCount(self : VectorType) -> Int {
+pub fn VectorType::getElementCount(self : VectorType) -> Int32 {
   self.elementCount
 }
 
 ///|
-pub impl Show for VectorType with output(self, logger : &Logger) {
+pub impl Show for VectorType with fn output(self, logger : &Logger) {
   logger.write_string("<\{self.getElementCount()} x \{self.getElementType()}>")
 }
 
 ///|
-pub impl Type for VectorType with asTypeEnum(self) -> TypeEnum {
+pub impl Type for VectorType with fn asTypeEnum(self) -> TypeEnum {
   TypeEnum::VectorType(self)
 }
 
 ///|
-pub impl Type for VectorType with getContext(self) -> Context {
+pub impl Type for VectorType with fn getContext(self) -> Context {
   self.ctx
 }
 
 ///|
-pub impl AggregateType for VectorType with asAggregateTypeEnum(self) -> AggregateTypeEnum {
+pub impl AggregateType for VectorType with fn asAggregateTypeEnum(self) -> AggregateTypeEnum {
   VectorType(self)
 }

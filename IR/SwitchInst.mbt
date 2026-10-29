@@ -11,7 +11,7 @@
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -90,7 +90,7 @@ pub fn SwitchInst::getDefaultDest(self : Self) -> BasicBlock {
 }
 
 ///|
-pub fn SwitchInst::getNumCases(self : Self) -> Int {
+pub fn SwitchInst::getNumCases(self : Self) -> Int32 {
   self.cases.length()
 }
 
@@ -103,7 +103,7 @@ pub fn SwitchInst::getNumCases(self : Self) -> Int {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -131,7 +131,7 @@ pub fn SwitchInst::getNumCases(self : Self) -> Int {
 /// ```
 pub fn SwitchInst::getCase(
   self : Self,
-  idx : Int,
+  idx : Int32,
 ) -> (ConstantInt, BasicBlock)? {
   self.cases.get(idx)
 }
@@ -146,7 +146,7 @@ pub fn SwitchInst::getCase(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -180,7 +180,7 @@ pub fn SwitchInst::addCase(
   cond : ConstantInt,
   dest : BasicBlock,
 ) -> Unit raise LLVMValueError {
-  guard self.getCondition().getType().tryAsIntTypeEnum() is Some(intTy)
+  guard! self.getCondition().getType().tryAsIntTypeEnum() is Some(intTy)
   guard cond.getType().tryAsIntTypeEnum() is Some(case_cond_ty) else {
     let msg = "SwitchInst case condition type mismatch: " +
       "expected integer type, got \{cond.getType()}"
@@ -201,7 +201,7 @@ pub fn SwitchInst::addCase(
 }
 
 ///|
-pub impl Value for SwitchInst with getValueBase(self) {
+pub impl Value for SwitchInst with fn getValueBase(self) {
   ValueBase::{
     uid: self.uid,
     vty: self.vty, // SwitchInst does not have a value type
@@ -210,44 +210,44 @@ pub impl Value for SwitchInst with getValueBase(self) {
 }
 
 ///|
-pub impl Value for SwitchInst with asValueEnum(self) {
+pub impl Value for SwitchInst with fn asValueEnum(self) {
   SwitchInst(self)
 }
 
 ///|
-pub impl Value for SwitchInst with getValueRepr(_) {
+pub impl Value for SwitchInst with fn getValueRepr(_) {
   ""
 }
 
 ///|
-pub impl Value for SwitchInst with getName(_) {
+pub impl Value for SwitchInst with fn getName(_) {
   None
 }
 
 ///|
-pub impl Value for SwitchInst with setName(_, _) {
+pub impl Value for SwitchInst with fn setName(_, _) {
   let msg = "Calling always failed function `SwitchInst::setName`. " +
     "Set name for SwitchInst is not allowed."
   raise LLVMValueError(msg)
 }
 
 ///|
-pub impl Value for SwitchInst with removeName(_) {
+pub impl Value for SwitchInst with fn removeName(_) {
   ()
 }
 
 ///|
-pub impl Value for SwitchInst with getNameOrSlot(_) {
+pub impl Value for SwitchInst with fn getNameOrSlot(_) {
   None
 }
 
 ///|
-pub impl User for SwitchInst with asUserEnum(self) {
+pub impl User for SwitchInst with fn asUserEnum(self) {
   SwitchInst(self)
 }
 
 ///|
-pub impl User for SwitchInst with getUserBase(self) {
+pub impl User for SwitchInst with fn getUserBase(self) {
   let operands : Array[&Value] = [self.condition, self.defaultDest]
   self.cases.each(case => {
     operands.push(case.0) // case condition
@@ -260,22 +260,22 @@ pub impl User for SwitchInst with getUserBase(self) {
 }
 
 ///|
-pub impl Instruction for SwitchInst with getInstBase(self) {
-  InstBase::{ bb: self.bb, prev: self.prev, next: self.next }
+pub impl Instruction for SwitchInst with fn getInstBase(self) {
+  InstBase::{ bb: self.bb, prev: self.prev, next: self.next, }
 }
 
 ///|
-pub impl Instruction for SwitchInst with asInstEnum(self) {
+pub impl Instruction for SwitchInst with fn asInstEnum(self) {
   InstEnum::SwitchInst(self)
 }
 
 ///|
-pub impl Instruction for SwitchInst with getParent(self) {
+pub impl Instruction for SwitchInst with fn getParent(self) {
   self.parent
 }
 
 ///|
-pub impl Show for SwitchInst with output(self, logger) {
+pub impl Show for SwitchInst with fn output(self, logger) {
   let condition = self.getCondition()
   let condition_ty = condition.getType()
 

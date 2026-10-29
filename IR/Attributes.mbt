@@ -1,10 +1,10 @@
 ///|
 pub(all) enum FnAttr {
   /// Describes behavior of an allocator function in terms of known properties.
-  AllocKind(Int)
+  AllocKind(Int32)
   /// The result of the function is guaranteed to point to a number of bytes that
   /// we can determine if we know the value of the function's arguments.
-  AllocSize(Int)
+  AllocSize(Int32)
   /// inline=always.
   AlwaysInline
   /// Callee is recognized as a builtin, despite nobuiltin attribute on its
@@ -28,7 +28,7 @@ pub(all) enum FnAttr {
   /// Build jump-instruction tables and replace refs.
   JumpTable
   /// Build jump-instruction tables and replace refs.
-  Memory(Int)
+  Memory(Int32)
   /// Function must be optimized for size first.
   MinSize
   /// Naked function.
@@ -91,7 +91,7 @@ pub(all) enum FnAttr {
   ShadowCallStack
   /// Alignment of stack for function (3 bits)  stored as log2 of alignment with
   /// +1 bias 0 means unaligned (different from alignstack=(1)).
-  StackAlignment(Int)
+  StackAlignment(Int32)
   /// Function can be speculated.
   Speculatable
   /// Stack protection.
@@ -129,9 +129,9 @@ pub(all) enum FnAttr {
   /// this attribute will always be lowered with hardening enabled.
   SpeculativeLoadHardening
   /// Function must be in a unwind table.
-  UWTable(Int)
+  UWTable(Int32)
   /// Minimum/Maximum vscale value for function.
-  VScaleRange(Int)
+  VScaleRange(Int32)
   /// Function always comes back to callsite.
   WillReturn
   /// Function is required to make Forward Progress.
@@ -154,7 +154,7 @@ pub(all) enum FnAttr {
 pub(all) enum ParamAttr {
   /// Alignment of parameter (5 bits) stored as log2 of alignment with +1 bias.
   /// 0 means unaligned (different from align(1)).
-  Alignment(Int)
+  Alignment(Int32)
   /// Parameter of a function that tells us the alignment of an allocation, as in
   /// aligned_alloc and aligned ::operator::new.
   AllocAlign
@@ -167,9 +167,9 @@ pub(all) enum ParamAttr {
   /// Parameter or return value may not contain uninitialized or poison bits.
   NoUndef
   /// Pointer is known to be dereferenceable.
-  Dereferenceable(Int)
+  Dereferenceable(Int32)
   /// Pointer is either null or dereferenceable.
-  DereferenceableOrNull(Int)
+  DereferenceableOrNull(Int32)
   /// Provide pointer element type to intrinsic.
   ElementType(&Type)
   /// Pass structure in an alloca.
@@ -210,7 +210,7 @@ pub(all) enum ParamAttr {
   SExt
   /// Alignment of stack for function (3 bits)  stored as log2 of alignment with
   /// +1 bias 0 means unaligned (different from alignstack=(1)).
-  StackAlignment(Int)
+  StackAlignment(Int32)
   /// Hidden pointer to structure to return.
   StructRet
   /// Argument is swift error.
@@ -231,13 +231,13 @@ pub(all) enum ParamAttr {
 pub(all) enum RetAttr {
   /// Alignment of parameter (5 bits) stored as log2 of alignment with +1 bias.
   /// 0 means unaligned (different from align(1)).
-  Alignment(Int)
+  Alignment(Int32)
   /// Parameter or return value may not contain uninitialized or poison bits.
   NoUndef
   /// Pointer is known to be dereferenceable.
-  Dereferenceable(Int)
+  Dereferenceable(Int32)
   /// Pointer is either null or dereferenceable.
-  DereferenceableOrNull(Int)
+  DereferenceableOrNull(Int32)
   /// Force argument to be passed in register.
   InReg
   /// Forbidden floating-point classes.
@@ -252,13 +252,13 @@ pub(all) enum RetAttr {
   SExt
   /// Alignment of stack for function (3 bits)  stored as log2 of alignment with
   /// +1 bias 0 means unaligned (different from alignstack=(1)).
-  StackAlignment(Int)
+  StackAlignment(Int32)
   /// Zero extended before/after call.
   ZExt
 } derive(Hash, Eq)
 
 ///|
-pub impl Show for FnAttr with output(self, logger) {
+pub impl Show for FnAttr with fn output(self, logger) {
   let str = match self {
     AllocSize(a) => "allocsize(\{a})"
     AlwaysInline => "alwaysinline"
@@ -333,7 +333,7 @@ pub impl Show for FnAttr with output(self, logger) {
 }
 
 ///|
-pub impl Show for ParamAttr with output(self, logger) {
+pub impl Show for ParamAttr with fn output(self, logger) {
   let str = match self {
     Alignment(a) => "align(\{a})"
     AllocAlign => "allocalign"
@@ -375,7 +375,7 @@ pub impl Show for ParamAttr with output(self, logger) {
 }
 
 ///|
-pub impl Show for RetAttr with output(self, logger) {
+pub impl Show for RetAttr with fn output(self, logger) {
   let str = match self {
     Alignment(a) => "align(\{a})"
     NoUndef => "noundef"
@@ -396,7 +396,7 @@ pub impl Show for RetAttr with output(self, logger) {
 ///|
 struct AttributeSet {
   fnAttrs : Set[FnAttr]
-  paramAttrs : Map[UInt, Set[ParamAttr]]
+  paramAttrs : Map[UInt32, Set[ParamAttr]]
   retAttrs : Set[RetAttr]
 }
 

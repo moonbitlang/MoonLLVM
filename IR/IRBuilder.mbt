@@ -1,6 +1,6 @@
 ///|
 trait InsertPoint {
-  asInsertPtEnum(Self) -> InsertPointEnum
+  fn asInsertPtEnum(Self) -> InsertPointEnum
 }
 
 ///|
@@ -10,12 +10,12 @@ priv enum InsertPointEnum {
 }
 
 ///|
-pub impl InsertPoint for BasicBlock with asInsertPtEnum(self) {
+pub impl InsertPoint for BasicBlock with fn asInsertPtEnum(self) {
   InsertPointEnum::BasicBlock(self)
 }
 
 ///|
-pub impl InsertPoint for &Instruction with asInsertPtEnum(self) {
+pub impl InsertPoint for &Instruction with fn asInsertPtEnum(self) {
   InsertPointEnum::Instruction(self)
 }
 
@@ -28,7 +28,7 @@ pub struct IRBuilder {
 
 ///|
 fn IRBuilder::new(ctx : Context) -> IRBuilder {
-  IRBuilder::{ ctx, bb: None, insertPt: None }
+  IRBuilder::{ ctx, bb: None, insertPt: None, }
 }
 
 ///|
@@ -94,7 +94,7 @@ pub fn IRBuilder::getModule(self : IRBuilder) -> Module {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -135,7 +135,7 @@ pub fn IRBuilder::createRet(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let void_ty = ctx.getVoidTy()
@@ -165,7 +165,7 @@ pub fn IRBuilder::createRetVoid(self : IRBuilder) -> &Instruction raise Error {
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let void_ty = ctx.getVoidTy()
@@ -181,8 +181,8 @@ pub fn IRBuilder::createRetVoid(self : IRBuilder) -> &Instruction raise Error {
 pub fn IRBuilder::createAlloca(
   self : IRBuilder,
   data_ty : &Type,
-  addressSpace? : AddressSpace = AddressSpace::default(),
-  name? : String = "",
+  addressSpace~ : AddressSpace = AddressSpace::default(),
+  name~ : String = "",
 ) -> AllocaInst raise Error {
   let allocaInst = AllocaInst::new(
     data_ty,
@@ -207,7 +207,7 @@ pub fn IRBuilder::createAlloca(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -231,9 +231,9 @@ pub fn IRBuilder::createAdd(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
-  has_nsw? : Bool = false,
-  has_nuw? : Bool = false,
+  name~ : String = "",
+  has_nsw~ : Bool = false,
+  has_nuw~ : Bool = false,
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -285,7 +285,7 @@ pub fn IRBuilder::createAdd(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -309,7 +309,7 @@ pub fn IRBuilder::createNSWAdd(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createAdd(lhs, rhs, name~, has_nsw=true, has_nuw=false)
 }
@@ -323,7 +323,7 @@ pub fn IRBuilder::createNSWAdd(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -347,7 +347,7 @@ pub fn IRBuilder::createNUWAdd(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createAdd(lhs, rhs, name~, has_nsw=false, has_nuw=true)
 }
@@ -361,7 +361,7 @@ pub fn IRBuilder::createNUWAdd(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -385,9 +385,9 @@ pub fn IRBuilder::createSub(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
-  has_nsw? : Bool = false,
-  has_nuw? : Bool = false,
+  name~ : String = "",
+  has_nsw~ : Bool = false,
+  has_nuw~ : Bool = false,
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -439,7 +439,7 @@ pub fn IRBuilder::createSub(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -463,7 +463,7 @@ pub fn IRBuilder::createNSWSub(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createSub(lhs, rhs, name~, has_nsw=true, has_nuw=false)
 }
@@ -477,7 +477,7 @@ pub fn IRBuilder::createNSWSub(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -501,7 +501,7 @@ pub fn IRBuilder::createNUWSub(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createSub(lhs, rhs, name~, has_nsw=false, has_nuw=true)
 }
@@ -510,7 +510,7 @@ pub fn IRBuilder::createNUWSub(
 pub fn IRBuilder::createNeg(
   self : IRBuilder,
   val : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   let ty = val.getType()
   let zero = self.getContext().getConstZero(ty)
@@ -526,7 +526,7 @@ pub fn IRBuilder::createNeg(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -550,9 +550,9 @@ pub fn IRBuilder::createMul(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
-  has_nsw? : Bool = false,
-  has_nuw? : Bool = false,
+  name~ : String = "",
+  has_nsw~ : Bool = false,
+  has_nuw~ : Bool = false,
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -604,7 +604,7 @@ pub fn IRBuilder::createMul(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -628,7 +628,7 @@ pub fn IRBuilder::createNSWMul(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createMul(lhs, rhs, name~, has_nsw=true, has_nuw=false)
 }
@@ -642,7 +642,7 @@ pub fn IRBuilder::createNSWMul(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -666,7 +666,7 @@ pub fn IRBuilder::createNUWMul(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createMul(lhs, rhs, name~, has_nsw=false, has_nuw=true)
 }
@@ -679,8 +679,8 @@ pub fn IRBuilder::createNUWMul(
 /// This creates a signed integer division instruction.
 /// Both operands must be integer types with the same bitwidth.
 ///
-/// ```mbt
-/// let ctx = Context::new()
+/// ```mbt nocheck
+/// let ctx = @IR.Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
 ///
@@ -707,8 +707,8 @@ pub fn IRBuilder::createSDiv(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
-  is_exact? : Bool = false,
+  name~ : String = "",
+  is_exact~ : Bool = false,
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -757,8 +757,8 @@ pub fn IRBuilder::createSDiv(
 /// This creates an exact signed integer division instruction. Both operands must be integer types with the same bitwidth.
 /// The exact flag indicates that the division is expected to be exact (no remainder).
 ///
-/// ```mbt
-/// let ctx = Context::new()
+/// ```mbt nocheck
+/// let ctx = @IR.Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
 ///
@@ -785,7 +785,7 @@ pub fn IRBuilder::createExactSDiv(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createSDiv(lhs, rhs, name~, is_exact=true)
 }
@@ -799,7 +799,7 @@ pub fn IRBuilder::createExactSDiv(
 /// Both operands must be integer types with the same bitwidth.
 ///
 /// ```mbt skip
-/// let ctx = Context::new()
+/// let ctx = @IR.Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
 ///
@@ -826,8 +826,8 @@ pub fn IRBuilder::createUDiv(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
-  is_exact? : Bool = false,
+  name~ : String = "",
+  is_exact~ : Bool = false,
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -877,7 +877,7 @@ pub fn IRBuilder::createUDiv(
 /// The exact flag indicates that the division is expected to be exact (no remainder).
 ///
 /// ```mbt skip
-/// let ctx = Context::new()
+/// let ctx = @IR.Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
 ///
@@ -904,7 +904,7 @@ pub fn IRBuilder::createExactUDiv(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createUDiv(lhs, rhs, name~, is_exact=true)
 }
@@ -917,7 +917,7 @@ pub fn IRBuilder::createExactUDiv(
 /// This creates a signed integer remainder instruction. Both operands must be integer types with the same bitwidth.
 ///
 /// ```mbt skip
-/// let ctx = Context::new()
+/// let ctx = @IR.Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
 ///
@@ -944,7 +944,7 @@ pub fn IRBuilder::createSRem(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -991,7 +991,7 @@ pub fn IRBuilder::createSRem(
 /// This creates an unsigned integer remainder instruction. Both operands must be integer types with the same bitwidth.
 ///
 /// ```mbt skip
-/// let ctx = Context::new()
+/// let ctx = @IR.Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
 ///
@@ -1018,7 +1018,7 @@ pub fn IRBuilder::createURem(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -1077,7 +1077,7 @@ pub fn IRBuilder::createURem(
 /// 7. `ApproxFunc`
 ///
 /// ```mbt skip
-/// let ctx = Context::new()
+/// let ctx = @IR.Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
 ///
@@ -1115,8 +1115,8 @@ pub fn IRBuilder::createFAdd(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
-  fast_math? : Array[FastMathFlag] = [],
+  name~ : String = "",
+  fast_math~ : Array[FastMathFlag] = [],
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -1157,7 +1157,7 @@ pub fn IRBuilder::createFAdd(
 /// This creates a floating-point subtraction instruction. Both operands must be floating-point types with the same bitwidth.
 ///
 /// ```mbt skip
-/// let ctx = Context::new()
+/// let ctx = @IR.Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
 ///
@@ -1184,8 +1184,8 @@ pub fn IRBuilder::createFSub(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
-  fast_math_flags? : Set[FastMathFlag] = Set::new(),
+  name~ : String = "",
+  fast_math_flags~ : Set[FastMathFlag] = Set::new(),
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -1226,7 +1226,7 @@ pub fn IRBuilder::createFSub(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let f32_ty = ctx.getFloatTy()
@@ -1243,8 +1243,8 @@ pub fn IRBuilder::createFSub(
 pub fn IRBuilder::createFNeg(
   self : IRBuilder,
   value : &Value,
-  name? : String = "",
-  fast_math_flags? : Set[FastMathFlag] = Set::new(),
+  name~ : String = "",
+  fast_math_flags~ : Set[FastMathFlag] = Set::new(),
 ) -> &Value raise Error {
   let ty = value.getType()
   guard ty.tryAsFPTypeEnum() is Some(_) else {
@@ -1271,7 +1271,7 @@ pub fn IRBuilder::createFNeg(
 /// This creates a floating-point multiplication instruction. Both operands must be floating-point types with the same bitwidth.
 ///
 /// ```mbt skip
-/// let ctx = Context::new()
+/// let ctx = @IR.Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
 ///
@@ -1298,8 +1298,8 @@ pub fn IRBuilder::createFMul(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
-  fast_math_flags? : Set[FastMathFlag] = Set::new(),
+  name~ : String = "",
+  fast_math_flags~ : Set[FastMathFlag] = Set::new(),
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -1339,7 +1339,7 @@ pub fn IRBuilder::createFMul(
 /// This creates a floating-point division instruction. Both operands must be floating-point types with the same bitwidth.
 ///
 /// ```mbt skip
-/// let ctx = Context::new()
+/// let ctx = @IR.Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
 ///
@@ -1366,8 +1366,8 @@ pub fn IRBuilder::createFDiv(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
-  fast_math_flags? : Set[FastMathFlag] = Set::new(),
+  name~ : String = "",
+  fast_math_flags~ : Set[FastMathFlag] = Set::new(),
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -1407,7 +1407,7 @@ pub fn IRBuilder::createFDiv(
 /// This creates a floating-point remainder instruction. Both operands must be floating-point types with the same bitwidth.
 ///
 /// ```mbt skip
-/// let ctx = Context::new()
+/// let ctx = @IR.Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
 ///
@@ -1434,8 +1434,8 @@ pub fn IRBuilder::createFRem(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
-  fast_math_flags? : Set[FastMathFlag] = Set::new(),
+  name~ : String = "",
+  fast_math_flags~ : Set[FastMathFlag] = Set::new(),
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -1476,7 +1476,7 @@ pub fn IRBuilder::createFRem(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -1500,7 +1500,7 @@ pub fn IRBuilder::createAnd(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -1546,7 +1546,7 @@ pub fn IRBuilder::createAnd(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -1570,7 +1570,7 @@ pub fn IRBuilder::createOr(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -1616,7 +1616,7 @@ pub fn IRBuilder::createOr(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -1640,7 +1640,7 @@ pub fn IRBuilder::createXor(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -1681,7 +1681,7 @@ pub fn IRBuilder::createXor(
 pub fn IRBuilder::createNot(
   self : IRBuilder,
   val : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   let ctx = self.getContext()
   let allones = match val.getType().asTypeEnum() {
@@ -1709,7 +1709,7 @@ pub fn IRBuilder::createNot(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -1733,9 +1733,9 @@ pub fn IRBuilder::createShl(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
-  has_nsw? : Bool = false,
-  has_nuw? : Bool = false,
+  name~ : String = "",
+  has_nsw~ : Bool = false,
+  has_nuw~ : Bool = false,
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -1788,7 +1788,7 @@ pub fn IRBuilder::createShl(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -1812,8 +1812,8 @@ pub fn IRBuilder::createLShr(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
-  is_exact? : Bool = false,
+  name~ : String = "",
+  is_exact~ : Bool = false,
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -1863,7 +1863,7 @@ pub fn IRBuilder::createLShr(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -1887,8 +1887,8 @@ pub fn IRBuilder::createAShr(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
-  is_exact? : Bool = false,
+  name~ : String = "",
+  is_exact~ : Bool = false,
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -1939,7 +1939,7 @@ pub fn IRBuilder::createAShr(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -1949,7 +1949,12 @@ pub fn IRBuilder::createAShr(
 ///   let arg0 = fval.getArg(0).unwrap()
 ///   let arg1 = fval.getArg(1).unwrap()
 ///   builder.setInsertPoint(bb)
-///   let eq_cmp = builder.createICmp(IntPredicate::EQ, arg0, arg1, name="eq_cmp")
+///   let eq_cmp = builder.createICmp(
+///     @IR.IntPredicate::EQ,
+///     arg0,
+///     arg1,
+///     name="eq_cmp",
+///   )
 ///   inspect(eq_cmp, content="  %eq_cmp = icmp eq i32 %0, %1")
 ///   assert_true(eq_cmp.asValueEnum() is ICmpInst(_))
 ///   let val1 = ctx.getConstInt32(5)
@@ -1982,7 +1987,7 @@ pub fn IRBuilder::createICmp(
   pred : IntPredicate,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -2020,7 +2025,7 @@ pub fn IRBuilder::createICmpEQ(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createICmp(EQ, lhs, rhs, name~)
 }
@@ -2033,7 +2038,7 @@ pub fn IRBuilder::createICmpNE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createICmp(NE, lhs, rhs, name~)
 }
@@ -2046,7 +2051,7 @@ pub fn IRBuilder::createICmpUGT(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createICmp(UGT, lhs, rhs, name~)
 }
@@ -2059,7 +2064,7 @@ pub fn IRBuilder::createICmpUGE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createICmp(UGE, lhs, rhs, name~)
 }
@@ -2072,7 +2077,7 @@ pub fn IRBuilder::createICmpULT(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createICmp(ULT, lhs, rhs, name~)
 }
@@ -2085,7 +2090,7 @@ pub fn IRBuilder::createICmpULE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createICmp(ULE, lhs, rhs, name~)
 }
@@ -2098,7 +2103,7 @@ pub fn IRBuilder::createICmpSGT(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createICmp(SGT, lhs, rhs, name~)
 }
@@ -2111,7 +2116,7 @@ pub fn IRBuilder::createICmpSGE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createICmp(SGE, lhs, rhs, name~)
 }
@@ -2124,7 +2129,7 @@ pub fn IRBuilder::createICmpSLT(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createICmp(SLT, lhs, rhs, name~)
 }
@@ -2137,7 +2142,7 @@ pub fn IRBuilder::createICmpSLE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createICmp(SLE, lhs, rhs, name~)
 }
@@ -2152,7 +2157,7 @@ pub fn IRBuilder::createICmpSLE(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let f32_ty = ctx.getFloatTy()
@@ -2163,7 +2168,7 @@ pub fn IRBuilder::createICmpSLE(
 ///   let arg1 = fval.getArg(1).unwrap()
 ///   builder.setInsertPoint(bb)
 ///   let oeq_cmp = builder.createFCmp(
-///     FloatPredicate::OEQ,
+///     @IR.FloatPredicate::OEQ,
 ///     arg0,
 ///     arg1,
 ///     name="oeq_cmp",
@@ -2206,7 +2211,7 @@ pub fn IRBuilder::createFCmp(
   pred : FloatPredicate,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -2244,7 +2249,7 @@ pub fn IRBuilder::createFCmpOEQ(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createFCmp(OEQ, lhs, rhs, name~)
 }
@@ -2257,7 +2262,7 @@ pub fn IRBuilder::createFCmpOGT(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createFCmp(OGT, lhs, rhs, name~)
 }
@@ -2270,7 +2275,7 @@ pub fn IRBuilder::createFCmpOGE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createFCmp(OGE, lhs, rhs, name~)
 }
@@ -2283,7 +2288,7 @@ pub fn IRBuilder::createFCmpOLT(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createFCmp(OLT, lhs, rhs, name~)
 }
@@ -2296,7 +2301,7 @@ pub fn IRBuilder::createFCmpOLE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createFCmp(OLE, lhs, rhs, name~)
 }
@@ -2309,7 +2314,7 @@ pub fn IRBuilder::createFCmpONE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createFCmp(ONE, lhs, rhs, name~)
 }
@@ -2322,7 +2327,7 @@ pub fn IRBuilder::createFCmpORD(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createFCmp(ORD, lhs, rhs, name~)
 }
@@ -2335,7 +2340,7 @@ pub fn IRBuilder::createFCmpUNO(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createFCmp(UNO, lhs, rhs, name~)
 }
@@ -2348,7 +2353,7 @@ pub fn IRBuilder::createFCmpUEQ(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createFCmp(UEQ, lhs, rhs, name~)
 }
@@ -2361,7 +2366,7 @@ pub fn IRBuilder::createFCmpUGT(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createFCmp(UGT, lhs, rhs, name~)
 }
@@ -2374,7 +2379,7 @@ pub fn IRBuilder::createFCmpUGE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createFCmp(UGE, lhs, rhs, name~)
 }
@@ -2387,7 +2392,7 @@ pub fn IRBuilder::createFCmpULT(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createFCmp(ULT, lhs, rhs, name~)
 }
@@ -2400,7 +2405,7 @@ pub fn IRBuilder::createFCmpULE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createFCmp(ULE, lhs, rhs, name~)
 }
@@ -2413,7 +2418,7 @@ pub fn IRBuilder::createFCmpUNE(
   self : IRBuilder,
   lhs : &Value,
   rhs : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   self.createFCmp(UNE, lhs, rhs, name~)
 }
@@ -2428,7 +2433,7 @@ pub fn IRBuilder::createFCmpUNE(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i64_ty = ctx.getInt64Ty()
@@ -2451,7 +2456,7 @@ pub fn IRBuilder::createTrunc(
   self : IRBuilder,
   src_val : &Value,
   dst_ty : &IntegerType,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   guard src_val.getType().tryAsIntTypeEnum() is Some(src_ty) else {
     let msg = "Misuse `IRBuilder::createTrunc`, " +
@@ -2489,7 +2494,7 @@ pub fn IRBuilder::createTrunc(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -2512,7 +2517,7 @@ pub fn IRBuilder::createZExt(
   self : IRBuilder,
   src_val : &Value,
   dst_ty : &IntegerType,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   guard src_val.getType().tryAsIntTypeEnum() is Some(src_ty) else {
     let msg = "Misuse `IRBuilder::createZExt`, " +
@@ -2550,7 +2555,7 @@ pub fn IRBuilder::createZExt(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -2573,7 +2578,7 @@ pub fn IRBuilder::createSExt(
   self : IRBuilder,
   src_val : &Value,
   dst_ty : &IntegerType,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   guard src_val.getType().tryAsIntTypeEnum() is Some(src_ty) else {
     let msg = "Misuse `IRBuilder::createSExt`, " +
@@ -2611,7 +2616,7 @@ pub fn IRBuilder::createSExt(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let f64_ty = ctx.getDoubleTy()
@@ -2633,7 +2638,7 @@ pub fn IRBuilder::createFPTrunc(
   self : IRBuilder,
   src_val : &Value,
   dst_ty : &FPType,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   guard src_val.getType().tryAsFPTypeEnum() is Some(src_ty) else {
     let msg = "Misuse `IRBuilder::createFPTrunc`, " +
@@ -2671,7 +2676,7 @@ pub fn IRBuilder::createFPTrunc(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let f32_ty = ctx.getFloatTy()
@@ -2689,7 +2694,7 @@ pub fn IRBuilder::createFPExt(
   self : IRBuilder,
   src_val : &Value,
   dst_ty : &FPType,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   guard src_val.getType().tryAsFPTypeEnum() is Some(src_ty) else {
     let msg = "Misuse `IRBuilder::createFPExt`, " +
@@ -2727,7 +2732,7 @@ pub fn IRBuilder::createFPExt(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -2749,7 +2754,7 @@ pub fn IRBuilder::createUIToFP(
   self : IRBuilder,
   src_val : &Value,
   dst_ty : &FPType,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   guard src_val.getType().tryAsIntTypeEnum() is Some(_) else {
     let msg = "Misuse `IRBuilder::createUIToFP`, " +
@@ -2781,7 +2786,7 @@ pub fn IRBuilder::createUIToFP(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let f32_ty = ctx.getFloatTy()
@@ -2804,7 +2809,7 @@ pub fn IRBuilder::createFPToUI(
   self : IRBuilder,
   src_val : &Value,
   dst_ty : &IntegerType,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   guard src_val.getType().tryAsFPTypeEnum() is Some(_) else {
     let msg = "Misuse `IRBuilder::createFPToUI`, " +
@@ -2836,7 +2841,7 @@ pub fn IRBuilder::createFPToUI(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -2854,7 +2859,7 @@ pub fn IRBuilder::createSIToFP(
   self : IRBuilder,
   src_val : &Value,
   dst_ty : &FPType,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   guard src_val.getType().tryAsIntTypeEnum() is Some(_) else {
     let msg = "Misuse `IRBuilder::createSIToFP`, " +
@@ -2886,7 +2891,7 @@ pub fn IRBuilder::createSIToFP(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let f32_ty = ctx.getFloatTy()
@@ -2904,7 +2909,7 @@ pub fn IRBuilder::createFPToSI(
   self : IRBuilder,
   src_val : &Value,
   dst_ty : &IntegerType,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   guard src_val.getType().tryAsFPTypeEnum() is Some(_) else {
     let msg = "Misuse `IRBuilder::createFPToSI`, " +
@@ -2936,7 +2941,7 @@ pub fn IRBuilder::createFPToSI(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i64_ty = ctx.getInt64Ty()
@@ -2953,7 +2958,7 @@ pub fn IRBuilder::createFPToSI(
 pub fn IRBuilder::createIntToPtr(
   self : IRBuilder,
   src_val : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   guard src_val.getType().tryAsIntTypeEnum() is Some(_) else {
     let msg = "Misuse `IRBuilder::createIntToPtr`, " +
@@ -2985,7 +2990,7 @@ pub fn IRBuilder::createIntToPtr(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i64_ty = ctx.getInt64Ty()
@@ -3003,7 +3008,7 @@ pub fn IRBuilder::createPtrToInt(
   self : IRBuilder,
   src_val : &Value,
   dst_ty : &IntegerType,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   // No constant folding for PtrToInt as pointer constants are complex
   guard src_val.getType().asTypeEnum() is PointerType(_) else {
@@ -3032,7 +3037,7 @@ pub fn IRBuilder::createPtrToInt(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -3050,7 +3055,7 @@ pub fn IRBuilder::createBitCast(
   self : IRBuilder,
   src_val : &Value,
   dst_ty : &PrimitiveType,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   let src_ty = src_val.getType()
   guard src_ty != dst_ty else {
@@ -3097,7 +3102,7 @@ pub fn IRBuilder::createBitCast(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -3128,8 +3133,8 @@ pub fn IRBuilder::createGEP(
   ptr : &Value,
   pointeeType : &Type,
   indices : Array[&Value],
-  name? : String = "",
-  inbounds? : Bool = false,
+  name~ : String = "",
+  inbounds~ : Bool = false,
 ) -> &Value raise Error {
   guard ptr.getType().asTypeEnum() is PointerType(_) else {
     let msg = "Misuse `IRBuilder::createGEP`: " +
@@ -3177,7 +3182,7 @@ pub fn IRBuilder::createGEP(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -3194,9 +3199,9 @@ pub fn IRBuilder::createLoad(
   self : IRBuilder,
   load_ty : &Type,
   ptr : &Value,
-  isVolatile? : Bool = false,
-  atomicOrdering? : AtomicOrdering = NotAtomic,
-  name? : String = "",
+  isVolatile~ : Bool = false,
+  atomicOrdering~ : AtomicOrdering = NotAtomic,
+  name~ : String = "",
 ) -> &Value raise Error {
   guard ptr.getType().asTypeEnum() is PointerType(_) else {
     let msg = "Misuse `IRBuilder::createLoad`: " +
@@ -3241,7 +3246,7 @@ pub fn IRBuilder::createLoad(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -3259,8 +3264,8 @@ pub fn IRBuilder::createStore(
   self : IRBuilder,
   value : &Value,
   ptr : &Value,
-  isVolatile? : Bool = false,
-  atomicOrdering? : AtomicOrdering = NotAtomic,
+  isVolatile~ : Bool = false,
+  atomicOrdering~ : AtomicOrdering = NotAtomic,
 ) -> StoreInst raise Error {
   guard ptr.getType().asTypeEnum() is PointerType(_) else {
     let msg = "Misuse `IRBuilder::createStore`: " +
@@ -3289,7 +3294,7 @@ pub fn IRBuilder::createStore(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let void_ty = ctx.getVoidTy()
@@ -3324,7 +3329,7 @@ pub fn IRBuilder::createBr(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i1_ty = ctx.getInt1Ty()
@@ -3374,7 +3379,7 @@ pub fn IRBuilder::createCondBr(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i1_ty = ctx.getInt1Ty()
@@ -3395,7 +3400,7 @@ pub fn IRBuilder::createSelect(
   condition : &Value,
   trueValue : &Value,
   falseValue : &Value,
-  name? : String = "",
+  name~ : String = "",
 ) -> &Value raise Error {
   guard condition.getType().tryAsIntTypeEnum() is Some(Int1Type(_)) else {
     let msg = "Misuse `IRBuilder::createSelect`, " +
@@ -3446,7 +3451,7 @@ pub fn IRBuilder::createSelect(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -3498,7 +3503,7 @@ pub fn IRBuilder::createSwitch(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -3519,7 +3524,7 @@ pub fn IRBuilder::createSwitch(
 pub fn IRBuilder::createPHI(
   self : IRBuilder,
   ty : &Type,
-  name? : String = "",
+  name~ : String = "",
 ) -> PHINode raise Error {
   let parent = self.getInsertFunction()
   let phi = PHINode::new(ty, parent, name=None)
@@ -3541,7 +3546,7 @@ pub fn IRBuilder::createPHI(
 ///
 /// ```mbt check
 /// test {
-///   let ctx = Context::new()
+///   let ctx = @IR.Context::new()
 ///   let mod = ctx.addModule("demo")
 ///   let builder = ctx.createBuilder()
 ///   let i32_ty = ctx.getInt32Ty()
@@ -3561,7 +3566,7 @@ pub fn IRBuilder::createCall(
   self : IRBuilder,
   callee : Function,
   args : Array[&Value],
-  name? : String = "",
+  name~ : String = "",
 ) -> CallInst raise Error {
   let fty = callee.getFunctionType()
   let expected_params = fty.getNumParams()
@@ -3622,7 +3627,7 @@ pub fn IRBuilder::createCallPtr(
   callee : &Value,
   functionType : FunctionType,
   args : Array[&Value],
-  name? : String = "",
+  name~ : String = "",
 ) -> CallInst raise Error {
   let expected_params = functionType.getNumParams()
   let num_args = args.length()
@@ -3690,8 +3695,8 @@ pub fn IRBuilder::createCallPtr(
 /// This creates an extractvalue instruction that extracts a value from an aggregate (struct or array) at the specified index.
 /// The aggregate must be an aggregate type, and the index must be valid for the aggregate type.
 ///
-/// ```mbt
-/// let ctx = Context::new()
+/// ```mbt nocheck
+/// let ctx = @IR.Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
 ///
@@ -3711,8 +3716,8 @@ pub fn IRBuilder::createCallPtr(
 pub fn IRBuilder::createExtractValue(
   self : IRBuilder,
   aggregate : &Value,
-  indices : Array[Int],
-  name? : String = "",
+  indices : Array[Int32],
+  name~ : String = "",
 ) -> &Value raise Error {
   guard not(indices.is_empty()) else {
     let msg = "Misuse `IRBuilder::createExtractValue`, " +
@@ -3750,8 +3755,8 @@ pub fn IRBuilder::createExtractValue(
 /// This creates an insertvalue instruction that inserts a value into an aggregate (struct or array) at the specified index.
 /// The aggregate must be an aggregate type, and the value type must match the element type at the given index.
 ///
-/// ```mbt
-/// let ctx = Context::new()
+/// ```mbt nocheck
+/// let ctx = @IR.Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
 ///
@@ -3773,8 +3778,8 @@ pub fn IRBuilder::createInsertValue(
   self : IRBuilder,
   aggregate : &Value,
   value : &Value,
-  indices : Array[Int],
-  name? : String = "",
+  indices : Array[Int32],
+  name~ : String = "",
 ) -> &Value raise Error {
   guard not(indices.is_empty()) else {
     let msg = "Misuse `IRBuilder::createInsertValue`, " +
@@ -3808,7 +3813,7 @@ pub fn IRBuilder::createInsertValue(
 pub fn IRBuilder::createGlobalString(
   self : Self,
   string : String,
-  name? : String = "",
+  name~ : String = "",
 ) -> GlobalConstant raise {
   let mod = self.getModule()
   mod.addGlobalString(string, name~)
@@ -3822,7 +3827,7 @@ pub fn IRBuilder::createGlobalString(
 /// The type must not be an abstract type. The result is a pointer to the allocated memory.
 ///
 /// ```mbt skip
-/// let ctx = Context::new()
+/// let ctx = @IR.Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
 ///
@@ -3853,7 +3858,7 @@ pub fn IRBuilder::createGlobalString(
 /// The pointer must be a pointer type and should point to memory allocated by malloc.
 ///
 /// ```mbt skip
-/// let ctx = Context::new()
+/// let ctx = @IR.Context::new()
 /// let mod = ctx.addModule("demo")
 /// let builder = ctx.createBuilder()
 ///

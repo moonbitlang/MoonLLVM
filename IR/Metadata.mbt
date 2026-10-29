@@ -1,6 +1,6 @@
 ///|
 pub trait Metadata: Show {
-  asMetadataEnum(Self) -> MetadataEnum
+  fn asMetadataEnum(Self) -> MetadataEnum
 }
 
 ///|
@@ -23,12 +23,12 @@ pub struct MDString {
 }
 
 ///|
-pub impl Metadata for MDString with asMetadataEnum(self) {
+pub impl Metadata for MDString with fn asMetadataEnum(self) {
   MDString(self)
 }
 
 ///|
-pub impl Show for MDString with output(self, logger) {
+pub impl Show for MDString with fn output(self, logger) {
   logger.write_string("!\"\{self.str}\"")
 }
 
@@ -44,12 +44,12 @@ pub struct MDNode {
 }
 
 ///|
-pub impl Metadata for MDNode with asMetadataEnum(self) {
+pub impl Metadata for MDNode with fn asMetadataEnum(self) {
   MDNode(self)
 }
 
 ///|
-pub impl Show for MDNode with output(self, logger) {
+pub impl Show for MDNode with fn output(self, logger) {
   let metadata_strs = self.metadata.map(m => m.to_string())
   let metadata_joined = metadata_strs.join(", ")
   logger.write_string("!{\{metadata_joined}}")
@@ -68,7 +68,7 @@ priv struct MDAttachments {
 /// FIXME: eliminate this function.
 /// This is only for eliminate warning.
 pub fn warning_elimination() -> Unit {
-  MDNode::{ metadata: [] } |> ignore()
-  let mda = MDAttachments::{ attachments: [] }
+  MDNode::{ metadata: [], } |> ignore()
+  let mda = MDAttachments::{ attachments: [], }
   mda.attachments.length() |> ignore()
 }

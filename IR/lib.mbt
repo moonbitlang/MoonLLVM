@@ -13,7 +13,7 @@ priv struct ValueUIDAssigner {
 }
 
 ///|
-let valueUIDAssigner : ValueUIDAssigner = { val: 0 }
+let valueUIDAssigner : ValueUIDAssigner = { val: 0, }
 
 ///|
 fn ValueUIDAssigner::assign(self : ValueUIDAssigner) -> UInt64 {
@@ -33,7 +33,7 @@ pub struct Int8Array(Array[Int8]) derive(Eq, Hash, Show)
 pub struct Int16Array(Array[Int16]) derive(Eq, Hash, Show)
 
 ///|
-pub struct Int32Array(Array[Int]) derive(Eq, Hash, Show)
+pub struct Int32Array(Array[Int32]) derive(Eq, Hash, Show)
 
 ///|
 pub struct Int64Array(Array[Int64]) derive(Eq, Hash, Show)
@@ -45,7 +45,7 @@ pub struct UInt8Array(Array[UInt8]) derive(Eq, Hash, Show)
 pub struct UInt16Array(Array[UInt16]) derive(Eq, Hash, Show)
 
 ///|
-pub struct UInt32Array(Array[UInt]) derive(Eq, Hash, Show)
+pub struct UInt32Array(Array[UInt32]) derive(Eq, Hash, Show)
 
 ///|
 pub struct UInt64Array(Array[UInt64]) derive(Eq, Hash, Show)
@@ -68,7 +68,7 @@ pub fn Int8Array::iter(self : Int8Array) -> Iter[Int8] {
 }
 
 ///|
-pub fn Int8Array::length(self : Int8Array) -> Int {
+pub fn Int8Array::length(self : Int8Array) -> Int32 {
   let Int8Array(data) = self
   data.length()
 }
@@ -85,24 +85,24 @@ pub fn Int16Array::iter(self : Int16Array) -> Iter[Int16] {
 }
 
 ///|
-pub fn Int16Array::length(self : Int16Array) -> Int {
+pub fn Int16Array::length(self : Int16Array) -> Int32 {
   let Int16Array(data) = self
   data.length()
 }
 
 ///|
-pub fn Int32Array::from(data : Array[Int]) -> Int32Array {
+pub fn Int32Array::from(data : Array[Int32]) -> Int32Array {
   Int32Array(data)
 }
 
 ///|
-pub fn Int32Array::iter(self : Int32Array) -> Iter[Int] {
+pub fn Int32Array::iter(self : Int32Array) -> Iter[Int32] {
   let Int32Array(data) = self
   data.iter()
 }
 
 ///|
-pub fn Int32Array::length(self : Int32Array) -> Int {
+pub fn Int32Array::length(self : Int32Array) -> Int32 {
   let Int32Array(data) = self
   data.length()
 }
@@ -119,7 +119,7 @@ pub fn Int64Array::iter(self : Int64Array) -> Iter[Int64] {
 }
 
 ///|
-pub fn Int64Array::length(self : Int64Array) -> Int {
+pub fn Int64Array::length(self : Int64Array) -> Int32 {
   let Int64Array(data) = self
   data.length()
 }
@@ -136,7 +136,7 @@ pub fn UInt8Array::iter(self : UInt8Array) -> Iter[UInt8] {
 }
 
 ///|
-pub fn UInt8Array::length(self : UInt8Array) -> Int {
+pub fn UInt8Array::length(self : UInt8Array) -> Int32 {
   let UInt8Array(data) = self
   data.length()
 }
@@ -153,24 +153,24 @@ pub fn UInt16Array::iter(self : UInt16Array) -> Iter[UInt16] {
 }
 
 ///|
-pub fn UInt16Array::length(self : UInt16Array) -> Int {
+pub fn UInt16Array::length(self : UInt16Array) -> Int32 {
   let UInt16Array(data) = self
   data.length()
 }
 
 ///|
-pub fn UInt32Array::from(data : Array[UInt]) -> UInt32Array {
+pub fn UInt32Array::from(data : Array[UInt32]) -> UInt32Array {
   UInt32Array(data)
 }
 
 ///|
-pub fn UInt32Array::iter(self : UInt32Array) -> Iter[UInt] {
+pub fn UInt32Array::iter(self : UInt32Array) -> Iter[UInt32] {
   let UInt32Array(data) = self
   data.iter()
 }
 
 ///|
-pub fn UInt32Array::length(self : UInt32Array) -> Int {
+pub fn UInt32Array::length(self : UInt32Array) -> Int32 {
   let UInt32Array(data) = self
   data.length()
 }
@@ -187,7 +187,7 @@ pub fn UInt64Array::iter(self : UInt64Array) -> Iter[UInt64] {
 }
 
 ///|
-pub fn UInt64Array::length(self : UInt64Array) -> Int {
+pub fn UInt64Array::length(self : UInt64Array) -> Int32 {
   let UInt64Array(data) = self
   data.length()
 }
@@ -204,7 +204,7 @@ pub fn FloatArray::iter(self : FloatArray) -> Iter[Float] {
 }
 
 ///|
-pub fn FloatArray::length(self : FloatArray) -> Int {
+pub fn FloatArray::length(self : FloatArray) -> Int32 {
   let FloatArray(data) = self
   data.length()
 }
@@ -221,7 +221,7 @@ pub fn DoubleArray::iter(self : DoubleArray) -> Iter[Double] {
 }
 
 ///|
-pub fn DoubleArray::length(self : DoubleArray) -> Int {
+pub fn DoubleArray::length(self : DoubleArray) -> Int32 {
   let DoubleArray(data) = self
   data.length()
 }
@@ -258,7 +258,7 @@ pub enum NumberArrayEnum {
 
 ///|
 pub trait NumberArray: Show {
-  asEnum(Self) -> NumberArrayEnum
+  fn asEnum(Self) -> NumberArrayEnum
 }
 
 /////|

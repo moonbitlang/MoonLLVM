@@ -50,28 +50,28 @@ pub fn TypeEnum::asTypeClass(self : TypeEnum) -> &Type {
 
 ///|
 pub trait Type: Show + Hash {
-  getContext(Self) -> Context
-  asTypeEnum(Self) -> TypeEnum
+  fn getContext(Self) -> Context
+  fn asTypeEnum(Self) -> TypeEnum
   //print(Self, logger: &Logger, isForDebug~ = false, noDetails~ = false)
   //dump(Self)
 
   /// Return true if this is a 16-bit float type.
-  is16bitFPTy(Self) -> Bool = _
+  fn is16bitFPTy(Self) -> Bool = _
 
   /// Return true if this is a well-behaved IEEE-like type, which has a IEEE
   /// compatible layout, and does not have non-IEEE values, such as x86_fp80's
   /// unnormal values.
-  isIEEELikeFPTy(Self) -> Bool = _
+  fn isIEEELikeFPTy(Self) -> Bool = _
 
   /// Return true if this is one of the floating-point types
-  isFloatingPointTy(Self) -> Bool = _
+  fn isFloatingPointTy(Self) -> Bool = _
 
   /// Return true if this is a target extension type with a scalable layout.
-  isScalableTargetExtTy(Self) -> Bool = _
+  fn isScalableTargetExtTy(Self) -> Bool = _
 
   /// Return true if this is a type whose size is a known multiple of vscale.
   // REVIEW: cpp has another `isScalableTy` function
-  isScalableTy(Self) -> Bool = _
+  fn isScalableTy(Self) -> Bool = _
 
   /// Return true if this type is or contains a target extension type that
   /// disallows being used as a global.
@@ -84,48 +84,48 @@ pub trait Type: Show + Hash {
   //bool containsNonLocalTargetExtType() const;
 
   /// Return true if this is a FP type or a vector of FP.
-  isFPOrFPVectorTy(Self) -> Bool = _
+  fn isFPOrFPVectorTy(Self) -> Bool = _
 
   /// Return true if this is an integer type or a vector of integer types.
   // REVIEW: cpp has another `isIntOrIntVectorTy` function
-  isIntOrIntVectorTy(Self) -> Bool = _
+  fn isIntOrIntVectorTy(Self) -> Bool = _
 
   /// Return true if this is an integer type or a pointer type.
-  isIntOrPtrTy(Self) -> Bool = _
+  fn isIntOrPtrTy(Self) -> Bool = _
 
   /// Return true if this is a pointer type or a vector of pointer types.
-  isPtrOrPtrVectorTy(Self) -> Bool = _
+  fn isPtrOrPtrVectorTy(Self) -> Bool = _
 
   /// Return true if this type could be converted with a lossless BitCast to
   /// type 'Ty'. For example, i8* to i32*. BitCasts are valid for types of the
   /// same size only where no re-interpretation of the bits is done.
   /// Determine if this type could be losslessly bitcast to Ty
-  canLosslesslyBitCastTo(Self, ty : &Type) -> Bool = _
+  fn canLosslesslyBitCastTo(Self, ty : &Type) -> Bool = _
 
   /// Return true if this type is empty, that is, it has no elements or all of
   /// its elements are empty.
-  isEmptyTy(Self) -> Bool = _
+  fn isEmptyTy(Self) -> Bool = _
 
   /// Return true if the type is "first class", meaning it is a valid type for a
   /// Value.
-  isFirstClassType(Self) -> Bool = _
+  fn isFirstClassType(Self) -> Bool = _
 
   /// Return true if the type is a valid type for a register in codegen. This
   /// includes all first-class types except struct and array types.
-  isSingleValueType(Self) -> Bool = _
+  fn isSingleValueType(Self) -> Bool = _
 
   /// Return true if the type is an aggregate type. This means it is valid as
   /// the first operand of an insertvalue or extractvalue instruction. This
   /// includes struct and array types, but does not include vector types.
-  isAggregateType(Self) -> Bool = _
+  fn isAggregateType(Self) -> Bool = _
 
   /// Return true if it makes sense to take the size of this type. To get the
   /// actual size for a particular target, it is reasonable to use the
   /// DataLayout subsystem to do this.
-  isSized(Self) -> Bool = _
+  fn isSized(Self) -> Bool = _
 
   /// Return true if this type is a valid type for a GEP instruction.
-  isValidGEPType(Self) -> Bool = _
+  fn isValidGEPType(Self) -> Bool = _
 
   /// Return the basic size of this type if it is a primitive type. These are
   /// fixed by LLVM and are not target-dependent.
@@ -140,72 +140,72 @@ pub trait Type: Show + Hash {
   /// instance of the type is stored to memory. The DataLayout class provides
   /// additional query functions to provide this information.
   ///
-  getPrimitiveSizeInBits(Self) -> TypeSize = _
+  fn getPrimitiveSizeInBits(Self) -> TypeSize = _
 
   /// If this is a vector type, return the getPrimitiveSizeInBits value for the
   /// element type. Otherwise return the getPrimitiveSizeInBits value for this
   /// type.
-  getScalarSizeInBits(Self) -> Int = _
-  getScalarType(Self) -> &Type = _
-  tryAsFPType(Self) -> &FPType? = _
-  tryAsFPTypeEnum(Self) -> FPTypeEnum? = _
-  tryAsIntType(Self) -> &IntegerType? = _
-  tryAsIntTypeEnum(Self) -> IntegerTypeEnum? = _
-  tryAsPrimitiveType(Self) -> &PrimitiveType? = _
-  tryAsPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum? = _
-  tryAsAggregateType(Self) -> &AggregateType? = _
-  tryAsAggregateTypeEnum(Self) -> AggregateTypeEnum? = _
-  tryAsAbstractType(Self) -> &AbstractType? = _
-  tryAsAbstractTypeEnum(Self) -> AbstractTypeEnum? = _
+  fn getScalarSizeInBits(Self) -> Int32 = _
+  fn getScalarType(Self) -> &Type = _
+  fn tryAsFPType(Self) -> &FPType? = _
+  fn tryAsFPTypeEnum(Self) -> FPTypeEnum? = _
+  fn tryAsIntType(Self) -> &IntegerType? = _
+  fn tryAsIntTypeEnum(Self) -> IntegerTypeEnum? = _
+  fn tryAsPrimitiveType(Self) -> &PrimitiveType? = _
+  fn tryAsPrimitiveTypeEnum(Self) -> PrimitiveTypeEnum? = _
+  fn tryAsAggregateType(Self) -> &AggregateType? = _
+  fn tryAsAggregateTypeEnum(Self) -> AggregateTypeEnum? = _
+  fn tryAsAbstractType(Self) -> &AbstractType? = _
+  fn tryAsAbstractTypeEnum(Self) -> AbstractTypeEnum? = _
 }
 
 ///|
-impl Eq for &Type with equal(self, other) {
+impl Eq for &Type with fn equal(self, other) {
   self.asTypeEnum() == other.asTypeEnum()
 }
 
 ///|
-impl Type with is16bitFPTy(self) -> Bool {
+impl Type with fn is16bitFPTy(self) -> Bool {
   self.asTypeEnum() is (HalfType(_) | BFloatType(_))
 }
 
 ///|
-impl Type with isIEEELikeFPTy(self) -> Bool {
+impl Type with fn isIEEELikeFPTy(self) -> Bool {
   self.tryAsFPTypeEnum() is Some(_)
 }
 
 ///|
-impl Type with isFloatingPointTy(self) -> Bool {
+impl Type with fn isFloatingPointTy(self) -> Bool {
   self.tryAsFPTypeEnum() is Some(_)
 }
 
 ///|
 #internal(unsafe, "This functions is not fully implemented yet")
-impl Type with isScalableTargetExtTy(_) {
+impl Type with fn isScalableTargetExtTy(_) {
   false
 }
 
 ///|
 #internal(unsafe, "This functions is not fully implemented yet")
-impl Type with isScalableTy(_) -> Bool {
+impl Type with fn isScalableTy(_) -> Bool {
   false
 }
 
 ///|
-impl Type with isIntOrIntVectorTy(self) -> Bool {
+impl Type with fn isIntOrIntVectorTy(self) -> Bool {
   self.getScalarType().asTypeEnum()
   is (Int1Type(_) | Int8Type(_) | Int16Type(_) | Int32Type(_) | Int64Type(_))
 }
 
 ///|
-impl Type with isFPOrFPVectorTy(self) -> Bool {
+impl Type with fn isFPOrFPVectorTy(self) -> Bool {
   self.getScalarType().isFloatingPointTy()
 }
 
 //impl Type with isRISCVectorTupleTy(self) -> Bool
 
 ///|
-impl Type with canLosslesslyBitCastTo(self, ty : &Type) -> Bool {
+impl Type with fn canLosslesslyBitCastTo(self, ty : &Type) -> Bool {
   if self.asTypeEnum() == ty.asTypeEnum() {
     return true
   }
@@ -220,7 +220,7 @@ impl Type with canLosslesslyBitCastTo(self, ty : &Type) -> Bool {
 }
 
 ///|
-impl Type with isIntOrPtrTy(self) -> Bool {
+impl Type with fn isIntOrPtrTy(self) -> Bool {
   self.asTypeEnum()
   is (Int1Type(_)
   | Int8Type(_)
@@ -231,12 +231,12 @@ impl Type with isIntOrPtrTy(self) -> Bool {
 }
 
 ///|
-impl Type with isPtrOrPtrVectorTy(self) -> Bool {
+impl Type with fn isPtrOrPtrVectorTy(self) -> Bool {
   self.getScalarType().asTypeEnum() is PointerType(_)
 }
 
 ///|
-impl Type with isEmptyTy(self) -> Bool {
+impl Type with fn isEmptyTy(self) -> Bool {
   match self.asTypeEnum() {
     ArrayType(arr) if arr.getElementCount() == 0 => true
     ArrayType(arr) => arr.getElementType().isEmptyTy()
@@ -249,7 +249,7 @@ impl Type with isEmptyTy(self) -> Bool {
 ///|
 ///
 /// Only FunctionType, VoidType, Opaque Struct is not first class type.
-impl Type with isFirstClassType(self) {
+impl Type with fn isFirstClassType(self) {
   match self.asTypeEnum() {
     StructType(sty) => not(sty.isOpaque())
     FunctionType(_) | VoidType(_) => false
@@ -260,7 +260,7 @@ impl Type with isFirstClassType(self) {
 // REVIEW: Maybe we could use math-cases
 
 ///|
-impl Type with isSingleValueType(self) -> Bool {
+impl Type with fn isSingleValueType(self) -> Bool {
   match self.asTypeEnum() {
     HalfType(_) | BFloatType(_) | FloatType(_) | DoubleType(_) | FP128Type(_) =>
       true
@@ -273,7 +273,7 @@ impl Type with isSingleValueType(self) -> Bool {
 }
 
 ///|
-impl Type with isAggregateType(self) -> Bool {
+impl Type with fn isAggregateType(self) -> Bool {
   match self.asTypeEnum() {
     StructType(_) | ArrayType(_) => true
     VectorType(_) | ScalableVectorType(_) => true
@@ -282,7 +282,7 @@ impl Type with isAggregateType(self) -> Bool {
 }
 
 ///|
-impl Type with isSized(self) -> Bool {
+impl Type with fn isSized(self) -> Bool {
   match self.asTypeEnum() {
     Int1Type(_) | Int8Type(_) | Int16Type(_) | Int32Type(_) | Int64Type(_) =>
       true // Integer types
@@ -299,12 +299,12 @@ impl Type with isSized(self) -> Bool {
 }
 
 ///|
-impl Type with isValidGEPType(self) -> Bool {
+impl Type with fn isValidGEPType(self) -> Bool {
   self.tryAsAbstractTypeEnum() is None
 }
 
 ///|
-impl Type with getPrimitiveSizeInBits(self) -> TypeSize {
+impl Type with fn getPrimitiveSizeInBits(self) -> TypeSize {
   match self.asTypeEnum() {
     HalfType(_) => TypeSize::getFixed(16)
     BFloatType(_) => TypeSize::getFixed(16)
@@ -323,12 +323,12 @@ impl Type with getPrimitiveSizeInBits(self) -> TypeSize {
 }
 
 ///|
-impl Type with getScalarSizeInBits(self) -> Int {
+impl Type with fn getScalarSizeInBits(self) -> Int32 {
   self.getScalarType().getPrimitiveSizeInBits().getKnownMinValue().to_int()
 }
 
 ///|
-impl Type with getScalarType(self) {
+impl Type with fn getScalarType(self) {
   if self.asTypeEnum() is VectorType(vec) {
     vec.getElementType()
   } else {
@@ -337,7 +337,7 @@ impl Type with getScalarType(self) {
 }
 
 ///|
-impl Type with tryAsFPType(self) -> &FPType? {
+impl Type with fn tryAsFPType(self) -> &FPType? {
   match self.asTypeEnum() {
     HalfType(half) => Some(half)
     BFloatType(bfloat) => Some(bfloat)
@@ -349,7 +349,7 @@ impl Type with tryAsFPType(self) -> &FPType? {
 }
 
 ///|
-impl Type with tryAsFPTypeEnum(self) -> FPTypeEnum? {
+impl Type with fn tryAsFPTypeEnum(self) -> FPTypeEnum? {
   match self.asTypeEnum() {
     HalfType(half) => Some(HalfType(half))
     BFloatType(bfloat) => Some(BFloatType(bfloat))
@@ -361,7 +361,7 @@ impl Type with tryAsFPTypeEnum(self) -> FPTypeEnum? {
 }
 
 ///|
-impl Type with tryAsIntType(self) -> &IntegerType? {
+impl Type with fn tryAsIntType(self) -> &IntegerType? {
   match self.asTypeEnum() {
     Int1Type(int1) => Some(int1)
     Int8Type(int8) => Some(int8)
@@ -373,7 +373,7 @@ impl Type with tryAsIntType(self) -> &IntegerType? {
 }
 
 ///|
-impl Type with tryAsIntTypeEnum(self) -> IntegerTypeEnum? {
+impl Type with fn tryAsIntTypeEnum(self) -> IntegerTypeEnum? {
   match self.asTypeEnum() {
     Int1Type(int1) => Some(Int1Type(int1))
     Int8Type(int8) => Some(Int8Type(int8))
@@ -385,7 +385,7 @@ impl Type with tryAsIntTypeEnum(self) -> IntegerTypeEnum? {
 }
 
 ///|
-impl Type with tryAsPrimitiveType(self) -> &PrimitiveType? {
+impl Type with fn tryAsPrimitiveType(self) -> &PrimitiveType? {
   match self.asTypeEnum() {
     HalfType(half) => Some(half)
     BFloatType(bfloat) => Some(bfloat)
@@ -402,7 +402,7 @@ impl Type with tryAsPrimitiveType(self) -> &PrimitiveType? {
 }
 
 ///|
-impl Type with tryAsPrimitiveTypeEnum(self) -> PrimitiveTypeEnum? {
+impl Type with fn tryAsPrimitiveTypeEnum(self) -> PrimitiveTypeEnum? {
   match self.asTypeEnum() {
     HalfType(half) => Some(HalfType(half))
     BFloatType(bfloat) => Some(BFloatType(bfloat))
@@ -419,7 +419,7 @@ impl Type with tryAsPrimitiveTypeEnum(self) -> PrimitiveTypeEnum? {
 }
 
 ///|
-impl Type with tryAsAggregateType(self) -> &AggregateType? {
+impl Type with fn tryAsAggregateType(self) -> &AggregateType? {
   match self.asTypeEnum() {
     StructType(sty) => Some(sty)
     ArrayType(arr) => Some(arr)
@@ -430,7 +430,7 @@ impl Type with tryAsAggregateType(self) -> &AggregateType? {
 }
 
 ///|
-impl Type with tryAsAggregateTypeEnum(self) -> AggregateTypeEnum? {
+impl Type with fn tryAsAggregateTypeEnum(self) -> AggregateTypeEnum? {
   match self.asTypeEnum() {
     StructType(sty) => Some(StructType(sty))
     ArrayType(arr) => Some(ArrayType(arr))
@@ -441,7 +441,7 @@ impl Type with tryAsAggregateTypeEnum(self) -> AggregateTypeEnum? {
 }
 
 ///|
-impl Type with tryAsAbstractType(self) -> &AbstractType? {
+impl Type with fn tryAsAbstractType(self) -> &AbstractType? {
   match self.asTypeEnum() {
     VoidType(v) => Some(v)
     LabelType(label) => Some(label)
@@ -453,7 +453,7 @@ impl Type with tryAsAbstractType(self) -> &AbstractType? {
 }
 
 ///|
-impl Type with tryAsAbstractTypeEnum(self) -> AbstractTypeEnum? {
+impl Type with fn tryAsAbstractTypeEnum(self) -> AbstractTypeEnum? {
   match self.asTypeEnum() {
     VoidType(v) => Some(VoidType(v))
     LabelType(label) => Some(LabelType(label))

@@ -23,7 +23,7 @@ pub fn IBinaryOpCode::is_commutative(self : Self) -> Bool {
 }
 
 ///|
-pub impl Show for IBinaryOpCode with output(self, logger) {
+pub impl Show for IBinaryOpCode with fn output(self, logger) {
   let s = match self {
     Add => "add"
     Sub => "sub"
@@ -46,7 +46,7 @@ pub(all) enum IUnaryOpCode {
 } derive(Eq)
 
 ///|
-pub impl Show for IUnaryOpCode with output(self, logger) {
+pub impl Show for IUnaryOpCode with fn output(self, logger) {
   let s = match self {
     Not => "not"
   }
@@ -68,7 +68,7 @@ pub(all) enum ICmpOpCode {
 } derive(Eq)
 
 ///|
-pub impl Show for ICmpOpCode with output(self, logger) {
+pub impl Show for ICmpOpCode with fn output(self, logger) {
   let s = match self {
     Eq => "eq"
     Ne => "ne"
@@ -100,7 +100,7 @@ pub(all) enum BranchOpCode {
 } derive(Eq)
 
 ///|
-pub impl Show for BranchOpCode with output(self, logger) {
+pub impl Show for BranchOpCode with fn output(self, logger) {
   let s = match self {
     Beq => "beq"
     Bne => "bne"
@@ -135,7 +135,7 @@ pub fn FBinaryOpCode::is_commutative(self : Self) -> Bool {
 }
 
 ///|
-pub impl Show for FBinaryOpCode with output(self, logger) {
+pub impl Show for FBinaryOpCode with fn output(self, logger) {
   let s = match self {
     FAdd => "fadd"
     FSub => "fsub"
@@ -152,7 +152,7 @@ pub(all) enum FUnaryOpCode {
 } derive(Eq)
 
 ///|
-pub impl Show for FUnaryOpCode with output(self, logger) {
+pub impl Show for FUnaryOpCode with fn output(self, logger) {
   let s = match self {
     FNeg => "fneg"
   }
@@ -170,7 +170,7 @@ pub(all) enum FCmpOpCode {
 } derive(Eq)
 
 ///|
-pub impl Show for FCmpOpCode with output(self, logger) {
+pub impl Show for FCmpOpCode with fn output(self, logger) {
   let s = match self {
     Feq => "feq"
     Fne => "fne"
@@ -184,19 +184,19 @@ pub impl Show for FCmpOpCode with output(self, logger) {
 
 ///|
 pub(all) enum CastOpCode {
-  Trunc(Int, Int)
-  ZExt(Int, Int)
-  SExt(Int, Int)
-  FPTrunc(Int, Int)
-  FPExt(Int, Int)
-  FPToSI(Int, Int)
-  FPToUI(Int, Int)
-  SIToFP(Int, Int)
-  UIToFP(Int, Int)
+  Trunc(Int32, Int32)
+  ZExt(Int32, Int32)
+  SExt(Int32, Int32)
+  FPTrunc(Int32, Int32)
+  FPExt(Int32, Int32)
+  FPToSI(Int32, Int32)
+  FPToUI(Int32, Int32)
+  SIToFP(Int32, Int32)
+  UIToFP(Int32, Int32)
 } derive(Eq)
 
 ///|
-pub impl Show for CastOpCode with output(self, logger) {
+pub impl Show for CastOpCode with fn output(self, logger) {
   let s = match self {
     Trunc(from, to) => "trunc.i\{from}_to_i\{to}"
     ZExt(from, to) => "zext.i\{from}_to_i\{to}"
@@ -213,21 +213,21 @@ pub impl Show for CastOpCode with output(self, logger) {
 
 ///|
 pub(all) enum OpCode {
-  IBinary(IBinaryOpCode, Int) // Int is the bit width (8, 16, 32, 64)
-  IUnary(IUnaryOpCode, Int) // Int is the bit width (8, 16, 32, 64)
-  ICmp(ICmpOpCode, Int) // Int is the bit width (8, 16, 32, 64)
-  ILoad(Int) // Int is the bit width (8, 16, 32, 64)
-  IStore(Int) // Int is the bit width (8, 16, 32, 64)
-  IMove(Int) // Int is the bit width (8, 16, 32, 64)
-  Branch(BranchOpCode, Int) // Int is the bit width (32, 64) for comparison
-  FBinary(FBinaryOpCode, Int) // Int is the bit width (32, 64)
-  FUnary(FUnaryOpCode, Int) // Int is the bit width (32, 64)
-  FCmp(FCmpOpCode, Int) // Int is the bit width (32, 64)
-  FLoad(Int) // Int is the bit width (32, 64)
-  FStore(Int) // Int is the bit width (32, 64)
-  FMove(Int) // Int is the bit width (32, 64)
-  FMoveI(Int) // Int is the float bit width (32, 64), move from int to float register
-  IMoveF(Int) // Int is the float bit width (32, 64), move from float to int register
+  IBinary(IBinaryOpCode, Int32) // Int is the bit width (8, 16, 32, 64)
+  IUnary(IUnaryOpCode, Int32) // Int is the bit width (8, 16, 32, 64)
+  ICmp(ICmpOpCode, Int32) // Int is the bit width (8, 16, 32, 64)
+  ILoad(Int32) // Int is the bit width (8, 16, 32, 64)
+  IStore(Int32) // Int is the bit width (8, 16, 32, 64)
+  IMove(Int32) // Int is the bit width (8, 16, 32, 64)
+  Branch(BranchOpCode, Int32) // Int is the bit width (32, 64) for comparison
+  FBinary(FBinaryOpCode, Int32) // Int is the bit width (32, 64)
+  FUnary(FUnaryOpCode, Int32) // Int is the bit width (32, 64)
+  FCmp(FCmpOpCode, Int32) // Int is the bit width (32, 64)
+  FLoad(Int32) // Int is the bit width (32, 64)
+  FStore(Int32) // Int is the bit width (32, 64)
+  FMove(Int32) // Int is the bit width (32, 64)
+  FMoveI(Int32) // Int is the float bit width (32, 64), move from int to float register
+  IMoveF(Int32) // Int is the float bit width (32, 64), move from float to int register
   LoadAddr // Load address of a variable
   Cast(CastOpCode)
   Call
@@ -246,7 +246,7 @@ pub fn OpCode::is_terminator(self : Self) -> Bool {
 }
 
 ///|
-pub impl Show for OpCode with output(self, logger) {
+pub impl Show for OpCode with fn output(self, logger) {
   let s = match self {
     IBinary(op, bits) =>
       match op {

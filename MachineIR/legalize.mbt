@@ -342,7 +342,7 @@ fn Instruction::legalize_ibinary(
       opcode: IBinary(binop, bits),
       defs: [IRegister(rdst)],
       uses: [Imm(i), IRegister(r2)],
-      ..,
+      ..
     } if binop.is_commutative() =>
       // Check if immediate is valid for the target architecture
       if func.mod.arch_config.is_valid_imm(i) {
@@ -443,7 +443,7 @@ pub fn Instruction::legalize_icmp(
       opcode: ICmp(cmpop, bits),
       defs: [Mem(base, offset)],
       uses: [Mem(b1, o1), Mem(b2, o2)],
-      ..,
+      ..
     } => {
       let (v1, v2) = func.keeped_treg2()
       let vdst = v1 // Reuse v1 for the result
@@ -458,7 +458,7 @@ pub fn Instruction::legalize_icmp(
       opcode: ICmp(cmpop, bits),
       defs: [Mem(base, offset)],
       uses: [Mem(b1, o1), IRegister(r2)],
-      ..,
+      ..
     } => {
       let v1 = func.keeped_treg1()
       let vdst = v1 // Reuse v1 for the result
@@ -472,7 +472,7 @@ pub fn Instruction::legalize_icmp(
       opcode: ICmp(cmpop, bits),
       defs: [Mem(base, offset)],
       uses: [Mem(b1, o1), Imm(i2)],
-      ..,
+      ..
     } => {
       let (v1, v2) = func.keeped_treg2()
       let vdst = v1 // Reuse v1 for the result
@@ -487,7 +487,7 @@ pub fn Instruction::legalize_icmp(
       opcode: ICmp(cmpop, bits),
       defs: [Mem(base, offset)],
       uses: [IRegister(r1), Mem(b2, o2)],
-      ..,
+      ..
     } => {
       let v2 = func.keeped_treg1()
       let vdst = v2 // Reuse v2 for the result
@@ -501,7 +501,7 @@ pub fn Instruction::legalize_icmp(
       opcode: ICmp(cmpop, bits),
       defs: [Mem(base, offset)],
       uses: [IRegister(r1), IRegister(r2)],
-      ..,
+      ..
     } => {
       let vdst = func.keeped_treg1()
       [
@@ -513,7 +513,7 @@ pub fn Instruction::legalize_icmp(
       opcode: ICmp(cmpop, bits),
       defs: [Mem(base, offset)],
       uses: [IRegister(r1), Imm(i2)],
-      ..,
+      ..
     } => {
       let (vdst, v2) = func.keeped_treg2()
       [
@@ -526,7 +526,7 @@ pub fn Instruction::legalize_icmp(
       opcode: ICmp(cmpop, bits),
       defs: [IRegister(rdst)],
       uses: [Mem(b1, o1), Mem(b2, o2)],
-      ..,
+      ..
     } => {
       let (v1, v2) = func.keeped_treg2()
       [
@@ -539,7 +539,7 @@ pub fn Instruction::legalize_icmp(
       opcode: ICmp(cmpop, bits),
       defs: [IRegister(rdst)],
       uses: [Mem(b1, o1), IRegister(r2)],
-      ..,
+      ..
     } => {
       let v1 = func.keeped_treg1()
       [
@@ -551,7 +551,7 @@ pub fn Instruction::legalize_icmp(
       opcode: ICmp(cmpop, bits),
       defs: [IRegister(rdst)],
       uses: [Mem(b1, o1), Imm(i2)],
-      ..,
+      ..
     } => {
       let (v1, v2) = func.keeped_treg2()
       [
@@ -564,7 +564,7 @@ pub fn Instruction::legalize_icmp(
       opcode: ICmp(cmpop, bits),
       defs: [IRegister(rdst)],
       uses: [IRegister(r1), Mem(b2, o2)],
-      ..,
+      ..
     } => {
       let v2 = func.keeped_treg1()
       [
@@ -576,13 +576,13 @@ pub fn Instruction::legalize_icmp(
       opcode: ICmp(_, _),
       defs: [IRegister(_)],
       uses: [IRegister(_), IRegister(_)],
-      ..,
+      ..
     } => [self]
     {
       opcode: ICmp(cmpop, bits),
       defs: [IRegister(rdst)],
       uses: [IRegister(r1), Imm(i2)],
-      ..,
+      ..
     } => {
       let v2 = func.keeped_treg1()
       [
@@ -701,7 +701,7 @@ pub fn Instruction::legalize_branch(
     {
       defs: [],
       uses: [Mem(b1, o1), Mem(b2, o2), Label(true_label), Label(false_label)],
-      ..,
+      ..
     } => {
       let (v1, v2) = func.keeped_treg2()
       [
@@ -720,7 +720,7 @@ pub fn Instruction::legalize_branch(
     {
       defs: [],
       uses: [Mem(b1, o1), IRegister(r2), Label(true_label), Label(false_label)],
-      ..,
+      ..
     } => {
       let v1 = func.keeped_treg1()
       [
@@ -738,7 +738,7 @@ pub fn Instruction::legalize_branch(
     {
       defs: [],
       uses: [Mem(b1, o1), Imm(v2), Label(true_label), Label(false_label)],
-      ..,
+      ..
     } => {
       let v1 = func.keeped_treg1()
       [
@@ -756,7 +756,7 @@ pub fn Instruction::legalize_branch(
     {
       defs: [],
       uses: [IRegister(r1), Mem(b2, o2), Label(true_label), Label(false_label)],
-      ..,
+      ..
     } => {
       let v2 = func.keeped_treg1()
       [
@@ -776,7 +776,7 @@ pub fn Instruction::legalize_branch(
     {
       defs: [],
       uses: [IRegister(r1), Imm(i2), Label(true_label), Label(false_label)],
-      ..,
+      ..
     } => {
       let v2 = func.keeped_treg1()
       [
@@ -794,7 +794,7 @@ pub fn Instruction::legalize_branch(
     {
       defs: [],
       uses: [Imm(i1), Mem(b2, o2), Label(true_label), Label(false_label)],
-      ..,
+      ..
     } => {
       let (v1, v2) = func.keeped_treg2()
       [
@@ -813,7 +813,7 @@ pub fn Instruction::legalize_branch(
     {
       defs: [],
       uses: [Imm(i1), IRegister(r2), Label(true_label), Label(false_label)],
-      ..,
+      ..
     } => {
       let v1 = func.keeped_treg1()
       [
@@ -831,7 +831,7 @@ pub fn Instruction::legalize_branch(
     {
       defs: [],
       uses: [Imm(i1), Imm(i2), Label(true_label), Label(false_label)],
-      ..,
+      ..
     } => {
       let (v1, v2) = func.keeped_treg2()
       [

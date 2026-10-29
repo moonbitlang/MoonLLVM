@@ -9,21 +9,31 @@ pub let min_value : UInt8
 // Errors
 
 // Types and methods
-pub struct UInt8(Byte)
+pub struct UInt8(Byte) derive(Compare, Eq, Hash)
+pub fn UInt8::add(Self, Self) -> Self
+pub fn UInt8::compare(Self, Self) -> Int32
+pub fn UInt8::div(Self, Self) -> Self
+pub fn UInt8::equal(Self, Self) -> Bool
 pub fn UInt8::from(Byte) -> Self
 pub fn UInt8::from_int64(Int64) -> Self
 pub fn UInt8::from_uint64(UInt64) -> Self
-#deprecated
-pub fn UInt8::inner(Self) -> Byte
-pub fn UInt8::to_int(Self) -> Int
+pub fn UInt8::hash(Self) -> Int32
+pub fn UInt8::hash_combine(Self, Hasher) -> Unit
+pub fn UInt8::mul(Self, Self) -> Self
+pub fn UInt8::not_equal(Self, Self) -> Bool
+pub fn UInt8::op_ge(Self, Self) -> Bool
+pub fn UInt8::op_gt(Self, Self) -> Bool
+pub fn UInt8::op_le(Self, Self) -> Bool
+pub fn UInt8::op_lt(Self, Self) -> Bool
+pub fn UInt8::output(Self, &Logger) -> Unit
+pub fn UInt8::sub(Self, Self) -> Self
+pub fn UInt8::to_int(Self) -> Int32
 pub fn UInt8::to_int64(Self) -> Int64
-pub fn UInt8::to_uint(Self) -> UInt
+pub fn UInt8::to_string(Self) -> String
+pub fn UInt8::to_uint(Self) -> UInt32
 pub fn UInt8::to_uint64(Self) -> UInt64
 pub impl Add for UInt8
-pub impl Compare for UInt8
 pub impl Div for UInt8
-pub impl Eq for UInt8
-pub impl Hash for UInt8
 pub impl Mul for UInt8
 pub impl Show for UInt8
 pub impl Sub for UInt8
@@ -31,4 +41,3 @@ pub impl Sub for UInt8
 // Type aliases
 
 // Traits
-

@@ -1,0 +1,8 @@
+import {
+  "moonbitlang/core/int",
+  "moonbitlang/core/int16",
+  "moonbitlang/core/int64",
+  "Kaida-Amethyst/MoonLLVM/int8",
+  "Kaida-Amethyst/MoonLLVM/uint8",
+  "Kaida-Amethyst/either",
+}

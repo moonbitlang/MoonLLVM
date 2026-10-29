@@ -39,7 +39,7 @@ pub fn FNegInst::new(
   fast_math_flags : Set[FastMathFlag],
 ) -> FNegInst {
   let operandTy = operand.getType()
-  guard operandTy.tryAsFPTypeEnum() is Some(_)
+  guard! operandTy.tryAsFPTypeEnum() is Some(_)
   let uid = valueUIDAssigner.assign()
   let vty = operandTy
   let bb : Ref[BasicBlock?] = Ref::new(None)
@@ -62,17 +62,17 @@ pub fn FNegInst::new(
 }
 
 ///|
-pub impl Value for FNegInst with asValueEnum(self) {
+pub impl Value for FNegInst with fn asValueEnum(self) {
   FNegInst(self)
 }
 
 ///|
-pub impl Value for FNegInst with getValueBase(self) {
-  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users }
+pub impl Value for FNegInst with fn getValueBase(self) {
+  ValueBase::{ uid: self.uid, vty: self.vty, users: self.users, }
 }
 
 ///|
-pub impl Value for FNegInst with getValueRepr(self) {
+pub impl Value for FNegInst with fn getValueRepr(self) {
   match self.getNameOrSlot() {
     Some(Left(name)) => "%\{name}"
     Some(Right(slot)) => "%\{slot}"
@@ -81,12 +81,12 @@ pub impl Value for FNegInst with getValueRepr(self) {
 }
 
 ///|
-pub impl Value for FNegInst with getName(self) {
+pub impl Value for FNegInst with fn getName(self) {
   self.name
 }
 
 ///|
-pub impl Value for FNegInst with setName(self, name) {
+pub impl Value for FNegInst with fn setName(self, name) {
   match self.getParent().setSymbol(name, self) {
     EmptyName => {
       let msg = "Misuse `FNegInst::setName`: name cannot be empty."
@@ -112,7 +112,7 @@ pub impl Value for FNegInst with setName(self, name) {
 }
 
 ///|
-pub impl Value for FNegInst with removeName(self) {
+pub impl Value for FNegInst with fn removeName(self) {
   match self.name {
     None => ()
     Some(name) => {
@@ -123,7 +123,7 @@ pub impl Value for FNegInst with removeName(self) {
 }
 
 ///|
-pub impl Value for FNegInst with getNameOrSlot(self) {
+pub impl Value for FNegInst with fn getNameOrSlot(self) {
   match self.name {
     Some(name) => Some(Left(name))
     None =>
@@ -135,37 +135,37 @@ pub impl Value for FNegInst with getNameOrSlot(self) {
 }
 
 ///|
-pub impl User for FNegInst with asUserEnum(self) {
+pub impl User for FNegInst with fn asUserEnum(self) {
   FNegInst(self)
 }
 
 ///|
-pub impl User for FNegInst with getUserBase(self) {
-  UserBase::{ operands: [self.operand] }
+pub impl User for FNegInst with fn getUserBase(self) {
+  UserBase::{ operands: [self.operand], }
 }
 
 ///|
-pub impl Instruction for FNegInst with getInstBase(self) {
-  InstBase::{ bb: self.bb, prev: self.prev, next: self.next }
+pub impl Instruction for FNegInst with fn getInstBase(self) {
+  InstBase::{ bb: self.bb, prev: self.prev, next: self.next, }
 }
 
 ///|
-pub impl Instruction for FNegInst with asInstEnum(self) {
+pub impl Instruction for FNegInst with fn asInstEnum(self) {
   FNegInst(self)
 }
 
 ///|
-pub impl Instruction for FNegInst with getParent(self) {
+pub impl Instruction for FNegInst with fn getParent(self) {
   self.parent
 }
 
 ///|
-pub impl UnaryInst for FNegInst with asUnaryInstEnum(self) {
+pub impl UnaryInst for FNegInst with fn asUnaryInstEnum(self) {
   FNegInst(self)
 }
 
 ///|
-pub impl Show for FNegInst with output(self, logger) {
+pub impl Show for FNegInst with fn output(self, logger) {
   let repr = self.getValueRepr()
   let operand_repr = self.operand.getValueRepr()
   logger.write_string("  \{repr} = fneg \{self.vty} \{operand_repr}")

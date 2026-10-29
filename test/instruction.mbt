@@ -549,7 +549,6 @@ test "error handling - invalid function calls" {
   let arg1 = fval.getArg(1).unwrap()
   let result = builder.createAdd(arg0, arg1)
   let _ = builder.createRet(result)
-
 }
 
 // 常量折叠测试
@@ -965,7 +964,6 @@ test "error handling - function argument bounds" {
   let const_1 = ctx.getConstInt32(1)
   let result = builder.createAdd(arg, const_1)
   let _ = builder.createRet(result)
-
 }
 
 // 大型函数测试 - 模拟复杂的C函数
@@ -1027,4 +1025,25 @@ test "large complex function" {
 
   // 验证函数结构是否正确生成 - 注释掉，因为Function没有getBasicBlockList方法
   // assert_true(fval.getBasicBlockList().length() == 5)
+}
+
+///|
+test "call argument attributes render as LLVM attributes" {
+  let ctx = @IR.Context::new()
+  let prog = ctx.addModule("call_attributes")
+  let builder = ctx.createBuilder()
+  let i32ty = ctx.getInt32Ty()
+  let helper = prog.addFunction(ctx.getFunctionType(i32ty, [i32ty]), "helper")
+  let caller = prog.addFunction(ctx.getFunctionType(i32ty, []), "caller")
+  builder.setInsertPoint(caller.addBasicBlock(name="entry"))
+  let arg = ctx.getConstInt32(7)
+  let plain = builder.createCall(helper, [arg], name="plain")
+  inspect(plain, content="  %plain = call i32 @helper(i32 7)")
+  helper.getArg(0).unwrap().addAttr(@IR.NoUndef)
+  let attributed = builder.createCall(helper, [arg], name="attributed")
+  inspect(attributed, content="  %attributed = call i32 @helper(i32 noundef 7)")
+  // A present but empty set must not introduce a second space.
+  helper.getParamAttrs(0U).unwrap().clear()
+  let empty = builder.createCall(helper, [arg], name="empty")
+  inspect(empty, content="  %empty = call i32 @helper(i32 7)")
 }
