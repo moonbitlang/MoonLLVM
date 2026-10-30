@@ -47,9 +47,9 @@ pub struct PHINode {
 ///|
 fn PHINode::new(vty : &Type, parent : Function, name~ : String?) -> PHINode {
   let uid = valueUIDAssigner.assign()
-  let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev : Ref[&Instruction?] = Ref::new(None)
-  let next : Ref[&Instruction?] = Ref::new(None)
+  let bb : Ref[BasicBlock?] = Ref(None)
+  let prev : Ref[&Instruction?] = Ref(None)
+  let next : Ref[&Instruction?] = Ref(None)
   PHINode::{ uid, vty, users: [], name, incomings: [], parent, bb, prev, next, }
 }
 
@@ -115,7 +115,7 @@ pub fn PHINode::getNumIncomingValues(self : PHINode) -> Int32 {
 ///   phi.addIncoming(val2, block_bb)
 ///   inspect(phi.getIncomingValue(0).unwrap().getValueRepr(), content="10")
 ///   inspect(phi.getIncomingValue(1).unwrap().getValueRepr(), content="20")
-///   inspect(phi.getIncomingValue(2), content="None")
+///   assert_true(phi.getIncomingValue(2) is None)
 /// }
 /// ```
 pub fn PHINode::getIncomingValue(self : PHINode, idx : Int32) -> &Value? {
@@ -151,7 +151,7 @@ pub fn PHINode::getIncomingValue(self : PHINode, idx : Int32) -> &Value? {
 ///   phi.addIncoming(val2, block_bb)
 ///   inspect(phi.getIncomingBlock(0).unwrap().getValueRepr(), content="%entry")
 ///   inspect(phi.getIncomingBlock(1).unwrap().getValueRepr(), content="%block")
-///   inspect(phi.getIncomingBlock(2), content="None")
+///   assert_true(phi.getIncomingBlock(2) is None)
 /// }
 /// ```
 pub fn PHINode::getIncomingBlock(self : PHINode, idx : Int32) -> BasicBlock? {
@@ -191,7 +191,7 @@ pub fn PHINode::getIncomingBlock(self : PHINode, idx : Int32) -> BasicBlock? {
 ///   let (value1, block1) = phi.getIncoming(1).unwrap()
 ///   inspect(value1.getValueRepr(), content="20")
 ///   inspect(block1.getValueRepr(), content="%block")
-///   inspect(phi.getIncoming(2), content="None")
+///   assert_true(phi.getIncoming(2) is None)
 /// }
 /// ```
 pub fn PHINode::getIncoming(

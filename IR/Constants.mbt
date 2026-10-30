@@ -123,9 +123,9 @@ pub fn ConstantInt::isMaxValue(self : ConstantInt) -> Bool {
   match ty {
     Int1Type(_) => self.value == 1
     Int8Type(_) => Int8::from_int64(self.value) == @int8.max_value
-    Int16Type(_) => Int16::from_int(self.value.to_int()) == @int16.max_value
-    Int32Type(_) => self.value.to_int() == @int.max_value
-    Int64Type(_) => self.value == @int64.max_value
+    Int16Type(_) => Int16::from_int(self.value.to_int()) == @int16.MAX_VALUE
+    Int32Type(_) => self.value.to_int() == @int.MAX_VALUE
+    Int64Type(_) => self.value == @int64.MAX_VALUE
   }
 }
 
@@ -135,9 +135,9 @@ pub fn ConstantInt::isMinValue(self : ConstantInt) -> Bool {
   match ty {
     Int1Type(_) => self.value == 0
     Int8Type(_) => Int8::from_int64(self.value) == @int8.min_value
-    Int16Type(_) => Int16::from_int(self.value.to_int()) == @int16.min_value
-    Int32Type(_) => self.value.to_int() == @int.min_value
-    Int64Type(_) => self.value == @int64.min_value
+    Int16Type(_) => Int16::from_int(self.value.to_int()) == @int16.MIN_VALUE
+    Int32Type(_) => self.value.to_int() == @int.MIN_VALUE
+    Int64Type(_) => self.value == @int64.MIN_VALUE
   }
 }
 
@@ -348,7 +348,7 @@ pub fn ConstantInt::sdiv(
 ///
 ///   // Test case 3: i32 unsigned division
 ///   // 2147483647u / 2u = 1073741823u.
-///   let i32_max_signed = ctx.getConstInt32(@int.max_value) // 2147483647
+///   let i32_max_signed = ctx.getConstInt32(@int.MAX_VALUE) // 2147483647
 ///   let i32_2 = ctx.getConstInt32(2)
 ///   inspect(i32_max_signed.udiv(i32_2), content="i32 1073741823")
 ///
@@ -851,8 +851,8 @@ pub fn ConstantInt::trunc(
   dst_ty : &IntegerType,
 ) -> ConstantInt raise LLVMValueError {
   let src_ty = self.vty.asIntegerTypeEnum()
-  guard src_ty.getBitWidth() > dst_ty.getBitWidth() else {
-    let msg = "Truncation cast type mismatch: cannot truncate from \{src_ty.asTypeClass()} (bit width \{src_ty.getBitWidth()}) to \{dst_ty} (bit width \{dst_ty.getBitWidth()})"
+  guard src_ty.getBitWidth() > PrimitiveType::getBitWidth(dst_ty) else {
+    let msg = "Truncation cast type mismatch: cannot truncate from \{src_ty.asTypeClass()} (bit width \{src_ty.getBitWidth()}) to \{dst_ty} (bit width \{PrimitiveType::getBitWidth(dst_ty)})"
     raise LLVMValueError(msg)
   }
   ConstantInt::new(dst_ty, self.value)
@@ -889,8 +889,8 @@ pub fn ConstantInt::zext(
   dst_ty : &IntegerType,
 ) -> ConstantInt raise LLVMValueError {
   let src_ty = self.vty.asIntegerTypeEnum()
-  guard src_ty.getBitWidth() < dst_ty.getBitWidth() else {
-    let msg = "Zero extension cast type mismatch: cannot zero extend from \{src_ty.asTypeClass()} (bit width \{src_ty.getBitWidth()}) to \{dst_ty} (bit width \{dst_ty.getBitWidth()})"
+  guard src_ty.getBitWidth() < PrimitiveType::getBitWidth(dst_ty) else {
+    let msg = "Zero extension cast type mismatch: cannot zero extend from \{src_ty.asTypeClass()} (bit width \{src_ty.getBitWidth()}) to \{dst_ty} (bit width \{PrimitiveType::getBitWidth(dst_ty)})"
     raise LLVMValueError(msg)
   }
   // Zero extension: treat the value as unsigned
@@ -935,8 +935,8 @@ pub fn ConstantInt::sext(
   dst_ty : &IntegerType,
 ) -> ConstantInt raise LLVMValueError {
   let src_ty = self.vty.asIntegerTypeEnum()
-  guard src_ty.getBitWidth() < dst_ty.getBitWidth() else {
-    let msg = "Sign extension cast type mismatch: cannot sign extend from \{src_ty.asTypeClass()} (bit width \{src_ty.getBitWidth()}) to \{dst_ty} (bit width \{dst_ty.getBitWidth()})"
+  guard src_ty.getBitWidth() < PrimitiveType::getBitWidth(dst_ty) else {
+    let msg = "Sign extension cast type mismatch: cannot sign extend from \{src_ty.asTypeClass()} (bit width \{src_ty.getBitWidth()}) to \{dst_ty} (bit width \{PrimitiveType::getBitWidth(dst_ty)})"
     raise LLVMValueError(msg)
   }
   // Sign extension: need special handling for i1
@@ -1078,7 +1078,8 @@ pub fn ConstantInt::bitcast(
   match dst_ty.asPrimitiveTypeEnum() {
     // Integer to integer
     Int1Type(_) | Int8Type(_) | Int16Type(_) | Int32Type(_) | Int64Type(_) =>
-      ConstantInt::new(dst_ty.tryAsIntType().unwrap(), self.value) as &Constant
+      ConstantInt::new(Type::tryAsIntType(dst_ty).unwrap(), self.value)
+      as &Constant
     // Integer to floating point
     FloatType(dst_ty) => {
       // For i32 to f32, we need to treat the 32-bit value as float bits
@@ -1095,7 +1096,7 @@ pub fn ConstantInt::bitcast(
       // For other FP types, we also interpret as double for now
       let fp_bits = self.value.reinterpret_as_uint64()
       let fp_value = fp_bits.reinterpret_as_double()
-      ConstantFP::new(dst_ty.tryAsFPType().unwrap(), fp_value)
+      ConstantFP::new(Type::tryAsFPType(dst_ty).unwrap(), fp_value)
     }
   }
 }
@@ -1404,13 +1405,13 @@ pub fn ConstantFP::compare(
   let result = match predicate {
     FALSE => false
     TRUE => true
-    OEQ => not(is_unordered) && self_val == other_val
-    OGT => not(is_unordered) && self_val > other_val
-    OGE => not(is_unordered) && self_val >= other_val
-    OLT => not(is_unordered) && self_val < other_val
-    OLE => not(is_unordered) && self_val <= other_val
-    ONE => not(is_unordered) && self_val != other_val
-    ORD => not(is_unordered)
+    OEQ => !is_unordered && self_val == other_val
+    OGT => !is_unordered && self_val > other_val
+    OGE => !is_unordered && self_val >= other_val
+    OLT => !is_unordered && self_val < other_val
+    OLE => !is_unordered && self_val <= other_val
+    ONE => !is_unordered && self_val != other_val
+    ORD => !is_unordered
     UNO => is_unordered
     UEQ => is_unordered || self_val == other_val
     UGT => is_unordered || self_val > other_val
@@ -1458,8 +1459,8 @@ pub fn ConstantFP::fptrunc(
   dst_ty : &FPType,
 ) -> ConstantFP raise LLVMValueError {
   let src_ty = self.vty
-  guard src_ty.getBitWidth() > dst_ty.getBitWidth() else {
-    let msg = "Floating-point truncation cast type mismatch: cannot truncate from \{src_ty} (bit width \{src_ty.getBitWidth()}) to \{dst_ty} (bit width \{dst_ty.getBitWidth()})"
+  guard PrimitiveType::getBitWidth(src_ty) > PrimitiveType::getBitWidth(dst_ty) else {
+    let msg = "Floating-point truncation cast type mismatch: cannot truncate from \{src_ty} (bit width \{PrimitiveType::getBitWidth(src_ty)}) to \{dst_ty} (bit width \{PrimitiveType::getBitWidth(dst_ty)})"
     raise LLVMValueError(msg)
   }
   // For truncation, we simply use the current value (precision loss handled by Double)
@@ -1499,8 +1500,8 @@ pub fn ConstantFP::fpext(
   dst_ty : &FPType,
 ) -> ConstantFP raise LLVMValueError {
   let src_ty = self.vty
-  guard src_ty.getBitWidth() < dst_ty.getBitWidth() else {
-    let msg = "Floating-point extension cast type mismatch: cannot extend from \{src_ty} (bit width \{src_ty.getBitWidth()}) to \{dst_ty} (bit width \{dst_ty.getBitWidth()})"
+  guard PrimitiveType::getBitWidth(src_ty) < PrimitiveType::getBitWidth(dst_ty) else {
+    let msg = "Floating-point extension cast type mismatch: cannot extend from \{src_ty} (bit width \{PrimitiveType::getBitWidth(src_ty)}) to \{dst_ty} (bit width \{PrimitiveType::getBitWidth(dst_ty)})"
     raise LLVMValueError(msg)
   }
   // For extension, we simply use the current value (no precision loss)
@@ -1661,7 +1662,8 @@ pub fn ConstantFP::bitcast(
     }
     // Floating point to floating point
     FloatType(_) | DoubleType(_) | HalfType(_) | BFloatType(_) | FP128Type(_) =>
-      ConstantFP::new(dst_ty.tryAsFPType().unwrap(), self.value) as &Constant
+      ConstantFP::new(Type::tryAsFPType(dst_ty).unwrap(), self.value)
+      as &Constant
     // Other integer types
     Int1Type(_) | Int8Type(_) | Int16Type(_) => {
       // For other integer types, we need proper bit width matching
@@ -2102,7 +2104,7 @@ fn ConstantArray::newConstantArray(
   }
   let eleTy = vty.elementType
   let consistency = data
-    .map(d => d.getType())
+    .map(d => Value::getType(d))
     .fold(init=true, fn(acc, ty) { acc && ty == eleTy })
   guard consistency else {
     llvm_unreachable(
@@ -2126,7 +2128,7 @@ pub impl Value for ConstantArray with fn asValueEnum(self) {
 ///|
 pub impl Value for ConstantArray with fn getValueRepr(self) {
   match self.data {
-    Left(constants) => constants.map(c => c.to_string()).join(", ")
+    Left(constants) => constants.map(c => Show::to_string(c)).join(", ")
     Right(arr) =>
       match arr {
         Int8Array(i8arr) => i8arr.iter().map(i => "i8 \{i}").join(", ")
@@ -2466,7 +2468,7 @@ pub impl Value for ConstantVector with fn asValueEnum(self) {
 ///|
 pub impl Value for ConstantVector with fn getValueRepr(self) {
   match self.data {
-    Left(constants) => constants.map(c => c.to_string()).join(", ")
+    Left(constants) => constants.map(c => Show::to_string(c)).join(", ")
     Right(arr) =>
       match arr {
         Int8Array(i8arr) => i8arr.iter().map(i => "i8 \{i}").join(", ")
@@ -2579,7 +2581,7 @@ pub fn ConstantStruct::new(
     llvm_unreachable("ConstantStruct::new: elements length mismatch")
   }
   for i = 0; i < elements.length(); i = i + 1 {
-    guard elements[i].getType() == struct_elements[i] else {
+    guard Value::getType(elements[i]) == struct_elements[i] else {
       llvm_unreachable(
         "ConstantStruct::new: element type mismatch at index \{i}",
       )
@@ -2623,12 +2625,15 @@ pub fn ConstantStruct::getElement(
 ///   let i32_val = ctx.getConstInt32(42)
 ///   let f32_val = ctx.getConstFloat(3.14)
 ///   let struct_val = @IR.ConstantStruct::new(sty, [i32_val, f32_val])
-///   inspect(struct_val.extractValue([0]), content="Some(i32 42)")
 ///   inspect(
-///     struct_val.extractValue([1]),
+///     "Some(\{struct_val.extractValue([0]).unwrap()})",
+///     content="Some(i32 42)",
+///   )
+///   inspect(
+///     "Some(\{struct_val.extractValue([1]).unwrap()})",
 ///     content="Some(float 0x40091EB860000000)",
 ///   )
-///   inspect(struct_val.extractValue([2]), content="None") // Out of bounds
+///   assert_true(struct_val.extractValue([2]) is None) // Out of bounds
 /// }
 /// ```
 pub fn ConstantStruct::extractValue(
@@ -2690,7 +2695,9 @@ pub fn ConstantStruct::insertValue(
   if indices.length() == 1 {
     // Base case: replace the element at this index
     guard self.getType().asTypeEnum() is StructType(sty) else { return None }
-    guard value.getType() == sty.elements()[first_index] else { return None }
+    guard Value::getType(value) == sty.elements()[first_index] else {
+      return None
+    }
     let new_elements = self.elements.copy()
     new_elements[first_index] = value
     Some(ConstantStruct::new(self.vty, new_elements))
@@ -2728,7 +2735,7 @@ pub impl Value for ConstantStruct with fn asValueEnum(self) {
 
 ///|
 pub impl Value for ConstantStruct with fn getValueRepr(self) {
-  self.elements.map(c => c.to_string()).join(", ")
+  self.elements.map(c => Show::to_string(c)).join(", ")
 }
 
 ///|
@@ -2799,7 +2806,7 @@ pub impl Value for ConstantString with fn asValueEnum(self) -> ValueEnum {
 
 ///|
 pub impl Value for ConstantString with fn getValueRepr(self) -> String {
-  let str_builder = StringBuilder::new()
+  let str_builder = StringBuilder()
   for c in self.data {
     match c {
       '\n' => str_builder.write_string("\\0A")

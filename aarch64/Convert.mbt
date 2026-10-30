@@ -1,7 +1,7 @@
 ///|
 pub suberror MIRToAArch64Error {
   MIRToAArch64Error(String)
-} derive(Show)
+}
 
 ///|
 #callsite(autofill(loc))
@@ -130,7 +130,7 @@ fn FReg::from_mir_freg_32(
 pub fn mir_module_to_aarch64(
   mod : @MachineIR.Module,
 ) -> Array[AArch64Asm] raise MIRToAArch64Error {
-  let insts : Array[AArch64Asm] = Array::new()
+  let insts : Array[AArch64Asm] = Array()
   let gfuncs = mod.functions.values().filter(f => f.is_external)
   for func in gfuncs {
     let fname = match func.name.has_prefix("_") {
@@ -154,7 +154,7 @@ pub fn mir_module_to_aarch64(
 pub fn mir_global_to_aarch64(
   global_value : @MachineIR.GlobalValue,
 ) -> Array[AArch64Asm] {
-  let insts : Array[AArch64Asm] = Array::new()
+  let insts : Array[AArch64Asm] = Array()
   // Add underscore prefix for AArch64 symbols on macOS
   let label_with_prefix = match global_value.label.has_prefix("_") {
     true => global_value.label
@@ -191,7 +191,7 @@ pub fn mir_global_to_aarch64(
 pub fn mir_function_to_aarch64(
   func : @MachineIR.Function,
 ) -> Array[AArch64Asm] raise MIRToAArch64Error {
-  let aarch64_insts : Array[AArch64Asm] = Array::new()
+  let aarch64_insts : Array[AArch64Asm] = Array()
   let fname = match func.name.has_prefix("_") {
     true => func.name
     false => "_\{func.name}"
@@ -209,7 +209,7 @@ pub fn mir_block_to_aarch64(
   bb : @MachineIR.BasicBlock,
   i : Int32,
 ) -> Array[AArch64Asm] raise MIRToAArch64Error {
-  let insts : Array[AArch64Asm] = Array::new()
+  let insts : Array[AArch64Asm] = Array()
   let label = bb.label
   if i != 0 {
     insts.push(Label(label))
@@ -734,7 +734,7 @@ fn load_immediate_64(reg : Reg, value : Int64) -> Array[AArch64Asm] {
     let mid16_1 = (value >> 16) & 0xFFFF
     let mid16_2 = (value >> 32) & 0xFFFF
     let high16 = (value >> 48) & 0xFFFF
-    let mut instructions = Array::new()
+    let mut instructions = Array()
     if low16 != 0 {
       instructions = instructions + [Movz64(reg, low16.to_uint16(), 0)]
     }
@@ -3015,7 +3015,25 @@ fn cast_mir_to_aarch64(
     }
     (op, defs, uses) =>
       raise MIRToAArch64Error(
-        "Unsupported cast operation \{op} with defs \{defs} and uses \{uses}",
+        "Unsupported cast operation \{op} with defs \{display_operands(defs)} and uses \{display_operands(uses)}",
       )
   }
+}
+
+///|
+pub impl Show for MIRToAArch64Error with fn output(self, logger) {
+  match self {
+    MIRToAArch64Error(v0) => {
+      logger.write_string("MIRToAArch64Error(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+  }
+}
+
+///|
+fn display_operands(values : Array[@MachineIR.Operand]) -> String {
+  let logger = StringBuilder()
+  &Logger::write_iter(logger, values.iter())
+  logger.to_string()
 }

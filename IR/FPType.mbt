@@ -22,7 +22,7 @@ pub enum FPTypeEnum {
   FloatType(FloatType)
   DoubleType(DoubleType)
   FP128Type(FP128Type)
-} derive(Eq, Show)
+} derive(Eq)
 
 ///|
 pub fn FPTypeEnum::asTypeClass(self : FPTypeEnum) -> &Type {
@@ -59,10 +59,41 @@ pub fn FPTypeEnum::getFPMantissaWidth(self : FPTypeEnum) -> Int32 {
 
 ///|
 pub fn FPTypeEnum::getBitWidth(self : Self) -> Int32 {
-  self.asFPTypeClass().getBitWidth()
+  PrimitiveType::getBitWidth(self.asFPTypeClass())
 }
 
 ///|
 impl FPType with fn getFPMantissaWidth(self) {
   self.asFPTypeEnum().getFPMantissaWidth()
+}
+
+///|
+pub impl Show for FPTypeEnum with fn output(self, logger) {
+  match self {
+    HalfType(v0) => {
+      logger.write_string("HalfType(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    BFloatType(v0) => {
+      logger.write_string("BFloatType(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    FloatType(v0) => {
+      logger.write_string("FloatType(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    DoubleType(v0) => {
+      logger.write_string("DoubleType(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    FP128Type(v0) => {
+      logger.write_string("FP128Type(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+  }
 }

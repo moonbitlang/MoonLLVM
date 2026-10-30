@@ -126,7 +126,7 @@ pub fn StructType::isSized(self : StructType) -> Bool {
   if self.isOpaque() {
     return false
   }
-  if self.elements().iter().any(ty => ty.isScalableTy() || not(ty.isSized())) {
+  if self.elements().iter().any(ty => ty.isScalableTy() || !ty.isSized()) {
     return false
   }
   self.isSized = Some(true)
@@ -211,7 +211,7 @@ pub fn StructType::setName(
       namedStructTypes.set(new_name, self)
     }
     (Some(old_name), new_name) => {
-      namedStructTypes..remove(old_name)..set(new_name, self)
+      namedStructTypes..remove(old_name).set(new_name, self)
       self.name = Some(new_name)
     }
   }
@@ -243,7 +243,7 @@ pub fn StructType::getIndexedType(
 
 ///|
 pub fn StructType::body_str(self : Self) -> String {
-  let s = self.elements.iter().map(ty => ty.to_string()).join(", ")
+  let s = self.elements.iter().map(ty => Show::to_string(ty)).join(", ")
   match self.isPacked() {
     true => "<{ \{s} }>"
     false => "{ \{s} }"

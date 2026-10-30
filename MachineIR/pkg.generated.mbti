@@ -79,9 +79,10 @@ pub suberror MIRError {
   IRTranslateError(String)
   LegalizeError(String)
   InValidBitWidthError(String)
-} derive(Show)
+}
 pub fn MIRError::output(Self, &Logger) -> Unit
 pub fn MIRError::to_string(Self) -> String
+pub impl Show for MIRError
 
 // Types and methods
 pub(all) struct ArchConfig {

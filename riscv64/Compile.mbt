@@ -5,8 +5,7 @@ pub struct Riscv64Module {
 
 ///|
 pub impl Show for Riscv64Module with fn output(self, logger) {
-  self.insts.map(inst => "\{inst}\n").join("")
-  |> &Logger::write_string(logger, _)
+  logger.write_string(self.insts.map(inst => "\{inst}\n").join(""))
 }
 
 ///|

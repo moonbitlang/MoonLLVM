@@ -154,7 +154,7 @@
 enum FloatingEnum {
   Float(Float)
   Double(Double)
-} derive(Eq, Hash, Show)
+} derive(Eq, Hash)
 
 ///|
 //fn FloatingEnum::asClass(self : FloatingEnum) -> &Floating {
@@ -209,7 +209,7 @@ enum SignedEnum {
   Int16(Int16)
   Int32(Int32)
   Int64(Int64)
-} derive(Eq, Hash, Show)
+} derive(Eq, Hash)
 
 ///|
 //fn SignedEnum::convert_to_int64(self : SignedEnum) -> Int64 {
@@ -267,7 +267,7 @@ enum UnSignedEnum {
   UInt16(UInt16)
   UInt32(UInt32)
   UInt64(UInt64)
-} derive(Eq, Hash, Show)
+} derive(Eq, Hash)
 
 ///|
 fn UnSignedEnum::convert_to_uint64(self : UnSignedEnum) -> UInt64 {
@@ -409,4 +409,72 @@ pub impl IntegerNumber for Int64 with fn asIntegerNumberEnum(self) {
 ///|
 pub impl IntegerNumber for UInt64 with fn asIntegerNumberEnum(self) {
   IntegerNumberEnum::UInt64(self)
+}
+
+///|
+pub impl Show for FloatingEnum with fn output(self, logger) {
+  match self {
+    Float(v0) => {
+      logger.write_string("Float(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    Double(v0) => {
+      logger.write_string("Double(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+  }
+}
+
+///|
+pub impl Show for SignedEnum with fn output(self, logger) {
+  match self {
+    Int8(v0) => {
+      logger.write_string("Int8(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    Int16(v0) => {
+      logger.write_string("Int16(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    Int32(v0) => {
+      logger.write_string("Int32(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    Int64(v0) => {
+      logger.write_string("Int64(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+  }
+}
+
+///|
+pub impl Show for UnSignedEnum with fn output(self, logger) {
+  match self {
+    UInt8(v0) => {
+      logger.write_string("UInt8(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    UInt16(v0) => {
+      logger.write_string("UInt16(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    UInt32(v0) => {
+      logger.write_string("UInt32(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    UInt64(v0) => {
+      logger.write_string("UInt64(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+  }
 }

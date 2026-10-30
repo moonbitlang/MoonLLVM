@@ -1,7 +1,7 @@
 ///|
 pub suberror MIRToRiscvError {
   MIRToRiscvError(String)
-} derive(Show)
+}
 
 ///|
 #callsite(autofill(loc))
@@ -92,7 +92,7 @@ fn FReg::from_mir_freg(
 pub fn mir_module_to_riscv(
   mod : @MachineIR.Module,
 ) -> Array[RvAsm] raise MIRToRiscvError {
-  let insts : Array[RvAsm] = Array::new()
+  let insts : Array[RvAsm] = Array()
   mod.functions
   .values()
   .filter(f => f.is_external)
@@ -112,7 +112,7 @@ pub fn mir_module_to_riscv(
 pub fn mir_global_to_riscv(
   global_value : @MachineIR.GlobalValue,
 ) -> Array[RvAsm] {
-  let insts : Array[RvAsm] = Array::new()
+  let insts : Array[RvAsm] = Array()
   match global_value.content {
     Zero(size) => {
       insts.push(Section(".bss"))
@@ -144,7 +144,7 @@ pub fn mir_global_to_riscv(
 pub fn mir_function_to_riscv(
   func : @MachineIR.Function,
 ) -> Array[RvAsm] raise MIRToRiscvError {
-  let riscv_insts : Array[RvAsm] = Array::new()
+  let riscv_insts : Array[RvAsm] = Array()
   let fname = func.name
   riscv_insts.push(Label(fname))
   for i, bb in func.body {
@@ -159,7 +159,7 @@ pub fn mir_block_to_riscv(
   bb : @MachineIR.BasicBlock,
   i : Int32,
 ) -> Array[RvAsm] raise MIRToRiscvError {
-  let insts : Array[RvAsm] = Array::new()
+  let insts : Array[RvAsm] = Array()
   let label = bb.label
   if i != 0 {
     insts.push(Label(label))
@@ -2587,7 +2587,25 @@ fn cast_mir_to_riscv(
     }
     (op, defs, uses) =>
       raise MIRToRiscvError(
-        "Unsupported cast operation \{op} with defs \{defs} and uses \{uses}",
+        "Unsupported cast operation \{op} with defs \{display_operands(defs)} and uses \{display_operands(uses)}",
       )
   }
+}
+
+///|
+pub impl Show for MIRToRiscvError with fn output(self, logger) {
+  match self {
+    MIRToRiscvError(v0) => {
+      logger.write_string("MIRToRiscvError(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+  }
+}
+
+///|
+fn display_operands(values : Array[@MachineIR.Operand]) -> String {
+  let logger = StringBuilder()
+  &Logger::write_iter(logger, values.iter())
+  logger.to_string()
 }

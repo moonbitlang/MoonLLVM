@@ -1,5 +1,5 @@
 ///|
-let inst_id : Ref[Int32] = Ref::new(0)
+let inst_id : Ref[Int32] = Ref(0)
 
 ///|
 pub(all) struct Instruction {
@@ -29,8 +29,8 @@ pub fn Instruction::new(
     uses,
     bb,
     func: bb.parent,
-    live_in: Set::new(),
-    live_out: Set::new(),
+    live_in: Set([]),
+    live_out: Set([]),
   }
 }
 

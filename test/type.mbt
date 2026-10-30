@@ -110,13 +110,13 @@ test "Function Type Functionality Test" {
   let fty = ctx.getFunctionType(voidty, paramTypes)
   inspect(fty.getReturnType(), content="void")
   inspect(fty.getNumParams(), content="2")
-  inspect(fty.getParamType(0), content="Some(i32)")
-  inspect(fty.getParamType(1), content="Some(double)")
-  inspect(fty.params(), content="[i32, double]")
+  inspect("Some(\{fty.getParamType(0).unwrap()})", content="Some(i32)")
+  inspect("Some(\{fty.getParamType(1).unwrap()})", content="Some(double)")
+  inspect(display_array(fty.params()), content="[i32, double]")
 
   // Ensure the outside elements will not effect the function type.
   paramTypes.push(i32ty)
-  inspect(fty.params(), content="[i32, double]")
+  inspect(display_array(fty.params()), content="[i32, double]")
 }
 
 ///|
@@ -165,4 +165,11 @@ test "Struct Type Functionality Test" {
     (Ok(opaque_ty.setBody(elements, isPacked=false)) catch { e => Err(e) })
     is Ok(_),
   )
+}
+
+///|
+fn[T : Show] display_array(values : Array[T]) -> String {
+  let logger = StringBuilder()
+  &Logger::write_iter(logger, values.iter())
+  logger.to_string()
 }

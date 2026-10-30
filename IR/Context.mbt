@@ -1,5 +1,5 @@
 ///|
-let contextKey : Ref[UInt32] = Ref::new(0)
+let contextKey : Ref[UInt32] = Ref(0)
 
 ///|
 pub struct Context {
@@ -42,7 +42,7 @@ pub fn Context::new() -> Context {
   let ctx = Context::{ key: contextKey.val, pimpl: None, }
   contextKey.val += 1
   let addr0 = AddressSpace::default()
-  let pointerTypes = Map::new()
+  let pointerTypes = Map([])
   pointerTypes.set(addr0, PointerType::new(ctx, addressSpace=addr0))
   // Initialize the LLVMContextImpl.
   let pimpl = LLVMContextImpl::{
@@ -61,10 +61,10 @@ pub fn Context::new() -> Context {
     i16ty: Int16Type::new(ctx),
     i32ty: Int32Type::new(ctx),
     i64ty: Int64Type::new(ctx),
-    namedStructTypes: Map::new(),
+    namedStructTypes: Map([]),
     pointerTypes,
-    mdstrings: Map::new(),
-    //valueMetadata: Map::new(),
+    mdstrings: Map([]),
+    //valueMetadata: Map([]),
   }
   ctx.pimpl = Some(pimpl)
   ctx
@@ -1401,7 +1401,7 @@ pub fn Context::getConstZero(
         DoubleType(_) => self.getConstDoubleArray(Array::make(cnt, 0.0))
         _ =>
           llvm_unreachable(
-            "getConstZero: Unimplemented for ArrayType with element type \{t.to_string()}",
+            "getConstZero: Unimplemented for ArrayType with element type \{Show::to_string(t)}",
           )
       }
     StructType(t) =>
@@ -1413,7 +1413,7 @@ pub fn Context::getConstZero(
         "getConstZero: Unimplemented for VectorType \{t.to_string()}",
       )
     _ => {
-      let msg = "Misuse `Context::getConstZero`: Cannot create zero value for type \{ty.to_string()}"
+      let msg = "Misuse `Context::getConstZero`: Cannot create zero value for type \{Show::to_string(ty)}"
       raise LLVMValueError(msg)
     }
   }
@@ -1439,7 +1439,7 @@ pub fn Context::getConstOne(
     DoubleType(_) => self.getConstDouble(1.0)
     FP128Type(t) => ConstantFP::new(t, 1.0)
     _ => {
-      let msg = "Misuse `Context::getConstOne`: Cannot create one value for type \{ty.to_string()}"
+      let msg = "Misuse `Context::getConstOne`: Cannot create one value for type \{Show::to_string(ty)}"
       raise LLVMValueError(msg)
     }
   }

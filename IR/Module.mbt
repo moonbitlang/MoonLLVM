@@ -18,9 +18,9 @@ pub fn Module::new(
 ) -> Module {
   Module::{
     context: ctx,
-    functions: Map::new(),
-    globals: Map::new(),
-    global_strings: Map::new(),
+    functions: Map([]),
+    globals: Map([]),
+    global_strings: Map([]),
     globalstr_count: 0,
     srcFileName,
     moduleID,

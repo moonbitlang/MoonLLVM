@@ -47,16 +47,16 @@ pub fn Function::new(
   Function::{
     mod,
     name,
-    params: Array::new(),
-    body: Array::new(),
+    params: Array(),
+    body: Array(),
     var_stack_size: 0,
     reg_stack_size: 0,
-    terminal_blocks: Array::new(),
+    terminal_blocks: Array(),
     llvm_func: None,
     is_external,
     is_variadic,
-    value_map: Map::new(),
-    bbmap: Map::new(),
+    value_map: Map([]),
+    bbmap: Map([]),
     vreg_cnt: 0,
     vfreg_cnt: 0,
     spilled_count: 0,
@@ -250,7 +250,7 @@ pub fn Function::get_operand_from_llvm_value(
     return Some(operand)
   }
   if val.tryAsGlobalValue() is Some(gv) {
-    let gv_name = gv.getName().unwrap()
+    let gv_name = @IR.Value::getName(gv).unwrap()
     let label = Label(gv_name)
     return Some(label)
   }
@@ -272,7 +272,7 @@ pub fn Function::collect_insts_with_opcode(
   self : Self,
   opcode : OpCode,
 ) -> Array[Instruction] {
-  let insts = Array::new()
+  let insts = Array()
   for inst in self.inst_iter() {
     if inst.opcode == opcode {
       insts.push(inst)
@@ -286,7 +286,7 @@ pub fn Function::collect_blocks_with_opcode(
   self : Self,
   opcode : OpCode,
 ) -> Array[BasicBlock] {
-  let blocks = Array::new()
+  let blocks = Array()
   for bb in self.body {
     for inst in bb.insts {
       if inst.opcode == opcode {

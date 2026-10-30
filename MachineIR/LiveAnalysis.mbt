@@ -4,7 +4,7 @@ using @deque {type Deque}
 ///|
 /// Perform live variable analysis on the function.
 pub fn Function::live_analysis(self : Self) -> Unit {
-  let bb_queue : Deque[BasicBlock] = Deque::new()
+  let bb_queue : Deque[BasicBlock] = Deque([])
   self.terminal_blocks.each(bb => bb_queue.push_back(bb))
   fn append_preds(bb : BasicBlock) {
     bb.preds

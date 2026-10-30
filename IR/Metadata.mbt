@@ -50,7 +50,7 @@ pub impl Metadata for MDNode with fn asMetadataEnum(self) {
 
 ///|
 pub impl Show for MDNode with fn output(self, logger) {
-  let metadata_strs = self.metadata.map(m => m.to_string())
+  let metadata_strs = self.metadata.map(m => Show::to_string(m))
   let metadata_joined = metadata_strs.join(", ")
   logger.write_string("!{\{metadata_joined}}")
 }

@@ -43,9 +43,9 @@ fn GlobalVariable::new(
     users,
     mod,
     name,
-    linkage: Ref::new(linkage),
-    visibility: Ref::new(visibility),
-    unnamed_addr: Ref::new(unnamed_addr),
+    linkage: Ref(linkage),
+    visibility: Ref(visibility),
+    unnamed_addr: Ref(unnamed_addr),
     initializer,
     initializerTy,
   }
@@ -197,9 +197,9 @@ fn GlobalConstant::new(
     users,
     mod,
     name,
-    linkage: Ref::new(linkage),
-    visibility: Ref::new(visibility),
-    unnamed_addr: Ref::new(unnamed_addr),
+    linkage: Ref(linkage),
+    visibility: Ref(visibility),
+    unnamed_addr: Ref(unnamed_addr),
     value,
   }
 }

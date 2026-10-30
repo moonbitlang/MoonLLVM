@@ -91,11 +91,11 @@ fn CastInst::newTrunc(
   name~ : String?,
 ) -> CastInst {
   guard! from_val.getType().tryAsIntTypeEnum() is Some(from_ty)
-  guard! from_ty.getBitWidth() > to_ty.getBitWidth()
+  guard! from_ty.getBitWidth() > PrimitiveType::getBitWidth(to_ty)
   let uid = valueUIDAssigner.assign()
-  let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev : Ref[&Instruction?] = Ref::new(None)
-  let next : Ref[&Instruction?] = Ref::new(None)
+  let bb : Ref[BasicBlock?] = Ref(None)
+  let prev : Ref[&Instruction?] = Ref(None)
+  let next : Ref[&Instruction?] = Ref(None)
   let inst = CastInst::{
     uid,
     to_ty,
@@ -120,11 +120,11 @@ fn CastInst::newZExt(
   name~ : String?,
 ) -> CastInst {
   guard! from_val.getType().tryAsIntTypeEnum() is Some(from_ty)
-  guard! from_ty.getBitWidth() < to_ty.getBitWidth()
+  guard! from_ty.getBitWidth() < PrimitiveType::getBitWidth(to_ty)
   let uid = valueUIDAssigner.assign()
-  let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev : Ref[&Instruction?] = Ref::new(None)
-  let next : Ref[&Instruction?] = Ref::new(None)
+  let bb : Ref[BasicBlock?] = Ref(None)
+  let prev : Ref[&Instruction?] = Ref(None)
+  let next : Ref[&Instruction?] = Ref(None)
   let inst = CastInst::{
     uid,
     to_ty,
@@ -149,9 +149,9 @@ fn CastInst::newSExt(
   name~ : String?,
 ) -> CastInst {
   let uid = valueUIDAssigner.assign()
-  let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev : Ref[&Instruction?] = Ref::new(None)
-  let next : Ref[&Instruction?] = Ref::new(None)
+  let bb : Ref[BasicBlock?] = Ref(None)
+  let prev : Ref[&Instruction?] = Ref(None)
+  let next : Ref[&Instruction?] = Ref(None)
   let inst = CastInst::{
     uid,
     to_ty,
@@ -176,9 +176,9 @@ fn CastInst::newFPTrunc(
   name~ : String?,
 ) -> CastInst {
   let uid = valueUIDAssigner.assign()
-  let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev : Ref[&Instruction?] = Ref::new(None)
-  let next : Ref[&Instruction?] = Ref::new(None)
+  let bb : Ref[BasicBlock?] = Ref(None)
+  let prev : Ref[&Instruction?] = Ref(None)
+  let next : Ref[&Instruction?] = Ref(None)
   let inst = CastInst::{
     uid,
     to_ty,
@@ -203,9 +203,9 @@ fn CastInst::newFPExt(
   name~ : String?,
 ) -> CastInst {
   let uid = valueUIDAssigner.assign()
-  let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev : Ref[&Instruction?] = Ref::new(None)
-  let next : Ref[&Instruction?] = Ref::new(None)
+  let bb : Ref[BasicBlock?] = Ref(None)
+  let prev : Ref[&Instruction?] = Ref(None)
+  let next : Ref[&Instruction?] = Ref(None)
   let inst = CastInst::{
     uid,
     to_ty,
@@ -230,9 +230,9 @@ fn CastInst::newUIToFP(
   name~ : String?,
 ) -> CastInst {
   let uid = valueUIDAssigner.assign()
-  let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev : Ref[&Instruction?] = Ref::new(None)
-  let next : Ref[&Instruction?] = Ref::new(None)
+  let bb : Ref[BasicBlock?] = Ref(None)
+  let prev : Ref[&Instruction?] = Ref(None)
+  let next : Ref[&Instruction?] = Ref(None)
   let inst = CastInst::{
     uid,
     to_ty,
@@ -257,9 +257,9 @@ fn CastInst::newFPToUI(
   name~ : String?,
 ) -> CastInst {
   let uid = valueUIDAssigner.assign()
-  let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev : Ref[&Instruction?] = Ref::new(None)
-  let next : Ref[&Instruction?] = Ref::new(None)
+  let bb : Ref[BasicBlock?] = Ref(None)
+  let prev : Ref[&Instruction?] = Ref(None)
+  let next : Ref[&Instruction?] = Ref(None)
   let inst = CastInst::{
     uid,
     to_ty,
@@ -284,9 +284,9 @@ fn CastInst::newSIToFP(
   name~ : String?,
 ) -> CastInst {
   let uid = valueUIDAssigner.assign()
-  let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev : Ref[&Instruction?] = Ref::new(None)
-  let next : Ref[&Instruction?] = Ref::new(None)
+  let bb : Ref[BasicBlock?] = Ref(None)
+  let prev : Ref[&Instruction?] = Ref(None)
+  let next : Ref[&Instruction?] = Ref(None)
   let inst = CastInst::{
     uid,
     to_ty,
@@ -311,9 +311,9 @@ fn CastInst::newFPToSI(
   name~ : String?,
 ) -> CastInst {
   let uid = valueUIDAssigner.assign()
-  let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev : Ref[&Instruction?] = Ref::new(None)
-  let next : Ref[&Instruction?] = Ref::new(None)
+  let bb : Ref[BasicBlock?] = Ref(None)
+  let prev : Ref[&Instruction?] = Ref(None)
+  let next : Ref[&Instruction?] = Ref(None)
   let inst = CastInst::{
     uid,
     to_ty,
@@ -338,9 +338,9 @@ fn CastInst::newPtrToInt(
   name~ : String?,
 ) -> CastInst {
   let uid = valueUIDAssigner.assign()
-  let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev : Ref[&Instruction?] = Ref::new(None)
-  let next : Ref[&Instruction?] = Ref::new(None)
+  let bb : Ref[BasicBlock?] = Ref(None)
+  let prev : Ref[&Instruction?] = Ref(None)
+  let next : Ref[&Instruction?] = Ref(None)
   let inst = CastInst::{
     uid,
     to_ty,
@@ -365,9 +365,9 @@ fn CastInst::newIntToPtr(
 ) -> CastInst {
   let to_ty = from_val.getContext().getPtrTy()
   let uid = valueUIDAssigner.assign()
-  let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev : Ref[&Instruction?] = Ref::new(None)
-  let next : Ref[&Instruction?] = Ref::new(None)
+  let bb : Ref[BasicBlock?] = Ref(None)
+  let prev : Ref[&Instruction?] = Ref(None)
+  let next : Ref[&Instruction?] = Ref(None)
   let inst = CastInst::{
     uid,
     to_ty,
@@ -394,9 +394,9 @@ fn CastInst::newBitCast(
   name~ : String?,
 ) -> CastInst {
   let uid = valueUIDAssigner.assign()
-  let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev : Ref[&Instruction?] = Ref::new(None)
-  let next : Ref[&Instruction?] = Ref::new(None)
+  let bb : Ref[BasicBlock?] = Ref(None)
+  let prev : Ref[&Instruction?] = Ref(None)
+  let next : Ref[&Instruction?] = Ref(None)
   let inst = CastInst::{
     uid,
     to_ty,

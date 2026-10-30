@@ -19,7 +19,7 @@ pub enum AggregateTypeEnum {
   ArrayType(ArrayType)
   VectorType(VectorType)
   ScalableVectorType(ScalableVectorType)
-} derive(Eq, Show)
+} derive(Eq)
 
 ///|
 pub fn AggregateTypeEnum::toTypeEnum(self : AggregateTypeEnum) -> TypeEnum {
@@ -63,5 +63,31 @@ pub fn AggregateTypeEnum::getIndexedType(
         idxs.length() == 1 && idxs[0] >= 0, // no need to check upper bound
         fn() { arr.getElementType() },
       )
+  }
+}
+
+///|
+pub impl Show for AggregateTypeEnum with fn output(self, logger) {
+  match self {
+    StructType(v0) => {
+      logger.write_string("StructType(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    ArrayType(v0) => {
+      logger.write_string("ArrayType(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    VectorType(v0) => {
+      logger.write_string("VectorType(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    ScalableVectorType(v0) => {
+      logger.write_string("ScalableVectorType(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
   }
 }

@@ -518,7 +518,7 @@ pub trait User: Value {
 
 ///|
 pub impl Eq for &User with fn equal(self, other) {
-  self.getValueBase().uid == other.getValueBase().uid
+  Value::getValueBase(self).uid == Value::getValueBase(other).uid
 }
 
 ///|

@@ -201,9 +201,9 @@ fn BinaryInst::newStandardOp(
   guard! lhsTy.tryAsIntTypeEnum() is Some(_)
   let vty = lhsTy
   let uid = valueUIDAssigner.assign()
-  let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev : Ref[&Instruction?] = Ref::new(None)
-  let next : Ref[&Instruction?] = Ref::new(None)
+  let bb : Ref[BasicBlock?] = Ref(None)
+  let prev : Ref[&Instruction?] = Ref(None)
+  let next : Ref[&Instruction?] = Ref(None)
   let inst = BinaryInst::{
     uid,
     vty,
@@ -217,7 +217,7 @@ fn BinaryInst::newStandardOp(
     next,
     opcode,
     flags,
-    fast_math_flags: Set::new(),
+    fast_math_flags: Set([]),
   }
   lhs.addUser(inst)
   rhs.addUser(inst)
@@ -243,9 +243,9 @@ fn BinaryInst::newFPMathOp(
   guard! lhsTy.tryAsFPTypeEnum() is Some(_)
   let uid = valueUIDAssigner.assign()
   let vty = lhsTy
-  let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev : Ref[&Instruction?] = Ref::new(None)
-  let next : Ref[&Instruction?] = Ref::new(None)
+  let bb : Ref[BasicBlock?] = Ref(None)
+  let prev : Ref[&Instruction?] = Ref(None)
+  let next : Ref[&Instruction?] = Ref(None)
   let inst = BinaryInst::{
     uid,
     vty,
@@ -258,7 +258,7 @@ fn BinaryInst::newFPMathOp(
     prev,
     next,
     opcode,
-    flags: Set::new(),
+    flags: Set([]),
     fast_math_flags,
   }
   lhs.addUser(inst)

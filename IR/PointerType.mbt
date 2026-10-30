@@ -4,7 +4,7 @@
 
 ///|
 /// Memory address space of a pointer type.
-pub struct AddressSpace(UInt32) derive(Hash, Show, Eq, Default)
+pub struct AddressSpace(UInt32) derive(Hash, Eq, Default)
 
 ///|
 pub fn AddressSpace::new(v : UInt32) -> AddressSpace {
@@ -76,4 +76,11 @@ pub impl Type for PointerType with fn asTypeEnum(self) -> TypeEnum {
 ///|
 pub impl Type for PointerType with fn getContext(self) -> Context {
   self.ctx
+}
+
+///|
+pub impl Show for AddressSpace with fn output(self, logger) {
+  logger.write_string("AddressSpace(")
+  logger.write_object(self.0)
+  logger.write_string(")")
 }

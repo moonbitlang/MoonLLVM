@@ -163,7 +163,7 @@ test "IRBuilder - Bitwise Instructions" {
   let inst_names = entry
     .instIter()
     .map(fn(inst) {
-      match inst.getName() {
+      match @IR.Value::getName(inst) {
         Some(n) => n
         None => "unnamed"
       }
@@ -299,7 +299,7 @@ test "Module - Global Variable Operations" {
 
   // Test global variable properties
   assert_eq(global.getName(), Some("g_value"))
-  assert_eq(global.getType().to_string(), "ptr")
+  assert_eq(Show::to_string(global.getType()), "ptr")
 
   // Add another global
   let global2 = mod.addGlobalVariable(i32ty, "g_counter")
@@ -382,10 +382,10 @@ test "Value - Name Operations" {
 test "Value - Type Queries" {
   let ctx = @IR.Context::new()
   let int_val = ctx.getConstInt32(42)
-  let int_type = int_val.getType().to_string()
+  let int_type = Show::to_string(int_val.getType())
   assert_eq(int_type, "i32")
   let float_val = ctx.getConstFloat(3.14)
-  let float_type = float_val.getType().to_string()
+  let float_type = Show::to_string(float_val.getType())
   assert_eq(float_type, "float")
 }
 

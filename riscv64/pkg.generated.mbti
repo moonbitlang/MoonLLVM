@@ -22,9 +22,10 @@ pub fn mir_module_to_riscv(@MachineIR.Module) -> Array[RvAsm] raise MIRToRiscvEr
 // Errors
 pub suberror MIRToRiscvError {
   MIRToRiscvError(String)
-} derive(Show)
+}
 pub fn MIRToRiscvError::output(Self, &Logger) -> Unit
 pub fn MIRToRiscvError::to_string(Self) -> String
+pub impl Show for MIRToRiscvError
 
 // Types and methods
 pub(all) enum FReg {

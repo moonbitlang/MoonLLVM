@@ -9,7 +9,7 @@
 /// test {
 ///   let ctx = @IR.Context::new()
 ///   let i8ty : &@IR.IntegerType = ctx.getInt8Ty()
-///   assert_eq(i8ty.getBitWidth(), 8)
+///   assert_eq(@IR.PrimitiveType::getBitWidth(i8ty), 8)
 ///   inspect(i8ty.getExtendedType().unwrap(), content="i16")
 ///   assert_eq(i8ty.getBitMask(), 0xFF)
 ///   assert_eq(i8ty.getExtendedType().unwrap().getSignBit(), 0x8000)
@@ -72,7 +72,7 @@ pub enum IntegerTypeEnum {
   Int16Type(Int16Type)
   Int32Type(Int32Type)
   Int64Type(Int64Type)
-} derive(Eq, Hash, Show)
+} derive(Eq, Hash)
 
 ///|
 pub fn IntegerTypeEnum::asIntegerTypeClass(
@@ -100,5 +100,36 @@ pub fn IntegerTypeEnum::asTypeClass(self : IntegerTypeEnum) -> &Type {
 
 ///|
 pub fn IntegerTypeEnum::getBitWidth(self : IntegerTypeEnum) -> Int32 {
-  self.asIntegerTypeClass().getBitWidth()
+  PrimitiveType::getBitWidth(self.asIntegerTypeClass())
+}
+
+///|
+pub impl Show for IntegerTypeEnum with fn output(self, logger) {
+  match self {
+    Int1Type(v0) => {
+      logger.write_string("Int1Type(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    Int8Type(v0) => {
+      logger.write_string("Int8Type(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    Int16Type(v0) => {
+      logger.write_string("Int16Type(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    Int32Type(v0) => {
+      logger.write_string("Int32Type(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    Int64Type(v0) => {
+      logger.write_string("Int64Type(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+  }
 }

@@ -20,7 +20,7 @@ pub enum TypeEnum {
   VectorType(VectorType)
   ScalableVectorType(ScalableVectorType)
   PointerType(PointerType)
-} derive(Eq, Show, Hash)
+} derive(Eq, Hash)
 
 ///|
 pub fn TypeEnum::asTypeClass(self : TypeEnum) -> &Type {
@@ -209,7 +209,7 @@ impl Type with fn canLosslesslyBitCastTo(self, ty : &Type) -> Bool {
   if self.asTypeEnum() == ty.asTypeEnum() {
     return true
   }
-  if not(self.isFirstClassType()) || not(ty.isFirstClassType()) {
+  if !self.isFirstClassType() || !ty.isFirstClassType() {
     return false
   }
   if self.asTypeEnum() is VectorType(vec1) &&
@@ -251,7 +251,7 @@ impl Type with fn isEmptyTy(self) -> Bool {
 /// Only FunctionType, VoidType, Opaque Struct is not first class type.
 impl Type with fn isFirstClassType(self) {
   match self.asTypeEnum() {
-    StructType(sty) => not(sty.isOpaque())
+    StructType(sty) => !sty.isOpaque()
     FunctionType(_) | VoidType(_) => false
     _ => true
   }
@@ -466,3 +466,109 @@ impl Type with fn tryAsAbstractTypeEnum(self) -> AbstractTypeEnum? {
 
 // pub Type with print(self, logger: &Logger, isForDebug~ = false, noDetails~ = false)
 // pub Type with dump(self)
+
+///|
+pub impl Show for TypeEnum with fn output(self, logger) {
+  match self {
+    HalfType(v0) => {
+      logger.write_string("HalfType(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    BFloatType(v0) => {
+      logger.write_string("BFloatType(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    FloatType(v0) => {
+      logger.write_string("FloatType(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    DoubleType(v0) => {
+      logger.write_string("DoubleType(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    FP128Type(v0) => {
+      logger.write_string("FP128Type(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    Int1Type(v0) => {
+      logger.write_string("Int1Type(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    Int8Type(v0) => {
+      logger.write_string("Int8Type(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    Int16Type(v0) => {
+      logger.write_string("Int16Type(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    Int32Type(v0) => {
+      logger.write_string("Int32Type(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    Int64Type(v0) => {
+      logger.write_string("Int64Type(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    VoidType(v0) => {
+      logger.write_string("VoidType(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    LabelType(v0) => {
+      logger.write_string("LabelType(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    MetadataType(v0) => {
+      logger.write_string("MetadataType(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    TokenType(v0) => {
+      logger.write_string("TokenType(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    FunctionType(v0) => {
+      logger.write_string("FunctionType(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    StructType(v0) => {
+      logger.write_string("StructType(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    ArrayType(v0) => {
+      logger.write_string("ArrayType(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    VectorType(v0) => {
+      logger.write_string("VectorType(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    ScalableVectorType(v0) => {
+      logger.write_string("ScalableVectorType(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    PointerType(v0) => {
+      logger.write_string("PointerType(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+  }
+}

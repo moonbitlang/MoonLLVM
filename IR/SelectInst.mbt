@@ -54,9 +54,9 @@ fn SelectInst::new(
 ) -> SelectInst {
   let vty = trueValue.getType()
   let uid = valueUIDAssigner.assign()
-  let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev : Ref[&Instruction?] = Ref::new(None)
-  let next : Ref[&Instruction?] = Ref::new(None)
+  let bb : Ref[BasicBlock?] = Ref(None)
+  let prev : Ref[&Instruction?] = Ref(None)
+  let next : Ref[&Instruction?] = Ref(None)
   let inst = SelectInst::{
     uid,
     vty,

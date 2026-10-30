@@ -75,7 +75,7 @@ pub fn Argument::addAttr(self : Argument, attr : ParamAttr) -> Unit {
   let attrSet = match argAttrs.get(self.argNo) {
     Some(attrSet) => attrSet
     None => {
-      let attrSet = Set::new()
+      let attrSet = Set([])
       argAttrs.set(self.argNo, attrSet)
       attrSet
     }
@@ -146,7 +146,7 @@ pub impl Value for Argument with fn setName(self : Argument, name : String) -> U
     raise LLVMValueError(msg)
   }
   let symbols = self.parent.symbols
-  guard not(symbols.contains(name)) else {
+  guard !symbols.contains(name) else {
     let msg = "Misuse `Argument::setName`: " +
       "name '\{name}' already exists in the function's symbols."
     raise LLVMValueError(msg)
@@ -246,16 +246,16 @@ fn Function::new(
   let uid = valueUIDAssigner.assign()
   let users = []
   let arguments = []
-  let symbols = Map::new()
+  let symbols = Map([])
   let attrSet = AttributeSet::new()
   let basicBlocks = []
   let f = Function::{
     uid,
     fty,
     users,
-    linkage: Ref::new(linkage),
-    visibility: Ref::new(visibility),
-    unnamed_addr: Ref::new(unnamed_addr),
+    linkage: Ref(linkage),
+    visibility: Ref(visibility),
+    unnamed_addr: Ref(unnamed_addr),
     mod,
     index,
     name,
@@ -333,20 +333,22 @@ pub fn Function::instIter(self : Function) -> Iter[&Instruction] {
   let mut bb_index = 0
   let mut next_inst : &Instruction? = None
   Iter::new(fn() {
-    loop next_inst {
-      Some(inst) => {
-        next_inst = inst.next()
-        break Some(inst)
-      }
-      None => {
-        if bb_index >= self.basicBlocks.length() {
-          break None
+    for loop_state = next_inst {
+      match loop_state {
+        Some(inst) => {
+          next_inst = inst.next()
+          break Some(inst)
         }
-        let bb = self.basicBlocks[bb_index]
-        bb_index += 1
-        let start_inst = bb.firstInst()
-        next_inst = start_inst
-        continue start_inst
+        None => {
+          if bb_index >= self.basicBlocks.length() {
+            break None
+          }
+          let bb = self.basicBlocks[bb_index]
+          bb_index += 1
+          let start_inst = bb.firstInst()
+          next_inst = start_inst
+          continue start_inst
+        }
       }
     }
   })
@@ -592,14 +594,10 @@ pub impl Show for Function with fn output(self, logger) {
     }
     let arg_attrs_str = arg_attrs.map(fn(a) { "\{a}" }).join(" ")
     let ty = arg.getType()
-    (if not(arg_attrs_str.is_empty()) {
-      "\{ty} \{arg_attrs_str}"
-    } else {
-      "\{ty}"
-    }) +
+    (if !arg_attrs_str.is_empty() { "\{ty} \{arg_attrs_str}" } else { "\{ty}" }) +
     (if hasBody { " %" + arg.getNameOrSlotStr() } else { "" })
   })
-  if not(fn_attrs_str.is_empty()) {
+  if !fn_attrs_str.is_empty() {
     logger.write_string("; Function Attrs: \{fn_attrs_str}\n")
   }
   let arg_str = arg_strs.join(", ")
@@ -607,11 +605,11 @@ pub impl Show for Function with fn output(self, logger) {
   let linkage_str = self.getLinkage().to_string()
   let hasBody = self.hasBody()
   let func_info = (if hasBody { "define " } else { "declare " }) +
-    (if not(linkage_str.is_empty()) { linkage_str + " " } else { "" }) +
-    (if not(ret_attrs_str.is_empty()) { ret_attrs_str + " " } else { "" }) +
-    ret_ty.to_string() +
+    (if !linkage_str.is_empty() { linkage_str + " " } else { "" }) +
+    (if !ret_attrs_str.is_empty() { ret_attrs_str + " " } else { "" }) +
+    Show::to_string(ret_ty) +
     " @\{self.name}(\{arg_str})" +
-    (if not(fn_attrs_str.is_empty()) { " #\{self.index}" } else { "" }) +
+    (if !fn_attrs_str.is_empty() { " #\{self.index}" } else { "" }) +
     (if hasBody { " {\n" } else { "" })
   logger.write_string(func_info)
   if hasBody {

@@ -253,7 +253,7 @@ pub fn IRBuilder::createAdd(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let flags = Set::new()
+  let flags = Set([])
   if has_nuw {
     flags.add(BinaryOpFlags::NoUnsignedWrap)
   }
@@ -407,7 +407,7 @@ pub fn IRBuilder::createSub(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let flags = Set::new()
+  let flags = Set([])
   if has_nuw {
     flags.add(BinaryOpFlags::NoUnsignedWrap)
   }
@@ -572,7 +572,7 @@ pub fn IRBuilder::createMul(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let flags = Set::new()
+  let flags = Set([])
   if has_nuw {
     flags.add(BinaryOpFlags::NoUnsignedWrap)
   }
@@ -729,7 +729,7 @@ pub fn IRBuilder::createSDiv(
   //   _ => ()
   // }
   let parent = self.getInsertFunction()
-  let flags = Set::new()
+  let flags = Set([])
   if is_exact {
     flags.add(BinaryOpFlags::Exact)
   }
@@ -847,7 +847,7 @@ pub fn IRBuilder::createUDiv(
   //   _ => ()
   // }
   let parent = self.getInsertFunction()
-  let flags = Set::new()
+  let flags = Set([])
   if is_exact {
     flags.add(BinaryOpFlags::Exact)
   }
@@ -966,7 +966,7 @@ pub fn IRBuilder::createSRem(
   // }
 
   let parent = self.getInsertFunction()
-  let flags = Set::new() // nsw, nuw, exact are not applicable to SRem
+  let flags = Set([]) // nsw, nuw, exact are not applicable to SRem
   let inst = BinaryInst::newStandardOp(
     BinaryOps::SRem,
     lhs,
@@ -1040,7 +1040,7 @@ pub fn IRBuilder::createURem(
   // }
 
   let parent = self.getInsertFunction()
-  let flags = Set::new() // nsw, nuw, exact are not applicable to URem
+  let flags = Set([]) // nsw, nuw, exact are not applicable to URem
   let inst = BinaryInst::newStandardOp(
     BinaryOps::URem,
     lhs,
@@ -1185,7 +1185,7 @@ pub fn IRBuilder::createFSub(
   lhs : &Value,
   rhs : &Value,
   name~ : String = "",
-  fast_math_flags~ : Set[FastMathFlag] = Set::new(),
+  fast_math_flags~ : Set[FastMathFlag] = Set([]),
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -1244,7 +1244,7 @@ pub fn IRBuilder::createFNeg(
   self : IRBuilder,
   value : &Value,
   name~ : String = "",
-  fast_math_flags~ : Set[FastMathFlag] = Set::new(),
+  fast_math_flags~ : Set[FastMathFlag] = Set([]),
 ) -> &Value raise Error {
   let ty = value.getType()
   guard ty.tryAsFPTypeEnum() is Some(_) else {
@@ -1299,7 +1299,7 @@ pub fn IRBuilder::createFMul(
   lhs : &Value,
   rhs : &Value,
   name~ : String = "",
-  fast_math_flags~ : Set[FastMathFlag] = Set::new(),
+  fast_math_flags~ : Set[FastMathFlag] = Set([]),
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -1367,7 +1367,7 @@ pub fn IRBuilder::createFDiv(
   lhs : &Value,
   rhs : &Value,
   name~ : String = "",
-  fast_math_flags~ : Set[FastMathFlag] = Set::new(),
+  fast_math_flags~ : Set[FastMathFlag] = Set([]),
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -1435,7 +1435,7 @@ pub fn IRBuilder::createFRem(
   lhs : &Value,
   rhs : &Value,
   name~ : String = "",
-  fast_math_flags~ : Set[FastMathFlag] = Set::new(),
+  fast_math_flags~ : Set[FastMathFlag] = Set([]),
 ) -> &Value raise Error {
   let (lhsTy, rhsTy) = (lhs.getType(), rhs.getType())
   guard lhsTy == rhsTy else {
@@ -1527,7 +1527,7 @@ pub fn IRBuilder::createAnd(
     rhs,
     parent,
     name=None,
-    Set::new(),
+    Set([]),
   )
   match name {
     "" => ()
@@ -1597,7 +1597,7 @@ pub fn IRBuilder::createOr(
     rhs,
     parent,
     name=None,
-    Set::new(),
+    Set([]),
   )
   match name {
     "" => ()
@@ -1667,7 +1667,7 @@ pub fn IRBuilder::createXor(
     rhs,
     parent,
     name=None,
-    Set::new(),
+    Set([]),
   )
   match name {
     "" => ()
@@ -1756,7 +1756,7 @@ pub fn IRBuilder::createShl(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let flags = Set::new()
+  let flags = Set([])
   if has_nuw {
     flags.add(BinaryOpFlags::NoUnsignedWrap)
   }
@@ -1834,7 +1834,7 @@ pub fn IRBuilder::createLShr(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let flags = Set::new()
+  let flags = Set([])
   if is_exact {
     flags.add(BinaryOpFlags::Exact)
   }
@@ -1909,7 +1909,7 @@ pub fn IRBuilder::createAShr(
     _ => ()
   }
   let parent = self.getInsertFunction()
-  let flags = Set::new()
+  let flags = Set([])
   if is_exact {
     flags.add(BinaryOpFlags::Exact)
   }
@@ -2464,10 +2464,10 @@ pub fn IRBuilder::createTrunc(
       "got `\{src_val.getType()}`"
     raise LLVMValueError(msg)
   }
-  guard src_ty.getBitWidth() > dst_ty.getBitWidth() else {
+  guard src_ty.getBitWidth() > PrimitiveType::getBitWidth(dst_ty) else {
     let msg = "Misuse `IRBuilder::createTrunc`, " +
       "the destination type must be smaller than the source type, " +
-      "got `\{src_ty.getBitWidth()} bits` and `\{dst_ty.getBitWidth()} bits`"
+      "got `\{src_ty.getBitWidth()} bits` and `\{PrimitiveType::getBitWidth(dst_ty)} bits`"
     raise LLVMValueError(msg)
   }
   match src_val.tryAsConstantEnum() {
@@ -2525,10 +2525,10 @@ pub fn IRBuilder::createZExt(
       "got `\{src_val.getType()}`"
     raise LLVMValueError(msg)
   }
-  guard src_ty.getBitWidth() < dst_ty.getBitWidth() else {
+  guard src_ty.getBitWidth() < PrimitiveType::getBitWidth(dst_ty) else {
     let msg = "Misuse `IRBuilder::createZExt`, " +
       "the destination type must be larger than the source type, " +
-      "got `\{src_ty.getBitWidth()} bits` and `\{dst_ty.getBitWidth()} bits`"
+      "got `\{src_ty.getBitWidth()} bits` and `\{PrimitiveType::getBitWidth(dst_ty)} bits`"
     raise LLVMValueError(msg)
   }
   match src_val.tryAsConstantEnum() {
@@ -2586,10 +2586,10 @@ pub fn IRBuilder::createSExt(
       "got `\{src_val.getType()}`"
     raise LLVMValueError(msg)
   }
-  guard src_ty.getBitWidth() < dst_ty.getBitWidth() else {
+  guard src_ty.getBitWidth() < PrimitiveType::getBitWidth(dst_ty) else {
     let msg = "Misuse `IRBuilder::createSExt`, " +
       "the destination type must be larger than the source type, " +
-      "got `\{src_ty.getBitWidth()} bits` and `\{dst_ty.getBitWidth()} bits`"
+      "got `\{src_ty.getBitWidth()} bits` and `\{PrimitiveType::getBitWidth(dst_ty)} bits`"
     raise LLVMValueError(msg)
   }
   match src_val.tryAsConstantEnum() {
@@ -2646,10 +2646,10 @@ pub fn IRBuilder::createFPTrunc(
       "got `\{src_val.getType()}`"
     raise LLVMValueError(msg)
   }
-  guard src_ty.getBitWidth() > dst_ty.getBitWidth() else {
+  guard src_ty.getBitWidth() > PrimitiveType::getBitWidth(dst_ty) else {
     let msg = "Misuse `IRBuilder::createFPTrunc`, " +
       "the destination type must be smaller than the source type, " +
-      "got `\{src_ty.getBitWidth()} bits` and `\{dst_ty.getBitWidth()} bits`"
+      "got `\{src_ty.getBitWidth()} bits` and `\{PrimitiveType::getBitWidth(dst_ty)} bits`"
     raise LLVMValueError(msg)
   }
   match src_val.tryAsConstantEnum() {
@@ -2702,10 +2702,10 @@ pub fn IRBuilder::createFPExt(
       "got `\{src_val.getType()}`"
     raise LLVMValueError(msg)
   }
-  guard src_ty.getBitWidth() < dst_ty.getBitWidth() else {
+  guard src_ty.getBitWidth() < PrimitiveType::getBitWidth(dst_ty) else {
     let msg = "Misuse `IRBuilder::createFPExt`, " +
       "the destination type must be larger than the source type, " +
-      "got `\{src_ty.getBitWidth()} bits` and `\{dst_ty.getBitWidth()} bits`"
+      "got `\{src_ty.getBitWidth()} bits` and `\{PrimitiveType::getBitWidth(dst_ty)} bits`"
     raise LLVMValueError(msg)
   }
   match src_val.tryAsConstantEnum() {
@@ -3215,7 +3215,7 @@ pub fn IRBuilder::createLoad(
       "got \{load_ty}"
     raise LLVMValueError(msg)
   }
-  guard not(isVolatile && not(atomicOrdering is NotAtomic)) else {
+  guard !(isVolatile && !(atomicOrdering is NotAtomic)) else {
     let msg = "Misuse `IRBuilder::createLoad`: " +
       "load instruction cannot be both volatile and atomic"
     raise LLVMValueError(msg)
@@ -3273,7 +3273,7 @@ pub fn IRBuilder::createStore(
       "got \{ptr.getType()}"
     raise LLVMValueError(msg)
   }
-  guard not(isVolatile && not(atomicOrdering is NotAtomic)) else {
+  guard !(isVolatile && !(atomicOrdering is NotAtomic)) else {
     let msg = "Misuse `IRBuilder::createStore`: " +
       "store instruction cannot be both volatile and atomic"
     raise LLVMValueError(msg)
@@ -3719,7 +3719,7 @@ pub fn IRBuilder::createExtractValue(
   indices : Array[Int32],
   name~ : String = "",
 ) -> &Value raise Error {
-  guard not(indices.is_empty()) else {
+  guard !indices.is_empty() else {
     let msg = "Misuse `IRBuilder::createExtractValue`, " +
       "indices must not be empty"
     raise LLVMValueError(msg)
@@ -3734,7 +3734,7 @@ pub fn IRBuilder::createExtractValue(
   guard agg_ty.getIndexedType(indices) is Some(_) else {
     let msg = "Misuse `IRBuilder::createExtractValue`, " +
       "invalid index for aggregate type \{agg_ty}, " +
-      "indices: \{indices}"
+      "indices: \{display_indices(indices)}"
     raise LLVMValueError(msg)
   }
   let parent = self.getInsertFunction()
@@ -3781,7 +3781,7 @@ pub fn IRBuilder::createInsertValue(
   indices : Array[Int32],
   name~ : String = "",
 ) -> &Value raise Error {
-  guard not(indices.is_empty()) else {
+  guard !indices.is_empty() else {
     let msg = "Misuse `IRBuilder::createInsertValue`, " +
       "indices must not be empty"
     raise LLVMValueError(msg)
@@ -3796,7 +3796,7 @@ pub fn IRBuilder::createInsertValue(
   guard agg_ty.getIndexedType(indices) is Some(_) else {
     let msg = "Misuse `IRBuilder::createInsertValue`, " +
       "invalid index for aggregate type \{agg_ty}, " +
-      "indices: \{indices}"
+      "indices: \{display_indices(indices)}"
     raise LLVMValueError(msg)
   }
   let parent = self.getInsertFunction()
@@ -3880,3 +3880,10 @@ pub fn IRBuilder::createGlobalString(
 //  ptr : &Value,
 //  loc~ : SourceLoc = _
 //) -> CallInst raise {
+
+///|
+fn display_indices(indices : Array[Int32]) -> String {
+  let out = StringBuilder()
+  &Logger::write_iter(out, indices.iter())
+  out.to_string()
+}

@@ -61,9 +61,9 @@ fn InsertValueInst::new(
   guard! agg_ty.getIndexedType(indices) is Some(_)
   let uid = valueUIDAssigner.assign()
   let vty = agg_ty.asTypeClass()
-  let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev : Ref[&Instruction?] = Ref::new(None)
-  let next : Ref[&Instruction?] = Ref::new(None)
+  let bb : Ref[BasicBlock?] = Ref(None)
+  let prev : Ref[&Instruction?] = Ref(None)
+  let next : Ref[&Instruction?] = Ref(None)
   let inst = InsertValueInst::{
     uid,
     vty,

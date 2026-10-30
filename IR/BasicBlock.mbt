@@ -100,10 +100,12 @@ pub fn BasicBlock::firstInst(self : BasicBlock) -> &Instruction? {
 /// }
 /// ```
 pub fn BasicBlock::lastInst(self : BasicBlock) -> &Instruction? {
-  loop self.head {
-    Some(n) if n.next() is Some(n_next) => continue Some(n_next)
-    Some(n) => break Some(n)
-    None => break None
+  for loop_state = self.head {
+    match loop_state {
+      Some(n) if n.next() is Some(n_next) => continue Some(n_next)
+      Some(n) => break Some(n)
+      None => break None
+    }
   }
 }
 
@@ -212,7 +214,7 @@ pub impl Value for BasicBlock with fn setName(self, name) {
     raise LLVMValueError(msg)
   }
   let symbols = self.getParent().symbols
-  guard not(symbols.contains(name)) else {
+  guard !symbols.contains(name) else {
     let msg = "Misuse `BasicBlock::setName`: " +
       "name '\{name}' already exists in the parent function"
     raise LLVMValueError(msg)
@@ -264,7 +266,7 @@ pub impl Show for BasicBlock with fn output(self, logger) {
   let label = self.getLabel()
   logger.write_string("\{label}:")
   if self.preds.length() > 0 {
-    let str_builder = StringBuilder::new()
+    let str_builder = StringBuilder()
     str_builder.write_string("                                     ; preds = ")
     let pred_labels = self.preds.map(bb => "%\{bb.getLabel()}")
     let preds = pred_labels.join(", ")
@@ -274,11 +276,13 @@ pub impl Show for BasicBlock with fn output(self, logger) {
   } else {
     logger.write_string("\n")
   }
-  loop self.head {
-    Some(i) => {
-      logger.write_string("\{i}\n")
-      continue i.next()
+  for loop_state = self.head {
+    match loop_state {
+      Some(i) => {
+        logger.write_string("\{i}\n")
+        continue i.next()
+      }
+      None => break
     }
-    None => break
   }
 }

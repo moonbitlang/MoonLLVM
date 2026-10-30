@@ -28,7 +28,7 @@
 ///     cond_br,
 ///     content="  br i1 %0, label %true_branch, label %false_branch",
 ///   )
-///   assert_true(cond_br.asValueEnum() is BranchInst(_))
+///   assert_true(@IR.Value::asValueEnum(cond_br) is BranchInst(_))
 ///   builder.setInsertPoint(true_bb)
 ///   let uncond_br = builder.createBr(false_bb)
 ///   inspect(uncond_br, content="  br label %false_branch")
@@ -59,9 +59,9 @@ fn BranchInst::newConditional(
   parent : Function,
 ) -> BranchInst {
   let uid = valueUIDAssigner.assign()
-  let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev : Ref[&Instruction?] = Ref::new(None)
-  let next : Ref[&Instruction?] = Ref::new(None)
+  let bb : Ref[BasicBlock?] = Ref(None)
+  let prev : Ref[&Instruction?] = Ref(None)
+  let next : Ref[&Instruction?] = Ref(None)
   let vty = parent.getContext().getVoidTy()
   let inst = BranchInst::{
     uid,
@@ -85,9 +85,9 @@ fn BranchInst::newUnconditional(
   targetBlock : BasicBlock,
   parent : Function,
 ) -> BranchInst {
-  let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev : Ref[&Instruction?] = Ref::new(None)
-  let next : Ref[&Instruction?] = Ref::new(None)
+  let bb : Ref[BasicBlock?] = Ref(None)
+  let prev : Ref[&Instruction?] = Ref(None)
+  let next : Ref[&Instruction?] = Ref(None)
   let uid = valueUIDAssigner.assign()
   let vty = parent.getContext().getVoidTy()
   let inst = BranchInst::{

@@ -65,9 +65,9 @@ fn StoreInst::new(
   let ctx = value.getContext()
   let uid = valueUIDAssigner.assign()
   let value_ty = value.getType()
-  let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev : Ref[&Instruction?] = Ref::new(None)
-  let next : Ref[&Instruction?] = Ref::new(None)
+  let bb : Ref[BasicBlock?] = Ref(None)
+  let prev : Ref[&Instruction?] = Ref(None)
+  let next : Ref[&Instruction?] = Ref(None)
   let align = parent.getDataLayout().getAlignment(value_ty)
   let inst = StoreInst::{
     uid,

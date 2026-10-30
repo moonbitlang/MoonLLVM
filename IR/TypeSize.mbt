@@ -16,7 +16,7 @@ pub fn TypeSize::getScalable(quantity : UInt64) -> TypeSize {
 
 ///|
 pub fn TypeSize::isFixed(self : TypeSize) -> Bool {
-  return not(self.scalable)
+  return !self.scalable
 }
 
 ///|
@@ -41,5 +41,5 @@ pub fn TypeSize::getKnownMinValue(self : TypeSize) -> UInt64 {
 
 ///|
 pub fn TypeSize::getFixedValue(self : TypeSize) -> UInt64? {
-  when(not(self.scalable), fn() { self.getKnownMinValue() })
+  when(!self.scalable, fn() { self.getKnownMinValue() })
 }

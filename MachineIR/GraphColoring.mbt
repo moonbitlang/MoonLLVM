@@ -22,8 +22,8 @@ pub fn InterferenceGraph::new(
     num_saved_fregs,
     ..
   } = config
-  let available_int_colors : Set[Operand] = Set::new()
-  let available_fp_colors : Set[Operand] = Set::new()
+  let available_int_colors : Set[Operand] = Set([])
+  let available_fp_colors : Set[Operand] = Set([])
   for i in 0..<num_arg_regs {
     available_int_colors.add(IRegister(AReg(i)))
   }
@@ -47,9 +47,9 @@ pub fn InterferenceGraph::new(
     available_fp_colors.add(Mem(FramePtrPrim, i.to_int64() * 8))
   }
   InterferenceGraph::{
-    nodes: Set::new(),
-    edges: Map::new(),
-    color_map: Map::new(),
+    nodes: Set([]),
+    edges: Map([]),
+    color_map: Map([]),
     available_int_colors,
     available_fp_colors,
     spilled_count,
@@ -84,7 +84,7 @@ pub fn InterferenceGraph::add_node(
   // No need to check if nodes contains node.
   self.nodes.add(node)
   if !self.edges.contains(node) {
-    self.edges[node] = Set::new()
+    self.edges[node] = Set([])
   }
 }
 
@@ -94,7 +94,7 @@ pub fn InterferenceGraph::add_edge(
   node1 : Operand,
   node2 : Operand,
 ) -> Unit {
-  self..add_node(node1)..add_node(node2)
+  self..add_node(node1).add_node(node2)
   if node1 == node2 {
     return
   }
@@ -187,14 +187,14 @@ pub fn Function::build_interference_graph(self : Function) -> InterferenceGraph 
 pub fn Function::build_preference_list(
   self : Function,
 ) -> Map[Operand, Deque[Operand]] {
-  let preference_list : Map[Operand, Deque[Operand]] = Map::new()
+  let preference_list : Map[Operand, Deque[Operand]] = Map([])
   for inst in self.inst_iter() {
     match inst {
       { opcode: IMove(_) | FMove(_), defs: [dst], uses: [src], .. } => {
         let entry = match preference_list.get(dst) {
           Some(deque) => deque
           None => {
-            let new_deque = Deque::new()
+            let new_deque = Deque([])
             preference_list.set(dst, new_deque)
             new_deque
           }
@@ -203,7 +203,7 @@ pub fn Function::build_preference_list(
         let entry = match preference_list.get(src) {
           Some(deque) => deque
           None => {
-            let new_deque = Deque::new()
+            let new_deque = Deque([])
             preference_list.set(src, new_deque)
             new_deque
           }
@@ -232,7 +232,7 @@ pub fn InterferenceGraph::coloring(
       println("Compiler ICE: Infinite loop in graph coloring.")
       panic()
     }
-    let preferred_colors = preference_list.get(node).unwrap_or(Deque::new())
+    let preferred_colors = preference_list.get(node).unwrap_or(Deque([]))
     let avaliable_int_colors = self.available_int_colors.copy()
     for neighbor in self.edges[node] {
       match neighbor {
@@ -275,7 +275,7 @@ pub fn InterferenceGraph::coloring(
       println("Compiler ICE: Infinite loop in graph coloring.")
       panic()
     }
-    let preferred_colors = preference_list.get(node).unwrap_or(Deque::new())
+    let preferred_colors = preference_list.get(node).unwrap_or(Deque([]))
     let avaliable_fp_colors = self.available_fp_colors.copy()
     for neighbor in self.edges[node] {
       match neighbor {

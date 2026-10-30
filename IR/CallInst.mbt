@@ -80,9 +80,9 @@ fn CallInst::new(
   }
   let uid = valueUIDAssigner.assign()
   let vty = fty.getReturnType()
-  let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev : Ref[&Instruction?] = Ref::new(None)
-  let next : Ref[&Instruction?] = Ref::new(None)
+  let bb : Ref[BasicBlock?] = Ref(None)
+  let prev : Ref[&Instruction?] = Ref(None)
+  let next : Ref[&Instruction?] = Ref(None)
   let inst = CallInst::{
     uid,
     vty,
@@ -117,9 +117,9 @@ fn CallInst::new_indirect(
   }
   let uid = valueUIDAssigner.assign()
   let vty = function_type.getReturnType()
-  let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev : Ref[&Instruction?] = Ref::new(None)
-  let next : Ref[&Instruction?] = Ref::new(None)
+  let bb : Ref[BasicBlock?] = Ref(None)
+  let prev : Ref[&Instruction?] = Ref(None)
+  let next : Ref[&Instruction?] = Ref(None)
   let name = match vty.asTypeEnum() {
     VoidType(_) => None
     _ => name
@@ -145,7 +145,7 @@ fn CallInst::new_indirect(
 
 ///|
 pub fn CallInst::isTailCall(self : CallInst) -> Bool {
-  not(self.tailCallKind is NoTail)
+  !(self.tailCallKind is NoTail)
 }
 
 ///|
@@ -385,7 +385,7 @@ pub impl Show for CallInst with fn output(self, logger) {
   let ret_attrs = if callee is Left(callee) {
     callee.getReturnAttrs()
   } else {
-    Set::new()
+    Set([])
   }
   let ret_attrs_str = if ret_attrs.is_empty() {
     ""
@@ -410,7 +410,7 @@ pub impl Show for CallInst with fn output(self, logger) {
     // This matches LLVM's behavior where functions decay to pointers when used as values
     let arg_ty_str = match arg.asValueEnum() {
       Function(_) => "ptr"
-      _ => arg_ty.to_string()
+      _ => Show::to_string(arg_ty)
     }
     arg_strs.push("\{arg_ty_str}\{arg_attrs_str} \{arg_repr}")
   }
@@ -421,7 +421,7 @@ pub impl Show for CallInst with fn output(self, logger) {
     "\{tail_str} call"
   }
   let var_arg_func_mark = if is_var_arg {
-    let param_ty_strs = fty.getParamTypes().map(t => t.to_string())
+    let param_ty_strs = fty.getParamTypes().map(t => Show::to_string(t))
     param_ty_strs.push("...")
     let param_ty_str = param_ty_strs.join(", ")
     " (\{param_ty_str})"

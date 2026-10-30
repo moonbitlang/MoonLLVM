@@ -25,7 +25,7 @@ pub enum PrimitiveTypeEnum {
   Int16Type(Int16Type)
   Int32Type(Int32Type)
   Int64Type(Int64Type)
-} derive(Eq, Show)
+} derive(Eq)
 
 ///|
 pub fn PrimitiveTypeEnum::getBitWidth(self : PrimitiveTypeEnum) -> Int32 {
@@ -40,5 +40,61 @@ pub fn PrimitiveTypeEnum::getBitWidth(self : PrimitiveTypeEnum) -> Int32 {
     Int16Type(_) => 16
     Int32Type(_) => 32
     Int64Type(_) => 64
+  }
+}
+
+///|
+pub impl Show for PrimitiveTypeEnum with fn output(self, logger) {
+  match self {
+    HalfType(v0) => {
+      logger.write_string("HalfType(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    BFloatType(v0) => {
+      logger.write_string("BFloatType(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    FloatType(v0) => {
+      logger.write_string("FloatType(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    DoubleType(v0) => {
+      logger.write_string("DoubleType(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    FP128Type(v0) => {
+      logger.write_string("FP128Type(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    Int1Type(v0) => {
+      logger.write_string("Int1Type(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    Int8Type(v0) => {
+      logger.write_string("Int8Type(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    Int16Type(v0) => {
+      logger.write_string("Int16Type(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    Int32Type(v0) => {
+      logger.write_string("Int32Type(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    Int64Type(v0) => {
+      logger.write_string("Int64Type(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
   }
 }

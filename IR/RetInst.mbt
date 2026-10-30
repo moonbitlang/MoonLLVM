@@ -23,7 +23,7 @@
 ///   builder.setInsertPoint(bb)
 ///   let ret = builder.createRet(arg)
 ///   inspect(ret, content="  ret i32 %0")
-///   assert_true(ret.asValueEnum() is ReturnInst(_))
+///   assert_true(@IR.Value::asValueEnum(ret) is ReturnInst(_))
 ///   let void_fty = ctx.getFunctionType(void_ty, [])
 ///   let void_fval = mod.addFunction(void_fty, "void_return_demo")
 ///   let void_bb = void_fval.addBasicBlock(name="entry")
@@ -47,9 +47,9 @@ pub struct ReturnInst {
 ///|
 fn ReturnInst::new(retVal : &Value?, parent : Function) -> ReturnInst {
   let uid = valueUIDAssigner.assign()
-  let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev : Ref[&Instruction?] = Ref::new(None)
-  let next : Ref[&Instruction?] = Ref::new(None)
+  let bb : Ref[BasicBlock?] = Ref(None)
+  let prev : Ref[&Instruction?] = Ref(None)
+  let next : Ref[&Instruction?] = Ref(None)
   let vty = parent.getContext().getVoidTy()
   let inst = ReturnInst::{ uid, vty, retVal, parent, bb, prev, next, }
   if retVal is Some(val) {

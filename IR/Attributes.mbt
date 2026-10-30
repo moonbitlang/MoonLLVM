@@ -402,9 +402,5 @@ struct AttributeSet {
 
 ///|
 fn AttributeSet::new() -> AttributeSet {
-  AttributeSet::{
-    fnAttrs: Set::new(),
-    paramAttrs: Map::new(),
-    retAttrs: Set::new(),
-  }
+  AttributeSet::{ fnAttrs: Set([]), paramAttrs: Map([]), retAttrs: Set([]), }
 }

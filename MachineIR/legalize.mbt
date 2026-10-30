@@ -12,7 +12,7 @@ pub fn Function::legalize(func : Function) -> Unit raise MIRError {
 
 ///|
 pub fn BasicBlock::legalize(self : BasicBlock) -> Unit raise MIRError {
-  let new_insts : Array[Instruction] = Array::new()
+  let new_insts : Array[Instruction] = Array()
   for inst in self.insts {
     inst.legalize().each(new_inst => new_insts.push(new_inst))
   }
@@ -75,7 +75,7 @@ fn Instruction::legalize_ibinary(
     }
 
     // Extend operands to 32 bits
-    let extended_uses : Array[Operand] = Array::new()
+    let extended_uses : Array[Operand] = Array()
     for use_op in uses {
       match use_op {
         IRegister(_) => {
@@ -90,7 +90,7 @@ fn Instruction::legalize_ibinary(
 
     // Create a 32-bit binary operation with extended operands
     let temp_dst = func.new_virtual_reg()
-    let result_insts : Array[Instruction] = Array::new()
+    let result_insts : Array[Instruction] = Array()
 
     // Build extension instructions for register operands
     for i, use_op in uses {

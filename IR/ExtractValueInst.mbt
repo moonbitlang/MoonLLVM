@@ -53,9 +53,9 @@ fn ExtractValueInst::new(
   guard! agg_ty.getIndexedType(indices) is Some(result_ty)
   let uid = valueUIDAssigner.assign()
   let vty = result_ty
-  let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev : Ref[&Instruction?] = Ref::new(None)
-  let next : Ref[&Instruction?] = Ref::new(None)
+  let bb : Ref[BasicBlock?] = Ref(None)
+  let prev : Ref[&Instruction?] = Ref(None)
+  let next : Ref[&Instruction?] = Ref(None)
   let inst = ExtractValueInst::{
     uid,
     vty,

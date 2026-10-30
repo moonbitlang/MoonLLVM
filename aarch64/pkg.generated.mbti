@@ -22,9 +22,10 @@ pub fn mir_module_to_aarch64(@MachineIR.Module) -> Array[AArch64Asm] raise MIRTo
 // Errors
 pub suberror MIRToAArch64Error {
   MIRToAArch64Error(String)
-} derive(Show)
+}
 pub fn MIRToAArch64Error::output(Self, &Logger) -> Unit
 pub fn MIRToAArch64Error::to_string(Self) -> String
+pub impl Show for MIRToAArch64Error
 
 // Types and methods
 pub(all) enum AArch64Asm {

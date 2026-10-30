@@ -5,8 +5,7 @@ pub struct AArch64Module {
 
 ///|
 pub impl Show for AArch64Module with fn output(self, logger) {
-  self.insts.map(inst => "\{inst}\n").join("")
-  |> &Logger::write_string(logger, _)
+  logger.write_string(self.insts.map(inst => "\{inst}\n").join(""))
 }
 
 ///|

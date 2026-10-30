@@ -33,11 +33,11 @@ fn FunctionType::new(
   isVarArg~ : Bool = false,
 ) -> FunctionType raise LLVMTypeError {
   let ctx = returnType.getContext()
-  if not(FunctionType::isValidReturnType(returnType)) {
+  if !FunctionType::isValidReturnType(returnType) {
     raise InValidFunctionReturnType(returnType)
   }
   for param in paramsTypes {
-    if not(FunctionType::isValidArgumentType(param)) {
+    if !FunctionType::isValidArgumentType(param) {
       raise InValidFunctionArgumentType(param)
     }
   }
@@ -92,7 +92,7 @@ pub fn FunctionType::getParamType(self : FunctionType, idx : Int32) -> &Type? {
 
 ///|
 pub impl Show for FunctionType with fn output(self, logger : &Logger) {
-  let ret_str = self.getReturnType().to_string()
+  let ret_str = Show::to_string(self.getReturnType())
   let param_strs = self.param_iter().map(p => "\{p}").collect()
   if self.isVarArg {
     param_strs.push("...")
@@ -111,7 +111,7 @@ fn FunctionType::isValidReturnType(retTy : &Type) -> Bool {
 
 ///|
 fn FunctionType::isValidArgumentType(argTy : &Type) -> Bool {
-  argTy.isFirstClassType() && not(argTy.asTypeEnum() is LabelType(_))
+  argTy.isFirstClassType() && !(argTy.asTypeEnum() is LabelType(_))
 }
 
 ///|

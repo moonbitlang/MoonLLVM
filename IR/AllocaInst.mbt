@@ -48,9 +48,9 @@ fn AllocaInst::new(
   let vty = data_ty.getContext().getPtrTy(addressSpace~)
   let align = parent.getDataLayout().getAlignment(data_ty)
   //let inst_base = InstBase::new()
-  let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev : Ref[&Instruction?] = Ref::new(None)
-  let next : Ref[&Instruction?] = Ref::new(None)
+  let bb : Ref[BasicBlock?] = Ref(None)
+  let prev : Ref[&Instruction?] = Ref(None)
+  let next : Ref[&Instruction?] = Ref(None)
   AllocaInst::{
     uid,
     vty,

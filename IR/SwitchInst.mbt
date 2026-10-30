@@ -59,9 +59,9 @@ fn SwitchInst::new(
   parent : Function,
 ) -> SwitchInst {
   let uid = valueUIDAssigner.assign()
-  let bb : Ref[BasicBlock?] = Ref::new(None)
-  let prev : Ref[&Instruction?] = Ref::new(None)
-  let next : Ref[&Instruction?] = Ref::new(None)
+  let bb : Ref[BasicBlock?] = Ref(None)
+  let prev : Ref[&Instruction?] = Ref(None)
+  let next : Ref[&Instruction?] = Ref(None)
   let vty = parent.getContext().getVoidTy()
   let inst = SwitchInst::{
     uid,
@@ -126,7 +126,7 @@ pub fn SwitchInst::getNumCases(self : Self) -> Int32 {
 ///   inspect(switch.getCase(0).unwrap().1.getValueRepr(), content="%case1")
 ///   inspect(switch.getCase(1).unwrap().0.getValueRepr(), content="2")
 ///   inspect(switch.getCase(1).unwrap().1.getValueRepr(), content="%case2")
-///   inspect(switch.getCase(2), content="None")
+///   assert_true(switch.getCase(2) is None)
 /// }
 /// ```
 pub fn SwitchInst::getCase(

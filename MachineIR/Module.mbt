@@ -19,10 +19,10 @@ pub fn Module::new(arch_config : ArchConfig, source_file? : String) -> Module {
     source_file,
     llvm_mod: None,
     arch_config,
-    functions: Map::new(),
-    all_llvm_functions: Map::new(),
-    external_functions: Map::new(),
-    global_values: Array::new(),
+    functions: Map([]),
+    all_llvm_functions: Map([]),
+    external_functions: Map([]),
+    global_values: Array(),
   }
 }
 

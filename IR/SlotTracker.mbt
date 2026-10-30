@@ -6,7 +6,7 @@ struct SlotTracker {
 
 ///|
 fn SlotTracker::new(function : Function) -> SlotTracker {
-  SlotTracker::{ function, valueMap: Map::new(), }
+  SlotTracker::{ function, valueMap: Map([]), }
 }
 
 ///|
@@ -29,15 +29,17 @@ fn SlotTracker::process(self : SlotTracker) -> Unit {
       slot += 1
     }
     // REVIEW: Do we need to check the type of `i` is `void`?
-    // `&& not(i.getType().asTypeEnum() is VoidType(_)`
-    loop bb.head {
-      Some(i) if i.getInstName() is None => {
-        self.valueMap.set(i, slot)
-        slot += 1
-        continue i.next()
+    // `&& !(i.getType().asTypeEnum() is VoidType(_)`
+    for loop_state = bb.head {
+      match loop_state {
+        Some(i) if i.getInstName() is None => {
+          self.valueMap.set(i, slot)
+          slot += 1
+          continue i.next()
+        }
+        Some(i) => continue i.next()
+        None => break
       }
-      Some(i) => continue i.next()
-      None => break
     }
   }
 }

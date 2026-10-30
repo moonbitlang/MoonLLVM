@@ -13,9 +13,10 @@ import {
 pub fn warning_elimination() -> Unit
 
 // Errors
-type LLVMTypeError derive(Show)
+type LLVMTypeError
 pub fn LLVMTypeError::output(Self, &Logger) -> Unit
 pub fn LLVMTypeError::to_string(Self) -> String
+pub impl Show for LLVMTypeError
 
 pub suberror LLVMValueError {
   LLVMValueError(String)
@@ -31,11 +32,12 @@ pub enum AbstractTypeEnum {
   MetadataType(MetadataType)
   TokenType(TokenType)
   FunctionType(FunctionType)
-} derive(Show)
+}
 pub fn AbstractTypeEnum::output(Self, &Logger) -> Unit
 pub fn AbstractTypeEnum::to_string(Self) -> String
+pub impl Show for AbstractTypeEnum
 
-pub struct AddressSpace(UInt32) derive(Default, Eq, Hash, Show)
+pub struct AddressSpace(UInt32) derive(Default, Eq, Hash)
 pub fn AddressSpace::default() -> Self
 pub fn AddressSpace::equal(Self, Self) -> Bool
 pub fn AddressSpace::hash(Self) -> Int32
@@ -44,13 +46,14 @@ pub fn AddressSpace::new(UInt32) -> Self
 pub fn AddressSpace::not_equal(Self, Self) -> Bool
 pub fn AddressSpace::output(Self, &Logger) -> Unit
 pub fn AddressSpace::to_string(Self) -> String
+pub impl Show for AddressSpace
 
 pub enum AggregateTypeEnum {
   StructType(StructType)
   ArrayType(ArrayType)
   VectorType(VectorType)
   ScalableVectorType(ScalableVectorType)
-} derive(Eq, Show)
+} derive(Eq)
 pub fn AggregateTypeEnum::asTypeClass(Self) -> &Type
 pub fn AggregateTypeEnum::equal(Self, Self) -> Bool
 pub fn AggregateTypeEnum::getIndexedType(Self, ArrayView[Int32]) -> &Type?
@@ -58,6 +61,7 @@ pub fn AggregateTypeEnum::not_equal(Self, Self) -> Bool
 pub fn AggregateTypeEnum::output(Self, &Logger) -> Unit
 pub fn AggregateTypeEnum::toTypeEnum(Self) -> TypeEnum
 pub fn AggregateTypeEnum::to_string(Self) -> String
+pub impl Show for AggregateTypeEnum
 
 type Align derive(Eq)
 pub fn Align::equal(Self, Self) -> Bool
@@ -1063,7 +1067,7 @@ pub fn DataLayout::getStructTypeOffset(Self, StructType, Int32) -> Int32
 pub fn DataLayout::getTypeAllocSize(Self, &Type) -> Int32
 pub fn DataLayout::getTypeAllocSizeInBits(Self, &Type) -> Int32
 
-pub struct DoubleArray(Array[Double]) derive(Eq, Hash, Show)
+pub struct DoubleArray(Array[Double]) derive(Eq, Hash)
 pub fn DoubleArray::equal(Self, Self) -> Bool
 pub fn DoubleArray::from(Array[Double]) -> Self
 pub fn DoubleArray::hash(Self) -> Int32
@@ -1073,6 +1077,7 @@ pub fn DoubleArray::length(Self) -> Int32
 pub fn DoubleArray::not_equal(Self, Self) -> Bool
 pub fn DoubleArray::output(Self, &Logger) -> Unit
 pub fn DoubleArray::to_string(Self) -> String
+pub impl Show for DoubleArray
 
 pub struct DoubleType {
   ctx : Context
@@ -1377,7 +1382,7 @@ pub enum FPTypeEnum {
   FloatType(FloatType)
   DoubleType(DoubleType)
   FP128Type(FP128Type)
-} derive(Eq, Show)
+} derive(Eq)
 pub fn FPTypeEnum::asFPTypeClass(Self) -> &FPType
 pub fn FPTypeEnum::asTypeClass(Self) -> &Type
 pub fn FPTypeEnum::equal(Self, Self) -> Bool
@@ -1386,6 +1391,7 @@ pub fn FPTypeEnum::getFPMantissaWidth(Self) -> Int32
 pub fn FPTypeEnum::not_equal(Self, Self) -> Bool
 pub fn FPTypeEnum::output(Self, &Logger) -> Unit
 pub fn FPTypeEnum::to_string(Self) -> String
+pub impl Show for FPTypeEnum
 
 pub(all) enum FastMathFlag {
   AllowReassoc
@@ -1404,7 +1410,7 @@ pub fn FastMathFlag::output(Self, &Logger) -> Unit
 pub fn FastMathFlag::to_string(Self) -> String
 pub impl Show for FastMathFlag
 
-pub struct FloatArray(Array[Float]) derive(Eq, Hash, Show)
+pub struct FloatArray(Array[Float]) derive(Eq, Hash)
 pub fn FloatArray::equal(Self, Self) -> Bool
 pub fn FloatArray::from(Array[Float]) -> Self
 pub fn FloatArray::hash(Self) -> Int32
@@ -1414,6 +1420,7 @@ pub fn FloatArray::length(Self) -> Int32
 pub fn FloatArray::not_equal(Self, Self) -> Bool
 pub fn FloatArray::output(Self, &Logger) -> Unit
 pub fn FloatArray::to_string(Self) -> String
+pub impl Show for FloatArray
 
 pub(all) enum FloatPredicate {
   FALSE
@@ -1486,13 +1493,14 @@ pub impl PrimitiveType for FloatType
 pub impl Type for FloatType
 pub impl Show for FloatType
 
-type FloatingEnum derive(Eq, Hash, Show)
+type FloatingEnum derive(Eq, Hash)
 pub fn FloatingEnum::equal(Self, Self) -> Bool
 pub fn FloatingEnum::hash(Self) -> Int32
 pub fn FloatingEnum::hash_combine(Self, Hasher) -> Unit
 pub fn FloatingEnum::not_equal(Self, Self) -> Bool
 pub fn FloatingEnum::output(Self, &Logger) -> Unit
 pub fn FloatingEnum::to_string(Self) -> String
+pub impl Show for FloatingEnum
 
 pub(all) enum FnAttr {
   AllocKind(Int32)
@@ -2165,7 +2173,7 @@ pub enum InstEnum {
   CallInst(CallInst)
 }
 
-pub struct Int16Array(Array[Int16]) derive(Eq, Hash, Show)
+pub struct Int16Array(Array[Int16]) derive(Eq, Hash)
 pub fn Int16Array::equal(Self, Self) -> Bool
 pub fn Int16Array::from(Array[Int16]) -> Self
 pub fn Int16Array::hash(Self) -> Int32
@@ -2175,6 +2183,7 @@ pub fn Int16Array::length(Self) -> Int32
 pub fn Int16Array::not_equal(Self, Self) -> Bool
 pub fn Int16Array::output(Self, &Logger) -> Unit
 pub fn Int16Array::to_string(Self) -> String
+pub impl Show for Int16Array
 
 pub struct Int16Type {
   ctx : Context
@@ -2278,7 +2287,7 @@ pub impl PrimitiveType for Int1Type
 pub impl Type for Int1Type
 pub impl Show for Int1Type
 
-pub struct Int32Array(Array[Int32]) derive(Eq, Hash, Show)
+pub struct Int32Array(Array[Int32]) derive(Eq, Hash)
 pub fn Int32Array::equal(Self, Self) -> Bool
 pub fn Int32Array::from(Array[Int32]) -> Self
 pub fn Int32Array::hash(Self) -> Int32
@@ -2288,6 +2297,7 @@ pub fn Int32Array::length(Self) -> Int32
 pub fn Int32Array::not_equal(Self, Self) -> Bool
 pub fn Int32Array::output(Self, &Logger) -> Unit
 pub fn Int32Array::to_string(Self) -> String
+pub impl Show for Int32Array
 
 pub struct Int32Type {
   ctx : Context
@@ -2340,7 +2350,7 @@ pub impl PrimitiveType for Int32Type
 pub impl Type for Int32Type
 pub impl Show for Int32Type
 
-pub struct Int64Array(Array[Int64]) derive(Eq, Hash, Show)
+pub struct Int64Array(Array[Int64]) derive(Eq, Hash)
 pub fn Int64Array::equal(Self, Self) -> Bool
 pub fn Int64Array::from(Array[Int64]) -> Self
 pub fn Int64Array::hash(Self) -> Int32
@@ -2350,6 +2360,7 @@ pub fn Int64Array::length(Self) -> Int32
 pub fn Int64Array::not_equal(Self, Self) -> Bool
 pub fn Int64Array::output(Self, &Logger) -> Unit
 pub fn Int64Array::to_string(Self) -> String
+pub impl Show for Int64Array
 
 pub struct Int64Type {
   ctx : Context
@@ -2402,7 +2413,7 @@ pub impl PrimitiveType for Int64Type
 pub impl Type for Int64Type
 pub impl Show for Int64Type
 
-pub struct Int8Array(Array[@int8.Int8]) derive(Eq, Hash, Show)
+pub struct Int8Array(Array[@int8.Int8]) derive(Eq, Hash)
 pub fn Int8Array::equal(Self, Self) -> Bool
 pub fn Int8Array::from(Array[@int8.Int8]) -> Self
 pub fn Int8Array::hash(Self) -> Int32
@@ -2412,6 +2423,7 @@ pub fn Int8Array::length(Self) -> Int32
 pub fn Int8Array::not_equal(Self, Self) -> Bool
 pub fn Int8Array::output(Self, &Logger) -> Unit
 pub fn Int8Array::to_string(Self) -> String
+pub impl Show for Int8Array
 
 pub struct Int8Type {
   ctx : Context
@@ -2486,7 +2498,7 @@ pub enum IntegerTypeEnum {
   Int16Type(Int16Type)
   Int32Type(Int32Type)
   Int64Type(Int64Type)
-} derive(Eq, Hash, Show)
+} derive(Eq, Hash)
 pub fn IntegerTypeEnum::asIntegerTypeClass(Self) -> &IntegerType
 pub fn IntegerTypeEnum::asTypeClass(Self) -> &Type
 pub fn IntegerTypeEnum::equal(Self, Self) -> Bool
@@ -2496,6 +2508,7 @@ pub fn IntegerTypeEnum::hash_combine(Self, Hasher) -> Unit
 pub fn IntegerTypeEnum::not_equal(Self, Self) -> Bool
 pub fn IntegerTypeEnum::output(Self, &Logger) -> Unit
 pub fn IntegerTypeEnum::to_string(Self) -> String
+pub impl Show for IntegerTypeEnum
 
 type LLVMContextImpl
 
@@ -2729,13 +2742,14 @@ pub enum NumberArrayEnum {
   UInt64Array(UInt64Array)
   FloatArray(FloatArray)
   DoubleArray(DoubleArray)
-} derive(Eq, Hash, Show)
+} derive(Eq, Hash)
 pub fn NumberArrayEnum::equal(Self, Self) -> Bool
 pub fn NumberArrayEnum::hash(Self) -> Int32
 pub fn NumberArrayEnum::hash_combine(Self, Hasher) -> Unit
 pub fn NumberArrayEnum::not_equal(Self, Self) -> Bool
 pub fn NumberArrayEnum::output(Self, &Logger) -> Unit
 pub fn NumberArrayEnum::to_string(Self) -> String
+pub impl Show for NumberArrayEnum
 
 pub struct PHINode {
   uid : UInt64
@@ -2908,12 +2922,13 @@ pub enum PrimitiveTypeEnum {
   Int16Type(Int16Type)
   Int32Type(Int32Type)
   Int64Type(Int64Type)
-} derive(Eq, Show)
+} derive(Eq)
 pub fn PrimitiveTypeEnum::equal(Self, Self) -> Bool
 pub fn PrimitiveTypeEnum::getBitWidth(Self) -> Int32
 pub fn PrimitiveTypeEnum::not_equal(Self, Self) -> Bool
 pub fn PrimitiveTypeEnum::output(Self, &Logger) -> Unit
 pub fn PrimitiveTypeEnum::to_string(Self) -> String
+pub impl Show for PrimitiveTypeEnum
 
 pub(all) enum RetAttr {
   Alignment(Int32)
@@ -3119,13 +3134,14 @@ pub enum SetSymbolResult {
   DuplicateName(&Value)
 }
 
-type SignedEnum derive(Eq, Hash, Show)
+type SignedEnum derive(Eq, Hash)
 pub fn SignedEnum::equal(Self, Self) -> Bool
 pub fn SignedEnum::hash(Self) -> Int32
 pub fn SignedEnum::hash_combine(Self, Hasher) -> Unit
 pub fn SignedEnum::not_equal(Self, Self) -> Bool
 pub fn SignedEnum::output(Self, &Logger) -> Unit
 pub fn SignedEnum::to_string(Self) -> String
+pub impl Show for SignedEnum
 
 type SlotTracker
 
@@ -3395,7 +3411,7 @@ pub enum TypeEnum {
   VectorType(VectorType)
   ScalableVectorType(ScalableVectorType)
   PointerType(PointerType)
-} derive(Eq, Hash, Show)
+} derive(Eq, Hash)
 pub fn TypeEnum::asTypeClass(Self) -> &Type
 pub fn TypeEnum::equal(Self, Self) -> Bool
 pub fn TypeEnum::hash(Self) -> Int32
@@ -3403,6 +3419,7 @@ pub fn TypeEnum::hash_combine(Self, Hasher) -> Unit
 pub fn TypeEnum::not_equal(Self, Self) -> Bool
 pub fn TypeEnum::output(Self, &Logger) -> Unit
 pub fn TypeEnum::to_string(Self) -> String
+pub impl Show for TypeEnum
 
 pub struct TypeSize {
   // private fields
@@ -3418,7 +3435,7 @@ pub fn TypeSize::isScalable(Self) -> Bool
 pub fn TypeSize::isZero(Self) -> Bool
 pub fn TypeSize::not_equal(Self, Self) -> Bool
 
-pub struct UInt16Array(Array[UInt16]) derive(Eq, Hash, Show)
+pub struct UInt16Array(Array[UInt16]) derive(Eq, Hash)
 pub fn UInt16Array::equal(Self, Self) -> Bool
 pub fn UInt16Array::from(Array[UInt16]) -> Self
 pub fn UInt16Array::hash(Self) -> Int32
@@ -3428,8 +3445,9 @@ pub fn UInt16Array::length(Self) -> Int32
 pub fn UInt16Array::not_equal(Self, Self) -> Bool
 pub fn UInt16Array::output(Self, &Logger) -> Unit
 pub fn UInt16Array::to_string(Self) -> String
+pub impl Show for UInt16Array
 
-pub struct UInt32Array(Array[UInt32]) derive(Eq, Hash, Show)
+pub struct UInt32Array(Array[UInt32]) derive(Eq, Hash)
 pub fn UInt32Array::equal(Self, Self) -> Bool
 pub fn UInt32Array::from(Array[UInt32]) -> Self
 pub fn UInt32Array::hash(Self) -> Int32
@@ -3439,8 +3457,9 @@ pub fn UInt32Array::length(Self) -> Int32
 pub fn UInt32Array::not_equal(Self, Self) -> Bool
 pub fn UInt32Array::output(Self, &Logger) -> Unit
 pub fn UInt32Array::to_string(Self) -> String
+pub impl Show for UInt32Array
 
-pub struct UInt64Array(Array[UInt64]) derive(Eq, Hash, Show)
+pub struct UInt64Array(Array[UInt64]) derive(Eq, Hash)
 pub fn UInt64Array::equal(Self, Self) -> Bool
 pub fn UInt64Array::from(Array[UInt64]) -> Self
 pub fn UInt64Array::hash(Self) -> Int32
@@ -3450,8 +3469,9 @@ pub fn UInt64Array::length(Self) -> Int32
 pub fn UInt64Array::not_equal(Self, Self) -> Bool
 pub fn UInt64Array::output(Self, &Logger) -> Unit
 pub fn UInt64Array::to_string(Self) -> String
+pub impl Show for UInt64Array
 
-pub struct UInt8Array(Array[@uint8.UInt8]) derive(Eq, Hash, Show)
+pub struct UInt8Array(Array[@uint8.UInt8]) derive(Eq, Hash)
 pub fn UInt8Array::equal(Self, Self) -> Bool
 pub fn UInt8Array::from(Array[@uint8.UInt8]) -> Self
 pub fn UInt8Array::hash(Self) -> Int32
@@ -3461,14 +3481,16 @@ pub fn UInt8Array::length(Self) -> Int32
 pub fn UInt8Array::not_equal(Self, Self) -> Bool
 pub fn UInt8Array::output(Self, &Logger) -> Unit
 pub fn UInt8Array::to_string(Self) -> String
+pub impl Show for UInt8Array
 
-type UnSignedEnum derive(Eq, Hash, Show)
+type UnSignedEnum derive(Eq, Hash)
 pub fn UnSignedEnum::equal(Self, Self) -> Bool
 pub fn UnSignedEnum::hash(Self) -> Int32
 pub fn UnSignedEnum::hash_combine(Self, Hasher) -> Unit
 pub fn UnSignedEnum::not_equal(Self, Self) -> Bool
 pub fn UnSignedEnum::output(Self, &Logger) -> Unit
 pub fn UnSignedEnum::to_string(Self) -> String
+pub impl Show for UnSignedEnum
 
 pub enum UnaryInstEnum {
   AllocaInst(AllocaInst)

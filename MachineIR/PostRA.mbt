@@ -46,7 +46,7 @@ fn Function::store_load_caller_saved_registers(self : Self) -> Unit {
     }
   }
 
-  let reg_stack_map : Map[Operand, Int64] = Map::new()
+  let reg_stack_map : Map[Operand, Int64] = Map([])
   let call_insts = self.collect_insts_with_opcode(Call)
   for inst in call_insts {
     // Detect if the next instruction captures return value from a0/fa0.
@@ -54,7 +54,7 @@ fn Function::store_load_caller_saved_registers(self : Self) -> Unit {
     let _ = bb.insts.search_by(i => i == inst)
     // capture checks not needed after skipping return regs
     // Collect caller-saved registers to preserve: live-out ∪ live-in
-    let to_preserve : Array[Operand] = Array::new()
+    let to_preserve : Array[Operand] = Array()
     inst.live_out.each(op => {
       if is_caller_saved_register(op) {
         to_preserve.push(op)
@@ -118,7 +118,7 @@ fn Function::store_load_caller_saved_registers(self : Self) -> Unit {
 
 ///|
 fn Function::collect_callee_saved_registers(self : Function) -> Array[Operand] {
-  let callee_saved_reg : Set[Operand] = Set::new()
+  let callee_saved_reg : Set[Operand] = Set([])
   for inst in self.inst_iter() {
     for def in inst.defs {
       if def is (IRegister(SReg(_)) | FRegister(FSReg(_))) {
@@ -138,7 +138,7 @@ fn Function::collect_callee_saved_registers(self : Function) -> Array[Operand] {
 fn Function::prologue_epilogue_insertion(self : Function) -> Unit {
   // Step 1. Collect Callee-Saved Registers
   let callee_saved_regs = self.collect_callee_saved_registers()
-  let callee_saved_reg_locs : Map[Operand, Int64] = Map::new()
+  let callee_saved_reg_locs : Map[Operand, Int64] = Map([])
 
   // Step 2. Insert Prologue Instructions
   let entry_bb = self.get_entry_block().unwrap()
@@ -283,7 +283,7 @@ pub fn Function::adjust_mem_operands(self : Function) -> Unit {
   let total_stack_size = (total_stack_size + 16 - 1) / 16 * 16
 
   // First pass: collect instructions that need to be modified
-  let insts_to_fix : Array[InstToFix] = Array::new()
+  let insts_to_fix : Array[InstToFix] = Array()
   for inst in self.inst_iter() {
     if inst
       is {

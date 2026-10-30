@@ -27,34 +27,34 @@ fn ValueUIDAssigner::assign(self : ValueUIDAssigner) -> UInt64 {
 // ====================================================
 
 ///|
-pub struct Int8Array(Array[Int8]) derive(Eq, Hash, Show)
+pub struct Int8Array(Array[Int8]) derive(Eq, Hash)
 
 ///|
-pub struct Int16Array(Array[Int16]) derive(Eq, Hash, Show)
+pub struct Int16Array(Array[Int16]) derive(Eq, Hash)
 
 ///|
-pub struct Int32Array(Array[Int32]) derive(Eq, Hash, Show)
+pub struct Int32Array(Array[Int32]) derive(Eq, Hash)
 
 ///|
-pub struct Int64Array(Array[Int64]) derive(Eq, Hash, Show)
+pub struct Int64Array(Array[Int64]) derive(Eq, Hash)
 
 ///|
-pub struct UInt8Array(Array[UInt8]) derive(Eq, Hash, Show)
+pub struct UInt8Array(Array[UInt8]) derive(Eq, Hash)
 
 ///|
-pub struct UInt16Array(Array[UInt16]) derive(Eq, Hash, Show)
+pub struct UInt16Array(Array[UInt16]) derive(Eq, Hash)
 
 ///|
-pub struct UInt32Array(Array[UInt32]) derive(Eq, Hash, Show)
+pub struct UInt32Array(Array[UInt32]) derive(Eq, Hash)
 
 ///|
-pub struct UInt64Array(Array[UInt64]) derive(Eq, Hash, Show)
+pub struct UInt64Array(Array[UInt64]) derive(Eq, Hash)
 
 ///|
-pub struct FloatArray(Array[Float]) derive(Eq, Hash, Show)
+pub struct FloatArray(Array[Float]) derive(Eq, Hash)
 
 ///|
-pub struct DoubleArray(Array[Double]) derive(Eq, Hash, Show)
+pub struct DoubleArray(Array[Double]) derive(Eq, Hash)
 
 ///|
 pub fn Int8Array::from(data : Array[Int8]) -> Int8Array {
@@ -238,7 +238,7 @@ pub enum NumberArrayEnum {
   UInt64Array(UInt64Array)
   FloatArray(FloatArray)
   DoubleArray(DoubleArray)
-} derive(Eq, Hash, Show)
+} derive(Eq, Hash)
 
 ///|
 //fn NumberArrayEnum::length(self : NumberArrayEnum) -> Int {
@@ -310,3 +310,129 @@ pub trait NumberArray: Show {
 //impl NumberArray for DoubleArray with asEnum(self) {
 //  DoubleArray(self)
 //}
+
+///|
+pub impl Show for NumberArrayEnum with fn output(self, logger) {
+  match self {
+    Int8Array(v0) => {
+      logger.write_string("Int8Array(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    Int16Array(v0) => {
+      logger.write_string("Int16Array(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    Int32Array(v0) => {
+      logger.write_string("Int32Array(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    Int64Array(v0) => {
+      logger.write_string("Int64Array(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    UInt8Array(v0) => {
+      logger.write_string("UInt8Array(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    UInt16Array(v0) => {
+      logger.write_string("UInt16Array(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    UInt32Array(v0) => {
+      logger.write_string("UInt32Array(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    UInt64Array(v0) => {
+      logger.write_string("UInt64Array(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    FloatArray(v0) => {
+      logger.write_string("FloatArray(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+    DoubleArray(v0) => {
+      logger.write_string("DoubleArray(")
+      logger.write_object(v0)
+      logger.write_string(")")
+    }
+  }
+}
+
+///|
+pub impl Show for Int8Array with fn output(self, logger) {
+  logger.write_string("Int8Array(")
+  logger.write_iter(self.0.iter())
+  logger.write_string(")")
+}
+
+///|
+pub impl Show for Int16Array with fn output(self, logger) {
+  logger.write_string("Int16Array(")
+  logger.write_iter(self.0.iter())
+  logger.write_string(")")
+}
+
+///|
+pub impl Show for Int32Array with fn output(self, logger) {
+  logger.write_string("Int32Array(")
+  logger.write_iter(self.0.iter())
+  logger.write_string(")")
+}
+
+///|
+pub impl Show for Int64Array with fn output(self, logger) {
+  logger.write_string("Int64Array(")
+  logger.write_iter(self.0.iter())
+  logger.write_string(")")
+}
+
+///|
+pub impl Show for UInt8Array with fn output(self, logger) {
+  logger.write_string("UInt8Array(")
+  logger.write_iter(self.0.iter())
+  logger.write_string(")")
+}
+
+///|
+pub impl Show for UInt16Array with fn output(self, logger) {
+  logger.write_string("UInt16Array(")
+  logger.write_iter(self.0.iter())
+  logger.write_string(")")
+}
+
+///|
+pub impl Show for UInt32Array with fn output(self, logger) {
+  logger.write_string("UInt32Array(")
+  logger.write_iter(self.0.iter())
+  logger.write_string(")")
+}
+
+///|
+pub impl Show for UInt64Array with fn output(self, logger) {
+  logger.write_string("UInt64Array(")
+  logger.write_iter(self.0.iter())
+  logger.write_string(")")
+}
+
+///|
+pub impl Show for FloatArray with fn output(self, logger) {
+  logger.write_string("FloatArray(")
+  logger.write_iter(self.0.iter())
+  logger.write_string(")")
+}
+
+///|
+pub impl Show for DoubleArray with fn output(self, logger) {
+  logger.write_string("DoubleArray(")
+  logger.write_iter(self.0.iter())
+  logger.write_string(")")
+}

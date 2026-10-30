@@ -177,7 +177,7 @@ pub fn llvm_global_constant_to_data(
       }
     ConstantPointerNull(_) => [Quad(0)]
     ConstantArray({ data: Left(const_arr), .. }) => {
-      let data : Array[GlobalValueData] = Array::new()
+      let data : Array[GlobalValueData] = Array()
       for item in const_arr {
         let item_data = llvm_global_constant_to_data(item)
         data.append(item_data)
@@ -187,7 +187,7 @@ pub fn llvm_global_constant_to_data(
     ConstantArray({ data: Right(Int8Array(arr)), .. }) => {
       let length = arr.length()
       let Int8Array(arr) = arr
-      let data : Array[GlobalValueData] = Array::new()
+      let data : Array[GlobalValueData] = Array()
       for i in 0..<length {
         data.push(Byte(arr[i].to_byte()))
       }
@@ -196,7 +196,7 @@ pub fn llvm_global_constant_to_data(
     ConstantArray({ data: Right(UInt8Array(arr)), .. }) => {
       let length = arr.length()
       let UInt8Array(arr) = arr
-      let data : Array[GlobalValueData] = Array::new()
+      let data : Array[GlobalValueData] = Array()
       for i in 0..<length {
         let UInt8(byte) = arr[i]
         data.push(Byte(byte))
@@ -206,7 +206,7 @@ pub fn llvm_global_constant_to_data(
     ConstantArray({ data: Right(Int16Array(arr)), .. }) => {
       let length = arr.length()
       let Int16Array(arr) = arr
-      let data : Array[GlobalValueData] = Array::new()
+      let data : Array[GlobalValueData] = Array()
       for i in 0..<length {
         data.push(Half(arr[i].reinterpret_as_uint16()))
       }
@@ -215,7 +215,7 @@ pub fn llvm_global_constant_to_data(
     ConstantArray({ data: Right(UInt16Array(arr)), .. }) => {
       let length = arr.length()
       let UInt16Array(arr) = arr
-      let data : Array[GlobalValueData] = Array::new()
+      let data : Array[GlobalValueData] = Array()
       for i in 0..<length {
         data.push(Half(arr[i]))
       }
@@ -224,7 +224,7 @@ pub fn llvm_global_constant_to_data(
     ConstantArray({ data: Right(Int32Array(arr)), .. }) => {
       let length = arr.length()
       let Int32Array(arr) = arr
-      let data : Array[GlobalValueData] = Array::new()
+      let data : Array[GlobalValueData] = Array()
       for i in 0..<length {
         data.push(Word(arr[i].reinterpret_as_uint()))
       }
@@ -233,7 +233,7 @@ pub fn llvm_global_constant_to_data(
     ConstantArray({ data: Right(UInt32Array(arr)), .. }) => {
       let length = arr.length()
       let UInt32Array(arr) = arr
-      let data : Array[GlobalValueData] = Array::new()
+      let data : Array[GlobalValueData] = Array()
       for i in 0..<length {
         data.push(Word(arr[i]))
       }
@@ -242,7 +242,7 @@ pub fn llvm_global_constant_to_data(
     ConstantArray({ data: Right(Int64Array(arr)), .. }) => {
       let length = arr.length()
       let Int64Array(arr) = arr
-      let data : Array[GlobalValueData] = Array::new()
+      let data : Array[GlobalValueData] = Array()
       for i in 0..<length {
         data.push(Quad(arr[i].reinterpret_as_uint64()))
       }
@@ -251,7 +251,7 @@ pub fn llvm_global_constant_to_data(
     ConstantArray({ data: Right(UInt64Array(arr)), .. }) => {
       let length = arr.length()
       let UInt64Array(arr) = arr
-      let data : Array[GlobalValueData] = Array::new()
+      let data : Array[GlobalValueData] = Array()
       for i in 0..<length {
         data.push(Quad(arr[i]))
       }
@@ -260,7 +260,7 @@ pub fn llvm_global_constant_to_data(
     ConstantArray({ data: Right(FloatArray(arr)), .. }) => {
       let length = arr.length()
       let FloatArray(arr) = arr
-      let data : Array[GlobalValueData] = Array::new()
+      let data : Array[GlobalValueData] = Array()
       for i in 0..<length {
         let bits = arr[i].reinterpret_as_uint()
         data.push(Word(bits))
@@ -270,7 +270,7 @@ pub fn llvm_global_constant_to_data(
     ConstantArray({ data: Right(DoubleArray(arr)), .. }) => {
       let length = arr.length()
       let DoubleArray(arr) = arr
-      let data : Array[GlobalValueData] = Array::new()
+      let data : Array[GlobalValueData] = Array()
       for i in 0..<length {
         let bits = arr[i].reinterpret_as_uint64()
         data.push(Quad(bits))
@@ -278,7 +278,7 @@ pub fn llvm_global_constant_to_data(
       data
     }
     ConstantStruct({ elements, .. }) => {
-      let data : Array[GlobalValueData] = Array::new()
+      let data : Array[GlobalValueData] = Array()
       for element in elements {
         let element_data = llvm_global_constant_to_data(element)
         data.append(element_data)
@@ -405,7 +405,7 @@ pub fn Function::traverse_llvm_basic_blocks(
     panic()
   }
   let sorted_bbs = sort_llvm_basick_block(llvm_func)
-  let llvm_machine_bbs : Array[(@IR.BasicBlock, BasicBlock)] = Array::new()
+  let llvm_machine_bbs : Array[(@IR.BasicBlock, BasicBlock)] = Array()
   for llvm_bb in sorted_bbs {
     let label = match llvm_bb.getName() {
       Some(n) => n
@@ -422,7 +422,7 @@ pub fn Function::traverse_llvm_basic_blocks(
 
 ///|
 fn sort_llvm_basick_block(llvm_func : @IR.Function) -> Array[@IR.BasicBlock] {
-  let basic_blocks : Array[@IR.BasicBlock] = Array::new()
+  let basic_blocks : Array[@IR.BasicBlock] = Array()
   let entry_bb = llvm_func.getEntryBlock().unwrap()
   fn dfs(bb : @IR.BasicBlock, visited : Set[@IR.BasicBlock]) -> Unit {
     if visited.contains(bb) {
@@ -435,7 +435,7 @@ fn sort_llvm_basick_block(llvm_func : @IR.Function) -> Array[@IR.BasicBlock] {
     basic_blocks.push(bb)
   }
 
-  dfs(entry_bb, Set::new())
+  dfs(entry_bb, Set([]))
   basic_blocks.rev()
 }
 
@@ -466,10 +466,11 @@ fn Function::visit_llvm_inst(
     }
     _ => {
       // Skip instructions whose results are never used (dead code)
-      if llvm_inst.user_empty() && !(llvm_inst.asValueEnum() is CallInst(_)) {
+      if @IR.Value::user_empty(llvm_inst) &&
+        !(@IR.Value::asValueEnum(llvm_inst) is CallInst(_)) {
         return
       }
-      let llvm_ty = llvm_inst.getType()
+      let llvm_ty = @IR.Value::getType(llvm_inst)
       match llvm_ty.asTypeEnum() {
         Int1Type(_)
         | Int8Type(_)
@@ -562,7 +563,7 @@ fn Function::bind_struct_value_to_mem_group(
   data_layout : @IR.DataLayout,
 ) -> Array[Int64] raise MIRError {
   let { elements: element_types, .. } = sty
-  let offsets : Array[Int64] = Array::new()
+  let offsets : Array[Int64] = Array()
   for i, ety in element_types {
     let this_offset = data_layout.getStructTypeOffset(sty, i)
     let this_offset = this_offset.to_int64() + offset
@@ -594,7 +595,7 @@ fn Function::bind_array_value_to_mem_group(
   let element_type = aty.getElementType()
   let element_size = data_layout.getTypeAllocSize(element_type).to_int64()
   let count = aty.getElementCount()
-  let offsets : Array[Int64] = Array::new()
+  let offsets : Array[Int64] = Array()
   for i in 0..<count {
     let this_offset = offset + i.to_int64() * element_size
     offsets.push(this_offset)
@@ -824,7 +825,7 @@ fn translate_multiple_load_store(
   dst_base : IRegister,
   dst_base_offset : Int64,
 ) -> Array[Instruction] raise MIRError {
-  let minsts : Array[Instruction] = Array::new()
+  let minsts : Array[Instruction] = Array()
 
   // The src_offsets array contains absolute offsets relative to src_base
   // We need to extract the relative field offsets and apply them to the destination
@@ -1124,7 +1125,8 @@ pub fn translate_llvm_icmp_inst(
   // If the ICmpInst is only used by a BranchInst,
   // we do not generate a separate instruction for it.
   let inst_users = llvm_inst.getUsers().unwrap()
-  if inst_users.length() == 1 && inst_users[0].asValueEnum() is BranchInst(_) {
+  if inst_users.length() == 1 &&
+    @IR.Value::asValueEnum(inst_users[0]) is BranchInst(_) {
     return []
   }
   let { predicate, lhs, rhs, .. } = llvm_inst
@@ -1209,7 +1211,7 @@ pub fn translate_llvm_icmp_inst(
     }
     opcode =>
       raise IRTranslateError(
-        "Unsupported operand types for integer comparison: \{opcode}",
+        "Unsupported operand types for integer comparison: (\{opcode.0}, \{opcode.1})",
       )
   }
 }
@@ -1393,7 +1395,7 @@ pub fn translate_llvm_conditional_branch(
   //
   let cmp_users = cond.getUsers().unwrap()
   let cmp_only_used_in_branch = cmp_users.length() == 1 &&
-    cmp_users[0].asValueEnum() is BranchInst(_)
+    @IR.Value::asValueEnum(cmp_users[0]) is BranchInst(_)
 
   // If the comparison instruction is not only used in this branch,
   // generate Bne directly.
@@ -1604,7 +1606,7 @@ pub fn translate_llvm_switch_inst(
   }
 
   // Generate instructions in the current basic block
-  let minsts : Array[Instruction] = Array::new()
+  let minsts : Array[Instruction] = Array()
 
   // Strategy: Generate a chain of basic blocks, each checking one case
   // The first case is checked in the current basic block
@@ -2123,81 +2125,85 @@ pub fn translate_llvm_gep_inst(
         src1=ptr_reg,
         src2=scaled_idx,
       )
-      minsts..push(inst1)..push(inst2)
+      minsts..push(inst1).push(inst2)
     }
     _ =>
       raise IRTranslateError(
         "GetElementPtrInst: unsupported first index operand in GEP translation",
       )
   }
-  loop (pointeeType.asTypeEnum(), indices_ops) {
-    (_, []) => break
-    (_, [Imm(0)]) => break
-    (ArrayType({ elementType, .. }), [Imm(0), .. rest_indices]) =>
-      continue (elementType.asTypeEnum(), rest_indices)
-    (ArrayType({ elementType, .. }), [Imm(i), .. rest_indices]) => {
-      let elem_size = data_layout.getTypeAllocSize(elementType).to_int64()
-      let offset = elem_size * i
-      let inst = builder.build_ibinary_imm(
-        Add,
-        64,
-        dst=ptr_reg,
-        src1=ptr_reg,
-        src2=offset,
-      )
-      minsts.push(inst)
-      continue (elementType.asTypeEnum(), rest_indices)
-    }
-    (ArrayType({ elementType, .. }), [IRegister(idx_r), .. rest_indices]) => {
-      let offset = data_layout.getTypeAllocSize(elementType).to_int64()
-      let scaled_idx = func.new_virtual_reg()
-      let inst1 = builder.build_ibinary_imm(
-        Mul,
-        64,
-        dst=scaled_idx,
-        src1=idx_r,
-        src2=offset,
-      )
-      let inst2 = builder.build_ibinary(
-        Add,
-        64,
-        dst=ptr_reg,
-        src1=ptr_reg,
-        src2=scaled_idx,
-      )
-      minsts.push(inst1)
-      minsts.push(inst2)
-      continue (elementType.asTypeEnum(), rest_indices)
-    }
-    (StructType({ elements, .. }), [Imm(0), .. rest_indices]) => {
-      guard elements.get(0) is Some(elem_type) else {
-        raise IRTranslateError("GetElementPtrInst: StructType has no elements")
-      }
-      continue (elem_type.asTypeEnum(), rest_indices)
-    }
-    (StructType({ elements, .. } as sty), [Imm(i), .. rest_indices]) => {
-      let i_int = i.to_int()
-      guard elements.get(i_int) is Some(elem_type) else {
-        raise IRTranslateError(
-          "GetElementPtrInst: StructType index out of bounds",
+  for loop_state = (pointeeType.asTypeEnum(), indices_ops) {
+    match loop_state {
+      (_, []) => break
+      (_, [Imm(0)]) => break
+      (ArrayType({ elementType, .. }), [Imm(0), .. rest_indices]) =>
+        continue (elementType.asTypeEnum(), rest_indices)
+      (ArrayType({ elementType, .. }), [Imm(i), .. rest_indices]) => {
+        let elem_size = data_layout.getTypeAllocSize(elementType).to_int64()
+        let offset = elem_size * i
+        let inst = builder.build_ibinary_imm(
+          Add,
+          64,
+          dst=ptr_reg,
+          src1=ptr_reg,
+          src2=offset,
         )
+        minsts.push(inst)
+        continue (elementType.asTypeEnum(), rest_indices)
       }
-      let offset = data_layout.getStructTypeOffset(sty, i_int)
-      let offset = offset.to_int64()
-      let inst = builder.build_ibinary_imm(
-        Add,
-        64,
-        dst=ptr_reg,
-        src1=ptr_reg,
-        src2=offset,
-      )
-      minsts.push(inst)
-      continue (elem_type.asTypeEnum(), rest_indices)
+      (ArrayType({ elementType, .. }), [IRegister(idx_r), .. rest_indices]) => {
+        let offset = data_layout.getTypeAllocSize(elementType).to_int64()
+        let scaled_idx = func.new_virtual_reg()
+        let inst1 = builder.build_ibinary_imm(
+          Mul,
+          64,
+          dst=scaled_idx,
+          src1=idx_r,
+          src2=offset,
+        )
+        let inst2 = builder.build_ibinary(
+          Add,
+          64,
+          dst=ptr_reg,
+          src1=ptr_reg,
+          src2=scaled_idx,
+        )
+        minsts.push(inst1)
+        minsts.push(inst2)
+        continue (elementType.asTypeEnum(), rest_indices)
+      }
+      (StructType({ elements, .. }), [Imm(0), .. rest_indices]) => {
+        guard elements.get(0) is Some(elem_type) else {
+          raise IRTranslateError(
+            "GetElementPtrInst: StructType has no elements",
+          )
+        }
+        continue (elem_type.asTypeEnum(), rest_indices)
+      }
+      (StructType({ elements, .. } as sty), [Imm(i), .. rest_indices]) => {
+        let i_int = i.to_int()
+        guard elements.get(i_int) is Some(elem_type) else {
+          raise IRTranslateError(
+            "GetElementPtrInst: StructType index out of bounds",
+          )
+        }
+        let offset = data_layout.getStructTypeOffset(sty, i_int)
+        let offset = offset.to_int64()
+        let inst = builder.build_ibinary_imm(
+          Add,
+          64,
+          dst=ptr_reg,
+          src1=ptr_reg,
+          src2=offset,
+        )
+        minsts.push(inst)
+        continue (elem_type.asTypeEnum(), rest_indices)
+      }
+      (t, indices) =>
+        raise IRTranslateError(
+          "GetElementPtrInst: unsupported type or indices in GEP translation: \{t}, \{display_array(indices)}",
+        )
     }
-    (t, indices) =>
-      raise IRTranslateError(
-        "GetElementPtrInst: unsupported type or indices in GEP translation: \{t}, \{indices}",
-      )
   }
   minsts
 }
@@ -2319,7 +2325,7 @@ pub fn translate_llvm_call_inst(
   let mut call_ireg_cnt = 0
   let mut call_freg_cnt = 0
   let mut variadic_stack_offset = 0L // Stack offset for variadic arguments
-  let minsts : Array[Instruction] = Array::new()
+  let minsts : Array[Instruction] = Array()
   for arg_idx, arg in args {
     guard func.get_operand_from_llvm_value(arg) is Some(arg_op) else {
       raise IRTranslateError(
@@ -2597,7 +2603,7 @@ pub fn translate_llvm_call_inst(
       }
       arg_op =>
         raise IRTranslateError(
-          "CallInst: Unsupported argument operand type: \{arg_op}",
+          "CallInst: Unsupported argument operand type: (\{arg_op.0}, \{arg_op.1})",
         )
     }
   }
@@ -2734,8 +2740,15 @@ pub fn BasicBlock::phi_elimination(self : Self) -> Unit raise MIRError {
       }
       phi =>
         raise IRTranslateError(
-          "PHINode: Unsupported operand types for phi elimination \{phi}",
+          "PHINode: Unsupported operand types for phi elimination (\{phi.0}, \{phi.1})",
         )
     }
   }
+}
+
+///|
+fn[T : Show] display_array(values : ArrayView[T]) -> String {
+  let logger = StringBuilder()
+  &Logger::write_iter(logger, values.iter())
+  logger.to_string()
 }

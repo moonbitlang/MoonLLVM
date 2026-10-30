@@ -21,13 +21,13 @@ pub fn BasicBlock::new(func : Function, label : String) -> BasicBlock {
   BasicBlock::{
     llvm_bb: None,
     label,
-    insts: Array::new(),
+    insts: Array(),
     parent: func,
-    preds: Array::new(),
-    succs: Array::new(),
-    phi_nodes: Array::new(),
-    live_in: Set::new(),
-    live_out: Set::new(),
+    preds: Array(),
+    succs: Array(),
+    phi_nodes: Array(),
+    live_in: Set([]),
+    live_out: Set([]),
   }
 }
 
@@ -122,7 +122,7 @@ pub fn BasicBlock::update_live_in(self : Self, live_in : Set[Operand]) -> Bool {
 
 ///|
 pub fn BasicBlock::compute_live_out_from_succs(self : Self) -> Set[Operand] {
-  let live_out : Set[Operand] = Set::new()
+  let live_out : Set[Operand] = Set([])
   for succ in self.succs {
     succ.live_in.each(v => live_out.add(v))
   }
@@ -135,7 +135,7 @@ pub impl Show for BasicBlock with fn output(self, logger) {
     let pred_labels = self.preds.map(b => b.label).join(", ")
     logger.write_string("; preds: \{pred_labels}\n")
   }
-  let inst_strs : Array[(String, String)] = Array::new()
+  let inst_strs : Array[(String, String)] = Array()
   let label_str = "\{self.label}:"
   let live_in_notes = if !self.live_in.is_empty() {
     let str = self.live_in.iter().map(op => "\{op}").join(", ")
